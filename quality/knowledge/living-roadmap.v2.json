@@ -1260,7 +1260,10 @@
         "historical operational or hardening labels on lower-level components do not satisfy this gate by themselves",
         "the gate covers tenant/RBAC/workforce, admin/onboarding, catalog/product/media/CSV/bulk/barcode, inventory/multi-location, order/payment/shipping/invoice/returns/refunds, promotions/SEO/customer account, B2B, Digital Office/communications, migration, controlled integrations, sandbox, scale/cost, privacy/security/backup/observability, shared storefront runtime and launch-classified Special Commerce",
         "no higher-layer Builder, Factory or template proof can compensate for a missing Core capability",
-        "At Core closure, reconcile each accepted M1–M9 PO decision with the current roadmap and server plan grants, actual owner-operable admin+provider journey, negative and positive end-to-end exact-head proof; no accepted business point is VERIFIED_DONE solely by decision documentation (audit #1284)."
+        "At Core closure, reconcile each accepted M1–M9 PO decision with the current roadmap and server plan grants, actual owner-operable admin+provider journey, negative and positive end-to-end exact-head proof; no accepted business point is VERIFIED_DONE solely by decision documentation (audit #1284).",
+        "Unified Capability Ecosystem / Stage A (Core-owned foundation): extend existing Capability Registry, Domain/Authority Graph, Codebase Atlas, route/navigation authority, PO Instruction Authority, Evidence Ledger and Control Plane rather than create a second graph, coordinator or gate; each launch-scope Core capability needs stable identity, canonical owner, dependencies and consumers, admin/menu placement where applicable, actor/tenant/plan entitlements, runtime contracts and mapped positive/negative proof.",
+        "Stage A is implemented within the current Core workstream and verified at Core closure; it defines Builder/Factory-facing capability contracts but does NOT demand premature Builder implementation or resume frozen template production.",
+        "Cross-pillar change propagation must identify impacted consumers/proof units and return shared defects to the owning canonical authority; all readiness claims remain exact-state evidence-based, and missing/unknown links fail closed for the affected development/release scope."
       ],
       "evidenceRefs": []
     },
@@ -1293,7 +1296,9 @@
         "Completion Truth rule: higher-layer Builder/template success cannot compensate for missing or partial Core evidence",
         "audit output must explicitly identify high-value missing capabilities, design weaknesses, unsafe assumptions or commercially meaningful gaps; recommendations are surfaced to the Product Owner rather than silently omitted",
         "any newly proposed capability discovered by the audit requires explicit PO acceptance before it becomes roadmap scope",
-        "Core may advance only when findings are fixed, deliberately accepted as bounded risk, or explicitly deferred by PO with documented rationale and evidence"
+        "Core may advance only when findings are fixed, deliberately accepted as bounded risk, or explicitly deferred by PO with documented rationale and evidence",
+        "Audit Stage A capability-edge coverage and consistency: ownership, dependencies, menu/route/permission alignment, positive and negative proof, missing consumer links, stale contracts, circular dependencies and invalidated evidence, with risk-based fault-path tests; do not certify downstream Builder/Factory readiness by proxy.",
+        "Ensure monitoring/Control Plane observability outages do not unnecessarily stop healthy merchant commerce, while checkout/payment/tenant/security guards remain fail-closed at their own runtime authority; monitoring cannot autonomously perform unsafe production mutations."
       ],
       "evidenceRefs": []
     },
@@ -1322,7 +1327,8 @@
         "canonical shell/navigation/workspaces, card/table/form/wizard/state patterns, responsive admin behavior and permission UX",
         "merchant, seller/store-worker and platform-admin workflows use coherent terminology and interaction conventions",
         "product, inventory, order, shipping, payment, invoice, B2B and Digital Office operational patterns share one design/interaction system",
-        "design tokens and state semantics become Builder-facing product authority; this is not a redesign of Core business logic"
+        "design tokens and state semantics become Builder-facing product authority; this is not a redesign of Core business logic",
+        "Converge Core-owned capability metadata, canonical menu/route registry, merchant owner-operable workflows and shared admin interaction/design-token semantics before Builder-facing presentation integration; UX cannot become an independent business or entitlement authority."
       ],
       "evidenceRefs": []
     },
@@ -1373,7 +1379,9 @@
         "derive the required layout, nested-container, asymmetric-grid, shape/mask, clipping, layering, overlap, gallery/card, pattern, commerce-binding, responsive and interaction capabilities",
         "record which capabilities are shared primitives versus template-specific presets/signatures",
         "the census is requirements discovery only; no Template #4 production and no resumption of frozen SPORT HUB implementation occurs in this stage",
-        "Builder Production Complete is forbidden while any capability required by the accepted 42-design corpus is missing or represented only by manual source-code escape hatches"
+        "Builder Production Complete is forbidden while any capability required by the accepted 42-design corpus is missing or represented only by manual source-code escape hatches",
+        "Map the complete 42-design launch corpus (42 is a launch target, not a permanent portfolio ceiling), each design's 14 canonical pages and Desktop/Tablet/Mobile references, to typed shared Builder capabilities, Core commerce bindings, editability contracts, responsive interaction needs and accountable owners; record dependencies/consumers for later change impact.",
+        "Visual First stays authoritative: approve the complete 14x3 visual/reference intent before template-specific implementation; representative-page implementation is permitted only after this approval, never as a shortcut around it."
       ],
       "evidenceRefs": []
     },
@@ -1398,7 +1406,8 @@
         "every launch template must be usable and visually complete from canonical store/catalog/brand/content data alone; manual section construction is not required for ordinary launch",
         "advanced VX Builder authoring remains an optional escalation path over the same page/runtime state, not a different webshop type; entering advanced authoring must not fork merchant data or business authority",
         "managed content may be revisited through guided/settings forms without exposing grid, section, breakpoint, spacing or low-level composition controls",
-        "the same 42 design families serve managed and advanced modes; do not create separate Basic/Pro or static/Builder template portfolios"
+        "the same 42 design families serve managed and advanced modes; do not create separate Basic/Pro or static/Builder template portfolios",
+        "Prove template content-slot editability through guided merchant settings as well as the optional advanced Builder; fixed-layout managed editing and advanced composition share the same Page Schema/runtime and cannot be forked into separate template authorities."
       ],
       "evidenceRefs": [],
       "dependsOn": [
@@ -1434,7 +1443,9 @@
         "undo/redo, draft/save/preview/publish/rollback, real commerce bindings, schema validation and round-trip fidelity",
         "Fit/Zoom remains a desktop Builder capability",
         "Builder canvas uses the actual storefront runtime; no second renderer",
-        "Visual Builder is the advanced authoring layer, not a prerequisite for launching a store that uses Managed Template Quick Start"
+        "Visual Builder is the advanced authoring layer, not a prerequisite for launching a store that uses Managed Template Quick Start",
+        "Unified Capability Ecosystem / Stage B (Builder integration): expose typed authoring/editability and configuration contracts linked to the existing Core capability graph and entitlements; use the existing shared Page Schema/registry/runtime and dependency/impact authorities, with no Builder-specific parallel graph or commerce controller.",
+        "Make supported edit -> save -> reopen -> preview -> publish -> rendered storefront behavior testable for every required editable capability, including responsive inheritance, rollback and denied/invalid edits; Builder production completion needs demonstrable editor usability, not only manifest declarations."
       ],
       "evidenceRefs": [],
       "dependsOn": [
@@ -1464,9 +1475,10 @@
         "Template -> Page Presets -> Section Presets -> Components hierarchy",
         "source-controlled factory presets; tenant-owned Saved Blocks remain separate",
         "no raw HTML/JS, second renderer, duplicate breakpoint DOM or business authority",
-        "performance, responsive, schema and accessibility guards remain blocking"
+        "performance, responsive, schema and accessibility guards remain blocking",
+        "Before Builder Production Complete provide the bounded essential Section/Block/Preset library required to author every accepted 42-design capability; later curate/enrich the reusable gallery from PO-accepted templates without redefining the Builder-completion prerequisite."
       ],
-      "notes": "Latest accepted sequencing: build the reusable block/preset library after the template portfolio is accepted, so accepted templates provide the source material and quality bar.",
+      "notes": "Dependency sequencing clarified 2026-10-15: the essential guarded preset/section authoring foundation is a prerequisite for Builder Production Complete; portfolio-derived optional gallery enrichment follows template acceptance. Do not create a circular dependency or start full portfolio production early.",
       "evidenceRefs": []
     },
     {
@@ -1490,7 +1502,9 @@
       "scope": [
         "Stage 5 maturity gate: the full manual Builder can express the capability set derived from the 42-template census without source-code escape hatches",
         "real storefront runtime, canonical Page Schema and real commerce bindings remain the only rendering/business path",
-        "manual editing must be complete before AI Builder is considered a launch-ready capability"
+        "manual editing must be complete before AI Builder is considered a launch-ready capability",
+        "Stage B closure requires source-code-escape-free realization of every mandatory capability from the 42-template census plus stable typed Core->Builder->template relationships and proof mapping; later Factory may not backfill an unfinished shared Builder capability.",
+        "Builder verification must be automatable through the existing quality/evidence system with editor UI behavior, real storefront runtime parity and scoped regression impact; no extra autonomous gate owner."
       ],
       "evidenceRefs": []
     },
@@ -1516,7 +1530,9 @@
         "prove round-trip edit/save/reopen/publish fidelity and real commerce binding integrity",
         "prove complex overlap, masks, asymmetric grids and responsive compositions without visual degradation where the accepted reference requires them",
         "Desktop/Tablet/Mobile storefront outputs are all part of acceptance",
-        "SPORT HUB remains frozen as benchmark input until this stage; the benchmark must not be quietly redesigned to fit Builder limitations"
+        "SPORT HUB remains frozen as benchmark input until this stage; the benchmark must not be quietly redesigned to fit Builder limitations",
+        "Verify actual user-driven edit/save/reopen/preview/publish/rollback end-to-end journeys, bounded and responsive complex layouts, negative entitlement/schema/tenant controls and visible merchant UX, not screenshot fidelity alone.",
+        "Shared capability evidence may be reused only when exact applicable semantic dependencies, contracts and proof context remain valid; unknown/stale evidence reruns or blocks under existing Incremental Replay and Completion Truth rules."
       ],
       "evidenceRefs": []
     },
@@ -1572,7 +1588,10 @@
         "Factory is a production accelerator/compiler above the completed Builder, never a substitute for missing Builder capability",
         "revalidate Template DNA, archetype registry, Genome/generator, constraint planning, media planning/compiler, anti-clone, lineage, Known Failure and proof/gate behavior against the completed Builder",
         "repeat adversarial/stress proof so historical Factory PASS states cannot stand in for current Stage 7 maturity",
-        "Factory revalidation must prove each produced template's Template Content Contract and managed/no-Builder launch behavior in addition to Builder editability"
+        "Factory revalidation must prove each produced template's Template Content Contract and managed/no-Builder launch behavior in addition to Builder editability",
+        "Unified Capability Ecosystem / Stage C (Factory integration): revalidate the existing Factory/Generator Readiness/Quality Gate against typed template->Builder->Core dependency links, shared ownership and change-impact propagation; a missing Builder capability routes to common capability development, never a template-local CSS/renderer workaround.",
+        "Extend the existing Factory and Completion Truth evidence producers with three separate mandatory proof dimensions: 14x3 visual-reference fidelity, complete functional/journey/integration behavior, and real Builder or managed-mode edit/save/reopen/publish/render parity, alongside unchanged security, accessibility, performance and entitlement guards.",
+        "Integrate failure intake, known-failure replay, exact-version evidence and a read-only aggregated Product Owner handoff view; do not create a second Control Plane, new independent release gate, auto-accept visual design, or treat a numeric image metric/CI PASS as human PO approval."
       ],
       "notes": "Earlier Template Factory implementation and Brabus-era hardening remain historical implementation work. Production continuation is intentionally frozen until Builder Adversarial Acceptance; Stage 7 revalidates and improves the existing factory against the completed Builder rather than replacing it."
     },
@@ -1601,7 +1620,10 @@
         "each design includes all 14 canonical pages",
         "Desktop/Tablet/Mobile storefront acceptance is mandatory for every design",
         "template capability differences are entitlement/configuration, not duplicated business engines",
-        "every launch template must pass Managed Template Quick Start acceptance: complete storefront from canonical merchant/catalog/brand/content data without opening Visual Builder"
+        "every launch template must pass Managed Template Quick Start acceptance: complete storefront from canonical merchant/catalog/brand/content data without opening Visual Builder",
+        "Visual First -> Product Owner approves all relevant 14x3 reference views -> verified Builder capability readiness -> Factory implementation -> visual, functional, managed/Builder editability and security/performance proof -> separate final PO visual acceptance; representative page/canary tests never replace the full 14x3 matrix.",
+        "Every launch design maps editable fields, section signatures, runtime bindings and corresponding evidence to shared typed Core and Builder capabilities; 42 is the initial market-entry portfolio goal, not a maximum number or 84 Alap/Pro forks.",
+        "Any shared Core/Builder contract change invalidates only semantically affected template proof where exact reuse can be demonstrated, otherwise reruns conservatively; unresolved or missing required proof blocks READY."
       ],
       "evidenceRefs": []
     },
