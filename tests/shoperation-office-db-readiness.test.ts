@@ -13,7 +13,8 @@ function fnDefinition(source:string,name:string){
  if(to<0)throw Error('MISSING_TEST_FUNCTION_END:'+name);
  return source.slice(from,to);
 }
-function functionFixture(){
+type OfficeFunctionFixture={schema:string;name:string;definition:string;authenticatedExecute?:boolean;anonExecute?:boolean};
+function functionFixture():OfficeFunctionFixture[]{
  return[
   {schema:'public',name:'can_read_office_thread_v1',definition:fnDefinition(v2,'public.can_read_office_thread_v1'),authenticatedExecute:false,anonExecute:false},
   {schema:'private',name:'office_effective_feature_enabled_v1',definition:fnDefinition(v2,'private.office_effective_feature_enabled_v1')},
