@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-90EB737A",
   "task": "Core #1186 F6-U03g: PostgreSQL17 exact positive and negative table lock/catalog row guard fixture (hosted disabled)",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "90eb737a",
   "changeBaseSha": "c280d2306c5a7668719fc32c51032d79e34e1608",
   "plannedFilePatterns": [
@@ -976,5 +976,18 @@
       }
     ]
   },
-  "notes": "F6-U03g synthetic same-size PG17 fixture only; canonical Development Guard DEV-90EB737A PASS at base c280d230, projected risk 4/5 and 45 relevant Known Failures. Does not execute existing full F6-U03f 4621-object historical guard on hosted Supabase; distinct positive lock/hash mechanism proof. Engineering specialist entries are modeled adversarial reviews, not human signatures."
+  "notes": "F6-U03g synthetic same-size PG17 fixture only; canonical Development Guard DEV-90EB737A PASS at base c280d230, projected risk 4/5 and 45 relevant Known Failures. Does not execute existing full F6-U03f 4621-object historical guard on hosted Supabase; distinct positive lock/hash mechanism proof. Engineering specialist entries are modeled adversarial reviews, not human signatures.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "e5940a22ce70c16ea5be8614e54575b074709ad2",
+    "closedAt": "2026-10-15T18:20:10.712Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1323",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
