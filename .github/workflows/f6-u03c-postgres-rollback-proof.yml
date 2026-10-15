@@ -1,0 +1,75 @@
+name: F6-U03c isolated PostgreSQL rollback proof
+
+on:
+  push:
+    branches:
+      - feature/core-1186-f6-u03c-postgres-rollback-proof
+    paths:
+      - .github/workflows/f6-u03c-postgres-rollback-proof.yml
+      - scripts/shoperation-f6-u03c-rollback-rehearsal.mjs
+      - tests/shoperation-f6-u03c-rollback-rehearsal.test.ts
+      - quality/development/active-plan.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-postgres-rollback:
+    name: Verify actual fixture-only PostgreSQL transactional DDL rollback
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f6-u03c-fixture-only
+          POSTGRES_DB: f6_u03c_fixture
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d f6_u03c_fixture"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+    env:
+      F6_U03C_EPHEMERAL_FIXTURE: 'yes'
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install PostgreSQL client for isolated fixture
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+          psql --version
+      - name: Real PostgreSQL rollback and positive commit fixture
+        shell: bash
+        run: |
+          mkdir -p artifacts/f6-u03c
+          node scripts/shoperation-f6-u03c-rollback-rehearsal.mjs --ci-ephemeral > artifacts/f6-u03c/real-postgres-rollback.json
+          node --input-type=module -e "
+          import {readFileSync} from 'node:fs';
+          const report=JSON.parse(readFileSync('artifacts/f6-u03c/real-postgres-rollback.json','utf8'));
+          if(report.scope!=='LOCAL_POSTGRES16_TRANSACTION_ONLY'
+          ||report.decision!=='PASS'||report.failedTransactionTrials!==7
+          ||report.successfulReplays!==1||report.supabaseTouched!==false
+          ||report.actualCustomerBaselineMigrationCount!==0
+          ||report.hostedFreshInstallProof!==false)throw Error('F6U03C_EVIDENCE_SCOPE_INVALID');
+          console.log('F6-U03c authentic local PostgreSQL rollback: 7 injected faults + 1 successful commit');
+          "
+      - name: Publish exact-head limited-scope rollback report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03c-postgres-rollback-\${{ github.sha }}
+          path: artifacts/f6-u03c/real-postgres-rollback.json
+          if-no-files-found: warn
+          retention-days: 30
