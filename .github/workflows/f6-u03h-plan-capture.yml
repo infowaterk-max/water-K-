@@ -1,0 +1,54 @@
+name: F6-U03h RLS role-OID parity canonical plan capture
+# Preparation only, never accesses hosted or local databases.
+on:
+  push:
+    branches:
+      - feature/core-1186-f6-u03h-policy-role-parity
+    paths:
+      - .github/workflows/f6-u03h-plan-capture.yml
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --no-audit --no-fund
+      - name: Generate canonical Development Guard for exact projected scope
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186 F6-U03h: prove historical 0046 RLS policy role-OID portability without modifying canonical guard" \
+            --files "scripts/shoperation-f6-u03h-policy-role-parity.mjs;tests/shoperation-f6-u03h-policy-role-parity.test.ts;.github/workflows/f6-u03g-catalog-drift-proof.yml;.github/workflows/f6-u03h-plan-capture.yml;docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md;quality/development/active-plan.json" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1335" \
+            --write-plan --check
+      - name: Print complete canonical guard and draft plan
+        if: always()
+        run: |
+          cat artifacts/shoperation-development-guard/development-guard.md
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const s=Buffer.from(readFileSync('quality/development/active-plan.json')).toString('base64');
+          console.log('F6U03H_PLAN_B64_BEGIN');
+          for(let i=0;i<s.length;i+=1000)console.log('F6U03H_PLAN_B64='+s.slice(i,i+1000));
+          console.log('F6U03H_PLAN_B64_END');
+          NODE
+      - name: Save canonical guard and draft plan
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03h-plan-${{ github.sha }}
+          path: |
+            quality/development/active-plan.json
+            artifacts/shoperation-development-guard/development-guard.json
+            artifacts/shoperation-development-guard/development-guard.md
+          retention-days: 7
