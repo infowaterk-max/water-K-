@@ -149,7 +149,7 @@ describe('Core #1186 U10A2 additive Office Fresh Install source lineage gate',()
   it('reports current real baseline BLOCKED, not deployed Office ready',()=>{
     const r=evaluateOfficeBaselineLineage();
     expect(r.contract).toBe('shoporation.office-customer-baseline-lineage.v1');
-    expect(r.baselineMigrationCount).toBe(58);
+    expect(r.baselineMigrationCount).toBe(59);
     expect(r.requiredSourceCount).toBe(11);
     expect(r.supersededSourceCount).toBe(2);
     expect(OFFICE_BASELINE_SUPERSEDED_SOURCES.map((x:{source:string})=>x.source)).toEqual([

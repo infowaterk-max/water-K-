@@ -30,7 +30,7 @@ describe('Core #1186 U10A2-F4: Team Chat 2 source integrity 0052-0054',()=>{
  });
  it('keeps immutable 0047-0051 and appends exactly 0052-0054 as customer baseline files 53-55',()=>{
   const filesInBaseline=readdirSync(root).filter(f=>/^\d{4}_.+\.sql$/.test(f)).sort();
-  expect(filesInBaseline).toHaveLength(58);
+  expect(filesInBaseline).toHaveLength(59);
   expect(filesInBaseline[47]).toBe('0047_team_permissions_foundation_v1.sql');
   expect(filesInBaseline[51]).toBe('0051_digital_office_rls_helper_exposure_closure_v1.sql');
   expect(filesInBaseline.slice(52,55)).toEqual(files.map(path=>path.slice(root.length)));
