@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-386A5ACE-U10A2-F2",
   "task": "Core #1186 U10A2 F2 prevent replay of superseded Team Chat/customer email plan-sync SQL in Office Fresh Install lineage",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "386a5ace",
   "changeBaseSha": "ea72ec341bd5125d34e0d6d0c0aeb539f181912e",
   "plannedFilePatterns": [
@@ -662,5 +662,18 @@
       }
     ]
   },
-  "notes": "New F2 bounded plan on verified main ea72ec3. Supersede two obsolete historical fixed-list sync sources, guard against replay and preserve 11 active Office source dependencies. No SQL, env or runtime edits. Draft #1291 independent hosted Fresh Install proof pending; no merge of F2 until exact-head gates."
+  "notes": "New F2 bounded plan on verified main ea72ec3. Supersede two obsolete historical fixed-list sync sources, guard against replay and preserve 11 active Office source dependencies. No SQL, env or runtime edits. Draft #1291 independent hosted Fresh Install proof pending; no merge of F2 until exact-head gates.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "082b3049a58c58f1010e506a5ec1f00c8ac29211",
+    "closedAt": "2026-10-15T03:03:26.250Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
