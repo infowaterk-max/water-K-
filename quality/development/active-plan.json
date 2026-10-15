@@ -207,6 +207,17 @@
         "evidence": [
           "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md"
         ]
+      },
+      {
+        "role": "Runtime/Operations",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "PostgreSQL event-trigger callbacks and NOTIFY delivery are transactional, but a provider PostgREST schema reload is a separate external service action.",
+        "resolution": "Exercise local callback audit and rollback/commit; record the six genuine Supabase function fingerprints without treating them as production execution proof.",
+        "evidence": [
+          ".github/workflows/f6-u03e-schema-restore-proof.yml",
+          "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md"
+        ]
       }
     ],
     "challenge": [
@@ -250,6 +261,20 @@
         "scenario": "Hosted PostgREST watcher source changes while the fixture still passes.",
         "finding": "Static simulation cannot prove provider functions.",
         "resolution": "Capture exact observed six event functions' digests; any future hosted transaction must revalidate and independently observe provider behavior.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-F6-U03E-7",
+        "scenario": "The schema owner is postgres but a real low-privilege client inherits an unexpected role grant.",
+        "finding": "Simple ACL string equality is insufficient; effective privilege checks must use explicit separate principal identities and deny CREATE for guest/authenticated.",
+        "resolution": "Create separate fixture roles for each allowed role and use has_schema_privilege plus negative missing-grant and privilege-escalation assertions.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-F6-U03E-8",
+        "scenario": "The transaction has a successful SQL DROP and schema recreation but a synchronous DDL event handler throws before COMMIT.",
+        "finding": "Provider-like DDL hooks can abort transactions, and a local fixture should verify event handler failures preserve previous ACLs and Auth-like dependency.",
+        "resolution": "Inject a fault from a disposable event-trigger callback in PostgreSQL17; demonstrate complete rollback of row, grant and external trigger.",
         "status": "resolved"
       }
     ],
@@ -920,5 +945,5 @@
       }
     ]
   },
-  "notes": "F6-U03e scoped ephemeral PostgreSQL17 fixture proof, stacked on F6-U03d CI-complete head f8be5f77; Development Guard PASS exact source scope c1?? captured as 7d3439b... and digest 9901c962 (same graph digest can recur, task identity distinguished by branch and base). Six provider event trigger fingerprints observed read-only in Supabase connector; no provider function executed or hosted data modified. Security/Data/Release reviews are engineering modeled findings, not third-party signed approvals."
+  "notes": "F6-U03e scoped ephemeral PostgreSQL17 fixture proof, stacked on F6-U03d CI-complete head f8be5f77; Development Guard PASS exact source scope c1?? captured as 7d3439b... and digest 9901c962 (same graph digest can recur, task identity distinguished by branch and base). Six provider event trigger fingerprints observed read-only in Supabase connector; no provider function executed or hosted data modified. Security/Data/Release reviews are engineering modeled findings, not third-party signed approvals. Plan Before Code at run 38742364743 demanded at least eight adversarial challenges and four specialist role reviews for projected risk 4/5; supplied exact depth without reducing protection."
 }
