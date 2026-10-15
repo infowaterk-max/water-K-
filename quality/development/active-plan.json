@@ -1,20 +1,20 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-BA50E105",
-  "task": "Core #1186 F6-U03f: guarded transaction-local Fresh Install identity/data/dependency preflight, SQL execution disabled",
-  "status": "closed",
-  "guardDigest": "ba50e105",
-  "changeBaseSha": "8567529a0d6f42da032e903b35389ae44326ce1a",
+  "taskId": "DEV-9901C962",
+  "task": "Core #1186 F6-U03g: replay historical 0046 schema and test positive application guard in an ephemeral PostgreSQL17 service, without hosted writes",
+  "status": "ready-for-implementation",
+  "guardDigest": "9901c962",
+  "changeBaseSha": "697730fe67f32e7e74acd02eae330cd519b6c152",
   "plannedFilePatterns": [
-    "scripts/shoperation-f6-u03f-target-transaction-guard.mjs",
-    "tests/shoperation-f6-u03f-target-transaction-guard.test.ts",
+    "scripts/shoperation-f6-u03g-historical-replay.mjs",
+    "tests/shoperation-f6-u03g-historical-replay.test.ts",
     "scripts/shoperation-fresh-disposable-reprovision.mjs",
-    "docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md",
-    ".github/workflows/f6-u03f-transaction-guard-proof.yml",
+    "docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md",
+    ".github/workflows/f6-u03g-historical-replay-proof.yml",
     ".github/workflows/f6-u03-canonical-plan-capture.yml"
   ],
   "expectedSubsystems": [
-    "dependency-contract",
+    "database-schema",
     "quality-infrastructure",
     "release-infrastructure"
   ],
@@ -27,17 +27,19 @@
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-013",
+    "SQ-KF-014",
+    "SQ-KF-022",
+    "SQ-KF-025",
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-006",
     "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-013",
-    "SQ-KF-014",
+    "SQ-KF-010",
     "SQ-KF-018",
     "SQ-KF-020",
-    "SQ-KF-022",
-    "SQ-KF-025",
+    "SQ-KF-023",
     "TF-KF-001",
     "TF-KF-005",
     "TF-KF-007",
@@ -55,6 +57,7 @@
     "SQ-NK-005",
     "SQ-NK-010",
     "SQ-NK-012",
+    "SQ-NK-014",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -72,7 +75,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical risk: compile future in-transaction database identity/row/catalog/role checks as a guarded review artifact, not a live reset. Preserve immutable one-project external TLS binding, fail-closed proof semantics, known App/managed boundaries, and exact-head CI.",
+      "rationale": "Critical application schema proof using immutable original SQL in a fresh PostgreSQL17 service. Never touch hosted Supabase; require exact historical object and neutral table hashes and true transaction-local block under synthetic Auth compatibility. No negative or partial result may become a hosted READY claim.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -89,25 +92,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Canonical source review emits a BEGIN/SET LOCAL/guard/abort-before-DROP/59-file candidate with no hosted SQL execution path.",
-        "Transaction guard locks every nonpartition app relation NOWAIT before mutable row inventory and refuses unknown user/business rows, catalogs, SQL object drift and managed dependencies.",
-        "One local PostgreSQL service job exercises the transaction-guard primitive for success, unexpected row, neutral hash mismatch, NOWAIT lock and role/target mismatch without accessing Supabase.",
-        "Exact grant/event/known Auth trigger snapshots are checked without weakening previously discovered ACL safety requirements.",
-        "Exact-head canonical Quality Tests, TypeScript, build, Completion Truth and Lifecycle must PASS; hosted Fresh Install remains BLOCKED."
+        "Postgres17 CI executes unchanged 0001-0046 historical customer migrations on a disposable local database with synthetic Auth/role prerequisites and reports actual stage failures, not skipped tests.",
+        "Positive app preflight passes only if count 175 public and 2 private, all non-neutral rows zero, 113 neutral catalog rows/hashes and exact 4621-object MD5 match the previously read-only verified hosted target.",
+        "Forced rogue table, neutral tamper and transaction role/environment mismatch demonstrate fail-closed behavior without loss of prior seeded fixtures.",
+        "Canonical compiled F6-U03f guardian and immutable 59 migration source remain fail-before-DROP and cannot receive this fixture credential.",
+        "Plan/quality/build/Completion Truth/Lifecycle and isolated PG17 service are verified on exact head, and limitations are stated in release evidence."
       ],
       "invariants": [
-        "Guard statement must appear inside BEGIN and before all DROP statements and before permanent abort-before-DROP barrier.",
-        "Unsafe or missing target bindings never grant authority to invoke hosted destructive SQL.",
-        "All seven neutral catalog table hashes are compared to immutable pinned historical fingerprints; any extra row on any other app table aborts.",
-        "Known Auth dependency and six event trigger function identities, public/private ACLs and Storage boundaries remain required checks.",
-        "These changes do not become a parallel Control Plane or independent release READY authority."
+        "No customer baseline file is rewritten, reordered or conditionally skipped to make the local replay pass.",
+        "The actual historical expected 4621-object MD5 and all seven neutral catalog MD5s cannot be caller-overridden.",
+        "All postgres DDL is restricted to a new local disposable DB bound to the actual Docker service IP, no inherited PG* variables or hosted DB URL.",
+        "An aborted fixture transaction must preserve the existing table/row catalog before a new test attempt.",
+        "The output distinguishes HISTORICAL_0046_LOCAL from the future 0058/59-file hosted current baseline."
       ],
       "forbiddenStates": [
-        "An executable hosted schema-reset mode is added to code or workflow.",
-        "Database identity inferred only from current_database='postgres' is treated as proof of specific Supabase project.",
-        "Lock timeout or unexpected table/dependency rows are silently tolerated.",
-        "An invariant-mismatched snapshot produces claim of accepted migration readiness.",
-        "A passing fixture is labeled as Fresh Install 59 migrations or signed-in Alap/Pro permission proof."
+        "A fixture missing Supabase Auth/Storage implementation is claimed to be genuine provider deployment proof.",
+        "An aggregate count match hides mismatched application object definitions or changed neutral row content.",
+        "A failed migration is omitted from the local replay to force PASS.",
+        "A completed 0046 migration test is reported as 59-file Office or signed-in Alap/Pro RLS readiness.",
+        "Any live Fresh Install, platform or staging database data/schema is changed."
       ]
     },
     "model": {
@@ -139,44 +142,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "NOWAIT table locks are skipped, a customer row appears after count checks and is deleted.",
-        "App row checks verify only known neutral tables, leaving a hidden user row unexamined.",
-        "Neutral catalog count matches but changed cell values are ignored.",
-        "External Auth trigger is dropped by CASCADE and missing after source assembly.",
-        "Schema ACLs are not restored despite migration success.",
-        "The platform project has the same current_database, role and version as Fresh Install and could be mistakenly targeted.",
-        "Managed Storage file transfer appears between preflight and COMMIT.",
-        "An unconditional review-only abort is moved after DROP by a refactor."
+        "Postgres migration expects Supabase-managed auth.uid, auth.jwt, users or pgcrypto and local scaffolding fails at catalog creation.",
+        "SQL source could be selected from a different branch or historical count while tests report 0046 source exactness.",
+        "Function definition formatting differs across PG17 patch version, causing checksum drift that must be surfaced.",
+        "A rogue application table slips through count check or a neutral tamper retains the same row count.",
+        "An inherited libpq environment overrides the intended local DB connection.",
+        "Partial replay is incorrectly committed due psql without ON_ERROR_STOP or missing BEGIN/ROLLBACK.",
+        "Historical local proof is promoted to HOSTED_READY despite six provider event trigger gaps.",
+        "Cross-schema auth dependency no longer exists after replay and is not detected."
       ],
       "edgeCases": [
-        "Unknown app relation under public/private, partitioned tables and sequences.",
-        "One new row in a previously empty customer or Office table.",
-        "Single neutral entitlement row changed but count unchanged.",
-        "Known Auth trigger changed function identity or a new managed dependent view.",
-        "One extra bucket, changed limit, changed provider event trigger function digest.",
-        "NOWAIT lock conflict from a concurrent session and forced statement timeout.",
-        "Restored grants to anon/authenticated missing, or anon receives CREATE.",
-        "Disconnected client near COMMIT must be classified UNKNOWN until independent postflight."
+        "Two historical 0026 migration filenames coexist in the ordered baseline.",
+        "PostgreSQL17 minor version may differ from hosted 17.6 and change normalized function definitions.",
+        "Empty user data but intentional 113 neutral subscription/entitlement rows are allowed.",
+        "App schema contains exactly 175 public and two private tables, including potentially 0-row Office metadata tables.",
+        "Local synthetic auth schema is excluded from app definition digest, but app-owned references to it must be valid.",
+        "System pgcrypto extension must live under synthetic extensions namespace, not app namespace.",
+        "Pre-existing libpq selector PGHOSTADDR and dynamic target DB name must fail before DDL.",
+        "Live Fresh Install still contains older app schema but has no permission to be reset based on this fixture."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F6-U03F-SOURCE",
-        "summary": "Add transaction-local SQL safety gate only to non-executable reviewed 59-file candidate.",
+        "id": "ALT-F6-U03G-HISTORICAL-REPLAY",
+        "summary": "Reconstruct historical 0046 baseline in isolated PostgreSQL17 and run exact app schema/row fingerprint checks.",
         "disposition": "selected",
-        "reason": "Ensures realistic future DDL guard ordering with zero hosted migration risk."
+        "reason": "Real positive-app proof grounded in immutable source, no live risk."
       },
       {
-        "id": "ALT-F6-U03F-LIVE",
-        "summary": "Execute new guard then DROP public/private on current Fresh Install database.",
+        "id": "ALT-F6-U03G-TINY-MOCK",
+        "summary": "Use only two synthetic tables and call full transaction guard success.",
         "disposition": "rejected",
-        "reason": "One read-only snapshot is not a transactional live authorization, and full provider quiescence / exact TLS binding remains unproven."
+        "reason": "Does not verify true 177-table/4621-object historical application schema or neutral catalogs."
       },
       {
-        "id": "ALT-F6-U03F-STATIC",
-        "summary": "Keep using prior standalone snapshot alone and declare reset ready.",
+        "id": "ALT-F6-U03G-HOSTED-DROP",
+        "summary": "Reset or lock the existing hosted 0046 schema and replay 59 migrations now.",
         "disposition": "rejected",
-        "reason": "Does not lock or revalidate mutable state inside one transaction."
+        "reason": "Project/TLS identity, provider quiescence and actor RLS gates still BLOCK."
       }
     ],
     "specialistReviews": [
@@ -184,108 +187,108 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "postgres/17/database=postgres is shared across Supabase projects.",
-        "resolution": "Explicitly mark project identity as outside-DB TLS verification unproved; never use SQL checks alone to authorize target DDL.",
+        "finding": "Real migrations can be destructive if local connection binding is spoofed.",
+        "resolution": "Hard Docker service identity/loopback-only PostgreSQL fixture; no cloud credentials and all PG selectors forbidden.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md"
+          "scripts/shoperation-f6-u03g-historical-replay.mjs"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Historical snapshot is stale without locks and immutable hash comparison.",
-        "resolution": "Add NOWAIT locks, full app-row inventory and neutral JSONB hashes in transaction; fail closed.",
+        "finding": "Schema fingerprints and neutral rows must be exact, not just relation counts.",
+        "resolution": "Check immutable 4621 MD5 and seven hashed catalogs, plus expected Auth trigger and no customer rows.",
         "evidence": [
-          "scripts/shoperation-f6-u03f-target-transaction-guard.mjs"
+          "tests/shoperation-f6-u03g-historical-replay.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "F6-U03b candidate must remain intentionally aborting before any schema DROP.",
-        "resolution": "Enforce source ordering and execution-disabled contract in unit tests and canonical CI.",
+        "finding": "Source-only 0046 reproduction cannot prove current 59 files, provider callbacks or RLS.",
+        "resolution": "Separate source-era proof dimensions and preserve hard hosted abort in baseline compiler.",
         "evidence": [
-          "tests/shoperation-f6-u03f-target-transaction-guard.test.ts"
+          "docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Passing source-only SQL generation may be mistakenly promoted to hosted Fresh Install READY.",
-        "resolution": "Only claim review compiler improvement; preserve existing Completion Truth scope and separate future hosted proof.",
+        "finding": "Another check must not create a parallel control plane or override known-source authority.",
+        "resolution": "Keep evidence subordinate to original Completion Truth and customer-baseline manifest, no new readiness authority.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md"
+          "quality/development/active-plan.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-F6-U03F-1",
-        "scenario": "Correct database/role but wrong Supabase project.",
-        "finding": "SQL-only identity is not unique across projects.",
-        "resolution": "Treat exact project ref + TLS peer checks as an external mandatory future dependency; review artifact is never executable hosted.",
+        "id": "CH-F6-U03G-1",
+        "scenario": "Historical replay does not contain Supabase auth.users",
+        "finding": "Foreign keys and policies would fail, tempting unsafe edits to reviewed SQL.",
+        "resolution": "Provide separate, documented local Auth compatibility tables/functions, never edit migration files.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-2",
-        "scenario": "Customer/Office rows appear between snapshot and DROP.",
-        "finding": "Historical zero counts do not protect subsequent user writes.",
-        "resolution": "Acquire bounded NOWAIT ACCESS EXCLUSIVE application locks then inventory every application row in the same transaction.",
+        "id": "CH-F6-U03G-2",
+        "scenario": "Local PostgreSQL lacks expected pgcrypto digest in extensions",
+        "finding": "Function checks/identity depend on extension namespace.",
+        "resolution": "Install available pgcrypto only under isolated extensions schema; if missing, fail.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-3",
-        "scenario": "Neutral table count matches but user changes entitlement data.",
-        "finding": "Counts are insufficient for catalog integrity.",
-        "resolution": "Require seven exact deterministic JSONB MD5 row-content fingerprints.",
+        "id": "CH-F6-U03G-3",
+        "scenario": "Basename ordering silently skips duplicate 0026",
+        "finding": "Ordered baseline has 59 current files and non-unique numeric prefixes.",
+        "resolution": "Sort full basenames, require exact reviewed list, select prefix <=0046 without deduplicating.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-4",
-        "scenario": "Application function or RLS policy changed while table counts remain 177.",
-        "finding": "Row tables do not measure schema semantic identity.",
-        "resolution": "Require exact historical object-definition catalog hash before future DDL.",
+        "id": "CH-F6-U03G-4",
+        "scenario": "Historical schema looks close but object hash differs",
+        "finding": "Counts alone do not prove exact identity.",
+        "resolution": "Require same 4621-object hash or fail closed, documenting PG17 minor differences instead of rewriting expected hash.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-5",
-        "scenario": "Extra managed trigger depends on private schema.",
-        "finding": "Dropping private CASCADE can destroy new provider hooks.",
-        "resolution": "Recheck normalized pg_depend and require one exact known Auth dependency, unknown classes fail.",
+        "id": "CH-F6-U03G-5",
+        "scenario": "Untrusted env directs psql to hosted Fresh Install",
+        "finding": "A local replay would become destructive.",
+        "resolution": "Use explicit loopback and fixed disposable database, Docker service IP check, no PG env redirects, no Supabase secrets.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-6",
-        "scenario": "A correctly replayed 59-file application schema is exposed to authenticated/anon traffic after DROP/CREATE without restoring their old namespace USAGE grants.",
-        "finding": "Although the new tables, policies and functions may exist, PostgreSQL CREATE SCHEMA resets the old named-role USAGE and CREATE privileges, causing unavailable Data API paths and potentially incorrect access.",
-        "resolution": "Before hosted authorization, require an exact regrant of the five documented public and three private role ACLs in the same transaction, with negative checks that anon/authenticated cannot CREATE and independent postflight Data API proof.",
+        "id": "CH-F6-U03G-6",
+        "scenario": "A migration fails and later SQL nevertheless commits",
+        "finding": "psql may continue without ON_ERROR_STOP.",
+        "resolution": "Run one BEGIN/migrations/COMMIT stream with -X ON_ERROR_STOP=1, require real success and postflight.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-7",
-        "scenario": "Managed Storage data changes while app tables are locked.",
-        "finding": "Application locks do not freeze managed schemas and traffic.",
-        "resolution": "No hosted reset in this unit; future authorization requires quiescence and managed-state recheck with provider-level coordination.",
+        "id": "CH-F6-U03G-7",
+        "scenario": "Neutral catalog changed but row count unchanged",
+        "finding": "A 113-row-only check would miss content alteration.",
+        "resolution": "Recalculate seven full JSONB sorted row MD5s and reject any mismatch.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-8",
-        "scenario": "The code is invoked as SQL and executes DROP on expected schema without PO signoff.",
-        "finding": "A syntactically executable guarded transaction is still destructive.",
-        "resolution": "Retain permanent intentional RAISE EXCEPTION before DROP; no hosted-runner path and no secret in CI.",
+        "id": "CH-F6-U03G-8",
+        "scenario": "Full hosted Fresh Install is claimed from fixture-only evidence",
+        "finding": "Provider event triggers and 0047-0058 remain unproven.",
+        "resolution": "Emit historical-0046 LOCAL scope and explicit false readiness flags in artifact and PR.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Canonical Development Guard Plan Before Code validates exact projected files, owners, negative knowledge and critical-risk depth.",
-      "Source-level guarded SQL tests check transaction lock order, fail-stop drift predicates and hard abort-before-DROP.",
-      "Real ephemeral PG fixture verifies lock conflict and abnormal app data abort on same transaction, without hosted secrets.",
-      "Separate read-only Fresh Install endpoint confirms pinned 175/2 app tables and seven neutral row-content digests but is not deletion authority.",
-      "Canonical exact-head Quality Tests, TypeScript, Production Build, Completion Truth and Lifecycle closure.",
-      "No hosted provider SQL mutation, 59-file migration execution or Office Alap/Pro RLS proof."
+      "Development Guard PASS, new explicit plan and Plan Before Code before implementation.",
+      "Unit test GitHub source immutable manifest and exact 0046 sort, local-only args/env/role guards.",
+      "Actually execute original reviewed migrations 0001..0046 on disposable PostgreSQL17 with independent synthetic Auth/Storage role scaffolding.",
+      "Run app catalog 4621-object MD5, 175+2 tables, seven neutral table MD5s and empty-business-row assertions; report any source/PG17 mismatch as BLOCK.",
+      "Run extra relation/neutral data tamper/foreign role negative tests while preserving baseline rollback.",
+      "Full exact-head quality/typecheck/build/Completion Truth/Lifecycle plus real PG17 job, recorded scope HISTORICAL_0046_LOCAL_ONLY."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/pull/1323",
@@ -294,17 +297,56 @@
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03-canonical-plan-capture.yml"
+        ".github/workflows/f6-u03-canonical-plan-capture.yml",
+        "scripts/shoperation-fresh-disposable-reprovision.mjs"
       ],
       "mayEdit": [],
-      "impactedReadOnly": [],
-      "mustCreate": [
+      "impactedReadOnly": [
         ".github/workflows/f6-u03f-transaction-guard-proof.yml",
-        "docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md"
+        "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md",
+        "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md",
+        "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
+        "docs/support/CONTROL_PLANE_DIAGNOSTICS_HARDENING_2026-09-28.md",
+        "quality/knowledge/guard-registry.v1.json",
+        "scripts/lib/shoperation-operational-intelligence.mjs",
+        "scripts/lib/shoperation-release-unit-runtime.mjs",
+        "scripts/release-unit-ci-context.mjs",
+        "scripts/release-unit-execute.mjs",
+        "scripts/release-unit-github-runtime.mjs",
+        "scripts/release-unit-materialize.mjs",
+        "scripts/release-unit-orchestrate.mjs",
+        "scripts/release-unit-parent-close.mjs",
+        "scripts/shoperation-close-development-plan.mjs",
+        "scripts/shoperation-development-guard.mjs",
+        "scripts/shoperation-edit-time-guard.mjs",
+        "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs",
+        "scripts/shoperation-f6-u03d-managed-preflight.mjs",
+        "scripts/shoperation-f6-u03e-schema-restore.mjs",
+        "scripts/shoperation-f6-u03f-target-transaction-guard.mjs",
+        "scripts/shoperation-plan-before-code.mjs",
+        "scripts/shoperation-truth-gate.mjs",
+        "tests/control-plane-release-decomposition.test.ts",
+        "tests/control-plane-release-unit-execution-binding.test.ts",
+        "tests/control-plane-release-unit-orchestration.test.ts",
+        "tests/control-plane-release-unit-production-surface.test.ts",
+        "tests/release-unit-materialization.test.ts",
+        "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts",
+        "tests/shoperation-f6-u03d-managed-preflight.test.ts",
+        "tests/shoperation-f6-u03e-schema-restore.test.ts",
+        "tests/shoperation-f6-u03f-target-transaction-guard.test.ts",
+        "tests/shoperation-fresh-disposable-reprovision.test.ts",
+        "tests/shoperation-operational-intelligence.test.ts",
+        "tests/shoperation-proof-semantics.test.ts"
+      ],
+      "mustCreate": [
+        ".github/workflows/f6-u03g-historical-replay-proof.yml",
+        "docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md",
+        "scripts/shoperation-f6-u03g-historical-replay.mjs",
+        "tests/shoperation-f6-u03g-historical-replay.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-f6-u03f-target-transaction-guard.test.ts",
+        "tests/shoperation-f6-u03g-historical-replay.test.ts",
         "GUARD-QUALITY-TESTS",
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-TYPECHECK"
@@ -318,18 +360,68 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          ".github/workflows/f6-u03-canonical-plan-capture.yml"
+          ".github/workflows/f6-u03-canonical-plan-capture.yml",
+          "scripts/shoperation-fresh-disposable-reprovision.mjs"
         ],
         "mayEdit": [],
-        "impactedReadOnly": [],
-        "mustCreate": [
-          ".github/workflows/f6-u03e-schema-restore-proof.yml",
-          "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+        "impactedReadOnly": [
+          ".github/workflows/f6-u03f-transaction-guard-proof.yml",
+          "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md",
+          "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md",
+          "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
+          "docs/support/CONTROL_PLANE_DIAGNOSTICS_HARDENING_2026-09-28.md",
+          "quality/knowledge/guard-registry.v1.json",
+          "scripts/lib/shoperation-operational-intelligence.mjs",
+          "scripts/lib/shoperation-release-unit-runtime.mjs",
+          "scripts/release-unit-ci-context.mjs",
+          "scripts/release-unit-execute.mjs",
+          "scripts/release-unit-github-runtime.mjs",
+          "scripts/release-unit-materialize.mjs",
+          "scripts/release-unit-orchestrate.mjs",
+          "scripts/release-unit-parent-close.mjs",
+          "scripts/shoperation-close-development-plan.mjs",
+          "scripts/shoperation-development-guard.mjs",
+          "scripts/shoperation-edit-time-guard.mjs",
+          "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs",
+          "scripts/shoperation-f6-u03d-managed-preflight.mjs",
           "scripts/shoperation-f6-u03e-schema-restore.mjs",
-          "tests/shoperation-f6-u03e-schema-restore.test.ts"
+          "scripts/shoperation-f6-u03f-target-transaction-guard.mjs",
+          "scripts/shoperation-plan-before-code.mjs",
+          "scripts/shoperation-truth-gate.mjs",
+          "tests/control-plane-release-decomposition.test.ts",
+          "tests/control-plane-release-unit-execution-binding.test.ts",
+          "tests/control-plane-release-unit-orchestration.test.ts",
+          "tests/control-plane-release-unit-production-surface.test.ts",
+          "tests/release-unit-materialization.test.ts",
+          "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts",
+          "tests/shoperation-f6-u03d-managed-preflight.test.ts",
+          "tests/shoperation-f6-u03e-schema-restore.test.ts",
+          "tests/shoperation-f6-u03f-target-transaction-guard.test.ts",
+          "tests/shoperation-fresh-disposable-reprovision.test.ts",
+          "tests/shoperation-operational-intelligence.test.ts",
+          "tests/shoperation-proof-semantics.test.ts"
+        ],
+        "mustCreate": [
+          ".github/workflows/f6-u03g-historical-replay-proof.yml",
+          "docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md",
+          "scripts/shoperation-f6-u03g-historical-replay.mjs",
+          "tests/shoperation-f6-u03g-historical-replay.test.ts"
         ],
         "forbidden": [],
-        "proof": [],
+        "proof": [
+          "tests/control-plane-release-decomposition.test.ts",
+          "tests/control-plane-release-unit-execution-binding.test.ts",
+          "tests/control-plane-release-unit-orchestration.test.ts",
+          "tests/control-plane-release-unit-production-surface.test.ts",
+          "tests/release-unit-materialization.test.ts",
+          "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts",
+          "tests/shoperation-f6-u03d-managed-preflight.test.ts",
+          "tests/shoperation-f6-u03e-schema-restore.test.ts",
+          "tests/shoperation-f6-u03f-target-transaction-guard.test.ts",
+          "tests/shoperation-fresh-disposable-reprovision.test.ts",
+          "tests/shoperation-operational-intelligence.test.ts",
+          "tests/shoperation-proof-semantics.test.ts"
+        ],
         "authority": [
           "auth-access-authority",
           "database-schema",
@@ -365,25 +457,31 @@
             "points": 2
           },
           {
-            "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
+            "file": ".github/workflows/f6-u03g-historical-replay-proof.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+            "file": "docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
+            "file": "scripts/shoperation-f6-u03g-historical-replay.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
+            "file": "scripts/shoperation-fresh-disposable-reprovision.mjs",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          },
+          {
+            "file": "tests/shoperation-f6-u03g-historical-replay.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -422,25 +520,31 @@
               "points": 2
             },
             {
-              "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
+              "file": ".github/workflows/f6-u03g-historical-replay-proof.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+              "file": "docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
+              "file": "scripts/shoperation-f6-u03g-historical-replay.mjs",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
+              "file": "scripts/shoperation-fresh-disposable-reprovision.mjs",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "tests/shoperation-f6-u03g-historical-replay.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -485,7 +589,7 @@
           {
             "id": 1,
             "files": [
-              ".github/workflows/f6-u03e-schema-restore-proof.yml"
+              ".github/workflows/f6-u03g-historical-replay-proof.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -502,7 +606,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
+                  "file": ".github/workflows/f6-u03g-historical-replay-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -515,7 +619,7 @@
           {
             "id": 2,
             "files": [
-              "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md"
+              "docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -526,7 +630,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -539,7 +643,7 @@
           {
             "id": 3,
             "files": [
-              "scripts/shoperation-f6-u03e-schema-restore.mjs"
+              "scripts/shoperation-f6-u03g-historical-replay.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -556,7 +660,7 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
+                  "file": "scripts/shoperation-f6-u03g-historical-replay.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -569,7 +673,37 @@
           {
             "id": 4,
             "files": [
-              "tests/shoperation-f6-u03e-schema-restore.test.ts"
+              "scripts/shoperation-fresh-disposable-reprovision.mjs"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 2,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "files": [
+                {
+                  "file": "scripts/shoperation-fresh-disposable-reprovision.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 5,
+            "files": [
+              "tests/shoperation-f6-u03g-historical-replay.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -580,7 +714,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
+                  "file": "tests/shoperation-f6-u03g-historical-replay.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -597,24 +731,25 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1321",
-              "developmentBaseSha": "7d3439be97f9aae64d03658dac2e8b4e954d65ff"
+              "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1323",
+              "developmentBaseSha": "697730fe67f32e7e74acd02eae330cd519b6c152"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "7d3439be97f9aae64d03658dac2e8b4e954d65ff",
+            "targetBaseSha": "697730fe67f32e7e74acd02eae330cd519b6c152",
             "lease": {
-              "expectedBaseSha": "7d3439be97f9aae64d03658dac2e8b4e954d65ff",
+              "expectedBaseSha": "697730fe67f32e7e74acd02eae330cd519b6c152",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               ".github/workflows/f6-u03-canonical-plan-capture.yml",
-              ".github/workflows/f6-u03e-schema-restore-proof.yml",
-              "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
-              "scripts/shoperation-f6-u03e-schema-restore.mjs",
-              "tests/shoperation-f6-u03e-schema-restore.test.ts"
+              ".github/workflows/f6-u03g-historical-replay-proof.yml",
+              "docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md",
+              "scripts/shoperation-f6-u03g-historical-replay.mjs",
+              "scripts/shoperation-fresh-disposable-reprovision.mjs",
+              "tests/shoperation-f6-u03g-historical-replay.test.ts"
             ],
             "operations": [
               {
@@ -624,27 +759,36 @@
               },
               {
                 "operation": "create",
-                "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
+                "file": ".github/workflows/f6-u03g-historical-replay-proof.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+                "file": "docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
+                "file": "scripts/shoperation-f6-u03g-historical-replay.mjs",
+                "generated": null
+              },
+              {
+                "operation": "modify",
+                "file": "scripts/shoperation-fresh-disposable-reprovision.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
+                "file": "tests/shoperation-f6-u03g-historical-replay.test.ts",
                 "generated": null
               }
             ],
-            "requiredDependencyFiles": [],
+            "requiredDependencyFiles": [
+              "scripts/shoperation-disposable-fresh-replay.mjs",
+              "scripts/shoperation-f6-u03f-target-transaction-guard.mjs"
+            ],
             "authorities": [
+              "quality-knowledge-system",
               "release-infrastructure"
             ],
             "subsystems": [
@@ -677,25 +821,31 @@
                   "points": 2
                 },
                 {
-                  "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
+                  "file": ".github/workflows/f6-u03g-historical-replay-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
+                  "file": "scripts/shoperation-f6-u03g-historical-replay.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
+                  "file": "scripts/shoperation-fresh-disposable-reprovision.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
+                {
+                  "file": "tests/shoperation-f6-u03g-historical-replay.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -724,22 +874,59 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-f6-u03e-schema-restore.test.ts"
+                "tests/shoperation-f6-u03g-historical-replay.test.ts"
               ],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
-            "readOnlyPaths": [],
+            "readOnlyPaths": [
+              ".github/workflows/f6-u03f-transaction-guard-proof.yml",
+              "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md",
+              "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md",
+              "docs/po/SHOPERATION_PO_DECISION_ADVERSARIAL_FIXTURES_2026-10-13.json",
+              "docs/support/CONTROL_PLANE_DIAGNOSTICS_HARDENING_2026-09-28.md",
+              "quality/knowledge/guard-registry.v1.json",
+              "scripts/lib/shoperation-operational-intelligence.mjs",
+              "scripts/lib/shoperation-release-unit-runtime.mjs",
+              "scripts/release-unit-ci-context.mjs",
+              "scripts/release-unit-execute.mjs",
+              "scripts/release-unit-github-runtime.mjs",
+              "scripts/release-unit-materialize.mjs",
+              "scripts/release-unit-orchestrate.mjs",
+              "scripts/release-unit-parent-close.mjs",
+              "scripts/shoperation-close-development-plan.mjs",
+              "scripts/shoperation-development-guard.mjs",
+              "scripts/shoperation-edit-time-guard.mjs",
+              "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs",
+              "scripts/shoperation-f6-u03d-managed-preflight.mjs",
+              "scripts/shoperation-f6-u03e-schema-restore.mjs",
+              "scripts/shoperation-f6-u03f-target-transaction-guard.mjs",
+              "scripts/shoperation-plan-before-code.mjs",
+              "scripts/shoperation-truth-gate.mjs",
+              "tests/control-plane-release-decomposition.test.ts",
+              "tests/control-plane-release-unit-execution-binding.test.ts",
+              "tests/control-plane-release-unit-orchestration.test.ts",
+              "tests/control-plane-release-unit-production-surface.test.ts",
+              "tests/release-unit-materialization.test.ts",
+              "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts",
+              "tests/shoperation-f6-u03d-managed-preflight.test.ts",
+              "tests/shoperation-f6-u03e-schema-restore.test.ts",
+              "tests/shoperation-f6-u03f-target-transaction-guard.test.ts",
+              "tests/shoperation-fresh-disposable-reprovision.test.ts",
+              "tests/shoperation-operational-intelligence.test.ts",
+              "tests/shoperation-proof-semantics.test.ts"
+            ],
             "generatedArtifactSemantics": [],
             "prerequisites": [],
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
                 ".github/workflows/f6-u03-canonical-plan-capture.yml",
-                ".github/workflows/f6-u03e-schema-restore-proof.yml",
-                "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
-                "scripts/shoperation-f6-u03e-schema-restore.mjs",
-                "tests/shoperation-f6-u03e-schema-restore.test.ts"
+                ".github/workflows/f6-u03g-historical-replay-proof.yml",
+                "docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md",
+                "scripts/shoperation-f6-u03g-historical-replay.mjs",
+                "scripts/shoperation-fresh-disposable-reprovision.mjs",
+                "tests/shoperation-f6-u03g-historical-replay.test.ts"
               ],
               "filesAbsent": []
             },
@@ -754,7 +941,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "bddb96a7",
+            "manifestDigest": "8b20beea",
             "decision": "PASS"
           }
         ],
@@ -792,32 +979,33 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Fresh Install current historical schema cannot be reset until the future SQL transaction can recheck exact destination identity, lock all app tables and validate all application row inventories, seven neutral catalogs, 4621 canonical catalog definitions, external auth trigger, bucket/role/event definitions and zero managed Auth/Storage/migration state. The source-pinned 59-file review transaction is deliberately executable only up to a permanent pre-DROP RAISE EXCEPTION; the new guard must remain review-only.",
+    "problemStatement": "The F6-U03f transaction-local guard has only been proven to reject mismatched ephemeral schemas, not to accept the real historical 0046-era 175+2-table Shoperation application catalog. Build an isolated PostgreSQL17 reproduction using the immutable 0001-through-0046 migration sources and controlled Auth/role scaffolding, validate the original 4621-object fingerprint and seven neutral catalog hashes, and fail closed on any incompatible reproduction. No hosted project credentials or actions.",
     "observableOutcomes": [
-      "An immutable SQL fragment performs transaction-scoped DB/role/version/PG application_name checks, uses pg_try_advisory_xact_lock plus NOWAIT bounded app-table locks before scanning rows.",
-      "Inside the same transaction, the code enumerates every existing public/private table, rejects any non-neutral rows, compares seven exact neutral row counts/hashes and refuses mismatched object inventory.",
-      "The guard validates the known external auth.users trigger, namespace owners/ACLs and managed Auth/Storage/event boundaries; unknown evidence blocks.",
-      "Integration of the SQL fragment into existing 59-file review compiler occurs while retaining the unconditional abort-before-DROP invariant and with zero database transports.",
-      "A separate fixture-only PostgreSQL17 workflow may exercise lock/rollback primitives without touching any Supabase project; the actual hosted 59-file reset/tenant proof stays blocked."
+      "Local PostgreSQL17 service reconstructs historical 0046 customer schema via immutable GitHub source SQL and explicit non-provider Auth/role test scaffolding.",
+      "Fingerprint evaluation uses the IDENTICAL CATALOG_SQL from F6-U03f without weakening historical immutable MD5 e312b40ad91150ce937f4aa00db587f3; reports mismatch as BLOCK not PASS.",
+      "Application-only positive preflight verifies exactly 175 public and 2 private app tables, neutral catalog 113 rows with all seven immutable hashes, empty all non-neutral app tables and zero Auth records.",
+      "Separate negative tests with extra relation and modified neutral catalog data block; hardcoded pre-DELETE barrier and actual Fresh Install zero mutation remain.",
+      "Provider-specific 6 event trigger fingerprints, managed Auth, PostgREST runtime, unique target TLS, full 59-migration replay and actor RLS remain independently BLOCKED."
     ],
     "unresolvedRisks": [
-      "SQL current_database/postgres role/version cannot distinguish the platform from Fresh Install; outside-DB TLS/project endpoint binding is a mandatory independent condition.",
-      "The protected managed Auth/Storage user state cannot be exhaustively frozen by application-table locks; future hosted authorization must include provider traffic quiescence and a separately approved target-only execution path.",
-      "Provider event-trigger effects and PostgREST data API readiness are not covered by the source-only SQL fragment.",
-      "Textual SQL review cannot establish proof of actual hosted rollback/migration/Alap-Pro RLS; executable proof requires separate governed permission."
+      "An ordinary postgres:17 image lacks Supabase-managed auth/storage/extension behavior; all local compatibility scaffolding is synthetic and must not be treated as hosted proof.",
+      "Historical 0001+0046 source replay may require version/extension-specific functions unavailable in generic PG17; if so record exact incompatibility rather than rewriting canonical SQL.",
+      "Current target catalog digest is dependent on PostgreSQL pg_get_functiondef serialization; mismatch may be toolchain version rather than data drift but must block acceptance until resolved.",
+      "Source-only success on 0046 still does not prove completeness or behavior of 0047-0058 Office migrations, real Data API/Alap/Pro rights, or platform-safe schema drop."
     ],
     "scope": {
       "in": [
-        "Introduce immutable, source-reviewed PostgreSQL SQL preflight generator with transaction-local app locks and strict row/catalog/dependency/ACL/managed-state checks.",
-        "Wire the preflight BEFORE the existing hard abort barrier and before any destructive SQL in the F6-U03b 59-file candidate without enabling hosted execution.",
-        "Add adversarial unit tests for target/role mismatch, neutral table hash drift, unknown data, event/ACL drift and SQL statement ordering.",
-        "Use existing canonical Development Guard, Plan Before Code, CI, Completion Truth, Lifecycle; document explicit no-hosted-action boundary."
+        "Build an isolated PostgreSQL17 historical 0001-0046 replay harness with source fingerprint checks, explicit local target protection and a managed-schema compatibility shim restricted to the fixture.",
+        "Assert immutable source lineage and exact 0046 cutoff; no editing the canonical baseline SQL or rewriting customer migration content.",
+        "Check all 175+2 application tables, 4621 objects, seven neutral catalog row hashes and zero business rows; test negative drift and rollback.",
+        "Make a dedicated no-Supabase-secret GH Actions workflow and typed unit tests verifying only local service target and source immutability.",
+        "Document any blocking incompatibility as observed and leave the hosted 59-file execution disabled."
       ],
       "out": [
-        "No actual SQL execution on any hosted Supabase project, no DDL and no migration application.",
-        "No loosening existing F6-U03b fail-before-DROP or F6-U03e fixture-only transport policies.",
-        "No extra active Supabase project, no platform/staging status changes.",
-        "No claim of actual 59-file hosted replay, provider event readiness, Data API exposure or signed-in Alap/Pro RLS proof."
+        "No project-level Supabase reset, ALTER, DELETE, CREATE, migration replay or staging/platform state change.",
+        "No activating additional cloud projects to escape the existing 2-active project quota.",
+        "No production/hosted RLS assertion or provider event trigger claim based on a synthetic compatibility shim.",
+        "No builder/factory task or generic GitHub merge until upstream dependency order."
       ]
     }
   },
@@ -840,16 +1028,16 @@
     },
     "requirements": [
       {
-        "id": "REQ-F6-U03F-TRANSACTION-GUARD",
-        "requirement": "Before any destructive SQL, re-check database role/version and exact owned app rows with NOWAIT transactional locks and immutable catalog fingerprints.",
+        "id": "REQ-F6-U03G-HISTORICAL",
+        "requirement": "Reproduce historical 0046 app schema in real local PostgreSQL17 from original reviewed source, detect exact fingerprint drift and enforce neutral hashes.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "source-level-future-sql-preflight",
+          "breadth": "historical-0046-local-schema-only",
           "strength": 2,
           "dimensions": [
             "tests",
-            "scope",
-            "regression"
+            "regression",
+            "scope"
           ]
         },
         "requiredCapabilities": [
@@ -865,8 +1053,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6-U03F-ROW",
-            "statement": "Unknown user row or neutral catalog hash drift passes the reviewed SQL guard.",
+            "id": "NEG-F6-U03G-COUNTS",
+            "statement": "An incompatible 0046 schema with altered object or neutral hashes passes.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -874,16 +1062,15 @@
         ]
       },
       {
-        "id": "REQ-F6-U03F-MANAGED",
-        "requirement": "Require known managed Auth/Storage/ACL/DDL-event dependencies and fail closed on any unknown exception.",
+        "id": "REQ-F6-U03G-BOUNDARY",
+        "requirement": "Historical replay is fixture only, with no access to any hosted Supabase project or mutable baseline source.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "managed-schema-preflight-review",
+          "breadth": "local-test-db-only",
           "strength": 2,
           "dimensions": [
-            "scope",
             "forbidden-state",
-            "tests"
+            "scope"
           ]
         },
         "requiredCapabilities": [
@@ -899,8 +1086,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6-U03F-DEPENDENCY",
-            "statement": "Unknown provider dependence or lost schema role privileges is ignored.",
+            "id": "NEG-F6-U03G-HOSTED",
+            "statement": "A local PG test contacts or modifies the live Fresh Install target.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -908,14 +1095,15 @@
         ]
       },
       {
-        "id": "REQ-F6-U03F-NO-HOSTED",
-        "requirement": "Keep compiled 59-file future transaction deliberately non-executable before DROP and prohibit any cloud runner or reset-ready overclaim.",
+        "id": "REQ-F6-U03G-TRUTH",
+        "requirement": "Fixture proof may not be promoted to current 59-file baseline, managed Supabase Auth/Storage/PostgREST or signed-in Alap/Pro readiness.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "no-hosted-execution",
+          "breadth": "no-hosted-overclaim",
           "strength": 2,
           "dimensions": [
             "plan",
+            "scope",
             "forbidden-state"
           ]
         },
@@ -932,8 +1120,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6-U03F-DROP",
-            "statement": "A CLI or GitHub workflow enables the hosted 59-file destructive replay.",
+            "id": "NEG-F6-U03G-READY",
+            "statement": "Test result falsely declares actual hosted migrations and Alap/Pro RLS complete.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -942,18 +1130,5 @@
       }
     ]
   },
-  "notes": "F6-U03f new scoped reviewed SQL guard, direct successor of verified F6-U03e commit 5db571cb. Planned external TLS identity and hosted safety proof deliberately BLOCKED. 8 adversarial challenges, 4 standard specialist modeled reviews and 3 limited completion requirements; no hosted Supabase writes. Plan Before Code run 38759524286 required exact new F6-U03f projection: digest ba50e105, dependency-contract/quality/release ownership, 19 failure rules, 14 in-scope acknowledged negative-knowledge entries and source-created doc/workflow. Previously inherited F6-U03e route data was corrected; the original SQL safety invariants remain unchanged. At exact current implementation projection CI 38759998242: failure scope only the 19 in-scope rules (TF-KF-015 is not projected); completed sourceRef reconciled with F6-U03f PR #1323. All guard requirements and 8 adversarial challenges retained. At CI run 38760248380, the full six-file scope projects Known Failure TF-KF-015 in addition to the prior 19. This previously omitted safety rule is explicitly ACKNOWLEDGED; no requirement was reduced.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "031a9c904dd9a480da1fa1ad5da3226976141873",
-    "closedAt": "2026-10-15T15:34:29.715Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1323",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Core #1186 F6-U03g scope: historical 0046 replay only, NOT current hosted Fresh Install. Canonical Development Guard PASS on source base 697730fe67f32e7e74acd02eae330cd519b6c152, projected critical 4/5, 22 Known Failures. Role-based adversarial reviews are engineering hypotheses, not independently signed external approvals. Do not silence real PostgreSQL incompatibility or change migration SQL."
 }
