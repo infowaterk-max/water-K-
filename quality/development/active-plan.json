@@ -1,9 +1,9 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-9901C962",
+  "taskId": "DEV-BA50E105",
   "task": "Core #1186 F6-U03f: guarded transaction-local Fresh Install identity/data/dependency preflight, SQL execution disabled",
   "status": "ready-for-implementation",
-  "guardDigest": "9901c962",
+  "guardDigest": "ba50e105",
   "changeBaseSha": "8567529a0d6f42da032e903b35389ae44326ce1a",
   "plannedFilePatterns": [
     "scripts/shoperation-f6-u03f-target-transaction-guard.mjs",
@@ -14,7 +14,7 @@
     ".github/workflows/f6-u03-canonical-plan-capture.yml"
   ],
   "expectedSubsystems": [
-    "database-schema",
+    "dependency-contract",
     "quality-infrastructure",
     "release-infrastructure"
   ],
@@ -27,19 +27,17 @@
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-013",
-    "SQ-KF-014",
-    "SQ-KF-022",
-    "SQ-KF-025",
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-006",
     "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-010",
+    "SQ-KF-013",
+    "SQ-KF-014",
     "SQ-KF-018",
     "SQ-KF-020",
-    "SQ-KF-023",
+    "SQ-KF-022",
+    "SQ-KF-025",
     "TF-KF-001",
     "TF-KF-005",
     "TF-KF-007",
@@ -47,8 +45,7 @@
     "TF-KF-010",
     "TF-KF-011",
     "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015"
+    "TF-KF-014"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -57,7 +54,6 @@
     "SQ-NK-005",
     "SQ-NK-010",
     "SQ-NK-012",
-    "SQ-NK-014",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -71,7 +67,7 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1321",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1323",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
@@ -262,9 +258,9 @@
       },
       {
         "id": "CH-F6-U03F-6",
-        "scenario": "Post-recreation schema loses anon/authenticated/role grants.",
-        "finding": "DDL resets schema ACLs.",
-        "resolution": "Preserve F6-U03d exact ACL preflight and F6-U03e verified fixture restoration; hosted restoration remains separate blocked step.",
+        "scenario": "A correctly replayed 59-file application schema is exposed to authenticated/anon traffic after DROP/CREATE without restoring their old namespace USAGE grants.",
+        "finding": "Although the new tables, policies and functions may exist, PostgreSQL CREATE SCHEMA resets the old named-role USAGE and CREATE privileges, causing unavailable Data API paths and potentially incorrect access.",
+        "resolution": "Before hosted authorization, require an exact regrant of the five documented public and three private role ACLs in the same transaction, with negative checks that anon/authenticated cannot CREATE and independent postflight Data API proof.",
         "status": "resolved"
       },
       {
@@ -291,7 +287,7 @@
       "No hosted provider SQL mutation, 59-file migration execution or Office Alap/Pro RLS proof."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/pull/1321",
+      "request": "https://github.com/infowaterk-max/water-K-/pull/1323",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
@@ -302,10 +298,8 @@
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        ".github/workflows/f6-u03e-schema-restore-proof.yml",
-        "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
-        "scripts/shoperation-f6-u03e-schema-restore.mjs",
-        "tests/shoperation-f6-u03e-schema-restore.test.ts"
+        ".github/workflows/f6-u03f-transaction-guard-proof.yml",
+        "docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md"
       ],
       "forbidden": [],
       "proof": [
@@ -947,5 +941,5 @@
       }
     ]
   },
-  "notes": "F6-U03f new scoped reviewed SQL guard, direct successor of verified F6-U03e commit 5db571cb. Planned external TLS identity and hosted safety proof deliberately BLOCKED. 8 adversarial challenges, 4 standard specialist modeled reviews and 3 limited completion requirements; no hosted Supabase writes."
+  "notes": "F6-U03f new scoped reviewed SQL guard, direct successor of verified F6-U03e commit 5db571cb. Planned external TLS identity and hosted safety proof deliberately BLOCKED. 8 adversarial challenges, 4 standard specialist modeled reviews and 3 limited completion requirements; no hosted Supabase writes. Plan Before Code run 38759524286 required exact new F6-U03f projection: digest ba50e105, dependency-contract/quality/release ownership, 19 failure rules, 14 in-scope acknowledged negative-knowledge entries and source-created doc/workflow. Previously inherited F6-U03e route data was corrected; the original SQL safety invariants remain unchanged."
 }
