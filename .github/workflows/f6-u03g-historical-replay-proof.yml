@@ -1,0 +1,84 @@
+name: F6-U03g real historical 0046 replay proof (isolated PG17)
+on:
+  push:
+    branches:
+      - feature/core-1186-f6-u03g-historical-replay-acceptance
+    paths:
+      - .github/workflows/f6-u03g-historical-replay-proof.yml
+      - .github/workflows/f6-u03-canonical-plan-capture.yml
+      - scripts/shoperation-f6-u03g-historical-replay.mjs
+      - scripts/shoperation-fresh-disposable-reprovision.mjs
+      - tests/shoperation-f6-u03g-historical-replay.test.ts
+      - docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolated-historical-replay:
+    name: Reproduce 0046 application schema and exact digest in local PostgreSQL17
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f6-u03g-local-only
+          POSTGRES_DB: f6_u03g_fixture
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d f6_u03g_fixture"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+    env:
+      F6_U03G_EPHEMERAL: 'yes'
+    steps:
+      - name: Checkout exact reviewed source history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install local psql client only
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+          psql --version
+      - name: Bind ephemeral Docker service identity
+        env:
+          PG_TEST_CONTAINER_ID: ${{ job.services.postgres.id }}
+        run: |
+          test -n "$PG_TEST_CONTAINER_ID"
+          ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$PG_TEST_CONTAINER_ID")"
+          test -n "$ip"
+          echo "F6_U03G_POSTGRES_CONTAINER_IP=$ip" >> "$GITHUB_ENV"
+      - name: Actual historical 0046 replay and exact application fingerprint
+        shell: bash
+        run: |
+          mkdir -p artifacts/f6-u03g
+          node scripts/shoperation-f6-u03g-historical-replay.mjs --ci-ephemeral > artifacts/f6-u03g/historical-0046.json 2> artifacts/f6-u03g/diagnostic.stderr
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const x=JSON.parse(readFileSync('artifacts/f6-u03g/historical-0046.json','utf8'));
+          if(x.decision!=='PASS'||x.scope!=='HISTORICAL_0046_LOCAL_POSTGRES17_ONLY'
+           ||x.historicalMigrationsApplied!==47||x.historicalCatalogDefinitions!==4621
+           ||x.historicalCatalogMd5!=='e312b40ad91150ce937f4aa00db587f3'
+           ||x.currentBaselineMigrationsApplied!==0||x.hostedSupabaseTouched!==false
+           ||x.fullTransactionGuardProved!==false||x.realAlapProRlsProved!==false)
+           throw Error('F6U03G_SCOPE_OR_HISTORICAL_HASH_INVALID');
+          console.log('Exact 0046 historical replay and local application guard validated.');
+          NODE
+      - name: Preserve evidence without cloud credentials
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03g-historical-pg17-${{ github.sha }}
+          path: artifacts/f6-u03g/
+          if-no-files-found: warn
+          retention-days: 21
