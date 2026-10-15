@@ -3,7 +3,7 @@
   "taskId": "DEV-B55A7A31-F4",
   "task": "Core #1186 U10A2 F4 canonical Team Chat 2 foundation, mention/object integrity and owner transfer source lineage 0052-0054",
   "status": "ready-for-implementation",
-  "guardDigest": "a6919f1a",
+  "guardDigest": "b55a7a31",
   "changeBaseSha": "4b317eddbdffb8876abf8d3eb99f5446c7c18c4d",
   "plannedFilePatterns": [
     "supabase/customer-baseline/migrations/0052_digital_office_team_chat_2_foundation_v1.sql",
@@ -16,7 +16,6 @@
     "tests/shoperation-office-db-readiness.test.ts"
   ],
   "expectedSubsystems": [
-    "admin-operations",
     "database-schema"
   ],
   "expectedDomains": [
@@ -26,17 +25,11 @@
     "database-schema"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002",
     "SQ-KF-006",
     "SQ-KF-009",
     "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-016",
-    "SQ-KF-017",
     "SQ-KF-018",
     "SQ-KF-022",
     "SQ-KF-023",
@@ -44,10 +37,7 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-008",
     "SQ-NK-012",
     "SQ-NK-014",
     "SQ-NK-024"
@@ -278,6 +268,13 @@
         "scenario": "The owner transfer procedure and integrity triggers parse but fail at actual PostgreSQL execution or violate RLS under service_role impersonation.",
         "finding": "Textual tests and CI cannot prove data-plane SQL procedure semantics, trigger ordering or grants.",
         "resolution": "Keep status snapshot-reviewed and actual PostgreSQL Fresh Install, GRANT/RLS and tenant matrix separately blocked until a proven disposable target is available.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-F4-08",
+        "scenario": "The Team Chat 2 source introduces an owner role and partial backfill for internal conversation creators; pre-existing internal threads can have left or mismatched participants.",
+        "finding": "The partial owner state and unique active-owner index could reject a real replay or leave owner-transfer semantics inconsistent for historical private groups.",
+        "resolution": "Preserve full canonical 0052 owner backfill and active-owner uniqueness, test declared integrity constraints and require actual PostgreSQL empty-target plus populated upgrade fixtures before interpreting SQL source parity as safe rollout.",
         "status": "resolved"
       }
     ],
@@ -685,7 +682,7 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Canonical customer Fresh Install includes Team Permissions and participant-only Office privacy through 0051, but Team Chat 2.0 0052–0054 owner/mention/link guard sources are absent. Deploying a partial chain would allow unsafe privileged mention/object references or omit owner-transfer protection.",
+    "problemStatement": "Canonical customer Fresh Install includes Team Permissions and participant-only Office privacy through 0051, but Team Chat 2.0 0052–0054 owner/mention/link guard sources are absent. Deploying a partial chain would allow unsafe privileged mention/object references or omit owner-transfer protection. Development Guard projected only database-schema for this precise F4 scope, not F3's additional admin-operations domain; align known failure set without suppressing security challenge coverage.",
     "observableOutcomes": [
       "Customer baseline has contiguous canonical 0052-0054 files, 55 total and exactly seven Office source matches without replacing the F2 hardcoded plan-sync authority.",
       "Negative tests block missing 0053 integrity, missing 0054 final ownership transfer, forged provenance, browser RPC exposure and false hosted proof.",
@@ -798,5 +795,5 @@
       }
     ]
   },
-  "notes": "F4 stacked directly on exact fully green F3 draft PR #1299 head 4b317edd, not main. Three atomic 0052–0054 Team Chat source migrations, mention/object triggers and current owner transfer, Alap Pro grants unchanged; no merge/hosted claims before all dependent sources and disposable DB proof."
+  "notes": "F4 stacked directly on exact fully green F3 draft PR #1299 head 4b317edd, not main. Three atomic 0052–0054 Team Chat source migrations, mention/object triggers and current owner transfer, Alap Pro grants unchanged; no merge/hosted claims before all dependent sources and disposable DB proof. Plan Before Code first projection found 9 database-schema known failures and 8-challenge minimum; gate-compliant plan corrected before any implementation source edit."
 }
