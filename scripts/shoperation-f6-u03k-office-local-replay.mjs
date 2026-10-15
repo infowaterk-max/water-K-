@@ -33,16 +33,28 @@ export function composeOriginalSourceDiagnostic({mode='commit',root=process.cwd(
   fail('F6U03K_17_BEFORE_0055_ONE_AFTER_0057_REQUIRED');
  const emit=list=>list.map(f=>'-- F6U03K_PINNED_ORIGINAL_MAIN_SOURCE '+f.path+'\n'+f.sql).join('\n\n')+'\n\n';
  const sql=old.sql.replace(delimiter,emit(preceding)+delimiter).replace(after57,emit(later)+after57);
- if((sql.match(/^BEGIN;$/gm)||[]).length!==1||
-    (sql.match(/^COMMIT;$/gm)||[]).length!==1||
-    sql.indexOf('ORIGINAL TARGET PREFLIGHT')>sql.indexOf('F6U03K_PINNED_ORIGINAL_MAIN_SOURCE')||
-    sql.indexOf('F6U03K_PINNED_ORIGINAL_MAIN_SOURCE')>sql.indexOf(delimiter)||
-    sql.indexOf('20260910070300_communication_hub_2_0_fk_indexes_v1.sql')<sql.indexOf('0057_communication_hub_2_0_advanced_guards_and_object_links_v1.sql')||
-    sql.indexOf('20260910070300_communication_hub_2_0_fk_indexes_v1.sql')>sql.indexOf(after57)||
-    sql.indexOf('ORIGINAL TARGET POSTFLIGHT')<sql.indexOf(delimiter)||
-    sql.indexOf('F6U03I_INJECTED_ABORT_BEFORE_COMMIT')!==-1&&mode==='commit')
-   fail('F6U03K_ATOMIC_SQL_ORDER_DRIFT');
- const manifest={
+ const positions={
+  preflight:sql.indexOf('ORIGINAL TARGET PREFLIGHT'),
+  firstExtra:sql.indexOf('-- F6U03K_PINNED_ORIGINAL_MAIN_SOURCE '),
+  source0055:sql.indexOf(delimiter),
+  source0057:sql.indexOf('-- F6U03I_ORIGINAL_SOURCE supabase/customer-baseline/migrations/0057_'),
+  followUp:sql.indexOf('-- F6U03K_PINNED_ORIGINAL_MAIN_SOURCE supabase/migrations/'+followUp),
+  source0058:sql.indexOf(after57),
+  postflight:sql.indexOf('ORIGINAL TARGET POSTFLIGHT')
+ };
+ const defects=[];
+ if((sql.match(/^BEGIN;$/gm)||[]).length!==1)defects.push('OUTER_BEGIN_COUNT');
+ if((sql.match(/^COMMIT;$/gm)||[]).length!==1)defects.push('OUTER_COMMIT_COUNT');
+ if(Object.values(positions).some(x=>x<0))defects.push('SOURCE_MARKER_MISSING');
+ if(!(positions.preflight<positions.firstExtra&&positions.firstExtra<positions.source0055))
+  defects.push('PRE_0055_ORDER');
+ if(!(positions.source0055<positions.source0057&&positions.source0057<positions.followUp&&
+      positions.followUp<positions.source0058&&positions.source0058<positions.postflight))
+  defects.push('FOLLOWUP_0057_0058_ORDER');
+ if(mode==='commit'&&sql.includes('F6U03I_INJECTED_ABORT_BEFORE_COMMIT'))
+  defects.push('INJECTED_ROLLBACK_IN_POSITIVE_MODE');
+ if(defects.length)fail('F6U03K_ATOMIC_SQL_ORDER_DRIFT:'+defects.join(','));
+  const manifest={
   contract:'shoporation.f6-u03k.immutable-local-original-sources.v1',scope:SCOPE,mode,
   reviewed59Count:59,extraOriginalCount:18,uniqueOriginalFiles:77,
   approved59SourceSha256:old.manifest.sourceSetSha256,
