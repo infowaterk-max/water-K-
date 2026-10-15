@@ -1,0 +1,122 @@
+name: F6-U03g genuine 0046 PostgreSQL17 catalog drift proof
+on:
+  push:
+    branches:
+      - feature/core-1186-f6-u03g-historical-catalog-diff
+    paths:
+      - scripts/shoperation-f6-u03g-catalog-drift.mjs
+      - tests/shoperation-f6-u03g-catalog-drift.test.ts
+      - .github/workflows/f6-u03g-catalog-drift-proof.yml
+      - docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  historical-0046:
+    name: Execute 47 original historical SQL files and compare seven real catalog kinds on PG17
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f6-u03g-local-only
+          POSTGRES_DB: f6_u03g_fixture
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d f6_u03g_fixture"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+    steps:
+      - name: Checkout exact source and complete history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+      - name: Confirm 59-file source compiler still aborts before schema DROP
+        run: |
+          node --input-type=module <<'NODE'
+          import{compileAtomicReview}from'./scripts/shoperation-fresh-disposable-reprovision.mjs';
+          const c=compileAtomicReview();
+          const guard=c.sql.indexOf('DO $f6_guard$'),abort=c.sql.indexOf('FRESH_REPROVISION_HOSTED_EXECUTION_NOT_AUTHORIZED'),drop=c.sql.indexOf('DROP SCHEMA private CASCADE;');
+          if(c.executionEnabled!==false||c.migrationCount!==59||!(guard>=0&&abort>guard&&drop>abort))
+            throw Error('F6U03G_HOSTED_ABORT_BEFORE_DROP_NOT_PROVEN');
+          console.log('Immutable 59-file compiler remains REVIEW_ONLY / abort-before-DROP');
+          NODE
+      - name: Assemble real historical 0046 SQL and verify 47 unchanged source blobs
+        run: |
+          node scripts/shoperation-f6-u03g-positive-fixture.mjs --emit-bundle artifacts/f6-u03g/schema
+          node --input-type=module <<'NODE'
+          import{readFileSync}from'node:fs';
+          import{execFileSync}from'node:child_process';
+          const m=JSON.parse(readFileSync('artifacts/f6-u03g/schema/manifest.json','utf8'));
+          if(m.sourceCount!==47||m.hostedDatabaseTouched!==false)throw Error('F6U03G_UNREVIEWED_HISTORY');
+          for(const f of m.files){
+            const a=execFileSync('git',['rev-parse','HEAD:'+f.path],{encoding:'utf8'}).trim();
+            const b=execFileSync('git',['rev-parse','03a7f0f690f94fa955e1ad459e3d5eb1fe22cbf4:'+f.path],{encoding:'utf8'}).trim();
+            if(a!==b)throw Error('F6U03G_HISTORICAL_BLOB_DRIFT:'+f.path);
+          }
+          NODE
+      - name: Verify actual Docker PostgreSQL17 endpoint and reject inherited selectors
+        shell: bash
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+          PGPASSWORD: f6-u03g-local-only
+        run: |
+          for selector in PGHOST PGHOSTADDR PGSERVICE PGOPTIONS PGSERVICEFILE PGDATABASE DATABASE_URL SUPABASE_DB_URL SHOPERATION_FRESH_INSTALL_DB_URL; do
+            if printenv "$selector" >/dev/null 2>&1; then echo "F6U03G_FORBIDDEN_SELECTOR=$selector" >&2; exit 1; fi
+          done
+          test -n "$POSTGRES_CONTAINER"
+          expected="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$POSTGRES_CONTAINER")"
+          test -n "$expected"
+          actual="$(psql -XAt -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03g_fixture -c "select host(inet_server_addr())||'|'||current_database()||'|'||current_user||'|'||current_setting('server_version_num')")"
+          case "$actual" in "$expected|f6_u03g_fixture|postgres|17"????) echo 'Docker-only PG17 target confirmed';; *) echo 'F6U03G_TARGET_PEER_DRIFT' >&2; exit 1;; esac
+      - name: Bootstrap temporary managed stubs and replay 47 genuine original migration files
+        env:
+          PGPASSWORD: f6-u03g-local-only
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03g_fixture -f artifacts/f6-u03g/schema/fixture-bootstrap.sql >artifacts/f6-u03g/schema/bootstrap.log
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03g_fixture -f artifacts/f6-u03g/schema/replay-0046.sql >artifacts/f6-u03g/schema/replay.log 2>artifacts/f6-u03g/schema/replay.err
+      - name: Read seven actual local canonical catalog MD5s and diagnose truthfully
+        env:
+          PGPASSWORD: f6-u03g-local-only
+        run: |
+          node scripts/shoperation-f6-u03g-catalog-drift.mjs --emit-sql artifacts/f6-u03g/catalog-drift
+          psql -XAt -F '|' -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03g_fixture -f artifacts/f6-u03g/catalog-drift/grouped.sql >artifacts/f6-u03g/catalog-drift/kinds.txt
+          psql -XAt -F '|' -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03g_fixture -f artifacts/f6-u03g/catalog-drift/original.sql >artifacts/f6-u03g/catalog-drift/raw.txt
+          node scripts/shoperation-f6-u03g-catalog-drift.mjs --classify artifacts/f6-u03g/catalog-drift >artifacts/f6-u03g/catalog-drift/result.json
+          node --input-type=module <<'NODE'
+          import{readFileSync}from'node:fs';
+          const r=JSON.parse(readFileSync('artifacts/f6-u03g/catalog-drift/result.json','utf8'));
+          if(r.decision!=='DIAGNOSTIC_COMPLETE'||r.scope!=='LOCAL_HISTORICAL_0046_KIND_FINGERPRINT_ONLY'
+           ||r.groups.length!==7||r.historic0046Sources!==47||r.expectedObjects!==4621
+           ||r.originalFullGuardAccepted!==false||r.hostedSupabaseTouched!==false
+           ||r.hosted59MigrationsApplied!==0||r.hostedResetAuthorized!==false
+           ||r.providerEventTriggersProven!==false||r.authenticatedAlapProRlsProven!==false)
+            throw Error('F6U03G_FALSE_GREEN_OR_UNBOUNDED_PROOF');
+          console.log(JSON.stringify({decision:r.decision,classParity:r.classParity,mismatchedKinds:r.mismatchedKinds,
+           actualObjectCount:r.actualObjects,rawHashMatches:r.rawHashMatches},null,2));
+          NODE
+      - name: Preserve exact-head local-only PostgreSQL17 diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03g-catalog-drift-local-pg17
+          path: |
+            artifacts/f6-u03g/catalog-drift/
+            artifacts/f6-u03g/schema/manifest.json
+            artifacts/f6-u03g/schema/replay.err
+          retention-days: 14
+          if-no-files-found: warn
