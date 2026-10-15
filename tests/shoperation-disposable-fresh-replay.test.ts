@@ -4,6 +4,7 @@ import {execFileSync} from 'node:child_process';
 import {mkdtempSync,mkdirSync,writeFileSync,rmSync,readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
+// @ts-expect-error Plain JavaScript safety runtime intentionally has no separate TypeScript declarations.
 import {
   assertDisposableDbUrl,assertSafeLibpqEnvironment,prepareReviewedConnection,
   validateReviewedBaseline,runReview,EXECUTION_ENABLED,DISPOSABLE_FRESH_PROJECT_REF as ref,
