@@ -52,12 +52,12 @@ CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS 'SELECT null::uui
 CREATE FUNCTION auth.jwt() RETURNS jsonb LANGUAGE sql STABLE AS 'SELECT ''{}''::jsonb';
 CREATE FUNCTION auth.role() RETURNS text LANGUAGE sql STABLE AS 'SELECT ''authenticated''::text';
 CREATE TABLE storage.objects (id uuid PRIMARY KEY);
-CREATE TABLE storage.buckets(id text PRIMARY KEY,public boolean NOT NULL,file_size_limit bigint);
-INSERT INTO storage.buckets VALUES
- ('digital-products-private',false,2147483648),
- ('order-documents-private',false,26214400),
- ('product-documents-private',false,26214400),
- ('product-media',true,8388608);
+CREATE TABLE storage.buckets(id text PRIMARY KEY,name text NOT NULL,public boolean NOT NULL,file_size_limit bigint,allowed_mime_types text[]);
+INSERT INTO storage.buckets(id,name,public,file_size_limit) VALUES
+ ('digital-products-private','digital-products-private',false,2147483648),
+ ('order-documents-private','order-documents-private',false,26214400),
+ ('product-documents-private','product-documents-private',false,26214400),
+ ('product-media','product-media',true,8388608);
 CREATE TABLE supabase_migrations.schema_migrations(version text PRIMARY KEY);`;
 export function bootstrapSql(){return shim+'\n';}
 export function applicationFingerprintSql(root=process.cwd()){
