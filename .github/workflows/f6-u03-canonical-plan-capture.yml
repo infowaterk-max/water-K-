@@ -21,6 +21,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Install locked repository dependencies
+        run: npm ci --no-audit --no-fund
       - name: Run existing Development Guard, generate draft plan
         id: guard
         continue-on-error: true
