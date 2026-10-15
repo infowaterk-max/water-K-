@@ -1,18 +1,18 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-B55A7A31-F3",
-  "task": "Core #1186 U10A2-F3 atomic four-source Digital Office privacy and RLS hardening migration lineage (0048-0051)",
-  "status": "closed",
+  "taskId": "DEV-B55A7A31-F4",
+  "task": "Core #1186 U10A2 F4 canonical Team Chat 2 foundation, mention/object integrity and owner transfer source lineage 0052-0054",
+  "status": "ready-for-implementation",
   "guardDigest": "a6919f1a",
-  "changeBaseSha": "b44e9b3633300d15f17315de7368c12919141598",
+  "changeBaseSha": "4b317eddbdffb8876abf8d3eb99f5446c7c18c4d",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0048_digital_office_privacy_foundation_v1.sql",
-    "supabase/customer-baseline/migrations/0049_digital_office_privacy_membership_hardening_v1.sql",
-    "supabase/customer-baseline/migrations/0050_digital_office_private_author_read_sync_v1.sql",
-    "supabase/customer-baseline/migrations/0051_digital_office_rls_helper_exposure_closure_v1.sql",
+    "supabase/customer-baseline/migrations/0052_digital_office_team_chat_2_foundation_v1.sql",
+    "supabase/customer-baseline/migrations/0053_digital_office_team_chat_2_integrity_v1.sql",
+    "supabase/customer-baseline/migrations/0054_digital_office_team_chat_owner_transfer_v1.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-office-privacy-prerequisites.test.ts",
+    "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
     "tests/customer-baseline-team-permissions-prerequisites.test.ts",
+    "tests/customer-baseline-office-privacy-prerequisites.test.ts",
     "tests/shoperation-office-db-readiness.test.ts"
   ],
   "expectedSubsystems": [
@@ -59,7 +59,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Four chronological privacy migrations are a single high-risk data/authorization dependency unit. The earliest source defines participant-only read predicates but temporarily exposes actor-parameterized read function to authenticated, while final 0051 revokes that privilege and uses signed-in-user private RLS helper. All four must be present in one reviewed source chain; no DB rollout or hosted Fresh Install claims.",
+      "rationale": "Critical additive canonical 0052–0054 SQL modifies per-tenant participant tables, service_role-only mentions and business-object references, trigger-bound referential integrity and member-controlled owner transfer. All three must be evaluated as an ordered atomic dependency; partial schema and RPC replay cannot be considered ready, and Pro-only Team Chat access must not be enabled for Alap.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -76,31 +76,35 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Append canonical source-byte-identical 0048-0051 Office privacy migrations after verified 0047 without altering historic baseline or superseded plan-sync guards.",
-        "First 0048 adds office_thread_participants and participant-aware policies, with source provenance SHA256 and service-role audited mutation functions.",
-        "0049 eligibility and private leave semantics and 0050 private author-read trigger preserve per-tenant membership boundaries.",
-        "0051 revokes browser access to actor-parameterized public.can_read_office_thread_v1, and ensures SELECT policy depends on private.current_user_can_read_office_thread_v1 of auth.uid().",
-        "Regression tests require all four SQL files and the final 0051 hardening together, with exact source body byte/hash, chronological ordering and no unreviewed interim browser-RPC authority.",
-        "The Office source lineage must report exactly seven further missing active prerequisites, still blocked; two obsolete hard-coded Alap Team Chat imports remain explicitly forbidden.",
-        "Customer baseline remains snapshot-reviewed with freshInstallProofRequired true and proofContractSha256 null; never declare runtime, hosted or Pro Office release ready.",
-        "No real Supabase target, staging, platform, production, Vercel, or private customer information is mutated."
-      ],
-      "nonGoals": [
-        "No Office application runtime/UI/worker changes.",
-        "No hosted Fresh Install, zero-tenant seed or staging SQL write.",
-        "No merging an incomplete four-migration intermediate chain or claiming full Pro Office operational readiness."
+        "Append source-body-identical customer baseline SQL 0052, 0053, 0054 after F3 0051 without changing earlier migrations and with verifiable canonical SHA256 provenance.",
+        "0052 must keep owner/member role constraint, service-only RLS tables for mentions/object links, tenant-aware object lookup, audit-backed service-role Team Chat RPC.",
+        "0053 must preserve two referential-integrity enforcement triggers for message mentions and object links and reject invalid user/object/thread relationships.",
+        "0054 must preserve active owner-initiated transfer only; no owner seizure, no target outside tenant, no browser EXECUTE for transfer RPC.",
+        "Negative tests reject missing last source 0054, forged 0054 payload, or dropped 0053 integrity, and preserve all F3 final 0051 RLS and F2 obsolete plan-sync protection.",
+        "After adding 0052–0054, source lineage reports seven matched modern Office sources and four remaining active prerequisites; customer baseline counts 55 files.",
+        "Customer baseline manifest remains snapshot-reviewed, freshInstallProofRequired true, proof hash null; no hosted runtime or Pro Office completion claims.",
+        "No staging, platform or production database write, no Supabase project resume, no paid Vercel preview, no Builder or template work."
       ],
       "invariants": [
-        "Canonical original Office migration source bytes are immutable and prove same-order SQL lineage.",
-        "Authenticated browser cannot call public actor-parameterized Office thread visibility helper after final source 0051.",
-        "Alap customer email/support and Pro-only teamChat plan matrices remain unchanged.",
-        "Known Supabase target projects are not modified."
+        "Alap customer email/support remains enabled while advanced Team Chat remains Pro-only.",
+        "SQL provenance and existing 0046–0051 immutable.",
+        "No actor can seize a private conversation through a service-only owner-transfer RPC.",
+        "Invalid mentions and object links fail at database trigger boundary even if RPC validation is bypassed.",
+        "The four missing active Office source dependencies prevent complete readiness.",
+        "Source-only proof does not establish authenticated PostgreSQL RLS in a hosted target."
       ],
       "forbiddenStates": [
-        "One, two or three of four privacy source files shipped as ready without 0051 final helper closure.",
-        "Authenticated browser gains alternative-actor existence probes via public read helper.",
-        "Customer baseline manifest claims READY before real disposable Fresh Install and tenant/RLS proof.",
-        "Office replay accepts obsolete teamChat/customerEmail fixed-list plan sync sources."
+        "Partial 0052 without integrity 0053 and transfer 0054 treated ready.",
+        "Nonparticipant mention or cross-instance object accepted by service-role trigger.",
+        "Browser EXECUTE on admin_transfer_office_thread_owner_v1 exposed to authenticated or anon.",
+        "User outside current active chat owner independently transfers ownership.",
+        "Historic plan-sync SQL restores Alap Team Chat.",
+        "Hosted/database readiness marked true without real PostgreSQL replay and auth/RLS matrix."
+      ],
+      "nonGoals": [
+        "No Office runtime routes, sidebar navigation, tenant order handling or worker edits.",
+        "No real database mutation or activation of Fresh Install.",
+        "No release merge of incomplete F4 or previous stacked draft ancestors."
       ]
     },
     "model": {
@@ -132,49 +136,52 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Atomic four-file migration sequence split, exposing temporary actor-parameterized browser RPC.",
-        "Pro tenant data leak through permissive Office SELECT policy or SECURITY DEFINER cross-tenant state.",
-        "Source bytes changed while provenance marker remains copied.",
-        "New migration names counted without SQL source bodies or final 0051 helper.",
-        "Previous 0047 historical test assumes 0047 remains final migration after 0051."
+        "Missing 0053 means service_role writes can bypass mention and object integrity.",
+        "Transfer RPC accidentally executed from authenticated role or by non-owner.",
+        "Owner active constraint disappears while older trigger rewrites are copied.",
+        "Per-tenant entity lookup for linked commerce objects is bypassed.",
+        "Previous F3/F1 tests assume last migration 0051 and fail when immutable append-only chain advances.",
+        "Legacy hard-coded plan entitlement replay slips into Office later than 0054."
       ],
       "edgeCases": [
-        "Missing first Office foundation, later SQL helper fails.",
-        "Only 0048-0050 present, public actor-parameterized function stays browser callable.",
-        "Marked same SQL body but invalid hash or truncated block.",
-        "Renamed Office SQL with incorrect source identity.",
-        "Office table policy evaluates wrong actor or instance.",
-        "Private participants leave and must lose access.",
-        "An Alap Team Chat plan-sync source reappears renamed.",
-        "Zero active tenants and unverified target remain safe.",
-        "Previous 0046 hosted proof cannot cover 0051.",
-        "Unknown contemporary 0052+ Office schema DAG still absent."
+        "Object link references a different tenant with same object UUID.",
+        "Mention author differs from message author.",
+        "Left participant is mentioned in a new message.",
+        "Owner transfer targets actor (self).",
+        "Owner tries to transfer to an inactive or nonparticipant account.",
+        "No active owner remains because previous owner left.",
+        "Mention integrity missing while RPC-level validation passes.",
+        "Closing migration contains a correct SHA marker but truncated SQL.",
+        "Backend role bypasses browser checks but must still honor RPC/trigger guards.",
+        "Manifest historical 0046 proof copied to new 0054 snapshot."
       ],
       "invariants": [
-        "Canonical original Office migration source bytes are immutable and prove same-order SQL lineage.",
-        "Authenticated browser cannot call public actor-parameterized Office thread visibility helper after final source 0051.",
-        "Alap customer email/support and Pro-only teamChat plan matrices remain unchanged.",
-        "Known Supabase target projects are not modified."
+        "Alap customer email/support remains enabled while advanced Team Chat remains Pro-only.",
+        "SQL provenance and existing 0046–0051 immutable.",
+        "No actor can seize a private conversation through a service-only owner-transfer RPC.",
+        "Invalid mentions and object links fail at database trigger boundary even if RPC validation is bypassed.",
+        "The four missing active Office source dependencies prevent complete readiness.",
+        "Source-only proof does not establish authenticated PostgreSQL RLS in a hosted target."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F3-ATOMIC-FOUR",
-        "summary": "Append all four reviewed, unmodified privacy source migration bodies in strict order and prove the final 0051 helper exposure closure as one release-bound source unit.",
+        "id": "ALT-F4-ATOMIC",
+        "summary": "Append all three unchanged canonical migrations in order with permanent source, SQL-level invariant and negative omission/tampering regression.",
         "disposition": "selected",
-        "reason": "Captures the natural SQL dependency and enforces the final browser actor-parameterized RPC revocation before any hosted execution."
+        "reason": "Preserves source traceability and requires both integrity trigger safety and owner-transfer security before accepting this bounded tranche."
       },
       {
-        "id": "ALT-F3-ONE-BY-ONE",
-        "summary": "Release only 0048 foundation independently and leave the final 0051 helper exposure closure for a subsequent operation.",
+        "id": "ALT-F4-SPLIT",
+        "summary": "Copy owner/member foundation now, defer integrity triggers and owner transfer to independent deployments.",
         "disposition": "rejected",
-        "reason": "Could briefly expose browser-callable actor-parameterized thread visibility before the final private current-user RLS helper migration."
+        "reason": "Allows unsafe intermediate service-role writes without 0053 enforcement and omits owner-transfer operation dependency."
       },
       {
-        "id": "ALT-F3-REWRITE",
-        "summary": "Rewrite the earliest historical privacy source to add final restrictive policy and merge all source SQL into a custom mutable migration.",
+        "id": "ALT-F4-REWRITE",
+        "summary": "Rewrite source Team Chat access controls into a new custom replacement SQL migration and mark original sources superseded.",
         "disposition": "rejected",
-        "reason": "Invalidates immutable source provenance and makes future Office migration dependency/replay evidence impossible to audit reliably."
+        "reason": "Risks invalidating canonical schema/function behavior and preserves no independent source hash lineage or reproducible replay contract."
       }
     ],
     "specialistReviews": [
@@ -182,30 +189,30 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Initial privacy source grants authenticated execute on a public actor-parameterized SECURITY DEFINER read function, potentially enabling another-user visibility probing.",
-        "resolution": "Treat all four migrations as indivisible: final 0051 revokes public authenticated execute, and tests fail if actor-parameterized RPC remains callable or final policy absent.",
+        "finding": "Security-definer RPCs could let a caller impersonate chat owner, forge tenant ownership, or bind objects outside a tenant when independent triggers are missing.",
+        "resolution": "Carry exact source role checks, service_role-only RPC EXECUTE, 0053 integrity triggers, 0054 current-owner transfer validation and scope negative tests as a single immutable SQL transaction.",
         "evidence": [
-          "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql",
-          "supabase/migrations/20260908024000_digital_office_rls_helper_exposure_closure_v1.sql"
+          "supabase/migrations/20260909204503_digital_office_team_chat_2_foundation_v1.sql",
+          "supabase/migrations/20260909204524_digital_office_team_chat_2_integrity_v1.sql",
+          "supabase/migrations/20260909204547_digital_office_team_chat_owner_transfer_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Participant backfill, audit-write RPC and read-state trigger depend on legacy 0001-0047 table/column/function shape and may fail at database execution time.",
-        "resolution": "Retain exactly canonical source bytes and fail closed until empty-target hosted PostgreSQL 17+ replay and signed-in actor GRANT/RLS proof; no staging or production writes.",
+        "finding": "Message mention and object link FKs may appear correct despite cross-tenant pointers, invalid author and missing object validation.",
+        "resolution": "Preserve 0053 PostgreSQL trigger functions and their service-role enforcement and block hosted proof until real row-level mutation matrix is executed.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
-          "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql"
+          "supabase/migrations/20260909204524_digital_office_team_chat_2_integrity_v1.sql"
         ]
       },
       {
         "role": "Runtime",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Office private-participant access must not modify normal Alap support/customer communication or Team Chat plan grants.",
-        "resolution": "Scope only customer baseline privacy SQL and source tests; verify normalized 0014 and Alap grant prohibition 0046 stay untouched.",
+        "finding": "Team Chat Pro boundaries could conflict with Alap customer communication and earlier normalized plan_capability_grants.",
+        "resolution": "Keep F2 two superseded fixed-list entitlement migrations forbidden, preserve 0046 Alap customer support grant and 0051 current-user RLS helper, and do not assert backend route closure from SQL files.",
         "evidence": [
           "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
           "scripts/shoperation-office-baseline-lineage.mjs"
@@ -215,90 +222,73 @@
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Static proof of all four source SQL files does not exercise service-role RPC or authenticated cross-tenant RLS in a real database.",
-        "resolution": "Enforce snapshot-reviewed with null proof and leave parent #1186/#1228 OPEN; require disposable Fresh Install role tests before any merge/release claim.",
+        "finding": "Static sources cannot prove a real role/RLS, tenant-isolation or task reentrancy outcome on actual empty Supabase PostgreSQL.",
+        "resolution": "Keep manifest reviewed/unverified, parent issue open, no database write and require fresh target replay prior to merge or release claims.",
         "evidence": [
           "supabase/customer-baseline/manifest.json",
           "scripts/shoperation-office-db-readiness.mjs"
-        ]
-      },
-      {
-        "role": "Runtime",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Office actor/tenant privacy migrations affect merchant admin operation permissions and audit workflows in addition to database schema authority.",
-        "resolution": "Expand Known Failure scope to admin-operations and preserve the existing admin audit/service-role mutation contracts in all 0048-0051 source bodies and CI regression checks.",
-        "evidence": [
-          "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql",
-          "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-F3-01",
-        "scenario": "Operator applies source 0048 on a live shared DB but forgets later 0051 actor-parameterized RPC revocation.",
-        "finding": "An authenticated browser could invoke public.can_read_office_thread_v1 with another user's UUID and probe participant information.",
-        "resolution": "Review as inseparable 0048-0051 source DAG; reject partial chains and require final 0051 authenticated EXECUTE revocation and private current-user helper in tests.",
+        "id": "CH-F4-01",
+        "scenario": "Service role inserts office_message_mentions with mentioned user who is not a thread participant.",
+        "finding": "RPC-only validation is bypassable under privileged direct SQL and might reveal private information in cross-user notifications.",
+        "resolution": "Preserve the 0053 trigger that validates internal message author, thread type and participant's read entitlement before insert/update.",
         "status": "resolved"
       },
       {
-        "id": "CH-F3-02",
-        "scenario": "Actor tries to join a private tenant conversation through a forged instance id or inactive delegation.",
-        "finding": "A service-role security-definer Office mutation might skip membership constraints and permit cross-tenant thread access.",
-        "resolution": "Preserve original 0048 office_active_store_member_v1 and office_active_participant_v1 checks and defer behavior acceptance to real tenant matrix proof.",
+        "id": "CH-F4-02",
+        "scenario": "Store operator writes object cards linking another tenant's order or customer even though the chat thread belongs to their current tenant.",
+        "finding": "Without table-boundary check, mention/object link FKs may be valid while business object scope is compromised.",
+        "resolution": "Preserve private.office_chat_object_exists_v1 tenant-aware source and 0053 object-integrity trigger, and retain real SQL row fixture proof blocker.",
         "status": "resolved"
       },
       {
-        "id": "CH-F3-03",
-        "scenario": "One privacy migration is truncated while its expected filename and provenance comments are retained.",
-        "finding": "A text-only filename check would falsely claim schema completeness and omit participant or policy protections.",
-        "resolution": "Check exact full canonical SHA256 and source body equivalence for every individual migration in generated customer baseline SQL.",
+        "id": "CH-F4-03",
+        "scenario": "A user with elevated support permissions tries to transfer ownership of a private thread they do not own.",
+        "finding": "Store operator might otherwise use admin_transfer_office_thread_owner_v1 to seize a conversation without participant consent.",
+        "resolution": "Require the original 0054 current active owner, current read access and active target checks, and forbid authenticated EXECUTE grant.",
         "status": "resolved"
       },
       {
-        "id": "CH-F3-04",
-        "scenario": "Migration 0051 grants current-user private read helper but leaves public actor-param helper open to authenticated callers.",
-        "finding": "Browser-facing PostgREST could still invoke the public helper independently of the RLS policy even if policy selection is tenant-bound.",
-        "resolution": "Tests require explicit authenticated revoke and service_role-only grant for public.can_read_office_thread_v1 and strict current_user policy expressions.",
+        "id": "CH-F4-04",
+        "scenario": "Only Team Chat 0052 is copied, missing 0053 trigger integrity and 0054 ownership transition source.",
+        "finding": "Source prerequisites appear partially present but authorization cannot safely accept mentions/object links or ownership events.",
+        "resolution": "Add an atomic-three-file invariant and negative missing 0053/0054 test; partial or tampered source must always BLOCK.",
         "status": "resolved"
       },
       {
-        "id": "CH-F3-05",
-        "scenario": "A previous Team Permissions regression expects 0047 to be the last customer migration after new 0051 privacy SQL.",
-        "finding": "Valid additive migrations would produce a false failure and could cause a developer to delete historical test coverage.",
-        "resolution": "Update last-migration assertion to 0051 while preserving ordered 0047 and immutable source provenance, with complete 52-file baseline count.",
+        "id": "CH-F4-05",
+        "scenario": "A previous 0047 or 0051 focused historical test expects itself to be last and now produces a false failure.",
+        "finding": "Additive immutable migration order is correct but old test assumed a fixed terminal file count.",
+        "resolution": "Update only trailing count/order assertions, keeping original 0047 and 0051 SQL parity/security checks intact.",
         "status": "resolved"
       },
       {
-        "id": "CH-F3-06",
-        "scenario": "The Office source-lineage gate counts four new migration files as complete Digital Office deployment proof.",
-        "finding": "Source parity does not establish SQL replay validity, tenant row policies or active service-worker authorization in real Supabase.",
-        "resolution": "Source-lineage decision remains BLOCKED for seven active missing sources and realDatabaseProof NOT_EVALUATED, and manifest stays snapshot-reviewed.",
+        "id": "CH-F4-06",
+        "scenario": "A migration with legacy teamChat fixed-list sync is renamed to look like an active Team Chat 2.0 migration.",
+        "finding": "Recreating old sync_webshop_plan_entitlements SQL could grant Team Chat to Alap despite hardened current-user RLS.",
+        "resolution": "Keep the F2 superseded-source and renamed fixed-list SQL tests unchanged and verify Alap normalized plan authority remains the canonical source.",
         "status": "resolved"
       },
       {
-        "id": "CH-F3-07",
-        "scenario": "An older plan-sync SQL file is reintroduced under a different name among newly added Office privacy migration files.",
-        "finding": "Legacy fixed-list entitlement replacement might restore forbidden Alap Team Chat after 0046 despite modern privacy controls.",
-        "resolution": "Keep and run F2 negative renamed replay and forbiddance tests for both superseded historical migration bodies unchanged.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-F3-08",
-        "scenario": "Someone attempts to resume the inactive Fresh Install project or modify occupied staging before full source DAG is implemented.",
-        "finding": "Shared or nonempty tenant state could be altered by source-only migrations without an explicit disposable target preflight.",
-        "resolution": "Perform only GitHub source/test operations and CI; prohibit any database write or target restoration until separate fully verified empty-target authorization.",
+        "id": "CH-F4-07",
+        "scenario": "The owner transfer procedure and integrity triggers parse but fail at actual PostgreSQL execution or violate RLS under service_role impersonation.",
+        "finding": "Textual tests and CI cannot prove data-plane SQL procedure semantics, trigger ordering or grants.",
+        "resolution": "Keep status snapshot-reviewed and actual PostgreSQL Fresh Install, GRANT/RLS and tenant matrix separately blocked until a proven disposable target is available.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Perform Development Guard and Plan Before Code on exact F1R head before any of four SQL file writes.",
-      "Verify all four canonical migration source bytes and SHA256, with ordered provenance and persistent negative tamper/source omission tests.",
-      "Assert final 0051 revokes authenticated actor-parameterized public function and uses private current_user RLS helper; prove no truncated 4-file chain.",
-      "Validate existing 0047 historical source, normalized Alap support grants and F2 obsolete plan-sync forbidden fixtures still pass.",
-      "Run PostgreSQL migration readiness/SQL syntax checks and complete GitHub CI, Completion Truth, Lifecycle closure on exact-head draft.",
-      "Keep hosted Fresh Install proof, real actor/role/RLS matrix, and further 0052+ Office DAG separately BLOCKED; do not merge while not release-ready."
+      "Verify parent #1299 at exact 4b317edd is fully CI green, then run F4 critical Development Guard and Plan Before Code PASS on the new branch before any implementation SQL.",
+      "Compare complete canonical 0052-0054 SQL bytes and SHA256 provenance and ordered migration file identities; reject exact-source omissions or tampering.",
+      "Prove 0053 integrity triggers for office_message_mentions and office_message_object_links, and service-only active owner transfer RPC in 0054.",
+      "Update historical F1/F3 tests for additive 55-file baseline, retaining all earlier source parity and 0051 final browser RLS restrictions.",
+      "Assert seven Office active sources matched, four still missing, two superseded fixed-list Alap grants still forbidden and database runtime proof never claimed.",
+      "Run native CI Plan/Edit-Time/Replay/quality/security/typecheck/build/Completion Truth and CI-emitted Lifecycle, with independent push and draft PR run at exact head.",
+      "No Supabase writes, no staging or production mutation, no inactive project restoration, no commercial release or merge without later real hosted Fresh Install."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
@@ -308,24 +298,25 @@
       "mustEdit": [
         "supabase/customer-baseline/manifest.json",
         "tests/customer-baseline-team-permissions-prerequisites.test.ts",
+        "tests/customer-baseline-office-privacy-prerequisites.test.ts",
         "tests/shoperation-office-db-readiness.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql",
-        "supabase/migrations/20260908023000_digital_office_privacy_membership_hardening_v1.sql",
-        "supabase/migrations/20260908023500_digital_office_private_author_read_sync_v1.sql",
-        "supabase/migrations/20260908024000_digital_office_rls_helper_exposure_closure_v1.sql"
+        "supabase/migrations/20260909204503_digital_office_team_chat_2_foundation_v1.sql",
+        "supabase/migrations/20260909204524_digital_office_team_chat_2_integrity_v1.sql",
+        "supabase/migrations/20260909204547_digital_office_team_chat_owner_transfer_v1.sql",
+        "supabase/customer-baseline/migrations/0051_digital_office_rls_helper_exposure_closure_v1.sql"
       ],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0048_digital_office_privacy_foundation_v1.sql",
-        "supabase/customer-baseline/migrations/0049_digital_office_privacy_membership_hardening_v1.sql",
-        "supabase/customer-baseline/migrations/0050_digital_office_private_author_read_sync_v1.sql",
-        "supabase/customer-baseline/migrations/0051_digital_office_rls_helper_exposure_closure_v1.sql",
-        "tests/customer-baseline-office-privacy-prerequisites.test.ts"
+        "supabase/customer-baseline/migrations/0052_digital_office_team_chat_2_foundation_v1.sql",
+        "supabase/customer-baseline/migrations/0053_digital_office_team_chat_2_integrity_v1.sql",
+        "supabase/customer-baseline/migrations/0054_digital_office_team_chat_owner_transfer_v1.sql",
+        "tests/customer-baseline-office-team-chat-prerequisites.test.ts"
       ],
       "forbidden": [],
       "proof": [
+        "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
         "tests/customer-baseline-office-privacy-prerequisites.test.ts",
         "tests/shoperation-office-db-readiness.test.ts",
         "CI Completion Truth",
@@ -694,27 +685,27 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "First four modern Digital Office privacy SQL predecessors are absent from canonical customer Fresh Install. Source 0048 introduces temporary browser-callable actor-parameterized thread read function, while 0051 closes exposure; copying one source in isolation is an unsafe partial migration. Development Guard identified both database-schema and admin-operations authorities, requiring the expanded failure set and negative knowledge before any SQL implementation.",
+    "problemStatement": "Canonical customer Fresh Install includes Team Permissions and participant-only Office privacy through 0051, but Team Chat 2.0 0052–0054 owner/mention/link guard sources are absent. Deploying a partial chain would allow unsafe privileged mention/object references or omit owner-transfer protection.",
     "observableOutcomes": [
-      "Customer baseline contains 0048-0051 exact source-derived SQL and source-lineage matches four of eleven active Office predecessors.",
-      "Negative regression blocks omission or tamper of any of the four and blocks absence of final 0051 actor-parameterized RPC closure.",
-      "Existing team-permissions 0047 history remains intact and customer baseline manifest remains unverified until real hosted Fresh Install."
+      "Customer baseline has contiguous canonical 0052-0054 files, 55 total and exactly seven Office source matches without replacing the F2 hardcoded plan-sync authority.",
+      "Negative tests block missing 0053 integrity, missing 0054 final ownership transfer, forged provenance, browser RPC exposure and false hosted proof.",
+      "All SQL remains immutable and scope-limited, with only four remaining active Office source dependencies after F4."
     ],
     "unresolvedRisks": [
-      "Seven further modern Office SQL prerequisite sources remain absent after this bounded F3 privacy stage.",
-      "SQL byte equivalence does not prove hosted PostgreSQL 17 migration execution, authenticated tenant RLS or service_role RPC.",
-      "Fresh Install Supabase target is inactive and occupied staging/platform cannot be used as disposable replay environments."
+      "Four active Communication Hub/strict-Pro SQL sources remain absent after bounded F4.",
+      "Actual PostgreSQL service_role trigger integrity and cross-tenant actor/owner lifecycle are not proven by source-only CI.",
+      "Fresh Install disposable Supabase project is inactive; active staging/platform cannot be used for schema mutation without separate proof."
     ],
     "scope": {
       "in": [
-        "New ordered Office privacy migration sources 0048-0051 and explicit canonical source SHA provenance.",
-        "Focused negative privacy/read-RPC exposure and source lineage tests.",
-        "Increment customer baseline only; no app feature code or tenant data."
+        "Three exact canonical Team Chat 2.0 0052–0054 SQL sources and SHA256 provenance.",
+        "F4 negative referential integrity and active-owner transfer source regressions.",
+        "Increment legacy customer baseline tests/manifest only; no runtime/API/UI feature edits."
       ],
       "out": [
-        "No hosted SQL migration execution on inactive Fresh Install or active customer staging.",
-        "No independent merging/release of partial four-migration chain.",
-        "No Builder, Template Factory, or unrelated commercial scope."
+        "No staging, platform, production or Fresh Install hosted database writes.",
+        "No prematurely merging layered F1R/F3/F4 drafts or claiming Digital Office Pro ready.",
+        "No Template Factory, Builder or non-Core feature work."
       ]
     }
   },
@@ -738,11 +729,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F3-PRIVACY-LINEAGE",
-        "requirement": "Preserve exact ordered four historical Office privacy SQL source bodies in additive 0048-0051 migrations, with final browser actor-parameterized read RPC exposure closed and negative regression tests.",
+        "id": "REQ-F4-INTEGRITY-SOURCE",
+        "requirement": "Import original 0052–0054 Team Chat foundation, message mention/object integrity trigger and active owner transfer SQL with strict source bytes, hash provenance and negative incomplete-chain tests.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "Office privacy customer-baseline source provenance only",
+          "breadth": "office-team-chat-source-integrity",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -763,8 +754,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F3-INTERMEDIATE-PRIVACY",
-            "statement": "Never accept an incomplete first-three Office privacy migration chain as finished if final current-user RLS and browser RPC closure is absent.",
+            "id": "NEG-F4-INTEGRITY-MISSING",
+            "statement": "No partial Team Chat SQL chain without 0053 integrity and 0054 owner transfer may be accepted as source complete.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -772,15 +763,15 @@
         ]
       },
       {
-        "id": "REQ-F3-UNPROVEN-DB",
-        "requirement": "Report new 0051 customer baseline as snapshot-reviewed and hosted database proof not evaluated, while seven further active Office SQL dependencies remain BLOCKED.",
+        "id": "REQ-F4-NO-FALSE-READY",
+        "requirement": "Keep a 55-file customer baseline in reviewed and unproven status, show four remaining active Office dependencies and never assert authenticated tenant or hosted Fresh Install behavior.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "no-false-database-completion",
+          "breadth": "source-only-not-release-ready",
           "strength": 2,
           "dimensions": [
-            "status",
             "scope",
+            "status",
             "forbidden-state"
           ]
         },
@@ -797,8 +788,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F3-RELEASE-FALSE-READY",
-            "statement": "Source parity and passing CI must not claim tenant data-plane, hosted Fresh Install, or full Pro Digital Office readiness.",
+            "id": "NEG-F4-PREMATURE-RELEASE",
+            "statement": "Static Team Chat source tests and CI must never be mistaken for Pro rollout or real PostgreSQL RLS proof.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -807,18 +798,5 @@
       }
     ]
   },
-  "notes": "F3 additive four-source privacy stage stacked on F1R draft #1298 exact head b44e9b36, not main. Four sources are inseparable because final 0051 closes browser actor-param security-definer RPC exposure introduced by 0048; source-only and no release before hosted empty-target actor proof. Parent 1228/1186 remain OPEN. Plan Before Code initial failure on newly discovered admin-operations known failures corrected without weakening the gate; source edits remain forbidden until corrected PASS.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "da36ecb39e2e95518bf1499171f86217f9b47097",
-    "closedAt": "2026-10-15T03:56:22.061Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "F4 stacked directly on exact fully green F3 draft PR #1299 head 4b317edd, not main. Three atomic 0052–0054 Team Chat source migrations, mention/object triggers and current owner transfer, Alap Pro grants unchanged; no merge/hosted claims before all dependent sources and disposable DB proof."
 }
