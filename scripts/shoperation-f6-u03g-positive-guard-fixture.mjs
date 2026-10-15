@@ -70,7 +70,7 @@ export function fixtureSetupSQL(){
  for(const {name,count} of FIXTURE_CATALOGS){
   if(!/^[a-z_]+$/.test(name)||!Number.isInteger(count)||count<1)fail('F6U03G_CATALOG_FIXTURE_INVALID');
   sql.push('CREATE TABLE public.'+name+'(code text PRIMARY KEY);');
-  sql.push("INSERT INTO public."+name+"(code) SELECT 'fixture-'+g::text FROM generate_series(1,"+count+") AS g;");
+  sql.push("INSERT INTO public."+name+"(code) SELECT 'fixture-'||g::text FROM generate_series(1,"+count+") AS g;");
  }
  const empties=175-FIXTURE_CATALOGS.length;
  if(empties!==168)fail('F6U03G_WRONG_APPLICATION_TABLE_COUNT');
