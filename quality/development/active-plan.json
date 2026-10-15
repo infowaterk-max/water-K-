@@ -13,8 +13,12 @@
   "expectedSubsystems": [
     "quality-infrastructure"
   ],
-  "expectedDomains": [],
-  "expectedAuthorities": [],
+  "expectedDomains": [
+    "DOMAIN-QUALITY"
+  ],
+  "expectedAuthorities": [
+    "quality-knowledge-system"
+  ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
@@ -257,7 +261,9 @@
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/pull/1308",
-      "authority": [],
+      "authority": [
+        "quality-knowledge-system"
+      ],
       "mustEdit": [
         "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md"
       ],
@@ -767,5 +773,5 @@
       }
     ]
   },
-  "notes": "New F6-U03a discrete quality-infrastructure unit generated from actual exact GitHub checkout Development Guard PASS at ea059fd4ffd8e6aa260a1177a89adb445e3b8359; authorized ONLY inert source/TLS guard and negative tests, NEVER database/Storage reset or hosted migration. Full Plan Before Code and exact-head CI must pass before any implementation is claimed complete. Specialist role entries are engineering threat-model reviews, not independent external approvals."
+  "notes": "New F6-U03a discrete quality-infrastructure unit generated from actual exact GitHub checkout Development Guard PASS at ea059fd4ffd8e6aa260a1177a89adb445e3b8359; authorized ONLY inert source/TLS guard and negative tests, NEVER database/Storage reset or hosted migration. Full Plan Before Code and exact-head CI must pass before any implementation is claimed complete. Specialist role entries are engineering threat-model reviews, not independent external approvals. Plan Before Code projection from CI 38715312007 confirmed DOMAIN-QUALITY and quality-knowledge-system for planned existing/new files; corrected the generated preliminary atlasContext fallback (no actual implementation change)."
 }
