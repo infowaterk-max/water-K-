@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-B55A7A31-F6-U02",
   "task": "Core #1186 F6-U02: Office plan-scoped SQL source lineage supersession and read-only Alap/Pro deployment readiness truth checker",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "074c4b63",
   "changeBaseSha": "b430dcfe3cd94135f2e61be392348c60b6f4b4ca",
   "plannedFilePatterns": [
@@ -830,5 +830,18 @@
       }
     ]
   },
-  "notes": "U02 follows fully green F6-U01 #1303 b430dcfe, strictly quality-infrastructure only; no SQL/manifest edits; provides 11/11 source parity and read-only snapshot minimum, but no hosted Fresh Install or user RLS behavior proof. Development Edit-Time Guard discovered required downstream staging rehearsal consumer. Planned two additional files before editing, preserving reference and implementation sync. Latest source head b2abbff: 3592/3593 tests PASS; one historical pro-entitlement-guards test still asserts OFFICE_DB_PRO_SUBSCRIPTION_RLS_MISSING. Amend test contract after fresh Plan Before Code PASS; do not revert corrected Alap/Pro SQL evaluator."
+  "notes": "U02 follows fully green F6-U01 #1303 b430dcfe, strictly quality-infrastructure only; no SQL/manifest edits; provides 11/11 source parity and read-only snapshot minimum, but no hosted Fresh Install or user RLS behavior proof. Development Edit-Time Guard discovered required downstream staging rehearsal consumer. Planned two additional files before editing, preserving reference and implementation sync. Latest source head b2abbff: 3592/3593 tests PASS; one historical pro-entitlement-guards test still asserts OFFICE_DB_PRO_SUBSCRIPTION_RLS_MISSING. Amend test contract after fresh Plan Before Code PASS; do not revert corrected Alap/Pro SQL evaluator.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "759762366355d58fb3fafd6d5ad4d3342f8afda7",
+    "closedAt": "2026-10-15T06:40:21.349Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
