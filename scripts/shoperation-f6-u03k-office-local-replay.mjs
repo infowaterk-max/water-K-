@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -20,16 +21,24 @@ export function composeOriginalSourceDiagnostic({mode='commit',root=process.cwd(
     d.reviewedFileCount!==59||d.missingRequiredTables.length!==4)
   fail('F6U03K_UNREVIEWED_OR_MISSING_SOURCE');
  if(old.sql.split(delimiter).length!==2||old.sql.split(after57).length!==2)fail('F6U03K_IMMUTABLE_MIGRATION_ANCHOR_MISSING');
- const timestamped=d.candidateSources.map(f=>{
+ const inboundPath='supabase/migrations/20260903180000_inbound_office_email_atomic_v2.sql';
+ const inboundBytes=readFileSync(resolve(root,inboundPath));
+ const blob=createHash('sha1').update('blob '+inboundBytes.length+'\0').update(inboundBytes).digest('hex');
+ const tree=execFileSync('git',['ls-tree',d.authorityMainSha,'--',inboundPath],
+   {cwd:root,encoding:'utf8',timeout:15000}).trim();
+ const expected='af19a674a026054a89e3d5fbad43a7258371aa2f';
+ if(blob!==expected||!tree.includes(expected))fail('F6U03K_V2_SOURCE_GIT_BLOB_DRIFT');
+ const inbound={path:inboundPath,sql:inboundBytes.toString('utf8'),blob};
+ const timestamped=[inbound,...d.candidateSources.map(f=>{
   const sql=readFileSync(resolve(root,f.path),'utf8');
   if(sha(Buffer.from(sql))!==f.sha256)fail('F6U03K_PINNED_SOURCE_DRIFT:'+f.name);
   if(/^\s*(?:begin|commit|rollback)\s*;/gim.test(sql))
    fail('F6U03K_NESTED_TRANSACTION_DIRECTIVE:'+f.name);
   return {path:f.path,sql};
- });
+ })];
  const preceding=timestamped.filter(f=>!f.path.endsWith('/'+followUp));
  const later=timestamped.filter(f=>f.path.endsWith('/'+followUp));
- if(preceding.length!==17||later.length!==1||timestamped.at(-1)!==later[0])
+ if(preceding.length!==18||later.length!==1||timestamped.at(-1)!==later[0])
   fail('F6U03K_17_BEFORE_0055_ONE_AFTER_0057_REQUIRED');
  const emit=list=>list.map(f=>'-- F6U03K_PINNED_ORIGINAL_MAIN_SOURCE '+f.path+'\n'+f.sql).join('\n\n')+'\n\n';
  // SQL may contain literal PostgreSQL dollar quotes and JS replacement markers.
@@ -61,11 +70,11 @@ export function composeOriginalSourceDiagnostic({mode='commit',root=process.cwd(
  if(defects.length)fail('F6U03K_ATOMIC_SQL_ORDER_DRIFT:'+defects.join(','));
   const manifest={
   contract:'shoporation.f6-u03k.immutable-local-original-sources.v1',scope:SCOPE,mode,
-  reviewed59Count:59,extraOriginalCount:18,uniqueOriginalFiles:77,
+  reviewed59Count:59,extraOriginalCount:19,uniqueOriginalFiles:78,
   approved59SourceSha256:old.manifest.sourceSetSha256,
-  authorityMain:d.authorityMainSha,extraSourcePaths:d.candidateSources.map(x=>x.path),
-  extraGitBlobs:d.candidateSources.map(x=>x.blob),sourceSqlSha256:sha(sql),
-  predecessorBefore0055Count:17,followupAfter0057Count:1,
+  authorityMain:d.authorityMainSha,extraSourcePaths:timestamped.map(x=>x.path),
+  extraGitBlobs:[expected,...d.candidateSources.map(x=>x.blob)],sourceSqlSha256:sha(sql),
+  predecessorBefore0055Count:18,followupAfter0057Count:1,
   localDatabase:old.manifest.localDatabase,
   originalCompanions:true,pre0055:true,
   hostedTouched:false,releaseAuthorized:false,hostedMigrationExecutionAuthorized:false,
@@ -108,7 +117,7 @@ function cli(){
  writeFileSync(join(resolve(TARGET),'commit.sql'),good.sql);
  writeFileSync(join(resolve(TARGET),'rollback.sql'),bad.sql);
  writeFileSync(join(resolve(TARGET),'manifest.json'),JSON.stringify({commit:good.manifest,rollback:bad.manifest},null,2)+'\n');
- console.log(JSON.stringify({scope:SCOPE,original59:59,extraSources:18,localOnly:true,hostedTouched:false,releaseAuthorized:false}));
+ console.log(JSON.stringify({scope:SCOPE,original59:59,extraSources:19,localOnly:true,hostedTouched:false,releaseAuthorized:false}));
 }
 if(process.argv[1]&&pathToFileURL(resolve(process.argv[1])).href===import.meta.url){
  try{cli()}catch(e){console.error(e.message);process.exitCode=1}

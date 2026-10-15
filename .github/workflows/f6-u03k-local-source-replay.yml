@@ -52,7 +52,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends postgresql-client
-      - name: Compile original verified 59 plus 17 predecessors and one follow-up
+      - name: Compile original verified 59 plus 18 predecessors and one follow-up
         run: |
           node scripts/shoperation-f6-u03k-office-local-replay.mjs --emit-bundle artifacts/f6-u03k/local-77
           node --input-type=module <<'NODE'
@@ -60,8 +60,8 @@ jobs:
           const m=JSON.parse(readFileSync('artifacts/f6-u03k/local-77/manifest.json','utf8'));
           for(const k of ['commit','rollback']){
             const x=m[k];
-            if(x.reviewed59Count!==59||x.extraOriginalCount!==18||x.uniqueOriginalFiles!==77
-              ||x.predecessorBefore0055Count!==17||x.followupAfter0057Count!==1
+            if(x.reviewed59Count!==59||x.extraOriginalCount!==19||x.uniqueOriginalFiles!==78
+              ||x.predecessorBefore0055Count!==18||x.followupAfter0057Count!==1
               ||x.hostedTouched!==false||x.releaseAuthorized!==false
               ||x.managedProviderProven!==false||x.signedInAlapProRlsProven!==false)
               throw Error('F6U03K_SOURCE_MANIFEST_FALSE_GREEN');

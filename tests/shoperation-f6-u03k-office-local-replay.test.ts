@@ -3,15 +3,15 @@ import {describe,it,expect} from 'vitest';
 import {composeOriginalSourceDiagnostic,locateActualFailure,classifyLocalOutcome,HOSTED_EXECUTION_ENABLED} from '../scripts/shoperation-f6-u03k-office-local-replay.mjs';
 // @ts-expect-error Original 59-file hosted review-only SQL compiler.
 import {compileAtomicReview} from '../scripts/shoperation-fresh-disposable-reprovision.mjs';
-describe('Core F6-U03k original 59+18 source diagnostics, not release',()=>{
+describe('Core F6-U03k original 59+19 source diagnostics, not release',()=>{
  it('preserves all 59 frozen SQL and the 18 SHA-pinned original Office files',()=>{
   const x=composeOriginalSourceDiagnostic({mode:'commit'});
   expect(x.manifest.reviewed59Count).toBe(59);
-  expect(x.manifest.extraOriginalCount).toBe(18);
-  expect(x.manifest.uniqueOriginalFiles).toBe(77);
-  expect(x.manifest.extraGitBlobs).toHaveLength(18);
+  expect(x.manifest.extraOriginalCount).toBe(19);
+  expect(x.manifest.uniqueOriginalFiles).toBe(78);
+  expect(x.manifest.extraGitBlobs).toHaveLength(19);
   expect(x.manifest.extraGitBlobs.every((z:string)=>/^[0-9a-f]{40}$/.test(z))).toBe(true);
-  expect(x.manifest.predecessorBefore0055Count).toBe(17);
+  expect(x.manifest.predecessorBefore0055Count).toBe(18);
   expect(x.manifest.followupAfter0057Count).toBe(1);
   expect(x.manifest.releaseAuthorized).toBe(false);
  });
@@ -20,8 +20,13 @@ describe('Core F6-U03k original 59+18 source diagnostics, not release',()=>{
   expect(s.match(/^BEGIN;$/gm)).toHaveLength(1);
   expect(s.match(/^COMMIT;$/gm)).toHaveLength(1);
   expect(s.match(/-- F6U03I_ORIGINAL_SOURCE/g)).toHaveLength(59);
-  expect(s.match(/-- F6U03K_PINNED_ORIGINAL_MAIN_SOURCE/g)).toHaveLength(18);
+  expect(s.match(/-- F6U03K_PINNED_ORIGINAL_MAIN_SOURCE/g)).toHaveLength(19);
   const source=s.indexOf('-- F6U03K_PINNED_ORIGINAL_MAIN_SOURCE');
+  const prior=s.indexOf('-- F6U03K_PINNED_ORIGINAL_MAIN_SOURCE supabase/migrations/20260903180000_');
+  const successor=s.indexOf('-- F6U03K_PINNED_ORIGINAL_MAIN_SOURCE supabase/migrations/20260908030000_');
+  expect(prior).toBeGreaterThanOrEqual(0);
+  expect(prior).toBeLessThan(successor);
+  expect(s).toContain('revoke all on function public.record_inbound_office_email_v2(text,text,text,text,text)');
   const old0055=s.indexOf('-- F6U03I_ORIGINAL_SOURCE supabase/customer-baseline/migrations/0055_');
   const old0057=s.indexOf('-- F6U03I_ORIGINAL_SOURCE supabase/customer-baseline/migrations/0057_');
   const fk=s.indexOf('-- F6U03K_PINNED_ORIGINAL_MAIN_SOURCE supabase/migrations/20260910070300_');
@@ -41,14 +46,14 @@ describe('Core F6-U03k original 59+18 source diagnostics, not release',()=>{
   expect(s.indexOf('20260910070300_communication_hub_2_0_fk_indexes_v1.sql'))
    .toBeGreaterThan(s.indexOf('0057_communication_hub_2_0_advanced_guards_and_object_links_v1.sql'));
  });
- it('pre-COMMIT rollback candidate uses distinct local DB and still has 77 authentic sources',()=>{
+ it('pre-COMMIT rollback candidate uses distinct local DB and still has 78 authentic sources',()=>{
   const a=composeOriginalSourceDiagnostic({mode:'commit'});
   const b=composeOriginalSourceDiagnostic({mode:'rollback'});
   expect(a.manifest.localDatabase).toBe('f6_u03i_fresh');
   expect(b.manifest.localDatabase).toBe('f6_u03i_abort');
   expect(b.sql).toContain('F6U03I_INJECTED_ABORT_BEFORE_COMMIT');
   expect(b.sql.indexOf('F6U03I_INJECTED_ABORT_BEFORE_COMMIT')).toBeLessThan(b.sql.lastIndexOf('COMMIT;'));
-  expect(b.manifest.uniqueOriginalFiles).toBe(77);
+  expect(b.manifest.uniqueOriginalFiles).toBe(78);
  });
  it('parses actual psql error position without falsely passing a failed transaction',()=>{
   const s=composeOriginalSourceDiagnostic({mode:'commit'}).sql;
