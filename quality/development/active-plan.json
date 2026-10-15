@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-9901C962",
   "task": "Core #1186 F6-U03c: verify real PostgreSQL DDL rollback on an isolated fixture database, no Supabase access",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "9901c962",
   "changeBaseSha": "6aaedd1b8b2a647a0321f57a80e253da5ed1087b",
   "plannedFilePatterns": [
@@ -940,5 +940,18 @@
       }
     ]
   },
-  "notes": "F6-U03c isolated Postgres16 rollback proof only. Generated canonical Development Guard on full checkout (run 38724728630), risk 4/5, 22 Known Failures. Permissions are strictly limited to ephemeral fixture executing SQL; no hosted project mutations or Customer Baseline readiness claim. Role entries are engineering threat-model reviews, not independently signed human endorsements."
+  "notes": "F6-U03c isolated Postgres16 rollback proof only. Generated canonical Development Guard on full checkout (run 38724728630), risk 4/5, 22 Known Failures. Permissions are strictly limited to ephemeral fixture executing SQL; no hosted project mutations or Customer Baseline readiness claim. Role entries are engineering threat-model reviews, not independently signed human endorsements.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "cb9540582c279d2452421de7ed4c5709da9db4dc",
+    "closedAt": "2026-10-15T11:29:27.736Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1317",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
