@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-7FCFB011",
   "task": "Core #1186 F6-U03k: source-pinned ordered Office predecessor replay on disposable Docker PG17, fail closed on next dependency",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "7fcfb011",
   "changeBaseSha": "b9f9feec2330819db8a7ca783df2751559be6289",
   "plannedFilePatterns": [
@@ -1039,5 +1039,18 @@
       }
     ]
   },
-  "notes": "F6-U03k critical Docker-only diagnostic of 17 source-authentic Office predecessors pre-0055 and one 20260910070300 follow-up post-0057; any local PASS is not release approval, no original source mutation, #1228 remains owner. Specialist challenge model-generated. Corrected source chronology before code commit: 17 predecessor SQL before 0055 and 20260910070300 FK index follow-up after 0057, before 0058. Not all 18 belong ahead of 0055. Incremental real PG17 evidence at #38807351988: SQL error function public.record_inbound_office_email_v2(text,text,text,text,text) does not exist, triggered by 20260908030000 v3 REVOKE; original main 20260903180000 creates it. Scope extends from 59+18 to 59+19 original sources (18 before 0055, one FK follow-up after 0057), still local-only, no legacy grant acceptance."
+  "notes": "F6-U03k critical Docker-only diagnostic of 17 source-authentic Office predecessors pre-0055 and one 20260910070300 follow-up post-0057; any local PASS is not release approval, no original source mutation, #1228 remains owner. Specialist challenge model-generated. Corrected source chronology before code commit: 17 predecessor SQL before 0055 and 20260910070300 FK index follow-up after 0057, before 0058. Not all 18 belong ahead of 0055. Incremental real PG17 evidence at #38807351988: SQL error function public.record_inbound_office_email_v2(text,text,text,text,text) does not exist, triggered by 20260908030000 v3 REVOKE; original main 20260903180000 creates it. Scope extends from 59+18 to 59+19 original sources (18 before 0055, one FK follow-up after 0057), still local-only, no legacy grant acceptance.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "0364fe926751759ad8f42f8882fbe65a57dcc3a5",
+    "closedAt": "2026-10-15T21:17:35.141Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
