@@ -21,14 +21,12 @@
     "release-infrastructure"
   ],
   "expectedDomains": [
+    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "auth-access-authority",
-    "database-schema",
     "quality-knowledge-system",
-    "release-infrastructure",
-    "tenant-context-authority"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -304,11 +302,8 @@
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/pull/1319",
       "authority": [
-        "auth-access-authority",
-        "database-schema",
         "quality-knowledge-system",
-        "release-infrastructure",
-        "tenant-context-authority"
+        "release-infrastructure"
       ],
       "mustEdit": [
         ".github/workflows/f6-u03-canonical-plan-capture.yml"
@@ -963,5 +958,5 @@
       }
     ]
   },
-  "notes": "F6-U03d new release unit for a read-only managed cross-namespace dependency and ACL census. Development Guard PASS at full GH checkout on 2026-10-15, digest 0959cff4, risk 4/5, 31 Known Failures. Observed exactly one external Auth trigger and distinct public/private ACL grants in previous readonly Supabase query; event triggers still need explicit inventory. This phase never authorizes hosted schema reset, and the F6-U03b abort barrier remains on. Engineering specialist reviews are modeled adversarial findings, not external endorsements."
+  "notes": "F6-U03d new release unit for a read-only managed cross-namespace dependency and ACL census. Development Guard PASS at full GH checkout on 2026-10-15, digest 0959cff4, risk 4/5, 31 Known Failures. Observed exactly one external Auth trigger and distinct public/private ACL grants in previous readonly Supabase query; event triggers still need explicit inventory. This phase never authorizes hosted schema reset, and the F6-U03b abort barrier remains on. Engineering specialist reviews are modeled adversarial findings, not external endorsements. CI planned-projection 38737114740 confirmed write owner DOMAIN-QUALITY/DOMAIN-RELEASE and authorities quality-knowledge-system/release-infrastructure. Auth, database and tenant remain explicit read-only safety dependencies, not modified authority owners. No challenge or requirement weakened."
 }
