@@ -1,5 +1,5 @@
 name: F6-U03g canonical plan capture (development-only)
-# F6-U03g captures existing Development Guard only; no database transport, DDL or hosted secret.
+# F6-U03g captures canonical Development Guard only; SQL executes solely in the independently isolated PostgreSQL17 fixture workflow, never against Supabase.
 on:
   push:
     branches:
@@ -32,7 +32,7 @@ jobs:
             --task "Core #1186 F6-U03g: PostgreSQL17 exact positive and negative table lock/catalog row guard fixture (hosted disabled)" \
             --files "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs;tests/shoperation-f6-u03g-positive-guard-fixture.test.ts;.github/workflows/f6-u03g-positive-guard-fixture.yml;docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_FIXTURE_2026-10-15.md;.github/workflows/f6-u03-canonical-plan-capture.yml" \
             --risk critical \
-            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1323" \
+            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1334" \
             --write-plan --check
       - name: Print canonical guard and draft-plan diagnostic
         if: always()
