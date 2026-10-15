@@ -677,9 +677,9 @@
           "breadth": "reviewed-baseline-source-integrity-only",
           "strength": 2,
           "dimensions": [
-            "source",
-            "negative",
-            "exact-head"
+            "tests",
+            "regression",
+            "scope"
           ]
         },
         "requiredCapabilities": [
@@ -711,9 +711,9 @@
           "breadth": "offline-target-config-validation-only",
           "strength": 2,
           "dimensions": [
-            "security",
-            "boundary",
-            "negative"
+            "tests",
+            "forbidden-state",
+            "scope"
           ]
         },
         "requiredCapabilities": [
@@ -745,9 +745,9 @@
           "breadth": "source-only-preimplementation-gating",
           "strength": 2,
           "dimensions": [
+            "plan",
             "scope",
-            "blocked-mutations",
-            "negative"
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -773,5 +773,5 @@
       }
     ]
   },
-  "notes": "New F6-U03a discrete quality-infrastructure unit generated from actual exact GitHub checkout Development Guard PASS at ea059fd4ffd8e6aa260a1177a89adb445e3b8359; authorized ONLY inert source/TLS guard and negative tests, NEVER database/Storage reset or hosted migration. Full Plan Before Code and exact-head CI must pass before any implementation is claimed complete. Specialist role entries are engineering threat-model reviews, not independent external approvals. Plan Before Code projection from CI 38715312007 confirmed DOMAIN-QUALITY and quality-knowledge-system for planned existing/new files; corrected the generated preliminary atlasContext fallback (no actual implementation change)."
+  "notes": "New F6-U03a discrete quality-infrastructure unit generated from actual exact GitHub checkout Development Guard PASS at ea059fd4ffd8e6aa260a1177a89adb445e3b8359; authorized ONLY inert source/TLS guard and negative tests, NEVER database/Storage reset or hosted migration. Full Plan Before Code and exact-head CI must pass before any implementation is claimed complete. Specialist role entries are engineering threat-model reviews, not independent external approvals. Plan Before Code projection from CI 38715312007 confirmed DOMAIN-QUALITY and quality-knowledge-system for planned existing/new files; corrected the generated preliminary atlasContext fallback (no actual implementation change). Exact-head CI run 38716233804: 16/16 new F6 tests and 3609/3610 total passed; the sole Sentinel integrity BLOCK was correctly produced because earlier Completion Contract used unregistered proof dimensions (source/negative/exact-head). Reconciled to exact proofSemantics advertised by GUARD-QUALITY-TESTS and GUARD-PLAN-BEFORE-CODE without weakening the verification authority."
 }
