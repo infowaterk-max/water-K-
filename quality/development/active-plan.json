@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-B55A7A31-F4",
   "task": "Core #1186 U10A2 F4 canonical Team Chat 2 foundation, mention/object integrity and owner transfer source lineage 0052-0054",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "b55a7a31",
   "changeBaseSha": "4b317eddbdffb8876abf8d3eb99f5446c7c18c4d",
   "plannedFilePatterns": [
@@ -795,5 +795,18 @@
       }
     ]
   },
-  "notes": "F4 stacked directly on exact fully green F3 draft PR #1299 head 4b317edd, not main. Three atomic 0052–0054 Team Chat source migrations, mention/object triggers and current owner transfer, Alap Pro grants unchanged; no merge/hosted claims before all dependent sources and disposable DB proof. Plan Before Code first projection found 9 database-schema known failures and 8-challenge minimum; gate-compliant plan corrected before any implementation source edit."
+  "notes": "F4 stacked directly on exact fully green F3 draft PR #1299 head 4b317edd, not main. Three atomic 0052–0054 Team Chat source migrations, mention/object triggers and current owner transfer, Alap Pro grants unchanged; no merge/hosted claims before all dependent sources and disposable DB proof. Plan Before Code first projection found 9 database-schema known failures and 8-challenge minimum; gate-compliant plan corrected before any implementation source edit.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "ffeb1bff0749d9c7ac0e61372e6587fdedc22986",
+    "closedAt": "2026-10-15T04:17:17.710Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
