@@ -48,7 +48,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends postgresql-client
       - name: Bind actual ephemeral Docker PostgreSQL service
         env:
-          F6_U03G_CONTAINER: \${{ job.services.postgres.id }}
+          F6_U03G_CONTAINER: ${{ job.services.postgres.id }}
         run: |
           test -n "$F6_U03G_CONTAINER"
           ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$F6_U03G_CONTAINER")"
@@ -73,7 +73,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f6-u03g-pg17-synthetic-\${{ github.sha }}
+          name: f6-u03g-pg17-synthetic-${{ github.sha }}
           path: artifacts/f6-u03g/real-pg17-synthetic-guard.json
           if-no-files-found: warn
           retention-days: 30
