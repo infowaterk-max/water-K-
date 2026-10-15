@@ -1,4 +1,4 @@
--- Shoperation-Office-Source: 20261015090000_digital_office_plan_scoped_sql_guard_v2.sql sha256=c2d9b9e5f21f50de3bbce3b84650d2fe2b9658490a1c863cae0b6b7e316610a4
+-- Shoperation-Office-Source: 20261015090000_digital_office_plan_scoped_sql_guard_v2.sql sha256=e0e5f2610bce0bdf59e94e0c1c57e2e0f61a11c3d95d55ee82e66e8db90b3fcf
 -- Core #1186 U10A2-F6: plan-scoped Office tenant read authority (supersedes unsafe blanket-Pro v1).
 -- Forward-only source. Preserve Alap customer officeCommunication/support while
 -- requiring actual Pro subscription for teamChat and advanced Office.
@@ -173,9 +173,10 @@ $office_pro_plan$;
 
 revoke all on function private.office_pro_plan_allowed_v1(uuid)
   from public,anon,authenticated,service_role;
--- PostgreSQL evaluates policy predicates in the querying role; private schema
--- is not a PostgREST-exposed RPC surface.
-grant execute on function private.office_pro_plan_allowed_v1(uuid) to authenticated;
+-- Historical Pro helper is retained for server compatibility, but no longer
+-- appears in customer RLS predicates: do not expose cross-tenant plan probes.
+-- The new current-user-bound v2 helpers below are the ONLY authenticated
+-- plan-scoped predicate entry points.
 
 -- RESTRICTIVE is an AND boundary over every current/future PERMISSIVE policy:
 -- restrict to the authenticated current user's actual row-level permission, not

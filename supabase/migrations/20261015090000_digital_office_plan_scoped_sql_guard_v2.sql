@@ -172,9 +172,10 @@ $office_pro_plan$;
 
 revoke all on function private.office_pro_plan_allowed_v1(uuid)
   from public,anon,authenticated,service_role;
--- PostgreSQL evaluates policy predicates in the querying role; private schema
--- is not a PostgREST-exposed RPC surface.
-grant execute on function private.office_pro_plan_allowed_v1(uuid) to authenticated;
+-- Historical Pro helper is retained for server compatibility, but no longer
+-- appears in customer RLS predicates: do not expose cross-tenant plan probes.
+-- The new current-user-bound v2 helpers below are the ONLY authenticated
+-- plan-scoped predicate entry points.
 
 -- RESTRICTIVE is an AND boundary over every current/future PERMISSIVE policy:
 -- restrict to the authenticated current user's actual row-level permission, not
