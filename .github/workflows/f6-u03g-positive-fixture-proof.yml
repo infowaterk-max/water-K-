@@ -112,6 +112,7 @@ jobs:
           const v=classifyFixtureResult({actual47Committed:true,realPostgres17:true,sourceCount:47,
            publicTables:nums[0],privateTables:nums[1],publicFunctions:nums[2],publicPolicies:nums[3],
            definitionCount:Number(fp[0]),definitionMd5:fp[1],fullGuardVerdict:Number(process.argv[2])===0?'PASS':'BLOCKED'});
+          if(v.structuralParity!=='PASS')throw Error('F6U03G_HISTORICAL_APP_OBJECT_COUNT_MISMATCH');
           const proof={...v,observedCounts:nums,observedCatalog:fp,
             guardError:Number(process.argv[2])===0?null:readFileSync('artifacts/f6-u03g/schema/guard.err','utf8').slice(0,1500)};
           writeFileSync('artifacts/f6-u03g/schema/result.json',JSON.stringify(proof,null,2));
