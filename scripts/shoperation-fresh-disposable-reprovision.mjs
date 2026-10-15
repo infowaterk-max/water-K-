@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {TRANSACTION_GUARD_SQL,compileReviewGuard} from './shoperation-f6-u03f-target-transaction-guard.mjs';
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -70,6 +71,9 @@ export function compileAtomicReview(root=process.cwd()){
     'BEGIN;',
     "SET LOCAL lock_timeout = '3s';",
     "SET LOCAL statement_timeout = '5min';",
+    // F6-U03f: transaction-local inventory/locks executed only in the REVIEW SQL candidate.
+    TRANSACTION_GUARD_SQL,
+    // Execution remains hard-blocked in the very next statement.
     // Permanent invariant: an emitted plan is NOT runnable until a separately
     // reviewed hosted guard transaction and fault-injection proof have passed.
     "DO $f6_review_only$ BEGIN RAISE EXCEPTION 'FRESH_REPROVISION_HOSTED_EXECUTION_NOT_AUTHORIZED'; END $f6_review_only$;",
@@ -91,7 +95,7 @@ export function compileAtomicReview(root=process.cwd()){
     migrationCount:source.migrationCount,reviewedSource:source.reviewedCommit,
     sourceSetSha256:source.sourceSetSha256,sqlSha256:createHash('sha256').update(sql).digest('hex'),
     preflightBeforeMigrations:true,postflightBeforeCommit:true,
-    mustAbortBeforeDestructiveSql:true,sql,hostedDatabaseTouched:false,
+    mustAbortBeforeDestructiveSql:true,transactionGuard:compileReviewGuard(),sql,hostedDatabaseTouched:false,
     limitations:['LIVE_TARGET_LOCKS_UNPROVEN','CROSS_SCHEMA_DEPENDENCIES_UNPROVEN',
       'ROLLBACK_UNPROVEN','STORAGE_MANAGED_STATE_NOT_FRESH','OFFICE_ALAP_PRO_RLS_UNPROVEN'],
   });
