@@ -215,58 +215,58 @@
     "challenge": [
       {
         "id": "CH-F6-U03G-1",
-        "scenario": "Source checksum drift",
-        "finding": "Test imports the existing real guard and computes the exact source SHA before any fixture translation.",
-        "resolution": "Reject source mismatch and leave hosted compiler unchanged.",
+        "scenario": "The SQL guard source checksum changes between the reviewed F6-U03f commit and the fixture execution checkout.",
+        "finding": "A stale or tampered SQL body would make any passing fixture execution irrelevant to the reviewed release unit.",
+        "resolution": "Compare exact original guard SHA256 before fixture translation and reject mismatches before issuing any PostgreSQL command.",
         "status": "resolved"
       },
       {
         "id": "CH-F6-U03G-2",
-        "scenario": "Unauthorized fixtures",
-        "finding": "A client inherits PGHOSTADDR or secret DATABASE_URL and psql routes externally.",
-        "resolution": "Reject ambient libpq selectors, enforce GitHub ephemeral marker and inspect actual Docker service.",
+        "scenario": "An untrusted GitHub Actions environment supplies PGHOSTADDR or a hosted DATABASE_URL despite the test fixture marker.",
+        "finding": "libpq can redirect a nominally local psql command to another database even when program output looks correct.",
+        "resolution": "Construct a minimal subprocess environment and bind the actual PostgreSQL container IP, expected database and PostgreSQL version before SQL.",
         "status": "resolved"
       },
       {
         "id": "CH-F6-U03G-3",
-        "scenario": "Silent SQL errors",
-        "finding": "An injected exception does not propagate to runner.",
-        "resolution": "Force psql ON_ERROR_STOP=1; nonzero exit required for all negative trials.",
+        "scenario": "A deliberately raised SQL exception is swallowed by a connection command lacking ON_ERROR_STOP, then reported as success.",
+        "finding": "The migration-like unit could commit corrupted data even though an adversarial test intended to force transaction rollback.",
+        "resolution": "Execute with psql -X -v ON_ERROR_STOP=1 and require a specific nonzero result and unchanged fixture fingerprint.",
         "status": "resolved"
       },
       {
         "id": "CH-F6-U03G-4",
-        "scenario": "Overbroad fixture rewrite",
-        "finding": "Global regex rewriting may remove guards or alter hardcoded abort.",
-        "resolution": "Use enumerated exact replacements with occurrence counts and prove abort statement not touched.",
+        "scenario": "An overly broad fixture string substitution replaces SQL safety clauses rather than only fixture expected constants.",
+        "finding": "The apparent positive route could be produced by deleting an invariant that would otherwise reject a real unsafe reset.",
+        "resolution": "Allow only named and counted expected-value changes, record each replacement and independently assert the original abort barrier is unchanged.",
         "status": "resolved"
       },
       {
         "id": "CH-F6-U03G-5",
-        "scenario": "Stale neutral catalog",
-        "finding": "Counts same but content changed.",
-        "resolution": "Hash full JSONB row content in real PostgreSQL; mutate one row with same count.",
+        "scenario": "One of the seven neutral catalog data values changes but its row count remains the same during the positive proof.",
+        "finding": "A count-only assertion would miss an altered entitlement and mistakenly certify noncanonical permission or subscription data.",
+        "resolution": "Calculate PostgreSQL ordered JSONB row digests, alter content while preserving row count, and require a named catalog-hash exception.",
         "status": "resolved"
       },
       {
         "id": "CH-F6-U03G-6",
-        "scenario": "Bypassed row locks",
-        "finding": "A test only SELECTs without exercising exclusive-table lock section.",
-        "resolution": "Execute the imported DO SQL and require positive completion of its lock and catalog loops.",
+        "scenario": "The fixture claims success after running only SELECT statements and never reaches the ACCESS EXCLUSIVE NOWAIT table loop.",
+        "finding": "Source assertions cannot confirm the transaction lock and table-by-table inspection operate in an actual PostgreSQL executor.",
+        "resolution": "Run the imported DO guard against all 177 fixture tables inside a PostgreSQL17 transaction and verify the DO completes.",
         "status": "resolved"
       },
       {
         "id": "CH-F6-U03G-7",
-        "scenario": "Provider fake semantics",
-        "finding": "Local event functions do not match hosted Supabase functions.",
-        "resolution": "Use actual local MD5s solely in adapter, emit provider proof NOT DONE.",
+        "scenario": "The fixture replaces six managed event fingerprints with local function bodies but the proof describes these as real Supabase provider behavior.",
+        "finding": "Ephemeral trigger functions do not exercise the hosted PostgREST listener or provider extension and thus cannot justify readiness.",
+        "resolution": "Bind each local digest to its exact fixture definition and report provider-event-proof as false in the emitted evidence artifact.",
         "status": "resolved"
       },
       {
         "id": "CH-F6-U03G-8",
-        "scenario": "Hosted readiness overclaim",
-        "finding": "A local fixture PASS is treated as successful original 177-table, 4621-definition replay.",
-        "resolution": "Output explicit fixture-only and hostedNotProved values, never remove hosted abort.",
+        "scenario": "A successful local fixture run is treated as a destructive hosted reset authorization without original schema replay or actor checks.",
+        "finding": "The positive route says nothing about the actual 4621 historical application definitions, provider quiescence, or Alap/Pro isolation.",
+        "resolution": "Keep the hosted compiler hard-stopped before DROP and label the result as fixture-only, with 59 migrations and signed-in RLS explicitly pending.",
         "status": "resolved"
       }
     ],
@@ -931,5 +931,5 @@
       }
     ]
   },
-  "notes": "F6-U03g proposed positive fixture proof, not actual 177-table/4621-definition Supabase recreation. Canonical Development Guard PASS risk4/5 failures20 on branch fa723ab3ffda78b0d40803f8ec77155a334c8ce1. Engineering specialist evaluations are modeled reviews, not human acceptance."
+  "notes": "F6-U03g proposed positive fixture proof, not actual 177-table/4621-definition Supabase recreation. Canonical Development Guard PASS risk4/5 failures20 on branch fa723ab3ffda78b0d40803f8ec77155a334c8ce1. Engineering specialist evaluations are modeled reviews, not human acceptance. Adversarial challenge wording strengthened to meet canonical meaningful-scenario and independent resolution checks; no safety gates waived."
 }
