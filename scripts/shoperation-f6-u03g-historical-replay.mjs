@@ -119,6 +119,9 @@ export function runHistoricalProof(env=process.env,root=process.cwd()){
   writeFileSync(sqlfile,'BEGIN;\n'+reviewed.paths.map(x=>readFileSync(resolve(root,x),'utf8')).join('\n\n')
    +'\n'+readFileSync(resolve(root,'supabase/customer-baseline/auth-bootstrap.sql'),'utf8')+'\nCOMMIT;\n');
   runPsql(env,{file:sqlfile});
+  // Diagnostic contains only the fixture's neutral public capability catalog (never user data).
+  const localCatalog=runPsql(env,{sql:"SELECT coalesce(jsonb_agg(to_jsonb(x)-'created_at'-'updated_at' ORDER BY x.capability_code),'[]'::jsonb)::text FROM public.entitlement_capabilities x;"});
+  console.error('F6U03G_LOCAL_NEUTRAL_CAPABILITIES='+localCatalog);
   const marker=runPsql(env,{sql:positiveApplicationPreflightSql(root)}).split('\n').at(-1);
   const [count,checksum]=(marker??'').split('|');
   if(count!=='4621'||checksum!==HISTORICAL_FINGERPRINT)
