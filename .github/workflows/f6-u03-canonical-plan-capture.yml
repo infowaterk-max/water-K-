@@ -1,0 +1,73 @@
+name: F6-U03 canonical plan capture (temporary)
+on:
+  push:
+    branches:
+      - feature/core-1186-f6-u03-disposable-fresh-proof
+    paths:
+      - .github/workflows/f6-u03-canonical-plan-capture.yml
+      - quality/development/active-plan.json
+permissions:
+  contents: read
+jobs:
+  canonical-plan-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Run existing Development Guard, generate draft plan
+        id: guard
+        continue-on-error: true
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186 F6-U03a: reviewed source/connection guard only; no DB writes" \
+            --files "scripts/shoperation-disposable-fresh-replay.mjs;tests/shoperation-disposable-fresh-replay.test.ts;docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1308" \
+            --write-plan --check
+      - name: Print canonical guard and draft-plan diagnostic
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import {existsSync,readFileSync} from 'node:fs';
+          for(const [key,file] of [['GUARD','artifacts/shoperation-development-guard/development-guard.json'],['PLAN','quality/development/active-plan.json']]){
+            if(!existsSync(file)){console.log('F6U03_'+key+'_FILE_ABSENT');continue}
+            let v=JSON.parse(readFileSync(file,'utf8'));
+            if(key==='GUARD'){
+              console.log('F6U03_GUARD_REPORT='+JSON.stringify({
+                decision:v.decision,guardDigest:v.guardDigest,scope:v.scope,projectedFiles:v.projectedFiles,
+                releaseRisk:v.projectedReleaseRisk,gateChain:v.gateChain?.decision,
+                implementationSkeleton:v.implementationSkeleton,expectedDomains:v.atlasContext?.flatMap(a=>a.directDomains||[]),
+                expectedAuthorities:v.atlasContext?.flatMap(a=>a.authorities||[])
+              }))
+            }else{
+              // Complete plan is not secret; encode for exact recovery from the job log.
+              let raw=Buffer.from(JSON.stringify(v)).toString('base64');
+              console.log('F6U03_DRAFT_PLAN_BASE64_BEGIN');
+              for(let i=0;i<raw.length;i+=1500)console.log('F6U03_PLAN_CHUNK='+raw.slice(i,i+1500));
+              console.log('F6U03_DRAFT_PLAN_BASE64_END');
+            }
+          }
+          NODE
+      - name: Upload canonical artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03-canonical-development-guard-${{ github.sha }}
+          path: |
+            quality/development/active-plan.json
+            artifacts/shoperation-development-guard/development-guard.json
+            artifacts/shoperation-development-guard/development-guard.md
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Preserve fail-closed guard decision
+        if: steps.guard.outcome != 'success'
+        run: |
+          echo 'Original Development Guard was not PASS; this diagnostic is not execution authorization.' >&2
+          exit 1
