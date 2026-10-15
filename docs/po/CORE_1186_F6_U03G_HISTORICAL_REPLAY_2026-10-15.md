@@ -4,7 +4,7 @@
 
 ## What this release unit proves
 
-Core F6-U03f (#1323) introduced the 177-table transaction-local Fresh Install guard but only exercised a negative scenario against an incompatible PostgreSQL fixture. The positive-path question is whether we can **actually recreate the old application schema** (the existing Fresh Install target is historical 0046) from the original immutable source and then validate the same application object definition/neutral catalog fingerprints.
+Core F6-U03f (#1323) introduced the 177-table transaction-local Fresh Install guard but only exercised a negative scenario against an incompatible PostgreSQL fixture. The positive-path question is whether we can **actually recreate the old application schema** (the existing Fresh Install target is historical 0046) from the original immutable source and then validate the identical application object definitions and the reproducible business content of the neutral catalogs.
 
 This unit uses `supabase/customer-baseline/migrations/` unchanged: the complete source set contains **59** SQL files, of which **47** are part of the 0001–0046 historical replay because **two distinct 0026-prefixed files** exist. The snapshot `0001_shoperation_v1_schema.sql` is approximately 931 KB and includes dozens of real references to `auth.users`. A two-table artificial fixture would therefore not be a legitimate positive application-schema proof.
 
@@ -28,3 +28,11 @@ The application preflight's `ROLLBACK` is intentional: it exercises exclusive-ta
 On exact-head SUCCESS of the isolated job, full Shoperation CI, Completion Truth and Lifecycle, the **historical application proof only** can be closed. If the PG17 fixture produces a genuine migration error or catalog drift, F6-U03g remains blocked until that difference is understood and corrected **without editing canonical sources or weakening reference fingerprints**.
 
 The next safe critical unit must cover the remaining managed-provider/TLS/connection identity boundary, the actual current 0058/59-file chain and fail-closed rollback under an approved one-project-only execution authority, then actual authenticated Office Alap/Pro cross-tenant behavior. The existing Fresh Install project stays untouched until those requirements and explicit destructive-operation authority are met.
+
+## Important reproducibility finding — immutable historical raw data versus semantic data
+
+The first actual 0046 replay reached the neutral catalog validator and failed at `addon_entitlement_catalog` despite unchanged 47 migration sources. An independent **read-only** query against the old Fresh Install showed all four `addon_entitlement_catalog` records carried `created_at` / `updated_at` values from **2026-10-09T11:54:01.474013Z**. Replaying the same SQL on 2026-10-15 naturally generates new `now()` timestamps; therefore **full-row JSONB MD5 hashes are not portable across installations**. This was real evidence, not a migration error. The same timestamp fields affect other neutral tables.
+
+F6-U03g now compares reproducible catalog **business content**, excluding only `created_at` and `updated_at` from the local historical replay aggregation. The seven expected semantic MD5 hashes were computed independently from the *read-only existing Fresh Install* source snapshot. The local fixture must still require their exact data contents and row counts plus the **unchanged 4621-object definition hash**. This semantic local equivalence is **NOT the same as the F6-U03f hosted transaction guard**: that guard's original complete-row MD5 pins remain unchanged and can only be trusted against the exact old project state with transaction-local rechecks.
+
+**No relaxation of the hosted target or migration SQL.** If future Fresh Install deployments need cross-install stable proofs, the canonical manifest should adopt separate source-content and volatile-audit-field semantic digests through a newly reviewed dependency unit, never silently substitute the local semantic digest for an exact occupied-target identity check.
