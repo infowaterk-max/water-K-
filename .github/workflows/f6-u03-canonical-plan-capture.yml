@@ -1,10 +1,9 @@
-name: F6-U03d canonical plan capture (development-only)
-# F6-U03c CI-only Development Guard capture. It neither provisions a PostgreSQL service nor reads Supabase secrets.
-# The separate f6-u03c-postgres-rollback-proof.yml is the sole disposable-database evidence producer.
+name: F6-U03e canonical plan capture (development-only)
+# F6-U03e captures Development Guard only; no database secrets or SQL runner. The isolated PostgreSQL17 service is separately governed.
 on:
   push:
     branches:
-      - feature/core-1186-f6-u03d-managed-dependency-acl-preflight
+      - feature/core-1186-f6-u03e-schema-grants-event-rehearsal
     paths:
       - .github/workflows/f6-u03-canonical-plan-capture.yml
       - quality/development/active-plan.json
@@ -30,10 +29,10 @@ jobs:
         continue-on-error: true
         run: |
           node scripts/shoperation-development-guard.mjs \
-            --task "Core #1186 F6-U03d: read-only inventory of managed Auth dependency and schema ACL required before hosted Fresh Install schema reset" \
-            --files "scripts/shoperation-f6-u03d-managed-preflight.mjs;tests/shoperation-f6-u03d-managed-preflight.test.ts;docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md;.github/workflows/f6-u03d-readonly-preflight.yml;.github/workflows/f6-u03-canonical-plan-capture.yml" \
+            --task "Core #1186 F6-U03e: actual isolated PostgreSQL17 schema ACL restore and DDL event-trigger rollback rehearsal" \
+            --files "scripts/shoperation-f6-u03e-schema-restore.mjs;tests/shoperation-f6-u03e-schema-restore.test.ts;docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md;.github/workflows/f6-u03e-schema-restore-proof.yml;.github/workflows/f6-u03-canonical-plan-capture.yml" \
             --risk critical \
-            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1321" \
+            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1322" \
             --write-plan --check
       - name: Print canonical guard and draft-plan diagnostic
         if: always()
@@ -63,7 +62,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f6-u03d-managed-preflight-development-guard-${{ github.sha }}
+          name: f6-u03e-schema-rehearsal-development-guard-${{ github.sha }}
           path: |
             quality/development/active-plan.json
             artifacts/shoperation-development-guard/development-guard.json

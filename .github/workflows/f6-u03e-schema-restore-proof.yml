@@ -1,0 +1,84 @@
+name: F6-U03e real isolated PG17 grants and DDL event proof
+
+on:
+  push:
+    branches:
+      - feature/core-1186-f6-u03e-schema-grants-event-rehearsal
+    paths:
+      - .github/workflows/f6-u03e-schema-restore-proof.yml
+      - .github/workflows/f6-u03-canonical-plan-capture.yml
+      - scripts/shoperation-f6-u03e-schema-restore.mjs
+      - tests/shoperation-f6-u03e-schema-restore.test.ts
+      - docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md
+      - quality/development/active-plan.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-pg17-acl-event:
+    name: Verify PostgreSQL17 namespace grants and transactional DDL events
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f6-u03e-ephemeral-only
+          POSTGRES_DB: f6_u03e_fixture
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d f6_u03e_fixture"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+    env:
+      F6_U03E_EPHEMERAL: 'yes'
+    steps:
+      - name: Checkout immutable source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install local Postgres CLI
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+      - name: Pin actual Docker service address
+        env:
+          FIXTURE_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          test -n "$FIXTURE_CONTAINER"
+          ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$FIXTURE_CONTAINER")"
+          test -n "$ip"
+          echo "F6_U03E_CONTAINER_IP=$ip" >> "$GITHUB_ENV"
+      - name: Execute PostgreSQL17 transaction faults and positive regrant
+        shell: bash
+        run: |
+          mkdir -p artifacts/f6-u03e
+          node scripts/shoperation-f6-u03e-schema-restore.mjs --ci-ephemeral > artifacts/f6-u03e/pg17-acl-event-proof.json
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const r=JSON.parse(readFileSync('artifacts/f6-u03e/pg17-acl-event-proof.json','utf8'));
+          if(r.decision!=='PASS'||r.scope!=='LOCAL_POSTGRES17_ACL_DDL_EVENT_FIXTURE_ONLY'
+          ||r.failedTransactions!==5||r.successfulCommits!==1
+          ||r.ddlAuditCommitted!==true||r.supabaseTouched!==false
+          ||r.hostedFreshInstallProved!==false||r.providerEventTriggersExecuted!==false
+          ||r.actualBaselineMigrationsApplied!==0)
+           throw new Error('F6U03E_EVIDENCE_SCOPE_OR_RESULT_INVALID');
+          console.log('F6-U03e PG17 verified 5 negative transactions and one positive commit');
+          NODE
+      - name: Publish scoped PG17 evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03e-pg17-acl-events-${{ github.sha }}
+          path: artifacts/f6-u03e/pg17-acl-event-proof.json
+          if-no-files-found: warn
+          retention-days: 30

@@ -1,22 +1,19 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-0959CFF4",
-  "task": "Core #1186 F6-U03d: read-only inventory of managed Auth dependency and schema ACL required before hosted Fresh Install schema reset",
+  "taskId": "DEV-9901C962",
+  "task": "Core #1186 F6-U03e: actual isolated PostgreSQL17 schema ACL restore and DDL event-trigger rollback rehearsal",
   "status": "closed",
-  "guardDigest": "0959cff4",
-  "changeBaseSha": "c1a18e465b55b9fc4578b9795e20b4a2f288ea50",
+  "guardDigest": "9901c962",
+  "changeBaseSha": "7d3439be97f9aae64d03658dac2e8b4e954d65ff",
   "plannedFilePatterns": [
-    "scripts/shoperation-f6-u03d-managed-preflight.mjs",
-    "tests/shoperation-f6-u03d-managed-preflight.test.ts",
-    "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md",
-    ".github/workflows/f6-u03d-readonly-preflight.yml",
+    "scripts/shoperation-f6-u03e-schema-restore.mjs",
+    "tests/shoperation-f6-u03e-schema-restore.test.ts",
+    "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+    ".github/workflows/f6-u03e-schema-restore-proof.yml",
     ".github/workflows/f6-u03-canonical-plan-capture.yml"
   ],
   "expectedSubsystems": [
-    "auth-access-authority",
-    "customer-account",
     "database-schema",
-    "dependency-contract",
     "quality-infrastructure",
     "release-infrastructure"
   ],
@@ -33,40 +30,30 @@
     "SQ-KF-014",
     "SQ-KF-022",
     "SQ-KF-025",
-    "SQ-KF-001",
-    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-006",
-    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
     "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-017",
     "SQ-KF-018",
     "SQ-KF-020",
     "SQ-KF-023",
     "TF-KF-001",
-    "TF-KF-002",
     "TF-KF-005",
     "TF-KF-007",
-    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
-    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-020"
+    "TF-KF-015"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-005",
-    "SQ-NK-006",
     "SQ-NK-010",
     "SQ-NK-012",
     "SQ-NK-014",
@@ -83,11 +70,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1319",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1321",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Core F6 target deletion is critical; capture complete cross-namespace dependency provenance and schema role/ACL authority first. This unit is READ-ONLY, has no database connection string and explicitly preserves F6-U03b execution disabled. Proof must identify unknown dependencies rather than silently ignoring their object types.",
+      "rationale": "Critical F6 safety prerequisite. Require actual isolated PG17 role grant behavior, failure rollback and external dependency simulation with zero hosted database risk; distinguish hosted event function bodies (read-only) from fixture-only DDL triggers.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -104,25 +91,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Read-only dependency SQL enumerates all relevant pg_depend referenced application objects and resolves dependent owner schema for pg_trigger/pg_rewrite/pg_constraint/pg_attrdef/pg_policy/pg_proc/pg_class/pg_type/pg_namespace, with unresolved object types triggering BLOCK.",
-        "Static evidence comparator accepts only known external auth.users trigger and exact canonical existing public/private schema ACL sets, and rejects any drift.",
-        "Independent read-only query shows exact target database/role, Auth/Storage zero user data, and preserved four buckets; no invocation mutates data.",
-        "Workflow and CLI can only render/check query and fixture results; they have no Supabase secrets, connection execution or schema-reset path.",
-        "Full exact-head canonical plan, edit-time guards, quality tests, TypeScript, Completion Truth and Lifecycle are enforced; live reset stays BLOCKED."
+        "Real isolated PostgreSQL17 test proves DROP SCHEMA/CREATE SCHEMA does not preserve expected namespace privileges, whereas explicit allowlisted ACL restoration exactly restores fixture anon/authenticated/service/admin grants.",
+        "At least three injected error stages before/after drop and after regrant demonstrate transaction rollback preserves original ACL, row, external trigger and committed event audit.",
+        "Successful commit demonstrates recreated old application namespace, restored ACL, external trigger, and event audit visibility; negative missing-grant test fails closed.",
+        "Host/GitHub service identity, DB name, version, local network and inherited environment selectors are protected; only prefixed fixture schemas may be dropped.",
+        "Complete exact-head CI/Lifecycle, isolated PostgreSQL job and documentation mark scope LIMITED_TO_FIXTURE and hosted reset remains blocked."
       ],
       "invariants": [
-        "Project identity istjjkdcvsvilrycqecd is literal, not caller-overridable in the approved review.",
-        "All dependencies with external owner schemas other than the one known Auth trigger block; '?' owner is not ignored.",
-        "ACL role grants for public/private are never silently lost or replaced with only CREATE SCHEMA defaults.",
-        "No program in the F6-U03d unit may execute hosted DDL or mutate Supabase Auth/Storage/catalog.",
-        "Completion Truth may mark the read-only gate's source code ready while destructive deployment and Alap/Pro behavior remain NOT DONE."
+        "Source ACL fragment never references a caller-chosen project or role and is never executed by a hosted runner.",
+        "Only dedicated disposable PostgreSQL17 GitHub service receives DDL with hardcoded f6_u03e_ prefix; no Supabase secrets or connection URL.",
+        "All necessary grants derive from F6-U03d read-only observed public/private namespace ACLs; forbidden extra grants fail.",
+        "Event-triggers simulator does not claim that six original Supabase-managed provider functions were executed.",
+        "No automatic or manual path in this unit can alter hosted platform, staging or Fresh Install projects."
       ],
       "forbiddenStates": [
-        "A live DROP/CREATE executed after a read-only snapshot but before exact transactional revalidation.",
-        "A new Supabase-managed external trigger is omitted due to incorrect pg_depend dependent namespace attribution.",
-        "The reset compiler drops public/private and recreates them without restoring precise grants to anon/authenticated/service_role/supabase_admin.",
-        "A caller substitutes waterk-platform or waterk-staging as the target project.",
-        "A source-only test result is reported as proof of 59 hosted customer migrations, live RLS or provider readiness."
+        "Granting CREATE to anon or authenticated in the public namespace.",
+        "Granting private namespace CREATE to authenticated or service_role.",
+        "Committing recreation without ACL restoration or restoring the Auth-equivalent dependent trigger.",
+        "A failed transaction leaves altered namespace ACLs or a partial new schema.",
+        "Reporting a PostgreSQL fixture PASS as hosted migration proof or Alap/Pro RLS acceptance."
       ]
     },
     "model": {
@@ -154,41 +141,40 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A pg_trigger dependency is reported with schema '?' and wrongly ignored as not external.",
-        "The public schema is recreated without USAGE to anon/authenticated or CREATE to service_role/supabase_admin.",
-        "A hidden Auth trigger or managed-view dependency causes unexpected CASCADE removal.",
-        "Permissions or catalog changed between read-only query and reset commit.",
-        "An untrusted JSON audit report spoofs expected owner or schema ACL values.",
-        "A passing offline catalog query is overclaimed as live deployment proof."
+        "Namespace dropped and recreated without original AUTHORIZED role grants but tests only check owner postgres.",
+        "Grant restoration silently grants too broad CREATE privilege to the anon or authenticated role.",
+        "SQL error leaves new schema committed but old Auth trigger removed, breaking registration.",
+        "Simulated event audit persists after transaction abort and falsely indicates a successful DDL replay.",
+        "Connection string/PGHOSTADDR directs fixture DDL to the hosted customer database.",
+        "Old source-only review unit is changed into actual hosted reset before provider triggers are proven."
       ],
       "edgeCases": [
-        "Exactly one known Auth.users trigger dependent on private.handle_new_user.",
-        "Empty pg_depend relation but missing expected Auth trigger must still BLOCK.",
-        "Unresolved dependent class pg_cast or unknown schema owner must BLOCK.",
-        "ACL order is normalized, duplicate or extra role grants are rejected.",
-        "Public grants: postgres UC, anon U, authenticated U, service_role UC, supabase_admin UC; private grants postgres UC, authenticated U, service_role U.",
-        "Unexpected six event-trigger definitions or unknown enabled flags require additional provider-bound safety proof.",
-        "Zero Auth users/sessions/storage objects but nonzero business or Office rows must BLOCK."
+        "PostgreSQL namespace owner privileges cannot be revoked and are not equivalent to explicit role grants.",
+        "Role ACL order/serialization differs while semantic USAGE/CREATE privileges remain equivalent.",
+        "DROP SCHEMA CASCADE removes an external trigger on auth-equivalent users and rollback restores it.",
+        "A fixture DDL event handler fires on CREATE SCHEMA and DROP SCHEMA and its audit rows roll back on error.",
+        "Delayed NOTIFY on transaction COMMIT differs from service readiness and is not treated as a PostgREST success proof.",
+        "Unexpected extra privilege to anon or authenticated is detected in explicit check functions."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F6-U03D-READONLY",
-        "summary": "Implement a strict read-only catalog dependency/ACL evidence gate prior to any destructive target operation.",
+        "id": "ALT-F6-U03E-REAL-PG",
+        "summary": "Dedicated PostgreSQL17 CI fixture verifies schema grants and DDL callbacks with rollback/commit, no Supabase access.",
         "disposition": "selected",
-        "reason": "Provides missing managed-schema/grant facts without hosted mutation, uses existing code and quality governance."
+        "reason": "Proves actual Postgres semantics needed before hosted authority, without touching provider-managed schemas."
       },
       {
-        "id": "ALT-F6-U03D-DROP-NOW",
-        "summary": "Immediately drop public/private schemas then restore grants as observed.",
+        "id": "ALT-F6-U03E-HOSTED-RESET",
+        "summary": "Attempt direct hosted Fresh Install DROP/CREATE/GRANT and inspect resulting ACL.",
         "disposition": "rejected",
-        "reason": "No transactional inside-target guard has yet proved all object counts, data fingerprints and event-trigger impact; destructive action would bypass review."
+        "reason": "Insufficient managed event-trigger and transactional guard proof; high data and provider risk."
       },
       {
-        "id": "ALT-F6-U03D-NEW-FRESH",
-        "summary": "Activate or create another Supabase project to get a clean environment.",
+        "id": "ALT-F6-U03E-ONLY-STRING",
+        "summary": "Only lint GRANT statements without a real PostgreSQL role/DDL test.",
         "disposition": "rejected",
-        "reason": "Breaks two-active-project budget constraint and postpones managed compatibility proof."
+        "reason": "Cannot prove actual grant semantics, cascade-dependent trigger or rollback."
       }
     ],
     "specialistReviews": [
@@ -196,111 +182,113 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "App ACL checks are insufficient if six managed event triggers or hidden external dependencies can change schema deletion behavior.",
-        "resolution": "Block live reset, enumerate event triggers as unknown until separately verified, require exact in-transaction dependency repeat plus restoration.",
+        "finding": "A schema ACL restore with too-broad CREATE grants could let low-privilege clients alter DB objects.",
+        "resolution": "Whitelist separate USAGE and CREATE semantic role grants and assert forbidden grants absent in a real PostgreSQL service.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md"
+          "tests/shoperation-f6-u03e-schema-restore.test.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Static empty-row counts and broad pg_depend summaries do not guarantee the actual transaction target.",
-        "resolution": "Emit read-only snapshot with scoped identity and normalized dependencies but do not reuse as destructive authorization.",
+        "finding": "External triggers and event-audit effects must rollback with the DDL and be recreated in positive replay.",
+        "resolution": "Prove rollback from real fixture connections and a successful commit with original Auth-like dependency restored.",
         "evidence": [
-          "scripts/shoperation-f6-u03d-managed-preflight.mjs"
+          "scripts/shoperation-f6-u03e-schema-restore.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Dropping public would erase schema ACLs and may disrupt PostgREST Data API even after tables are recreated.",
-        "resolution": "Require exact ACL restoration and exposure regression in a subsequent code-gated hosted proof plan; no mutation now.",
+        "finding": "Local DDL callbacks are not equivalent to Supabase managed Auth/Storage/PostgREST provider functions.",
+        "resolution": "Record exact read-only function fingerprints and explicitly restrict proof to isolated PG17 semantics; later hosted proof separate.",
         "evidence": [
-          ".github/workflows/f6-u03d-readonly-preflight.yml"
+          "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A new quality inspector cannot become a parallel fresh-install completion authority.",
-        "resolution": "Preserve existing customer-baseline workflow and Completion Truth; source-review verdict is READ_ONLY only.",
+        "finding": "PostgreSQL event-trigger callbacks and NOTIFY delivery are transactional, but a provider PostgREST schema reload is a separate external service action.",
+        "resolution": "Exercise local callback audit and rollback/commit; record the six genuine Supabase function fingerprints without treating them as production execution proof.",
         "evidence": [
-          "quality/development/active-plan.json"
+          ".github/workflows/f6-u03e-schema-restore-proof.yml",
+          "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-F6-U03D-1",
-        "scenario": "pg_depend output contains thousands of app-owned triggers with schema '?' due to naïve dependent schema classification.",
-        "finding": "Misclassifies local dependencies, concealing actual external trigger ownership.",
-        "resolution": "Resolve namespace through parent relation for pg_trigger, pg_rewrite, pg_constraint, pg_attrdef and pg_policy; unresolved owner BLOCK.",
+        "id": "CH-F6-U03E-1",
+        "scenario": "CREATE SCHEMA restores owner but drops guest/authenticated USAGE.",
+        "finding": "Postgres namespace recreation loses named-role ACL entries.",
+        "resolution": "Allowlisted explicit GRANT statements plus real role-based positive/negative checks in PG17 fixture.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03D-2",
-        "scenario": "Schema is dropped and recreated with only postgres owner, silently revoking anon/authenticated access.",
-        "finding": "CREATE SCHEMA defaults do not restore Supabase's existing schema-level grants.",
-        "resolution": "Require exact public/private role-action ACL inventory and a later explicit in-transaction restoration/verification plan before reset can be authorized.",
+        "id": "CH-F6-U03E-2",
+        "scenario": "Granting ALL PRIVILEGES to anon exposes schema CREATE despite RLS.",
+        "finding": "Schema CREATE privilege is separate from table RLS.",
+        "resolution": "Require only USAGE for fixture anon/authenticated roles; verify forbidden CREATE is absent.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03D-3",
-        "scenario": "auth.users registration trigger gets CASCADE-dropped and never reinstalled.",
-        "finding": "One known external Auth trigger references app-private trigger function.",
-        "resolution": "Capture exact known external dependency and require later bootstrap restore plus postflight external verification.",
+        "id": "CH-F6-U03E-3",
+        "scenario": "SQL-drop event trigger not observed or incorrectly assumed to fire after rollback.",
+        "finding": "DML audit and event notifications participate in transaction commit semantics.",
+        "resolution": "Use disposable fixture event handlers with committed audit checks after rollback and positive commit; keep hosted provider effect unproven.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03D-4",
-        "scenario": "A managed schema publishes an external view or new FK depending on public, not accounted for in existing F6-U03b guards.",
-        "finding": "Checking only foreign keys/triggers is incomplete.",
-        "resolution": "Enumerate pg_depend across app namespace/classes and fail closed for unknown externally owned dependent objects.",
+        "id": "CH-F6-U03E-4",
+        "scenario": "The external auth.users trigger is dropped on cascading function removal.",
+        "finding": "Cross-schema dependent trigger must survive rollback and be recreated before any successful commit.",
+        "resolution": "Dedicated auth-like schema fixture with callback and automatic presence checks.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03D-5",
-        "scenario": "A PG snapshot is passed as valid after Auth user or Storage object appears.",
-        "finding": "Historical empty data state cannot authorize future deletion.",
-        "resolution": "Read-only report includes current zero-data sentinels and later any destructive implementation must recheck inside the same locked transaction.",
+        "id": "CH-F6-U03E-5",
+        "scenario": "A developer uses arbitrary psql URL/host in an otherwise fixture-only script.",
+        "finding": "Could route DDL outside ephemeral Postgres.",
+        "resolution": "Refuse PG* overrides, require GitHub ephemeral marker plus exact Docker service IP, database/user/version before executing fixture SQL.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03D-6",
-        "scenario": "A fabricated report claims no dependencies and hides the auth.users trigger.",
-        "finding": "A count of zero may appear safe but is inconsistent with known target.",
-        "resolution": "Require exactly one accepted external dependency with full source and target identity.",
+        "id": "CH-F6-U03E-6",
+        "scenario": "Hosted PostgREST watcher source changes while the fixture still passes.",
+        "finding": "Static simulation cannot prove provider functions.",
+        "resolution": "Capture exact observed six event functions' digests; any future hosted transaction must revalidate and independently observe provider behavior.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03D-7",
-        "scenario": "Unexpected default privileges or event triggers alter behavior during schema reset.",
-        "finding": "The previously observed six event triggers and namespace ACLs require distinct inspection.",
-        "resolution": "Record event-trigger names/definitions and force future review of their effects; never infer readiness from ACL check alone.",
+        "id": "CH-F6-U03E-7",
+        "scenario": "The schema owner is postgres but a real low-privilege client inherits an unexpected role grant.",
+        "finding": "Simple ACL string equality is insufficient; effective privilege checks must use explicit separate principal identities and deny CREATE for guest/authenticated.",
+        "resolution": "Create separate fixture roles for each allowed role and use has_schema_privilege plus negative missing-grant and privilege-escalation assertions.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03D-8",
-        "scenario": "GitHub workflow accidentally receives Supabase secrets and uses psql despite offline intent.",
-        "finding": "Quality authority must be separated from hosted target execution.",
-        "resolution": "Compile/test static query contract without secrets or psql invocation; live snapshot reads happen only via approved Supabase read-only connector.",
+        "id": "CH-F6-U03E-8",
+        "scenario": "The transaction has a successful SQL DROP and schema recreation but a synchronous DDL event handler throws before COMMIT.",
+        "finding": "Provider-like DDL hooks can abort transactions, and a local fixture should verify event handler failures preserve previous ACLs and Auth-like dependency.",
+        "resolution": "Inject a fault from a disposable event-trigger callback in PostgreSQL17; demonstrate complete rollback of row, grant and external trigger.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run canonical Development Guard and Plan Before Code on exact next branch.",
-      "Prove dependent object class attribution with synthetic pg_depend fixtures plus externally managed Auth trigger.",
-      "Check exact schema ACL normalized role-action grants; reject dropped anon/authenticated/service_role/supabase_admin grants and extra grants.",
-      "Confirm actual read-only Supabase 17.6 catalog under target project, zero relevant Auth/Storage data and four retained buckets.",
-      "Run read-only workflow with no database secret and all targeted unit/negative tests.",
-      "Run exact-head standard CI, TypeScript, Completion Truth, Lifecycle; preserve explicit RESET_BLOCKED status."
+      "Canonical Development Guard PASS plus Plan Before Code on exact branch plan.",
+      "Unit tests verify immutable allowlisted ACL grants and strict environment boundaries.",
+      "Real PG17 CI service proves old ACL lost on schema recreation without grants, regrant exact privileges and reject forbidden CREATE for anon/authenticated.",
+      "Inject transaction exceptions at after-drop, after-regrant and before-commit; require original ACL, row and external trigger plus committed event history preserved.",
+      "Positive commit fixture with external trigger and observed event-audit changes after COMMIT only.",
+      "Record six hosted provider event-trigger fingerprints via read-only Supabase; describe limited scope and non-authorized reset.",
+      "Exact-head standard CI, TypeScript, Production Build, Completion Truth, Lifecycle closure. Hosted 59 migrations remain BLOCKED."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/pull/1319",
+      "request": "https://github.com/infowaterk-max/water-K-/pull/1321",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
@@ -311,14 +299,14 @@
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        ".github/workflows/f6-u03d-readonly-preflight.yml",
-        "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md",
-        "scripts/shoperation-f6-u03d-managed-preflight.mjs",
-        "tests/shoperation-f6-u03d-managed-preflight.test.ts"
+        ".github/workflows/f6-u03e-schema-restore-proof.yml",
+        "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+        "scripts/shoperation-f6-u03e-schema-restore.mjs",
+        "tests/shoperation-f6-u03e-schema-restore.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-f6-u03d-managed-preflight.test.ts",
+        "tests/shoperation-f6-u03e-schema-restore.test.ts",
         "GUARD-QUALITY-TESTS",
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-TYPECHECK"
@@ -337,10 +325,10 @@
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          ".github/workflows/f6-u03d-readonly-preflight.yml",
-          "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md",
-          "scripts/shoperation-f6-u03d-managed-preflight.mjs",
-          "tests/shoperation-f6-u03d-managed-preflight.test.ts"
+          ".github/workflows/f6-u03e-schema-restore-proof.yml",
+          "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+          "scripts/shoperation-f6-u03e-schema-restore.mjs",
+          "tests/shoperation-f6-u03e-schema-restore.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -379,25 +367,25 @@
             "points": 2
           },
           {
-            "file": ".github/workflows/f6-u03d-readonly-preflight.yml",
+            "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md",
+            "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "scripts/shoperation-f6-u03d-managed-preflight.mjs",
+            "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/shoperation-f6-u03d-managed-preflight.test.ts",
+            "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -436,25 +424,25 @@
               "points": 2
             },
             {
-              "file": ".github/workflows/f6-u03d-readonly-preflight.yml",
+              "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md",
+              "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "scripts/shoperation-f6-u03d-managed-preflight.mjs",
+              "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/shoperation-f6-u03d-managed-preflight.test.ts",
+              "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -499,7 +487,7 @@
           {
             "id": 1,
             "files": [
-              ".github/workflows/f6-u03d-readonly-preflight.yml"
+              ".github/workflows/f6-u03e-schema-restore-proof.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -516,7 +504,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03d-readonly-preflight.yml",
+                  "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -529,7 +517,7 @@
           {
             "id": 2,
             "files": [
-              "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md"
+              "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -540,7 +528,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -553,7 +541,7 @@
           {
             "id": 3,
             "files": [
-              "scripts/shoperation-f6-u03d-managed-preflight.mjs"
+              "scripts/shoperation-f6-u03e-schema-restore.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -570,7 +558,7 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-f6-u03d-managed-preflight.mjs",
+                  "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -583,7 +571,7 @@
           {
             "id": 4,
             "files": [
-              "tests/shoperation-f6-u03d-managed-preflight.test.ts"
+              "tests/shoperation-f6-u03e-schema-restore.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -594,7 +582,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-f6-u03d-managed-preflight.test.ts",
+                  "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -611,24 +599,24 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1319",
-              "developmentBaseSha": "c1a18e465b55b9fc4578b9795e20b4a2f288ea50"
+              "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1321",
+              "developmentBaseSha": "7d3439be97f9aae64d03658dac2e8b4e954d65ff"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "c1a18e465b55b9fc4578b9795e20b4a2f288ea50",
+            "targetBaseSha": "7d3439be97f9aae64d03658dac2e8b4e954d65ff",
             "lease": {
-              "expectedBaseSha": "c1a18e465b55b9fc4578b9795e20b4a2f288ea50",
+              "expectedBaseSha": "7d3439be97f9aae64d03658dac2e8b4e954d65ff",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               ".github/workflows/f6-u03-canonical-plan-capture.yml",
-              ".github/workflows/f6-u03d-readonly-preflight.yml",
-              "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md",
-              "scripts/shoperation-f6-u03d-managed-preflight.mjs",
-              "tests/shoperation-f6-u03d-managed-preflight.test.ts"
+              ".github/workflows/f6-u03e-schema-restore-proof.yml",
+              "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+              "scripts/shoperation-f6-u03e-schema-restore.mjs",
+              "tests/shoperation-f6-u03e-schema-restore.test.ts"
             ],
             "operations": [
               {
@@ -638,22 +626,22 @@
               },
               {
                 "operation": "create",
-                "file": ".github/workflows/f6-u03d-readonly-preflight.yml",
+                "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md",
+                "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "scripts/shoperation-f6-u03d-managed-preflight.mjs",
+                "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/shoperation-f6-u03d-managed-preflight.test.ts",
+                "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
                 "generated": null
               }
             ],
@@ -691,25 +679,25 @@
                   "points": 2
                 },
                 {
-                  "file": ".github/workflows/f6-u03d-readonly-preflight.yml",
+                  "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "scripts/shoperation-f6-u03d-managed-preflight.mjs",
+                  "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/shoperation-f6-u03d-managed-preflight.test.ts",
+                  "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -738,7 +726,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-f6-u03d-managed-preflight.test.ts"
+                "tests/shoperation-f6-u03e-schema-restore.test.ts"
               ],
               "externalGateIds": []
             },
@@ -750,10 +738,10 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 ".github/workflows/f6-u03-canonical-plan-capture.yml",
-                ".github/workflows/f6-u03d-readonly-preflight.yml",
-                "docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md",
-                "scripts/shoperation-f6-u03d-managed-preflight.mjs",
-                "tests/shoperation-f6-u03d-managed-preflight.test.ts"
+                ".github/workflows/f6-u03e-schema-restore-proof.yml",
+                "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+                "scripts/shoperation-f6-u03e-schema-restore.mjs",
+                "tests/shoperation-f6-u03e-schema-restore.test.ts"
               ],
               "filesAbsent": []
             },
@@ -768,7 +756,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "a77715d5",
+            "manifestDigest": "bddb96a7",
             "decision": "PASS"
           }
         ],
@@ -806,39 +794,38 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Current occupied disposable Supabase target has 175 public + two private tables, with one known external auth.users trigger depending on private.handle_new_user and schema-level ACLs not restored by the historical F6-U03b proposed DROP/CREATE. Destructive replay must remain prohibited until the full live target dependency, ACL, role, user-data and managed-schema boundary is demonstrably checked.",
+    "problemStatement": "F6-U03d discovered that the existing source-pinned, intentionally non-executable customer Fresh Install DROP/CREATE candidate omits exact public/private namespace ACL restoration. Six provider event triggers exist, including two PostgREST watchers. Prove namespace grant restoration and transactional DDL event behaviors in an isolated PostgreSQL 17 fixture without any Supabase write or production credentials.",
     "observableOutcomes": [
-      "A read-only PostgreSQL catalog SQL report enumerates every cross-schema application-owned dependency with correctly resolved owner namespaces for pg_trigger, pg_rewrite, pg_constraint, pg_attrdef, pg_policy, pg_proc, pg_class, pg_type and pg_namespace.",
-      "The only accepted external dependency is the exact auth.users/on_auth_user_created -> private.handle_new_user trigger. Unknown, unresolved, extension-owned or system-dependent edges block.",
-      "The exact schema ACL sets for public and private, owners and service-role/anon/authenticated grants are captured, checked and required for any future reconstructed public/private schema. Existing destructive compiler still has hard fail-before-DROP.",
-      "Evidence reports only READ_ONLY_BLOCKED_RESET and limited catalog/readiness scope, never full hosted Fresh Install, COMMIT, 59 migrations or Alap/Pro RLS PASS.",
-      "Existing project states remain two ACTIVE (platform and Fresh Install) and staging INACTIVE; no Supabase SQL writes or credential access."
+      "An ephemeral PostgreSQL17 fixture demonstrates that DROP/CREATE removes namespace grants; an explicit known-only regrant restores exact usable privileges for fixture roles analogous to anon, authenticated, service_role, supabase_admin and owner.",
+      "Aborted fixture transactions restore old grants/data/auth-equivalent trigger and do not commit audit events; successful fixture replay recreates table and external trigger, restores ACLs, and commits only approved event-audit entries.",
+      "Captures read-only fingerprints of all six actual hosted Supabase event trigger functions; in particular the PostgREST DDL watchers issue NOTIFY pgrst reload schema on relevant DDL. Exact function-body hashes are observations, not equivalent proof of a simulated hosted service.",
+      "Existing F6-U03b abort-before-DROP still remains active; this unit ships only a locked isolated test process and a nonexecuting schema-regrant SQL fragment for later reviewed transaction assembly."
     ],
     "unresolvedRisks": [
-      "Snapshot SQL runs read-only, so it cannot guarantee no data or dependency drift between observation and any future destructive transaction; in-transaction locks and identical guards are still required.",
-      "The six observed Supabase PostgreSQL event triggers may fire on schema creation/deletion; their safety remains unproved until separate explicit inspection and fault testing.",
-      "Schema ACLs alone do not establish all table/view/function grants, default privileges, PostgREST exposure or Auth worker behavior after recreation.",
-      "An application's later live 59-file migration run and genuine signed-in role RLS proof remain separately blocking."
+      "Fixture event triggers cannot establish actual hosted Supabase event-trigger execution, PostgREST service readiness, or all provider-managed side effects.",
+      "Schema grants alone do not prove table/function/sequence ACLs or real actor tokens and RLS.",
+      "An unexpected additional pg_depend external reference, changed data, extension or live session must still abort hosted cleanup in its own future transaction.",
+      "Existing hosted Fresh Install app tables remain occupied; 59 reviewed customer baseline migrations have not run."
     ],
     "scope": {
       "in": [
-        "Add one source-owned read-only PostgreSQL catalog query builder and strict result/expected grant/dependency comparator.",
-        "Use Supabase MCP only for one-project read-only evidence; do not call any destructive SQL API.",
-        "Add synthetic negative tests for new managed trigger, external FK/view, unknown dependent object class, schema ACL divergence, Auth/Storage user data, wrong role and stale project reference.",
-        "Add a no-credentials GitHub workflow that validates the generated SQL contract and emits offline evidence without connecting to Supabase.",
-        "Document already observed actual 17.6 PostgreSQL schema ACL snapshot, known Auth dependency, event triggers, outstanding regrant/replay limitations."
+        "Develop a source-owned exact-ACL regrant/review fragment (no dynamic role inputs) and negative unit tests for missing, extra or reordered roles.",
+        "Add disposable PostgreSQL17 GitHub Actions service and isolated runner to prove ACL loss and correct restoration under DROP/CREATE CASCADE with Auth-style dependent trigger and simulated DDL audit event triggers.",
+        "Exercise rollback fault injection before/after schema recreation and ACL repair plus a positive commit, proving original grants and external trigger remain correct after errors.",
+        "Record all six hosted event-trigger function hashes from read-only Supabase connector observation and distinguish actual provider functions from fixture examples.",
+        "Keep default and PR paths entirely non-destructive to Supabase: no hosted secret, no live SQL, no project toggles."
       ],
       "out": [
-        "No DROP SCHEMA or CREATE SCHEMA on Fresh Install and no granting/revoking any privileges.",
-        "No removal of F6-U03b deliberate abort barrier, no activation of a hosted migration runner, no project state changes.",
-        "No claims of real hosted 59 migrations, signed-in Alap/Pro tenant tests or complete final Core closure.",
-        "No new parallel release/Control Plane/Atlas/permission authority; reuse existing gate and contract conventions."
+        "No modification of original hosted F6-U03b source compiler execution switch, schema, storage or Auth managed metadata.",
+        "No destructive live Supabase migration execution, direct API revoke/grant or role writes.",
+        "No Builder, Template Factory, second Control Plane or new cloud project.",
+        "No claim of full Fresh Install hosted 59-file, signed-in Office Alap/Pro or PostgREST integration readiness."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1319",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1321",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -855,11 +842,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F6-U03D-DEPENDENCY",
-        "requirement": "A read-only managed namespace dependency audit must identify exactly the known auth.users trigger and block unknown external references or unresolved owner classes.",
+        "id": "REQ-F6-U03E-GRANTS",
+        "requirement": "Explicit named-role grants for recreated schema must preserve original usage/create semantics under true PostgreSQL17 validation.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "managed-reference-catalog-source-only",
+          "breadth": "local-namespaced-schema-grants-only",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -880,8 +867,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6-U03D-UNKNOWN",
-            "statement": "Unknown externally dependent objects pass a hosted schema reset guard.",
+            "id": "NEG-F6-U03E-PRIVESC",
+            "statement": "Fixture anon/authenticated receives schema CREATE privileges or intended named USAGE is absent.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -889,11 +876,11 @@
         ]
       },
       {
-        "id": "REQ-F6-U03D-ACL",
-        "requirement": "public/private owner and schema ACL grants are preserved as a strict evidence contract before any future schema reset.",
+        "id": "REQ-F6-U03E-ROLLBACK",
+        "requirement": "Fixture-only DDL callbacks, external Auth-equivalent trigger and grants return to original state after injected failure.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "schema-grant-readiness-only",
+          "breadth": "ephemeral-postgres17-rollback",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -914,8 +901,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6-U03D-ROLE",
-            "statement": "A recreated schema without anon/authenticated or service/admin grants is accepted as working.",
+            "id": "NEG-F6-U03E-PARTIAL",
+            "statement": "An injected fault commits altered roles or event-audit values while DDL replay failed.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -923,11 +910,11 @@
         ]
       },
       {
-        "id": "REQ-F6-U03D-HOSTED-BLOCK",
-        "requirement": "READ-ONLY verification must never be represented as hosted schema reset authorization or actual signed-in Alap/Pro behavior proof.",
+        "id": "REQ-F6-U03E-TRUTH",
+        "requirement": "Provider trigger definitions are read-only inventory and local fixture proof is not hosted Fresh Install or authenticated Alap/Pro verification.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "strict-no-hosted-action",
+          "breadth": "no-hosted-overclaim",
           "strength": 2,
           "dimensions": [
             "plan",
@@ -948,8 +935,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6-U03D-MUTATION",
-            "statement": "Read-only dashboard tests trigger DROP SCHEMA or 59-file replay.",
+            "id": "NEG-F6-U03E-HOSTED",
+            "statement": "Local PG17 grants/event callbacks mark 59 hosted migrations as completed or disable the F6-U03b abort barrier.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -958,14 +945,14 @@
       }
     ]
   },
-  "notes": "F6-U03d new release unit for a read-only managed cross-namespace dependency and ACL census. Development Guard PASS at full GH checkout on 2026-10-15, digest 0959cff4, risk 4/5, 31 Known Failures. Observed exactly one external Auth trigger and distinct public/private ACL grants in previous readonly Supabase query; event triggers still need explicit inventory. This phase never authorizes hosted schema reset, and the F6-U03b abort barrier remains on. Engineering specialist reviews are modeled adversarial findings, not external endorsements. CI planned-projection 38737114740 confirmed write owner DOMAIN-QUALITY/DOMAIN-RELEASE and authorities quality-knowledge-system/release-infrastructure. Auth, database and tenant remain explicit read-only safety dependencies, not modified authority owners. No challenge or requirement weakened.",
+  "notes": "F6-U03e scoped ephemeral PostgreSQL17 fixture proof, stacked on F6-U03d CI-complete head f8be5f77; Development Guard PASS exact source scope c1?? captured as 7d3439b... and digest 9901c962 (same graph digest can recur, task identity distinguished by branch and base). Six provider event trigger fingerprints observed read-only in Supabase connector; no provider function executed or hosted data modified. Security/Data/Release reviews are engineering modeled findings, not third-party signed approvals. Plan Before Code at run 38742364743 demanded at least eight adversarial challenges and four specialist role reviews for projected risk 4/5; supplied exact depth without reducing protection. Canonical Plan Before Code run 38742616834 rejected noncanonical Runtime/Operations review role; reclassified this review to canonical Known Failure without changing finding or resolution.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "761026a17b8e0feb980e9291c370ed618b3c977e",
-    "closedAt": "2026-10-15T13:01:20.456Z",
+    "verifiedImplementationHead": "6d89936e902905abbf6e83f21ebaf95999d6ae60",
+    "closedAt": "2026-10-15T13:42:30.786Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1319",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1321",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
