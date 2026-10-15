@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-074C4B63",
   "task": "Core #1186 F6-U03g: positive isolated PostgreSQL17 transaction guard fixture, no hosted writes",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "074c4b63",
   "changeBaseSha": "fa723ab3ffda78b0d40803f8ec77155a334c8ce1",
   "plannedFilePatterns": [
@@ -931,5 +931,18 @@
       }
     ]
   },
-  "notes": "F6-U03g proposed positive fixture proof, not actual 177-table/4621-definition Supabase recreation. Canonical Development Guard PASS risk4/5 failures20 on branch fa723ab3ffda78b0d40803f8ec77155a334c8ce1. Engineering specialist evaluations are modeled reviews, not human acceptance. Adversarial challenge wording strengthened to meet canonical meaningful-scenario and independent resolution checks; no safety gates waived."
+  "notes": "F6-U03g proposed positive fixture proof, not actual 177-table/4621-definition Supabase recreation. Canonical Development Guard PASS risk4/5 failures20 on branch fa723ab3ffda78b0d40803f8ec77155a334c8ce1. Engineering specialist evaluations are modeled reviews, not human acceptance. Adversarial challenge wording strengthened to meet canonical meaningful-scenario and independent resolution checks; no safety gates waived.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "56f864456d88d181dbab378c168afbb3e80ff515",
+    "closedAt": "2026-10-15T17:52:24.629Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1323",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
