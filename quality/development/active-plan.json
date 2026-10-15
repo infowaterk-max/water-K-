@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-074C4B63",
   "task": "Core #1186 F6-U03b: guarded occupied Fresh Install recovery and atomic customer baseline proof, no automatic execution",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "074c4b63",
   "changeBaseSha": "5284242510ab0501a21ad4f27b33aa19043dd0f5",
   "plannedFilePatterns": [
@@ -970,5 +970,18 @@
       }
     ]
   },
-  "notes": "F6-U03b development from F6-U03a closed exact commit ab5a155715156abb13a07796a8d44b8dcb3c226a. Development Guard PASS on GH full repo checkout run 38719526787 digest 074c4b63, risk 4/5. This plan authorizes ONLY construction and testing of guarded opt-in code/workflow, NOT the actual live Supabase schema deletion. Independent exact-target run requires explicit authorization after CI+rollback proof. Engineering specialist findings are threat-model reasoning, not externally signed human specialist approvals. Storage bucket upserts in canonical customer-baseline are historical known behavior and do not establish provider-virgin state. CI planned-projection (run 38720010251) corrected expectedDomains to DOMAIN-QUALITY + DOMAIN-RELEASE and canonical modified-code owner authorities to quality-knowledge-system + release-infrastructure. Auth, DB and tenant safety remain explicit checked dependencies in the critical plan and negative proof, not edited owners. No capability or risk claim downgraded."
+  "notes": "F6-U03b development from F6-U03a closed exact commit ab5a155715156abb13a07796a8d44b8dcb3c226a. Development Guard PASS on GH full repo checkout run 38719526787 digest 074c4b63, risk 4/5. This plan authorizes ONLY construction and testing of guarded opt-in code/workflow, NOT the actual live Supabase schema deletion. Independent exact-target run requires explicit authorization after CI+rollback proof. Engineering specialist findings are threat-model reasoning, not externally signed human specialist approvals. Storage bucket upserts in canonical customer-baseline are historical known behavior and do not establish provider-virgin state. CI planned-projection (run 38720010251) corrected expectedDomains to DOMAIN-QUALITY + DOMAIN-RELEASE and canonical modified-code owner authorities to quality-knowledge-system + release-infrastructure. Auth, DB and tenant safety remain explicit checked dependencies in the critical plan and negative proof, not edited owners. No capability or risk claim downgraded.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "d7f2512109a4ddc59ee3e4ec352c6eb15356c0fe",
+    "closedAt": "2026-10-15T10:44:00.985Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1308",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
