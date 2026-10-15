@@ -1,79 +1,39 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-B55A7A31-F6-U02",
-  "task": "Core #1186 F6-U02: Office plan-scoped SQL source lineage supersession and read-only Alap/Pro deployment readiness truth checker",
-  "status": "closed",
-  "guardDigest": "074c4b63",
-  "changeBaseSha": "b430dcfe3cd94135f2e61be392348c60b6f4b4ca",
+  "taskId": "DEV-386A5ACE",
+  "task": "Core #1186 F6-U03a: reviewed source/connection guard only; no DB writes",
+  "status": "ready-for-implementation",
+  "guardDigest": "386a5ace",
+  "changeBaseSha": "ea059fd4ffd8e6aa260a1177a89adb445e3b8359",
   "plannedFilePatterns": [
-    "scripts/shoperation-office-baseline-lineage.mjs",
-    "scripts/shoperation-office-db-readiness.mjs",
-    "tests/shoperation-office-db-readiness.test.ts",
-    "tests/customer-baseline-office-plan-scoped-rls.test.ts",
-    "tests/customer-baseline-office-privacy-prerequisites.test.ts",
-    "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
-    "tests/customer-baseline-communication-hub-prerequisites.test.ts",
-    "scripts/shoperation-office-db-stage-rehearsal.mjs",
-    "tests/shoperation-office-db-stage-rehearsal.test.ts",
-    "tests/pro-entitlement-guards.test.ts"
+    "scripts/shoperation-disposable-fresh-replay.mjs",
+    "tests/shoperation-disposable-fresh-replay.test.ts",
+    "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
-    "release-infrastructure"
+    "quality-infrastructure"
   ],
-  "expectedDomains": [
-    "DOMAIN-QUALITY"
-  ],
-  "expectedAuthorities": [
-    "quality-knowledge-system"
-  ],
+  "expectedDomains": [],
+  "expectedAuthorities": [],
   "expectedKnownFailureIds": [
-    "SQ-KF-003",
-    "SQ-KF-004",
-    "SQ-KF-006",
-    "SQ-KF-008",
-    "SQ-KF-009",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-018",
-    "SQ-KF-020",
     "SQ-KF-022",
-    "SQ-KF-025",
-    "TF-KF-001",
-    "TF-KF-005",
-    "TF-KF-007",
-    "TF-KF-009",
-    "TF-KF-010",
-    "TF-KF-011",
-    "TF-KF-013",
-    "TF-KF-014",
-    "TF-KF-015"
+    "SQ-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-002",
-    "SQ-NK-003",
-    "SQ-NK-005",
-    "SQ-NK-010",
     "SQ-NK-012",
-    "SQ-NK-016",
-    "SQ-NK-017",
-    "SQ-NK-018",
-    "SQ-NK-019",
-    "SQ-NK-020",
-    "SQ-NK-021",
-    "SQ-NK-022",
-    "SQ-NK-023",
     "SQ-NK-024"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1308",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Follow-up low infrastructure-only risk unit after validated F6-U01 actual v2 SQL. Source checker and read-only catalog readiness currently regard unsafe global-Pro v1 and two already superseded fixed-list plan sync sources as mandatory; they must instead require corrected v2 plan-scoped rows, tenant/actor semantics, function definition provenance and real proof blocker.",
+      "rationale": "The F6-U03 work is the prerequisite to a potentially destructive disposable database reprovision, so source-byte authority, connection identity, negative tests and exact-head review must be proven before introducing any runnable reset. This first narrow unit creates only a non-executing diagnostic and its negative tests; it explicitly does not authorize SQL DDL, cloud workflow activation, or the 59-file hosted replay.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -90,33 +50,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Replace last Office source prerequisite with exact reviewed 20261015090000 plan-scoped v2; mark immutable 20261010093000 strict-Pro v1 as a third superseded source alongside two old fixed-list plan-syncs.",
-        "Detect forbidden unsafe historical strict-Pro v1 both by original SHA provenance and recognizable renamed unmarked body without rejecting valid corrected v2.",
-        "Real current customer baseline 59 files, 11/11 corrected source matches, zero missing/forged; sourceLineageStatus SOURCE_PRESENT_UNPROVEN and decision REVIEW, never releaseReady, never realDatabaseProof.",
-        "Update read-only Office DB catalog snapshot functions to include definitions and current-user SQL guards; no database or connector writes.",
-        "Remove obsolete 20260909204825 and 20260910061815 legacy migration versions from read-only readiness requirements; require canonical 20261015090000 corrected authority with 0051/Team Chat/Communication Hub dependencies.",
-        "Reject old blanket Pro restrictive SELECT policies, missing per-type restrictive plan-scoped v2 policies, broad ALL policies, unguarded PERMISSIVE OR policies, unsigned per-actor helper exposure and SQL function definitions with global Pro checks ahead of customer branch.",
-        "Require signed-in user current-user-bound thread/task helper definitions, Alap officeCommunication/customer-support branch and subscription Pro cap for Team Chat; only METADATA_CANDIDATE_ONLY review, never authoritative, even with valid snapshot.",
-        "Update current and negative existing test fixtures to reflect 3 superseded sources and static source-present-but-unproven 59 customer SQL files; disallow false hosted RLS or Fresh Install claim.",
-        "No SQL write, Supabase activation, Vercel or Builder work and no modification to F6-U01 SQL source/manifest.",
-        "Synchronize downstream staging-role rehearsal script and fixture with corrected Alap customer allowed / Alap internal denied / post-downgrade private denied distinctions; add old strict-Pro v1 to forbidden replay list. No real role proof made.",
-        "Legacy Pro entitlement test must require corrected OFFICE_DB_PLAN_SCOPED_RLS_MISSING/ OFFICE_DB_ALAP_CUSTOMER_READ_BLOCKED/ OFFICE_DB_BROWSER_ACTOR_RPC_EXPOSED flags and forbid historical blanket-Pro marker; no implementation logic downgrade to green the CI."
+        "The reviewer can call the source verifier against the canonical Git repository and observe a fixed reviewed SHA plus exactly 59 migration-file identities and the required five baseline companions.",
+        "A regression fixture with unchanged SQL names but modified bytes must be rejected, including mutation of corrected 0058 and all middle customer migrations.",
+        "All unauthorized libpq environment selectors, invalid Supabase project hosts, databases or usernames, and absent trusted TLS material must fail before any child process could start.",
+        "The published module exports only review and inert planning functions; its execution mode remains disabled and no real database client or schema write is introduced.",
+        "Full canonical CI verification and evidence must be tied to exact head, not an inherited earlier Core release claim."
       ],
       "invariants": [
-        "Existing 0058 canonical SQL and SHA256 bytes are immutable after F6-U01 green.",
-        "Old Pro-only policy is never accepted for customer Office, even in otherwise green metadata snapshot.",
-        "No stale fixed-array entitlements accepted as migration/plan authority.",
-        "Every table requires signed-in current-user-aware permissive policy AND corrected type-aware restrictive guard.",
-        "Functions documented as SECURITY DEFINER are inspected by read-only catalog definition, but metadata cannot replace actual behavioral proof.",
-        "No database readiness status beyond REVIEW METADATA_CANDIDATE_ONLY on static snapshot."
+        "Only the preapproved disposable Fresh Install reference istjjkdcvsvilrycqecd is ever accepted as a syntactic database target.",
+        "The 59 customer-baseline files and five required companions must match the exact reviewed F6-U02 source commit byte-for-byte before source verification may pass.",
+        "Unknown, extra, duplicate or altered migration files cause source verification to BLOCK rather than create a new baseline checksum on demand.",
+        "No operation in F6-U03a may send SQL, drop a schema, delete Storage content or alter any Supabase project.",
+        "Original Alap customer Office communication and Pro team chat rules remain unchanged and are not claimed to be behaviorally verified."
       ],
       "forbiddenStates": [
-        "Old strict Pro v1 accepted by source lineage or metadata readiness.",
-        "Old 20260909204825/20260910061815 are required migrations.",
-        "Global Pro-only restrictive policy added to any Office table.",
-        "Forged function metadata only by name yields REVIEW.",
-        "Helper functions with auth.uid missing accepted.",
-        "Source exactness misrepresented as hosted Fresh Install success."
+        "A script that runs destructive SQL or connects to a real Supabase instance during unit tests.",
+        "An inherited PGHOSTADDR or PGSERVICE changing libpq routing behind the reviewed target URL.",
+        "Previously unreviewed SQL bytes being treated as approved solely because their filenames or count match.",
+        "An explicit execution authorization being interpreted as permission to wipe the hosted disposable project.",
+        "Source-only checks being reported as successful hosted Fresh Install or Alap-Pro tenant RLS proof."
       ]
     },
     "model": {
@@ -148,54 +100,40 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Superseded old v1 SQL imported with renamed prefix and passes source checker.",
-        "Readiness checker sees old Pro-only row policy and reports REVIEW.",
-        "Legacy hard-coded plan split requires migrations that cannot coexist with canonical 0014/0046.",
-        "Missing authenticated current-user function metadata spoofed by names.",
-        "Valid restrictive per-type policy coexists with unexpected permissive ALL policy.",
-        "Static canonical SQL source files confused with applied live Supabase schema migrations.",
-        "Source-lineage status mistaken for deployment evidence."
+        "Changed intermediate SQL bytes but identical filenames or file count pass an insufficient verifier.",
+        "Local environment PGHOSTADDR or PGSERVICE overrides an otherwise correctly checked database URL.",
+        "Unknown or modified psql meta-command is evaluated by a later shell despite a trusted SQL file name.",
+        "TLS downgrade or untrusted certificate allows a wrong endpoint during a future live connection.",
+        "An executable reset is accidentally enabled by an ordinary branch build or a generic continue request.",
+        "A future audit conflates this static source verification with hosted schema or signed-in RLS readiness."
       ],
       "edgeCases": [
-        "No migration version for corrected v2 but all policy metadata matches",
-        "Pro-only restrictive policy plus new corrected policy",
-        "Current-user thread and task helper names appear but definition missing",
-        "Customer thread support Alap with manually disabled officeCommunication",
-        "Pro internal nonparticipant with plan entitlement",
-        "Renamed historical Pro SQL with no provenance",
-        "Superseded source exact marker with changed body",
-        "RLS task unlinked to thread",
-        "Unknown target and stale snapshot",
-        "Browser EXECUTE actor-param definer grants show in catalog",
-        "Supabase previous staging auth table still uses old plan-sync function"
-      ],
-      "invariants": [
-        "Existing 0058 canonical SQL and SHA256 bytes are immutable after F6-U01 green.",
-        "Old Pro-only policy is never accepted for customer Office, even in otherwise green metadata snapshot.",
-        "No stale fixed-array entitlements accepted as migration/plan authority.",
-        "Every table requires signed-in current-user-aware permissive policy AND corrected type-aware restrictive guard.",
-        "Functions documented as SECURITY DEFINER are inspected by read-only catalog definition, but metadata cannot replace actual behavioral proof.",
-        "No database readiness status beyond REVIEW METADATA_CANDIDATE_ONLY on static snapshot."
+        "Historical baseline includes two valid, differently named 0026 migration files that must both remain in the ordered list.",
+        "Postgres URL includes %-encoded malformed characters, extra sslmode parameters, or an alternate database name.",
+        "The reviewed ancestor commit does not exist in a shallow clone, is not an ancestor, or resolves to a rewritten branch.",
+        "An attacker adds a SQL file outside the expected customer-baseline folder, edits auth bootstrap or changes neutral seed.",
+        "A caller supplies inherited PGSSLROOTCERT, PGOPTIONS, PGHOSTADDR or case-sensitive libpq environment selectors.",
+        "A source file contains a psql include or shell meta-command that must never be trusted for a later replay."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-U02-STRICT",
-        "summary": "Separate quality-infrastructure script-only evidence release: supersede unsafe v1 and reject untrusted metadata with exact authenticated SQL behavior signatures.",
+        "id": "ALT-F6-U03A-REUSE",
+        "summary": "Use the existing canonical source and Git-reviewed blob identities in an inert verifier with explicit libpq/TLS guards and negative tests.",
         "disposition": "selected",
-        "reason": "Keeps Release Risk below 5 and corrects false proof reports without DB write or source SQL modifications."
+        "reason": "Maintains one authority, permits reproducible fail-closed tests and prevents creating a second deploy engine or activating data deletion in the preparatory release unit."
       },
       {
-        "id": "ALT-U02-LOOSEN",
-        "summary": "Simply change required source identity to v2 and leave old global Pro metadata accepted.",
+        "id": "ALT-F6-U03A-RESET-NOW",
+        "summary": "Directly clear the current disposable project and apply the migrations using a combined ad hoc SQL command.",
         "disposition": "rejected",
-        "reason": "Would falsely report DB candidate even if Alap customer support is denied."
+        "reason": "Skips repo Plan Before Code, exact reviewed source confirmation and atomic failure injection and can destroy the only known previous proof schema."
       },
       {
-        "id": "ALT-U02-BYPASS",
-        "summary": "Skip read-only readiness or mark source parity as deployment evidence.",
+        "id": "ALT-F6-U03A-NEW-SERVICE",
+        "summary": "Introduce an independent migration management service that controls all resets and keeps its own schema inventory.",
         "disposition": "rejected",
-        "reason": "Violates mandatory evidence semantic and customer isolation governance."
+        "reason": "Would duplicate existing Fresh Install, Development Guard and Completion Truth authorities, expanding permissions and future maintenance without resolving the specific defect."
       }
     ],
     "specialistReviews": [
@@ -203,159 +141,138 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Source version checks alone do not prove active RLS helper/function semantics; old global Pro or SQL actor spoof can still pass name-only metadata.",
-        "resolution": "Read-only PG catalog collects function definition, roles and scoped policy expressions; evaluator matches current auth.uid and basic customer vs Pro internal signatures and rejects global Pro.",
+        "finding": "The candidate must reject PGHOSTADDR and other inherited libpq selectors; a validated URI alone does not identify the actual remote endpoint.",
+        "resolution": "Use fail-closed selector validation and minimum TLS verified configuration; defer network validation and DDL to a separately approved later unit.",
         "evidence": [
-          "scripts/shoperation-office-db-readiness.mjs",
-          "supabase/migrations/20261015090000_digital_office_plan_scoped_sql_guard_v2.sql"
+          "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md",
+          "tests/shoperation-disposable-fresh-replay.test.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Source lineage can mark all 11 files present while actual SQL migration runner still fails due external table dependencies.",
-        "resolution": "Never upgrade to READY; remain SOURCE_PRESENT_UNPROVEN/REVIEW, manifest unchanged with Fresh Install required.",
+        "finding": "Exact migration filenames are insufficient because mutable bodies can conceal different DDL and breach reproducible source evidence.",
+        "resolution": "Pin every baseline artifact to immutable reviewed commit object identities; reject changed bodies and all unauthorized extra SQL files.",
         "evidence": [
-          "scripts/shoperation-office-baseline-lineage.mjs",
-          "supabase/customer-baseline/manifest.json"
-        ]
-      },
-      {
-        "role": "Runtime",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Read-only checklist currently demands two old, forbidden fixed-array plan sync migrations and blanket Pro policy.",
-        "resolution": "Update required version set to modern canonical chain and corrected v2, keep plan_capability_grants normalization test, block ALL policies and unproven current-user functions.",
-        "evidence": [
-          "scripts/shoperation-office-db-readiness.mjs"
+          "scripts/customer-baseline-contract-hash.mjs",
+          "scripts/shoperation-office-baseline-lineage.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Catalog metadata cannot prove signed-in role mutation or Pro/Alap tenant transitions.",
-        "resolution": "Keep non-authoritative METADATA_CANDIDATE_ONLY and explicit hosted behavioral proof dependency without staging writes.",
+        "finding": "The current preflight fails on an occupied disposable schema and previous Office tests never established safe live replay behavior.",
+        "resolution": "Do not add any runner to the hosted Fresh Install workflow in F6-U03a; keep live transaction/rollback as a future gated work unit.",
         "evidence": [
-          "tests/shoperation-office-db-readiness.test.ts"
+          ".github/workflows/fresh-install-proof.yml",
+          "supabase/customer-baseline/target-preflight.sql"
+        ]
+      },
+      {
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "A new module must inherit known failures in quality-infrastructure and avoid reporting source similarity as completed runtime evidence.",
+        "resolution": "Keep accepted source-readiness distinct from hosted proof and bind the test suite to exact-head existing CI and Completion Truth gates.",
+        "evidence": [
+          "scripts/shoperation-development-guard.mjs",
+          "scripts/shoperation-plan-before-code.mjs"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U02-01",
-        "scenario": "Pro-only legacy strict RLS policy remains installed after corrected v2 SQL.",
-        "finding": "PostgreSQL RESTRICTIVE policies AND, so Alap customer emails remain invisible.",
-        "resolution": "Explicitly block any observed global-Pro restrictive Office SELECT policy, even when v2 policy present.",
+        "id": "CH-F6-U03A-01",
+        "scenario": "A forged SQL migration keeps its existing number and basename but substitutes executable SQL body.",
+        "finding": "The old prototype checked paths and count without cryptographically binding each body to a reviewed Git commit.",
+        "resolution": "Compare every local byte to its exact approved Git blob object and reject any mismatched body before returning REVIEW.",
         "status": "resolved"
       },
       {
-        "id": "CH-U02-02",
-        "scenario": "Old v1 file copied to baseline as 0059_fake.sql without lineage marker.",
-        "finding": "Source checker might accept new v2 and fail to notice harmful replay.",
-        "resolution": "Scan appended source body for characteristic global strict-Pro policy and flag dangerous replay regardless of marker.",
+        "id": "CH-F6-U03A-02",
+        "scenario": "The repository contains all 59 expected SQL files but one required Auth bootstrap file is modified.",
+        "finding": "Source integrity of migrations alone does not establish the complete bootstrap and postflight evidence contract.",
+        "resolution": "Pin the manifest, Auth bootstrap, seed and pre/postflight files to the same immutable reviewed Git ancestor.",
         "status": "resolved"
       },
       {
-        "id": "CH-U02-03",
-        "scenario": "Metadata snapshot contains correct helper names but no SQL definitions.",
-        "finding": "Function content might still enforce blanket Pro, making REVIEW a false positive.",
-        "resolution": "Collect pg_get_functiondef read-only and require customer/basic, internal Pro/teamChat and current user-bound function code evidence.",
+        "id": "CH-F6-U03A-03",
+        "scenario": "A user sets PGHOSTADDR to an unrelated IP while providing an approved-looking Postgres database URL.",
+        "finding": "libpq may select destinations from inherited process variables that contradict lexical URL verification.",
+        "resolution": "Reject conflicting PG environment selectors and construct a strict minimal child configuration with verified host and TLS authority.",
         "status": "resolved"
       },
       {
-        "id": "CH-U02-04",
-        "scenario": "Obsolete fixed-list plan sync migrations recorded in history.",
-        "finding": "Old run reintroduced Alap Team Chat even though v2 Office read SQL exists.",
-        "resolution": "Require normalized grant table/function and do not require obsolete migration IDs; detect source replay separately.",
+        "id": "CH-F6-U03A-04",
+        "scenario": "The supplied database URL contains a staging project reference with a valid looking password.",
+        "finding": "Checking for the substring Fresh Install or database name alone cannot distinguish neighboring Supabase projects.",
+        "resolution": "Accept only exact approved hostname and project-scoped database username combinations, rejecting unrecognized hosts and usernames.",
         "status": "resolved"
       },
       {
-        "id": "CH-U02-05",
-        "scenario": "Multiple permissive SELECT policies combine OR to bypass user membership.",
-        "finding": "RLS misconfigured despite one correct current-user policy.",
-        "resolution": "Require the correct restrictive plan-scoped rule on all Office tables in addition to permitted current-user select policy; reject broad ALL policies.",
+        "id": "CH-F6-U03A-05",
+        "scenario": "The server certificate is absent or the caller requests permissive sslmode during a future database connection.",
+        "finding": "A valid-looking Supabase project URL is not proof that a network peer authenticates as the expected host.",
+        "resolution": "Require verify-full TLS and explicit trusted CA file, and keep actual connection checks outside this inert preparatory unit.",
         "status": "resolved"
       },
       {
-        "id": "CH-U02-06",
-        "scenario": "Security-definer task helper does not bind auth.uid on unlinked tasks.",
-        "finding": "Any authenticated user can enumerate unlinked customer task rows.",
-        "resolution": "Require task helper definition with auth.uid, officeCommunication and tenant-scoped support member check.",
+        "id": "CH-F6-U03A-06",
+        "scenario": "A newer unreviewed migration file is appended beside 0058 without updating the prior source pin.",
+        "finding": "An implementation that checks only the first and last filename can replay an unauthorized addition.",
+        "resolution": "Require the full expected reviewed Git file set and reject extra or missing SQL files regardless of their apparent ordering.",
         "status": "resolved"
       },
       {
-        "id": "CH-U02-07",
-        "scenario": "Readiness metadata references fake corrected migration version but source file is altered.",
-        "finding": "Schema migration registry does not provide content hash proof.",
-        "resolution": "Require separate canonical source lineage and actual applied migration-source-identity proof before deploy; never assert DONE from metadata.",
+        "id": "CH-F6-U03A-07",
+        "scenario": "The future replay is triggered automatically by pushing an otherwise harmless branch to GitHub.",
+        "finding": "The setup has not yet proven safe DB-side rollback or the consequence of unexpected connection loss.",
+        "resolution": "Keep execution hard-disabled and omit all database-executing code paths and cloud secrets from F6-U03a.",
         "status": "resolved"
       },
       {
-        "id": "CH-U02-08",
-        "scenario": "A tester makes the catalog target production but capturedAt is stale/future.",
-        "finding": "Old RLS status mistaken for current runtime posture.",
-        "resolution": "Preserve time freshness/target checks, partial snapshot failure and non-authoritative result.",
+        "id": "CH-F6-U03A-08",
+        "scenario": "A tester treats the source verification report as proof that signed-in Alap and Pro Office permissions are correct.",
+        "finding": "Static Git contents cannot establish actual deployed RLS policy results for customer and internal chat tenants.",
+        "resolution": "Bound this unit to source and connection guard readiness only; future live actor-and-tenant proofs remain blocking.",
         "status": "resolved"
       },
       {
-        "id": "CH-U02-09",
-        "scenario": "Staging role-proof checklist still asserts alap_office_select_denied and post_downgrade_office_select_denied as global facts.",
-        "finding": "This machine consumer would falsely reject legitimate Alap customer support or incentivize restoring the blanket Pro customer denial.",
-        "resolution": "Update read-only rehearsal role-proof identifiers to narrow Alap customer allowed versus internal denied and downgraded private denied, and update its synthetic regression fixture without any SQL writes.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-F6-U02-OLD-CONSUMER",
-        "scenario": "Inherited pro-entitlement-guards test demands historical OFFICE_DB_PRO_SUBSCRIPTION_RLS_MISSING despite corrected Alap-safe plan-scoped read policies.",
-        "finding": "The outdated assertion fails CI although the corrected RLS readiness checker must reject global Pro-only policies; reverting the implementation to satisfy test would knowingly reintroduce Alap customer-support denial.",
-        "resolution": "Update exactly the legacy test's readiness marker list to require new plan-scoped RLS, Alap-customer-denial and browser-actor-exposure negative statuses, and assert old blanket-Pro marker is absent. Keep Plan Before Code, quality infrastructure boundaries and all independent security gates.",
+        "id": "CH-F6-U03A-09",
+        "scenario": "The working branch is based on a closed F6-U02 development transaction whose plan appears already verified.",
+        "finding": "The inherited plan has an obsolete base SHA and does not authorize unrelated new scripts or security-sensitive behavior.",
+        "resolution": "Use a fresh Development Guard generated plan and new changeBaseSha from the exact F6-U03 preimplementation commit.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "F6-U01 exact head b430dcfe full green CI required before F6-U02 branch/plan.",
-      "Plan Before Code PASS under quality-infrastructure-only projected risk before editing either script.",
-      "Static source-lineage test exact 59 files, 11/11 active, three superseded, original SQL v1 still immutable, unmarked renamed unsafe v1 rejection.",
-      "Readiness metadata test corrected source versions, SQL definition proofs, both per-table restrictive plan-scoped RLS and signed-in current-user permissive policies; reject historic Pro/global/ALL.",
-      "Verify catalog SQL strictly a SELECT and realDatabaseProof remains NOT_EVALUATED, decision max REVIEW/metadata.",
-      "Quality/TypeScript/build/Truth/Lifecycle exact-head CI, CI artifact byte identical closure; no Supabase SQL execution.",
-      "Include tests/pro-entitlement-guards.test.ts as required downstream quality consumer. Plan-only amendment and Plan Before Code PASS precedes test edit."
+      "Run the canonical F6-U03 Development Guard on a full GitHub checkout and require exact base SHA, active failure coverage and reviewed scoped work list.",
+      "Verify Plan Before Code with nine adversarial scenarios and role-scoped negative tests before introducing a new source-verification implementation file.",
+      "Run focused Node test suite with deliberately modified intermediate SQL, altered bootstrap, added migration, forged Git commit and unsafe psql include fixtures.",
+      "Run explicit TLS/connection negative tests for project, database, username and inherited libpq environment conflicts without spawning real Postgres.",
+      "Run exact-branch edit-time guard, incremental replay, knowledge preflight and CI quality, typecheck and truth reporting for the final head.",
+      "Confirm the Fresh Install database remains unmodified and that no DDL runner or cloud secret is used during this first quality-infrastructure release unit."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
-      "authority": [
-        "quality-knowledge-system"
-      ],
+      "request": "https://github.com/infowaterk-max/water-K-/pull/1308",
+      "authority": [],
       "mustEdit": [
-        "scripts/shoperation-office-baseline-lineage.mjs",
-        "scripts/shoperation-office-db-readiness.mjs",
-        "tests/shoperation-office-db-readiness.test.ts",
-        "tests/customer-baseline-office-plan-scoped-rls.test.ts",
-        "tests/customer-baseline-office-privacy-prerequisites.test.ts",
-        "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
-        "tests/customer-baseline-communication-hub-prerequisites.test.ts",
-        "scripts/shoperation-office-db-stage-rehearsal.mjs",
-        "tests/shoperation-office-db-stage-rehearsal.test.ts",
-        "tests/pro-entitlement-guards.test.ts"
+        "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md"
       ],
       "mayEdit": [],
-      "mustCreate": [],
-      "impactedReadOnly": [
-        "supabase/migrations/20261015090000_digital_office_plan_scoped_sql_guard_v2.sql",
-        "supabase/customer-baseline/migrations/0058_digital_office_plan_scoped_sql_guard_v2.sql",
-        "supabase/customer-baseline/manifest.json"
+      "impactedReadOnly": [],
+      "mustCreate": [
+        "scripts/shoperation-disposable-fresh-replay.mjs",
+        "tests/shoperation-disposable-fresh-replay.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-office-db-readiness.test.ts",
-        "tests/customer-baseline-office-plan-scoped-rls.test.ts",
-        "CI Completion Truth",
-        "Lifecycle",
-        "scripts/shoperation-office-db-stage-rehearsal.mjs",
-        "tests/shoperation-office-db-stage-rehearsal.test.ts",
-        "tests/pro-entitlement-guards.test.ts"
+        "tests/shoperation-disposable-fresh-replay.test.ts",
+        "GUARD-QUALITY-TESTS",
+        "GUARD-PLAN-BEFORE-CODE",
+        "GUARD-TYPECHECK"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -366,51 +283,47 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          "supabase/customer-baseline/manifest.json"
+          "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
-          "tests/customer-baseline-team-permissions-prerequisites.test.ts"
+          "scripts/shoperation-disposable-fresh-replay.mjs",
+          "tests/shoperation-disposable-fresh-replay.test.ts"
         ],
         "forbidden": [],
         "proof": [],
-        "authority": [
-          "auth-access-authority",
-          "database-schema",
-          "tenant-context-authority"
-        ],
+        "authority": [],
         "unknown": []
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 5,
+        "score": 2,
         "maxPoints": 5,
         "subsystemCount": 1,
         "maxSubsystems": 3,
         "subsystems": [
           {
-            "subsystem": "database-schema",
-            "risk": "high",
-            "points": 5
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
           }
         ],
         "files": [
           {
-            "file": "supabase/customer-baseline/manifest.json",
-            "subsystem": "database-schema",
-            "risk": "high",
-            "points": 5
+            "file": "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
           },
           {
-            "file": "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
-            "subsystem": "database-schema",
-            "risk": "high",
-            "points": 5
+            "file": "scripts/shoperation-disposable-fresh-replay.mjs",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
           },
           {
-            "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
+            "file": "tests/shoperation-disposable-fresh-replay.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -425,32 +338,32 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 5,
+          "score": 2,
           "maxPoints": 5,
           "subsystemCount": 1,
           "maxSubsystems": 3,
           "subsystems": [
             {
-              "subsystem": "database-schema",
-              "risk": "high",
-              "points": 5
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
             }
           ],
           "files": [
             {
-              "file": "supabase/customer-baseline/manifest.json",
-              "subsystem": "database-schema",
-              "risk": "high",
-              "points": 5
+              "file": "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
             },
             {
-              "file": "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
-              "subsystem": "database-schema",
-              "risk": "high",
-              "points": 5
+              "file": "scripts/shoperation-disposable-fresh-replay.mjs",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
             },
             {
-              "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
+              "file": "tests/shoperation-disposable-fresh-replay.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -465,67 +378,7 @@
           {
             "id": 0,
             "files": [
-              "supabase/customer-baseline/manifest.json"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
-                }
-              ],
-              "files": [
-                {
-                  "file": "supabase/customer-baseline/manifest.json",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 1,
-            "files": [
-              "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
-                }
-              ],
-              "files": [
-                {
-                  "file": "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 2,
-            "files": [
-              "tests/customer-baseline-team-permissions-prerequisites.test.ts"
+              "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -536,7 +389,61 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
+                  "file": "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 1,
+            "files": [
+              "scripts/shoperation-disposable-fresh-replay.mjs"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 2,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "files": [
+                {
+                  "file": "scripts/shoperation-disposable-fresh-replay.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 2,
+            "files": [
+              "tests/shoperation-disposable-fresh-replay.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/shoperation-disposable-fresh-replay.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -553,75 +460,73 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "",
-              "developmentBaseSha": "615700e74c25b0f87b33318402e24eeb5a44a032"
+              "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1308",
+              "developmentBaseSha": "ea059fd4ffd8e6aa260a1177a89adb445e3b8359"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "615700e74c25b0f87b33318402e24eeb5a44a032",
+            "targetBaseSha": "ea059fd4ffd8e6aa260a1177a89adb445e3b8359",
             "lease": {
-              "expectedBaseSha": "615700e74c25b0f87b33318402e24eeb5a44a032",
+              "expectedBaseSha": "ea059fd4ffd8e6aa260a1177a89adb445e3b8359",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              "supabase/customer-baseline/manifest.json",
-              "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
-              "tests/customer-baseline-team-permissions-prerequisites.test.ts"
+              "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md",
+              "scripts/shoperation-disposable-fresh-replay.mjs",
+              "tests/shoperation-disposable-fresh-replay.test.ts"
             ],
             "operations": [
               {
                 "operation": "modify",
-                "file": "supabase/customer-baseline/manifest.json",
+                "file": "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
+                "file": "scripts/shoperation-disposable-fresh-replay.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
+                "file": "tests/shoperation-disposable-fresh-replay.test.ts",
                 "generated": null
               }
             ],
             "requiredDependencyFiles": [],
-            "authorities": [
-              "database-schema"
-            ],
+            "authorities": [],
             "subsystems": [
-              "database-schema"
+              "quality-infrastructure"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 5,
+              "score": 2,
               "maxPoints": 5,
               "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": "supabase/customer-baseline/manifest.json",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "file": "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
                 },
                 {
-                  "file": "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
-                  "subsystem": "database-schema",
-                  "risk": "high",
-                  "points": 5
+                  "file": "scripts/shoperation-disposable-fresh-replay.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 },
                 {
-                  "file": "tests/customer-baseline-team-permissions-prerequisites.test.ts",
+                  "file": "tests/shoperation-disposable-fresh-replay.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -631,7 +536,6 @@
               "decision": "PASS"
             },
             "requiredGates": [
-              "GUARD-CUSTOMER-BASELINE",
               "GUARD-EDIT-TIME",
               "GUARD-INCREMENTAL-REPLAY",
               "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -642,7 +546,6 @@
             ],
             "requiredEvidence": {
               "gateIds": [
-                "GUARD-CUSTOMER-BASELINE",
                 "GUARD-EDIT-TIME",
                 "GUARD-INCREMENTAL-REPLAY",
                 "GUARD-KNOWLEDGE-PREFLIGHT",
@@ -652,7 +555,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/customer-baseline-team-permissions-prerequisites.test.ts"
+                "tests/shoperation-disposable-fresh-replay.test.ts"
               ],
               "externalGateIds": []
             },
@@ -663,9 +566,9 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                "supabase/customer-baseline/manifest.json",
-                "supabase/customer-baseline/migrations/0047_team_permissions_foundation_v1.sql",
-                "tests/customer-baseline-team-permissions-prerequisites.test.ts"
+                "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md",
+                "scripts/shoperation-disposable-fresh-replay.mjs",
+                "tests/shoperation-disposable-fresh-replay.test.ts"
               ],
               "filesAbsent": []
             },
@@ -680,7 +583,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "7f245651",
+            "manifestDigest": "692c563f",
             "decision": "PASS"
           }
         ],
@@ -693,7 +596,6 @@
         "contract": "shoporation.gate-chain.v1",
         "phase": "PLAN",
         "orderedGateIds": [
-          "GUARD-CUSTOMER-BASELINE",
           "GUARD-KNOWLEDGE-PREFLIGHT",
           "GUARD-PLAN-BEFORE-CODE",
           "GUARD-EDIT-TIME",
@@ -708,7 +610,6 @@
           "GUARD-RELEASE-RISK"
         ],
         "futureGateIds": [
-          "GUARD-CUSTOMER-BASELINE",
           "GUARD-EDIT-TIME",
           "GUARD-INCREMENTAL-REPLAY",
           "GUARD-QUALITY-TESTS",
@@ -720,34 +621,36 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Two read-only quality scripts still require superseded plan-split and old unsafe global Pro source, causing false-positive or impossible readiness status after F6-U01 corrected SQL. Separate U02 normalizes provenance and evidence semantics without touching customer DB. Exact critical guard projects release-infrastructure, not quality-knowledge-system, but remains isolated 2/5 points. Existing known failures for both source and Factory release proofs acknowledged; no unrelated implementation authorized. Edit-Time Reference Sync detected existing staging rehearsal proof consumer and correctly BLOCKED U02 until both its script/test contracts and new role proof labels are reconciled.",
+    "problemStatement": "The current sandbox-only candidate has previously accepted modified SQL source bytes and inherited libpq redirecting environment variables. An accidentally promoted executable reset could therefore replay unreviewed migrations or contact the wrong Postgres service. F6-U03a must close both classes of defect before any downstream database action can be proposed.",
     "observableOutcomes": [
-      "SOURCE_PRESENT_UNPROVEN 11/11 with 59 exact migration sources, three historical sources superseded, no hosted release claim.",
-      "Read-only catalog metadata checker treats plan-scoped v2 policies/current-user SQL as minimum REVIEW and rejects historical blanket Pro, old migration identities and forged helper signatures."
+      "An exact Git-reviewed F6-U02 source ancestor and the complete 59-file ordered baseline, manifest, bootstrap, neutral seed and pre/postflight are required before source verification returns a reviewed result.",
+      "Deliberately modified SQL with unchanged filenames, unknown added or removed files, forged manifests and unreviewed psql meta-commands produce deterministic blocked outcomes in regression tests.",
+      "Connection validation rejects platform/staging/wrong database, inherited libpq redirection variables, missing CA or downgraded TLS; no PostgreSQL subprocess is spawned by this unit.",
+      "Canonical Development Guard, Plan Before Code and TypeScript/quality checks must pass on the exact modified repository branch before code is eligible for integration."
     ],
     "unresolvedRisks": [
-      "No live PG schema replay or auth+tenant transition proof: metadata is not authoritative.",
-      "Actual storage/attachment scan and provider delivery remain unproven.",
-      "Potential other migration dependencies beyond 11 Office SQL identities."
+      "Offline source and connection checks alone do not prove real Postgres project identity against a live TLS connection, transaction rollback or the historical schema provenance.",
+      "The next release unit must independently validate actual reversible hosted reprovision, Storage-managed state, 59 real migrations and actor/tenant Alap-Pro RLS behavior."
     ],
     "scope": {
       "in": [
-        "Two Office diagnostic scripts and regressions only: provenance and read-only catalog metadata.",
-        "SQL v2 source/manifest and live Supabase targets remain read-only."
+        "Author one explicitly non-executable, shared quality-infrastructure source and connection identity verification module based on the offline prototype.",
+        "Add Node/TypeScript negative regression coverage for exact pinned source and libpq/TLS guards; preserve existing Fresh Install authority.",
+        "Keep the existing F6-U03 plan documentation aligned with security findings and evidence claims."
       ],
       "out": [
-        "No new or modified canonical/customer migration SQL.",
-        "No Supabase SQL writes, staging/production, release merges, runtime routes, Builder/Templates."
+        "No Supabase database write, schema drop, migration, secret manipulation, storage deletion or realtime project state change.",
+        "No changes to the main Fresh Install deploy workflow, platform or staging project and no permission to execute a destructive runner.",
+        "No Builder, Factory, template development or unrelated Core transaction changes."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1308",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
-        "GUARD-CUSTOMER-BASELINE",
         "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-EDIT-TIME",
@@ -761,16 +664,16 @@
     },
     "requirements": [
       {
-        "id": "REQ-U02-ORDERED-SOURCE",
-        "requirement": "Require 11 corrected active sources, reject superseded old strict Pro and both fixed-list split sources, including renamed malicious replay, with static SOURCE_PRESENT_UNPROVEN only.",
+        "id": "REQ-F6-U03A-INTEGRITY",
+        "requirement": "A file with tampered SQL contents must be rejected even when the complete migration name list remains unchanged and apparently approved.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "SQL source lineage quality closure",
+          "breadth": "reviewed-baseline-source-integrity-only",
           "strength": 2,
           "dimensions": [
-            "scope",
-            "forbidden-state",
-            "behavioral-proof"
+            "source",
+            "negative",
+            "exact-head"
           ]
         },
         "requiredCapabilities": [
@@ -786,8 +689,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U02-OLD-SQL",
-            "statement": "No old blanket strict Pro policy may be accepted in any appended source file.",
+            "id": "NEG-F6-U03A-TAMPER",
+            "statement": "Modified migration bytes remain eligible for a hosted Fresh Install replay.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -795,16 +698,16 @@
         ]
       },
       {
-        "id": "REQ-U02-READINESS",
-        "requirement": "Catalog checker enforces current-auth plan-scoped SQL metadata, corrected migrations and non-authoritative reporting; old Pro-wide blanket policy or missing function definitions BLOCK.",
+        "id": "REQ-F6-U03A-TARGET",
+        "requirement": "A non-disposable Postgres project or an inherited libpq selector must fail target validation before any execution is considered.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "read-only Office metadata candidate truth",
+          "breadth": "offline-target-config-validation-only",
           "strength": 2,
           "dimensions": [
-            "scope",
-            "status",
-            "forbidden-state"
+            "security",
+            "boundary",
+            "negative"
           ]
         },
         "requiredCapabilities": [
@@ -820,8 +723,42 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U02-FALSE-READY",
-            "statement": "Metadata-only Office tests can never claim real hosted RLS or source-to-deployment equivalence.",
+            "id": "NEG-F6-U03A-LIBPQ",
+            "statement": "Caller-supplied PGHOSTADDR or PGSERVICE redirects the backend connection.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-F6-U03A-NO-EXECUTE",
+        "requirement": "This release unit contains no usable database mutation path and does not claim actual 59-file hosted migration proof.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "source-only-preimplementation-gating",
+          "strength": 2,
+          "dimensions": [
+            "scope",
+            "blocked-mutations",
+            "negative"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-F6-U03A-RUNTIME",
+            "statement": "Pushing this source guard branch automatically erases a Supabase schema or executes hosted migrations.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -830,18 +767,5 @@
       }
     ]
   },
-  "notes": "U02 follows fully green F6-U01 #1303 b430dcfe, strictly quality-infrastructure only; no SQL/manifest edits; provides 11/11 source parity and read-only snapshot minimum, but no hosted Fresh Install or user RLS behavior proof. Development Edit-Time Guard discovered required downstream staging rehearsal consumer. Planned two additional files before editing, preserving reference and implementation sync. Latest source head b2abbff: 3592/3593 tests PASS; one historical pro-entitlement-guards test still asserts OFFICE_DB_PRO_SUBSCRIPTION_RLS_MISSING. Amend test contract after fresh Plan Before Code PASS; do not revert corrected Alap/Pro SQL evaluator.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "759762366355d58fb3fafd6d5ad4d3342f8afda7",
-    "closedAt": "2026-10-15T06:40:21.349Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "New F6-U03a discrete quality-infrastructure unit generated from actual exact GitHub checkout Development Guard PASS at ea059fd4ffd8e6aa260a1177a89adb445e3b8359; authorized ONLY inert source/TLS guard and negative tests, NEVER database/Storage reset or hosted migration. Full Plan Before Code and exact-head CI must pass before any implementation is claimed complete. Specialist role entries are engineering threat-model reviews, not independent external approvals."
 }
