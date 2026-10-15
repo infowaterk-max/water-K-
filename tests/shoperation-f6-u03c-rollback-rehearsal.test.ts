@@ -3,11 +3,11 @@ import {spawnSync} from 'node:child_process';
 // @ts-expect-error Deliberately plain .mjs PostgreSQL fixture runner without TypeScript declarations.
 import{assertIsolatedHarnessEnvironment,fixtureSql,replaySql,checkSql,runIsolatedRollbackProof,FAILURE_POINTS,FIXTURE_DATABASE,FIXTURE_HOST,PROOF_SCOPE}from'../scripts/shoperation-f6-u03c-rollback-rehearsal.mjs';
 
-const safe={GITHUB_ACTIONS:'true',F6_U03C_EPHEMERAL_FIXTURE:'yes',PATH:'/usr/bin:/bin'};
+const safe={GITHUB_ACTIONS:'true',F6_U03C_EPHEMERAL_FIXTURE:'yes',F6_U03C_EXPECTED_SERVICE_IP:'172.18.0.2',PATH:'/usr/bin:/bin'};
 describe('F6-U03c isolated real PostgreSQL rollback harness safety contract',()=>{
   it('pins the test to exact ephemeral database and loopback target',()=>{
     expect(assertIsolatedHarnessEnvironment(safe)).toEqual({
-      host:'127.0.0.1',port:'5432',database:'f6_u03c_fixture',user:'postgres',
+      host:'127.0.0.1',port:'5432',database:'f6_u03c_fixture',user:'postgres',expectedServiceIp:'172.18.0.2',
     });
     expect(FIXTURE_DATABASE).toBe('f6_u03c_fixture');
     expect(FIXTURE_HOST).toBe('127.0.0.1');
