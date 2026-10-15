@@ -1,9 +1,9 @@
-name: F6-U03f canonical plan capture (development-only)
-# F6-U03f captures existing Development Guard only; no database transport, DDL or hosted secret.
+name: F6-U03g canonical plan capture (development-only)
+# F6-U03g only captures the canonical guard for draft PR #1329; historical replay runs separately on an isolated PG17 service with no cloud credentials.
 on:
   push:
     branches:
-      - feature/core-1186-f6-u03f-schema-grants-event-rehearsal
+      - feature/core-1186-f6-u03g-historical-replay-acceptance
     paths:
       - .github/workflows/f6-u03-canonical-plan-capture.yml
       - quality/development/active-plan.json
@@ -29,10 +29,10 @@ jobs:
         continue-on-error: true
         run: |
           node scripts/shoperation-development-guard.mjs \
-            --task "Core #1186 F6-U03f: transaction-local target identity and locked-data/managed-dependency guard (no hosted reset)" \
-            --files "scripts/shoperation-f6-u03f-target-transaction-guard.mjs;tests/shoperation-f6-u03f-target-transaction-guard.test.ts;scripts/shoperation-fresh-disposable-reprovision.mjs;docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md;.github/workflows/f6-u03f-transaction-guard-proof.yml;.github/workflows/f6-u03-canonical-plan-capture.yml" \
+            --task "Core #1186 F6-U03g: replay historical 0046 schema and test positive application guard in an ephemeral PostgreSQL17 service, without hosted writes" \
+            --files "scripts/shoperation-f6-u03g-historical-replay.mjs;tests/shoperation-f6-u03g-historical-replay.test.ts;scripts/shoperation-fresh-disposable-reprovision.mjs;docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md;.github/workflows/f6-u03g-historical-replay-proof.yml;.github/workflows/f6-u03-canonical-plan-capture.yml" \
             --risk critical \
-            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1323" \
+            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1329" \
             --write-plan --check
       - name: Print canonical guard and draft-plan diagnostic
         if: always()
@@ -62,7 +62,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f6-u03f-transaction-guard-development-guard-${{ github.sha }}
+          name: f6-u03g-historical-replay-development-guard-${{ github.sha }}
           path: |
             quality/development/active-plan.json
             artifacts/shoperation-development-guard/development-guard.json

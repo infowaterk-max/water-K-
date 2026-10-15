@@ -91,13 +91,16 @@ export function compileAtomicReview(root=process.cwd()){
   const sql=ordered.join('\n\n');
   return Object.freeze({
     decision:'REVIEW_ONLY',executionEnabled:false,
+    // F6-U03g may prove historical 0046 in isolated PG17, never hosted 0058 readiness.
+    historical0046FixtureProofIsNotHostedApproval:true,
+    hosted0046Or0058ReplayProven:false,
     projectRef:DISPOSABLE_FRESH_PROJECT_REF,
     migrationCount:source.migrationCount,reviewedSource:source.reviewedCommit,
     sourceSetSha256:source.sourceSetSha256,sqlSha256:createHash('sha256').update(sql).digest('hex'),
     preflightBeforeMigrations:true,postflightBeforeCommit:true,
     mustAbortBeforeDestructiveSql:true,transactionGuard:compileReviewGuard(),sql,hostedDatabaseTouched:false,
     limitations:['LIVE_TARGET_LOCKS_UNPROVEN','CROSS_SCHEMA_DEPENDENCIES_UNPROVEN',
-      'ROLLBACK_UNPROVEN','STORAGE_MANAGED_STATE_NOT_FRESH','OFFICE_ALAP_PRO_RLS_UNPROVEN'],
+      'ROLLBACK_UNPROVEN','STORAGE_MANAGED_STATE_NOT_FRESH','OFFICE_ALAP_PRO_RLS_UNPROVEN','HISTORICAL_0046_FIXTURE_NOT_HOSTED_PROOF'],
   });
 }
 
