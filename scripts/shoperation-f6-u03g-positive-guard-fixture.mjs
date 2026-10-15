@@ -103,6 +103,9 @@ function concurrentNowait(env){
   const start=Date.now();expectBlocked(env,'could not obtain lock on relation');
   if(Date.now()-start>5000)fail('F6U03G_LOCK_WAIT_EXCEEDED_NOWAIT');
  }finally{
+  // Terminate ONLY the PostgreSQL backend holding our namespaced fixture lock.
+  // Killing the client alone may leave pg_sleep() active until the server notices.
+  execSQL("SELECT pg_terminate_backend(l.pid) FROM pg_locks l JOIN pg_class c ON c.oid=l.relation JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='f6u03g_public' AND c.relname='sample_001' AND l.mode='AccessShareLock' AND l.granted AND l.pid<>pg_backend_pid();",env);
   other.kill('SIGTERM');
   // The client may terminate before PostgreSQL releases its backend lock.
   // Never claim a post-fault positive guard until a separate session proves release.
