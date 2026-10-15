@@ -1,0 +1,58 @@
+name: F6-U03j canonical Office missing dependency source-DAG proof
+on:
+  push:
+    branches:
+      - feature/core-1186-f6-u03j-office-dependency-dag
+    paths:
+      - scripts/shoperation-f6-u03j-office-dependency-dag.mjs
+      - tests/shoperation-f6-u03j-office-dependency-dag.test.ts
+      - docs/po/CORE_1186_F6_U03J_OFFICE_DEPENDENCY_DAG_2026-10-15.md
+      - .github/workflows/f6-u03j-office-dependency-proof.yml
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-dag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Compute immutable original-source Office DAG candidate ledger
+        run: |
+          node scripts/shoperation-f6-u03j-office-dependency-dag.mjs --emit-json artifacts/f6-u03j/office-dag
+      - name: Assert actual 59-source release readiness is blocked
+        run: |
+          node --input-type=module <<'NODE'
+          import{readFileSync}from'node:fs';
+          const r=JSON.parse(readFileSync('artifacts/f6-u03j/office-dag/office-source-dag.json','utf8'));
+          const expected=['office_mailboxes','office_thread_email_routes','office_drafts','office_attachments'];
+          if(r.decision!=='BLOCKED_59_SOURCE_DAG'||r.reviewedFileCount!==59||
+             r.candidateSources.length!==18||
+             expected.some(x=>!r.missingRequiredTables.includes(x))||
+             !r.blockingMigration.includes('0055_communication_hub_2_0_foundation_v1.sql')||
+             r.atomic59Proven!==false||r.fullRollbackProven!==false||
+             r.hostedResetAuthorized!==false||r.hostedDatabaseTouched!==false||
+             r.signedInAlapProRlsProven!==false||r.managedProviderProven!==false)
+            throw Error('F6U03J_FALSE_GREEN_OR_MISSING_SOURCE');
+          console.log(JSON.stringify({decision:r.decision,missing:r.missingRequiredTables,
+             candidateSources:r.candidateSources.length,edges:r.orderedTableDependencyEdges.length},null,2));
+          NODE
+      - name: Run adversarial source identity and non-authorization tests
+        run: npx vitest run tests/shoperation-f6-u03j-office-dependency-dag.test.ts
+      - name: Preserve actual checked source-identity DAG evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03j-office-dag-${{ github.sha }}
+          path: artifacts/f6-u03j/office-dag/office-source-dag.json
+          retention-days: 14
+          if-no-files-found: warn
