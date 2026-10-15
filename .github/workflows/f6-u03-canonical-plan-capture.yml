@@ -33,7 +33,7 @@ jobs:
             --task "Core #1186 F6-U03d: read-only inventory of managed Auth dependency and schema ACL required before hosted Fresh Install schema reset" \
             --files "scripts/shoperation-f6-u03d-managed-preflight.mjs;tests/shoperation-f6-u03d-managed-preflight.test.ts;docs/po/CORE_1186_F6_U03D_MANAGED_DEPENDENCY_ACL_GATE_2026-10-15.md;.github/workflows/f6-u03d-readonly-preflight.yml;.github/workflows/f6-u03-canonical-plan-capture.yml" \
             --risk critical \
-            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1319" \
+            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1321" \
             --write-plan --check
       - name: Print canonical guard and draft-plan diagnostic
         if: always()
@@ -63,7 +63,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f6-u03-canonical-development-guard-${{ github.sha }}
+          name: f6-u03d-managed-preflight-development-guard-${{ github.sha }}
           path: |
             quality/development/active-plan.json
             artifacts/shoperation-development-guard/development-guard.json
