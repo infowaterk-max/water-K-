@@ -1,15 +1,16 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-9901C962",
-  "task": "Core #1186 F6-U03e: actual isolated PostgreSQL17 schema ACL restore and DDL event-trigger rollback rehearsal",
-  "status": "closed",
+  "task": "Core #1186 F6-U03f: guarded transaction-local Fresh Install identity/data/dependency preflight, SQL execution disabled",
+  "status": "ready-for-implementation",
   "guardDigest": "9901c962",
-  "changeBaseSha": "7d3439be97f9aae64d03658dac2e8b4e954d65ff",
+  "changeBaseSha": "8567529a0d6f42da032e903b35389ae44326ce1a",
   "plannedFilePatterns": [
-    "scripts/shoperation-f6-u03e-schema-restore.mjs",
-    "tests/shoperation-f6-u03e-schema-restore.test.ts",
-    "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
-    ".github/workflows/f6-u03e-schema-restore-proof.yml",
+    "scripts/shoperation-f6-u03f-target-transaction-guard.mjs",
+    "tests/shoperation-f6-u03f-target-transaction-guard.test.ts",
+    "scripts/shoperation-fresh-disposable-reprovision.mjs",
+    "docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md",
+    ".github/workflows/f6-u03f-transaction-guard-proof.yml",
     ".github/workflows/f6-u03-canonical-plan-capture.yml"
   ],
   "expectedSubsystems": [
@@ -74,7 +75,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical F6 safety prerequisite. Require actual isolated PG17 role grant behavior, failure rollback and external dependency simulation with zero hosted database risk; distinguish hosted event function bodies (read-only) from fixture-only DDL triggers.",
+      "rationale": "Critical risk: compile future in-transaction database identity/row/catalog/role checks as a guarded review artifact, not a live reset. Preserve immutable one-project external TLS binding, fail-closed proof semantics, known App/managed boundaries, and exact-head CI.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -91,25 +92,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Real isolated PostgreSQL17 test proves DROP SCHEMA/CREATE SCHEMA does not preserve expected namespace privileges, whereas explicit allowlisted ACL restoration exactly restores fixture anon/authenticated/service/admin grants.",
-        "At least three injected error stages before/after drop and after regrant demonstrate transaction rollback preserves original ACL, row, external trigger and committed event audit.",
-        "Successful commit demonstrates recreated old application namespace, restored ACL, external trigger, and event audit visibility; negative missing-grant test fails closed.",
-        "Host/GitHub service identity, DB name, version, local network and inherited environment selectors are protected; only prefixed fixture schemas may be dropped.",
-        "Complete exact-head CI/Lifecycle, isolated PostgreSQL job and documentation mark scope LIMITED_TO_FIXTURE and hosted reset remains blocked."
+        "Canonical source review emits a BEGIN/SET LOCAL/guard/abort-before-DROP/59-file candidate with no hosted SQL execution path.",
+        "Transaction guard locks every nonpartition app relation NOWAIT before mutable row inventory and refuses unknown user/business rows, catalogs, SQL object drift and managed dependencies.",
+        "One local PostgreSQL service job exercises the transaction-guard primitive for success, unexpected row, neutral hash mismatch, NOWAIT lock and role/target mismatch without accessing Supabase.",
+        "Exact grant/event/known Auth trigger snapshots are checked without weakening previously discovered ACL safety requirements.",
+        "Exact-head canonical Quality Tests, TypeScript, build, Completion Truth and Lifecycle must PASS; hosted Fresh Install remains BLOCKED."
       ],
       "invariants": [
-        "Source ACL fragment never references a caller-chosen project or role and is never executed by a hosted runner.",
-        "Only dedicated disposable PostgreSQL17 GitHub service receives DDL with hardcoded f6_u03e_ prefix; no Supabase secrets or connection URL.",
-        "All necessary grants derive from F6-U03d read-only observed public/private namespace ACLs; forbidden extra grants fail.",
-        "Event-triggers simulator does not claim that six original Supabase-managed provider functions were executed.",
-        "No automatic or manual path in this unit can alter hosted platform, staging or Fresh Install projects."
+        "Guard statement must appear inside BEGIN and before all DROP statements and before permanent abort-before-DROP barrier.",
+        "Unsafe or missing target bindings never grant authority to invoke hosted destructive SQL.",
+        "All seven neutral catalog table hashes are compared to immutable pinned historical fingerprints; any extra row on any other app table aborts.",
+        "Known Auth dependency and six event trigger function identities, public/private ACLs and Storage boundaries remain required checks.",
+        "These changes do not become a parallel Control Plane or independent release READY authority."
       ],
       "forbiddenStates": [
-        "Granting CREATE to anon or authenticated in the public namespace.",
-        "Granting private namespace CREATE to authenticated or service_role.",
-        "Committing recreation without ACL restoration or restoring the Auth-equivalent dependent trigger.",
-        "A failed transaction leaves altered namespace ACLs or a partial new schema.",
-        "Reporting a PostgreSQL fixture PASS as hosted migration proof or Alap/Pro RLS acceptance."
+        "An executable hosted schema-reset mode is added to code or workflow.",
+        "Database identity inferred only from current_database='postgres' is treated as proof of specific Supabase project.",
+        "Lock timeout or unexpected table/dependency rows are silently tolerated.",
+        "An invariant-mismatched snapshot produces claim of accepted migration readiness.",
+        "A passing fixture is labeled as Fresh Install 59 migrations or signed-in Alap/Pro permission proof."
       ]
     },
     "model": {
@@ -141,40 +142,44 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Namespace dropped and recreated without original AUTHORIZED role grants but tests only check owner postgres.",
-        "Grant restoration silently grants too broad CREATE privilege to the anon or authenticated role.",
-        "SQL error leaves new schema committed but old Auth trigger removed, breaking registration.",
-        "Simulated event audit persists after transaction abort and falsely indicates a successful DDL replay.",
-        "Connection string/PGHOSTADDR directs fixture DDL to the hosted customer database.",
-        "Old source-only review unit is changed into actual hosted reset before provider triggers are proven."
+        "NOWAIT table locks are skipped, a customer row appears after count checks and is deleted.",
+        "App row checks verify only known neutral tables, leaving a hidden user row unexamined.",
+        "Neutral catalog count matches but changed cell values are ignored.",
+        "External Auth trigger is dropped by CASCADE and missing after source assembly.",
+        "Schema ACLs are not restored despite migration success.",
+        "The platform project has the same current_database, role and version as Fresh Install and could be mistakenly targeted.",
+        "Managed Storage file transfer appears between preflight and COMMIT.",
+        "An unconditional review-only abort is moved after DROP by a refactor."
       ],
       "edgeCases": [
-        "PostgreSQL namespace owner privileges cannot be revoked and are not equivalent to explicit role grants.",
-        "Role ACL order/serialization differs while semantic USAGE/CREATE privileges remain equivalent.",
-        "DROP SCHEMA CASCADE removes an external trigger on auth-equivalent users and rollback restores it.",
-        "A fixture DDL event handler fires on CREATE SCHEMA and DROP SCHEMA and its audit rows roll back on error.",
-        "Delayed NOTIFY on transaction COMMIT differs from service readiness and is not treated as a PostgREST success proof.",
-        "Unexpected extra privilege to anon or authenticated is detected in explicit check functions."
+        "Unknown app relation under public/private, partitioned tables and sequences.",
+        "One new row in a previously empty customer or Office table.",
+        "Single neutral entitlement row changed but count unchanged.",
+        "Known Auth trigger changed function identity or a new managed dependent view.",
+        "One extra bucket, changed limit, changed provider event trigger function digest.",
+        "NOWAIT lock conflict from a concurrent session and forced statement timeout.",
+        "Restored grants to anon/authenticated missing, or anon receives CREATE.",
+        "Disconnected client near COMMIT must be classified UNKNOWN until independent postflight."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F6-U03E-REAL-PG",
-        "summary": "Dedicated PostgreSQL17 CI fixture verifies schema grants and DDL callbacks with rollback/commit, no Supabase access.",
+        "id": "ALT-F6-U03F-SOURCE",
+        "summary": "Add transaction-local SQL safety gate only to non-executable reviewed 59-file candidate.",
         "disposition": "selected",
-        "reason": "Proves actual Postgres semantics needed before hosted authority, without touching provider-managed schemas."
+        "reason": "Ensures realistic future DDL guard ordering with zero hosted migration risk."
       },
       {
-        "id": "ALT-F6-U03E-HOSTED-RESET",
-        "summary": "Attempt direct hosted Fresh Install DROP/CREATE/GRANT and inspect resulting ACL.",
+        "id": "ALT-F6-U03F-LIVE",
+        "summary": "Execute new guard then DROP public/private on current Fresh Install database.",
         "disposition": "rejected",
-        "reason": "Insufficient managed event-trigger and transactional guard proof; high data and provider risk."
+        "reason": "One read-only snapshot is not a transactional live authorization, and full provider quiescence / exact TLS binding remains unproven."
       },
       {
-        "id": "ALT-F6-U03E-ONLY-STRING",
-        "summary": "Only lint GRANT statements without a real PostgreSQL role/DDL test.",
+        "id": "ALT-F6-U03F-STATIC",
+        "summary": "Keep using prior standalone snapshot alone and declare reset ready.",
         "disposition": "rejected",
-        "reason": "Cannot prove actual grant semantics, cascade-dependent trigger or rollback."
+        "reason": "Does not lock or revalidate mutable state inside one transaction."
       }
     ],
     "specialistReviews": [
@@ -182,110 +187,108 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A schema ACL restore with too-broad CREATE grants could let low-privilege clients alter DB objects.",
-        "resolution": "Whitelist separate USAGE and CREATE semantic role grants and assert forbidden grants absent in a real PostgreSQL service.",
+        "finding": "postgres/17/database=postgres is shared across Supabase projects.",
+        "resolution": "Explicitly mark project identity as outside-DB TLS verification unproved; never use SQL checks alone to authorize target DDL.",
         "evidence": [
-          "tests/shoperation-f6-u03e-schema-restore.test.ts"
+          "docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "External triggers and event-audit effects must rollback with the DDL and be recreated in positive replay.",
-        "resolution": "Prove rollback from real fixture connections and a successful commit with original Auth-like dependency restored.",
+        "finding": "Historical snapshot is stale without locks and immutable hash comparison.",
+        "resolution": "Add NOWAIT locks, full app-row inventory and neutral JSONB hashes in transaction; fail closed.",
         "evidence": [
-          "scripts/shoperation-f6-u03e-schema-restore.mjs"
+          "scripts/shoperation-f6-u03f-target-transaction-guard.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Local DDL callbacks are not equivalent to Supabase managed Auth/Storage/PostgREST provider functions.",
-        "resolution": "Record exact read-only function fingerprints and explicitly restrict proof to isolated PG17 semantics; later hosted proof separate.",
+        "finding": "F6-U03b candidate must remain intentionally aborting before any schema DROP.",
+        "resolution": "Enforce source ordering and execution-disabled contract in unit tests and canonical CI.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md"
+          "tests/shoperation-f6-u03f-target-transaction-guard.test.ts"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "PostgreSQL event-trigger callbacks and NOTIFY delivery are transactional, but a provider PostgREST schema reload is a separate external service action.",
-        "resolution": "Exercise local callback audit and rollback/commit; record the six genuine Supabase function fingerprints without treating them as production execution proof.",
+        "finding": "Passing source-only SQL generation may be mistakenly promoted to hosted Fresh Install READY.",
+        "resolution": "Only claim review compiler improvement; preserve existing Completion Truth scope and separate future hosted proof.",
         "evidence": [
-          ".github/workflows/f6-u03e-schema-restore-proof.yml",
-          "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md"
+          "docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-F6-U03E-1",
-        "scenario": "CREATE SCHEMA restores owner but drops guest/authenticated USAGE.",
-        "finding": "Postgres namespace recreation loses named-role ACL entries.",
-        "resolution": "Allowlisted explicit GRANT statements plus real role-based positive/negative checks in PG17 fixture.",
+        "id": "CH-F6-U03F-1",
+        "scenario": "Correct database/role but wrong Supabase project.",
+        "finding": "SQL-only identity is not unique across projects.",
+        "resolution": "Treat exact project ref + TLS peer checks as an external mandatory future dependency; review artifact is never executable hosted.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03E-2",
-        "scenario": "Granting ALL PRIVILEGES to anon exposes schema CREATE despite RLS.",
-        "finding": "Schema CREATE privilege is separate from table RLS.",
-        "resolution": "Require only USAGE for fixture anon/authenticated roles; verify forbidden CREATE is absent.",
+        "id": "CH-F6-U03F-2",
+        "scenario": "Customer/Office rows appear between snapshot and DROP.",
+        "finding": "Historical zero counts do not protect subsequent user writes.",
+        "resolution": "Acquire bounded NOWAIT ACCESS EXCLUSIVE application locks then inventory every application row in the same transaction.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03E-3",
-        "scenario": "SQL-drop event trigger not observed or incorrectly assumed to fire after rollback.",
-        "finding": "DML audit and event notifications participate in transaction commit semantics.",
-        "resolution": "Use disposable fixture event handlers with committed audit checks after rollback and positive commit; keep hosted provider effect unproven.",
+        "id": "CH-F6-U03F-3",
+        "scenario": "Neutral table count matches but user changes entitlement data.",
+        "finding": "Counts are insufficient for catalog integrity.",
+        "resolution": "Require seven exact deterministic JSONB MD5 row-content fingerprints.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03E-4",
-        "scenario": "The external auth.users trigger is dropped on cascading function removal.",
-        "finding": "Cross-schema dependent trigger must survive rollback and be recreated before any successful commit.",
-        "resolution": "Dedicated auth-like schema fixture with callback and automatic presence checks.",
+        "id": "CH-F6-U03F-4",
+        "scenario": "Application function or RLS policy changed while table counts remain 177.",
+        "finding": "Row tables do not measure schema semantic identity.",
+        "resolution": "Require exact historical object-definition catalog hash before future DDL.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03E-5",
-        "scenario": "A developer uses arbitrary psql URL/host in an otherwise fixture-only script.",
-        "finding": "Could route DDL outside ephemeral Postgres.",
-        "resolution": "Refuse PG* overrides, require GitHub ephemeral marker plus exact Docker service IP, database/user/version before executing fixture SQL.",
+        "id": "CH-F6-U03F-5",
+        "scenario": "Extra managed trigger depends on private schema.",
+        "finding": "Dropping private CASCADE can destroy new provider hooks.",
+        "resolution": "Recheck normalized pg_depend and require one exact known Auth dependency, unknown classes fail.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03E-6",
-        "scenario": "Hosted PostgREST watcher source changes while the fixture still passes.",
-        "finding": "Static simulation cannot prove provider functions.",
-        "resolution": "Capture exact observed six event functions' digests; any future hosted transaction must revalidate and independently observe provider behavior.",
+        "id": "CH-F6-U03F-6",
+        "scenario": "Post-recreation schema loses anon/authenticated/role grants.",
+        "finding": "DDL resets schema ACLs.",
+        "resolution": "Preserve F6-U03d exact ACL preflight and F6-U03e verified fixture restoration; hosted restoration remains separate blocked step.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03E-7",
-        "scenario": "The schema owner is postgres but a real low-privilege client inherits an unexpected role grant.",
-        "finding": "Simple ACL string equality is insufficient; effective privilege checks must use explicit separate principal identities and deny CREATE for guest/authenticated.",
-        "resolution": "Create separate fixture roles for each allowed role and use has_schema_privilege plus negative missing-grant and privilege-escalation assertions.",
+        "id": "CH-F6-U03F-7",
+        "scenario": "Managed Storage data changes while app tables are locked.",
+        "finding": "Application locks do not freeze managed schemas and traffic.",
+        "resolution": "No hosted reset in this unit; future authorization requires quiescence and managed-state recheck with provider-level coordination.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03E-8",
-        "scenario": "The transaction has a successful SQL DROP and schema recreation but a synchronous DDL event handler throws before COMMIT.",
-        "finding": "Provider-like DDL hooks can abort transactions, and a local fixture should verify event handler failures preserve previous ACLs and Auth-like dependency.",
-        "resolution": "Inject a fault from a disposable event-trigger callback in PostgreSQL17; demonstrate complete rollback of row, grant and external trigger.",
+        "id": "CH-F6-U03F-8",
+        "scenario": "The code is invoked as SQL and executes DROP on expected schema without PO signoff.",
+        "finding": "A syntactically executable guarded transaction is still destructive.",
+        "resolution": "Retain permanent intentional RAISE EXCEPTION before DROP; no hosted-runner path and no secret in CI.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Canonical Development Guard PASS plus Plan Before Code on exact branch plan.",
-      "Unit tests verify immutable allowlisted ACL grants and strict environment boundaries.",
-      "Real PG17 CI service proves old ACL lost on schema recreation without grants, regrant exact privileges and reject forbidden CREATE for anon/authenticated.",
-      "Inject transaction exceptions at after-drop, after-regrant and before-commit; require original ACL, row and external trigger plus committed event history preserved.",
-      "Positive commit fixture with external trigger and observed event-audit changes after COMMIT only.",
-      "Record six hosted provider event-trigger fingerprints via read-only Supabase; describe limited scope and non-authorized reset.",
-      "Exact-head standard CI, TypeScript, Production Build, Completion Truth, Lifecycle closure. Hosted 59 migrations remain BLOCKED."
+      "Canonical Development Guard Plan Before Code validates exact projected files, owners, negative knowledge and critical-risk depth.",
+      "Source-level guarded SQL tests check transaction lock order, fail-stop drift predicates and hard abort-before-DROP.",
+      "Real ephemeral PG fixture verifies lock conflict and abnormal app data abort on same transaction, without hosted secrets.",
+      "Separate read-only Fresh Install endpoint confirms pinned 175/2 app tables and seven neutral row-content digests but is not deletion authority.",
+      "Canonical exact-head Quality Tests, TypeScript, Production Build, Completion Truth and Lifecycle closure.",
+      "No hosted provider SQL mutation, 59-file migration execution or Office Alap/Pro RLS proof."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/pull/1321",
@@ -306,7 +309,7 @@
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-f6-u03e-schema-restore.test.ts",
+        "tests/shoperation-f6-u03f-target-transaction-guard.test.ts",
         "GUARD-QUALITY-TESTS",
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-TYPECHECK"
@@ -794,32 +797,32 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "F6-U03d discovered that the existing source-pinned, intentionally non-executable customer Fresh Install DROP/CREATE candidate omits exact public/private namespace ACL restoration. Six provider event triggers exist, including two PostgREST watchers. Prove namespace grant restoration and transactional DDL event behaviors in an isolated PostgreSQL 17 fixture without any Supabase write or production credentials.",
+    "problemStatement": "Fresh Install current historical schema cannot be reset until the future SQL transaction can recheck exact destination identity, lock all app tables and validate all application row inventories, seven neutral catalogs, 4621 canonical catalog definitions, external auth trigger, bucket/role/event definitions and zero managed Auth/Storage/migration state. The source-pinned 59-file review transaction is deliberately executable only up to a permanent pre-DROP RAISE EXCEPTION; the new guard must remain review-only.",
     "observableOutcomes": [
-      "An ephemeral PostgreSQL17 fixture demonstrates that DROP/CREATE removes namespace grants; an explicit known-only regrant restores exact usable privileges for fixture roles analogous to anon, authenticated, service_role, supabase_admin and owner.",
-      "Aborted fixture transactions restore old grants/data/auth-equivalent trigger and do not commit audit events; successful fixture replay recreates table and external trigger, restores ACLs, and commits only approved event-audit entries.",
-      "Captures read-only fingerprints of all six actual hosted Supabase event trigger functions; in particular the PostgREST DDL watchers issue NOTIFY pgrst reload schema on relevant DDL. Exact function-body hashes are observations, not equivalent proof of a simulated hosted service.",
-      "Existing F6-U03b abort-before-DROP still remains active; this unit ships only a locked isolated test process and a nonexecuting schema-regrant SQL fragment for later reviewed transaction assembly."
+      "An immutable SQL fragment performs transaction-scoped DB/role/version/PG application_name checks, uses pg_try_advisory_xact_lock plus NOWAIT bounded app-table locks before scanning rows.",
+      "Inside the same transaction, the code enumerates every existing public/private table, rejects any non-neutral rows, compares seven exact neutral row counts/hashes and refuses mismatched object inventory.",
+      "The guard validates the known external auth.users trigger, namespace owners/ACLs and managed Auth/Storage/event boundaries; unknown evidence blocks.",
+      "Integration of the SQL fragment into existing 59-file review compiler occurs while retaining the unconditional abort-before-DROP invariant and with zero database transports.",
+      "A separate fixture-only PostgreSQL17 workflow may exercise lock/rollback primitives without touching any Supabase project; the actual hosted 59-file reset/tenant proof stays blocked."
     ],
     "unresolvedRisks": [
-      "Fixture event triggers cannot establish actual hosted Supabase event-trigger execution, PostgREST service readiness, or all provider-managed side effects.",
-      "Schema grants alone do not prove table/function/sequence ACLs or real actor tokens and RLS.",
-      "An unexpected additional pg_depend external reference, changed data, extension or live session must still abort hosted cleanup in its own future transaction.",
-      "Existing hosted Fresh Install app tables remain occupied; 59 reviewed customer baseline migrations have not run."
+      "SQL current_database/postgres role/version cannot distinguish the platform from Fresh Install; outside-DB TLS/project endpoint binding is a mandatory independent condition.",
+      "The protected managed Auth/Storage user state cannot be exhaustively frozen by application-table locks; future hosted authorization must include provider traffic quiescence and a separately approved target-only execution path.",
+      "Provider event-trigger effects and PostgREST data API readiness are not covered by the source-only SQL fragment.",
+      "Textual SQL review cannot establish proof of actual hosted rollback/migration/Alap-Pro RLS; executable proof requires separate governed permission."
     ],
     "scope": {
       "in": [
-        "Develop a source-owned exact-ACL regrant/review fragment (no dynamic role inputs) and negative unit tests for missing, extra or reordered roles.",
-        "Add disposable PostgreSQL17 GitHub Actions service and isolated runner to prove ACL loss and correct restoration under DROP/CREATE CASCADE with Auth-style dependent trigger and simulated DDL audit event triggers.",
-        "Exercise rollback fault injection before/after schema recreation and ACL repair plus a positive commit, proving original grants and external trigger remain correct after errors.",
-        "Record all six hosted event-trigger function hashes from read-only Supabase connector observation and distinguish actual provider functions from fixture examples.",
-        "Keep default and PR paths entirely non-destructive to Supabase: no hosted secret, no live SQL, no project toggles."
+        "Introduce immutable, source-reviewed PostgreSQL SQL preflight generator with transaction-local app locks and strict row/catalog/dependency/ACL/managed-state checks.",
+        "Wire the preflight BEFORE the existing hard abort barrier and before any destructive SQL in the F6-U03b 59-file candidate without enabling hosted execution.",
+        "Add adversarial unit tests for target/role mismatch, neutral table hash drift, unknown data, event/ACL drift and SQL statement ordering.",
+        "Use existing canonical Development Guard, Plan Before Code, CI, Completion Truth, Lifecycle; document explicit no-hosted-action boundary."
       ],
       "out": [
-        "No modification of original hosted F6-U03b source compiler execution switch, schema, storage or Auth managed metadata.",
-        "No destructive live Supabase migration execution, direct API revoke/grant or role writes.",
-        "No Builder, Template Factory, second Control Plane or new cloud project.",
-        "No claim of full Fresh Install hosted 59-file, signed-in Office Alap/Pro or PostgREST integration readiness."
+        "No actual SQL execution on any hosted Supabase project, no DDL and no migration application.",
+        "No loosening existing F6-U03b fail-before-DROP or F6-U03e fixture-only transport policies.",
+        "No extra active Supabase project, no platform/staging status changes.",
+        "No claim of actual 59-file hosted replay, provider event readiness, Data API exposure or signed-in Alap/Pro RLS proof."
       ]
     }
   },
@@ -842,16 +845,16 @@
     },
     "requirements": [
       {
-        "id": "REQ-F6-U03E-GRANTS",
-        "requirement": "Explicit named-role grants for recreated schema must preserve original usage/create semantics under true PostgreSQL17 validation.",
+        "id": "REQ-F6-U03F-TRANSACTION-GUARD",
+        "requirement": "Before any destructive SQL, re-check database role/version and exact owned app rows with NOWAIT transactional locks and immutable catalog fingerprints.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "local-namespaced-schema-grants-only",
+          "breadth": "source-level-future-sql-preflight",
           "strength": 2,
           "dimensions": [
             "tests",
-            "regression",
-            "scope"
+            "scope",
+            "regression"
           ]
         },
         "requiredCapabilities": [
@@ -867,8 +870,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6-U03E-PRIVESC",
-            "statement": "Fixture anon/authenticated receives schema CREATE privileges or intended named USAGE is absent.",
+            "id": "NEG-F6-U03F-ROW",
+            "statement": "Unknown user row or neutral catalog hash drift passes the reviewed SQL guard.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -876,16 +879,16 @@
         ]
       },
       {
-        "id": "REQ-F6-U03E-ROLLBACK",
-        "requirement": "Fixture-only DDL callbacks, external Auth-equivalent trigger and grants return to original state after injected failure.",
+        "id": "REQ-F6-U03F-MANAGED",
+        "requirement": "Require known managed Auth/Storage/ACL/DDL-event dependencies and fail closed on any unknown exception.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "ephemeral-postgres17-rollback",
+          "breadth": "managed-schema-preflight-review",
           "strength": 2,
           "dimensions": [
-            "tests",
+            "scope",
             "forbidden-state",
-            "scope"
+            "tests"
           ]
         },
         "requiredCapabilities": [
@@ -901,8 +904,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6-U03E-PARTIAL",
-            "statement": "An injected fault commits altered roles or event-audit values while DDL replay failed.",
+            "id": "NEG-F6-U03F-DEPENDENCY",
+            "statement": "Unknown provider dependence or lost schema role privileges is ignored.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -910,15 +913,14 @@
         ]
       },
       {
-        "id": "REQ-F6-U03E-TRUTH",
-        "requirement": "Provider trigger definitions are read-only inventory and local fixture proof is not hosted Fresh Install or authenticated Alap/Pro verification.",
+        "id": "REQ-F6-U03F-NO-HOSTED",
+        "requirement": "Keep compiled 59-file future transaction deliberately non-executable before DROP and prohibit any cloud runner or reset-ready overclaim.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "no-hosted-overclaim",
+          "breadth": "no-hosted-execution",
           "strength": 2,
           "dimensions": [
             "plan",
-            "scope",
             "forbidden-state"
           ]
         },
@@ -935,8 +937,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6-U03E-HOSTED",
-            "statement": "Local PG17 grants/event callbacks mark 59 hosted migrations as completed or disable the F6-U03b abort barrier.",
+            "id": "NEG-F6-U03F-DROP",
+            "statement": "A CLI or GitHub workflow enables the hosted 59-file destructive replay.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -945,18 +947,5 @@
       }
     ]
   },
-  "notes": "F6-U03e scoped ephemeral PostgreSQL17 fixture proof, stacked on F6-U03d CI-complete head f8be5f77; Development Guard PASS exact source scope c1?? captured as 7d3439b... and digest 9901c962 (same graph digest can recur, task identity distinguished by branch and base). Six provider event trigger fingerprints observed read-only in Supabase connector; no provider function executed or hosted data modified. Security/Data/Release reviews are engineering modeled findings, not third-party signed approvals. Plan Before Code at run 38742364743 demanded at least eight adversarial challenges and four specialist role reviews for projected risk 4/5; supplied exact depth without reducing protection. Canonical Plan Before Code run 38742616834 rejected noncanonical Runtime/Operations review role; reclassified this review to canonical Known Failure without changing finding or resolution.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "6d89936e902905abbf6e83f21ebaf95999d6ae60",
-    "closedAt": "2026-10-15T13:42:30.786Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1321",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "F6-U03f new scoped reviewed SQL guard, direct successor of verified F6-U03e commit 5db571cb. Planned external TLS identity and hosted safety proof deliberately BLOCKED. 8 adversarial challenges, 4 standard specialist modeled reviews and 3 limited completion requirements; no hosted Supabase writes."
 }
