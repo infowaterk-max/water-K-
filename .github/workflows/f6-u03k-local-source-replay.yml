@@ -1,0 +1,181 @@
+name: F6-U03k genuine Docker PostgreSQL17 original Office source replay diagnostic
+on:
+  push:
+    branches: [feature/core-1186-f6-u03k-office-local-ordered-source-replay]
+    paths:
+      - scripts/shoperation-f6-u03k-office-local-replay.mjs
+      - tests/shoperation-f6-u03k-office-local-replay.test.ts
+      - .github/workflows/f6-u03k-local-source-replay.yml
+      - docs/po/CORE_1186_F6_U03K_LOCAL_SOURCE_REPLAY_2026-10-15.md
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-replay-not-a-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      fresh:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f6-u03k-local-only
+          POSTGRES_DB: f6_u03i_fresh
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d f6_u03i_fresh"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+      abort:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f6-u03k-local-only
+          POSTGRES_DB: f6_u03i_abort
+        ports: [5433:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d f6_u03i_abort"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install real PostgreSQL17 CLI
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+      - name: Compile original verified 59 plus 18 predecessors and one follow-up
+        run: |
+          node scripts/shoperation-f6-u03k-office-local-replay.mjs --emit-bundle artifacts/f6-u03k/local-77
+          node --input-type=module <<'NODE'
+          import{readFileSync}from'node:fs';
+          const m=JSON.parse(readFileSync('artifacts/f6-u03k/local-77/manifest.json','utf8'));
+          for(const k of ['commit','rollback']){
+            const x=m[k];
+            if(x.reviewed59Count!==59||x.extraOriginalCount!==19||x.uniqueOriginalFiles!==78
+              ||x.predecessorBefore0055Count!==18||x.followupAfter0057Count!==1
+              ||x.hostedTouched!==false||x.releaseAuthorized!==false
+              ||x.managedProviderProven!==false||x.signedInAlapProRlsProven!==false)
+              throw Error('F6U03K_SOURCE_MANIFEST_FALSE_GREEN');
+          }
+          NODE
+      - name: Enforce two real Docker PG17-only peers with no inherited external selectors
+        shell: bash
+        env:
+          PGPASSWORD: f6-u03k-local-only
+          FRESH_CONTAINER: ${{ job.services.fresh.id }}
+          ABORT_CONTAINER: ${{ job.services.abort.id }}
+        run: |
+          for n in PGHOST PGHOSTADDR PGSERVICE PGSERVICEFILE PGDATABASE PGOPTIONS DATABASE_URL SUPABASE_DB_URL SHOPERATION_FRESH_INSTALL_DB_URL; do
+            if printenv "$n" >/dev/null 2>&1; then echo "FORBIDDEN_PG_SELECTOR=$n" >&2; exit 1; fi
+          done
+          test -n "$FRESH_CONTAINER"
+          test -n "$ABORT_CONTAINER"
+          test "$FRESH_CONTAINER" != "$ABORT_CONTAINER"
+          for pair in "5432|f6_u03i_fresh|$FRESH_CONTAINER" "5433|f6_u03i_abort|$ABORT_CONTAINER"; do
+            IFS='|' read -r port database container <<< "$pair"
+            peer="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$container")"
+            test -n "$peer"
+            actual="$(psql -XAt -v ON_ERROR_STOP=1 -h 127.0.0.1 -p "$port" -U postgres -d "$database" -c "select host(inet_server_addr())||'|'||current_database()||'|'||current_user||'|'||current_setting('server_version_num')")"
+            case "$actual" in "$peer|$database|postgres|17"????) echo "Verified local peer $database";; *) echo 'F6U03K_WRONG_PG_PEER' >&2; exit 1;; esac
+          done
+      - name: Bootstrap only original historical provider fixture shell, not Office tables
+        env:
+          PGPASSWORD: f6-u03k-local-only
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03k/local-77/bootstrap-fresh.sql >artifacts/f6-u03k/local-77/bootstrap-fresh.log
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5433 -U postgres -d f6_u03i_abort -f artifacts/f6-u03k/local-77/bootstrap-abort.sql >artifacts/f6-u03k/local-77/bootstrap-abort.log
+      - name: Attempt authentic original SQL transaction and capture real first blocker
+        shell: bash
+        env:
+          PGPASSWORD: f6-u03k-local-only
+        run: |
+          set +e
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03k/local-77/commit.sql >artifacts/f6-u03k/local-77/commit.log 2>artifacts/f6-u03k/local-77/commit.err
+          result=$?
+          set -e
+          echo "$result" >artifacts/f6-u03k/local-77/exit-code.txt
+          if [ "$result" -ne 0 ]; then
+            grep 'ERROR:' artifacts/f6-u03k/local-77/commit.err >/dev/null
+            psql -XAt -F '|' -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03i_fresh -c "select (select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('public','private') and c.relkind in ('r','p','v','m')),(select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname in ('public','private')),(select count(*) from pg_policy p join pg_class c on c.oid=p.polrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('public','private'))" >artifacts/f6-u03k/local-77/after-failure-counts.txt
+            node --input-type=module <<'NODE'
+          import{readFileSync,writeFileSync}from'node:fs';
+          import{locateActualFailure,classifyLocalOutcome}from'./scripts/shoperation-f6-u03k-office-local-replay.mjs';
+          const root='artifacts/f6-u03k/local-77/';
+          const error=readFileSync(root+'commit.err','utf8');
+          const sql=readFileSync(root+'commit.sql','utf8');
+          const detail=locateActualFailure(sql,error);
+          const counts=readFileSync(root+'after-failure-counts.txt','utf8').trim().split('|').map(Number);
+          if(counts.length!==3||counts.some(x=>x!==0))throw Error('F6U03K_ATOMIC_ROLLBACK_INCOMPLETE');
+          const run=classifyLocalOutcome({mode:'commit',exitCode:3,actualNoAppObjects:true});
+          const result={...detail,...run,exitCode:Number(readFileSync(root+'exit-code.txt','utf8')),
+            afterFailureCounts:counts,releaseAuthorized:false,hostedTouched:false,
+            providerProven:false,authenticatedTenantRlsProven:false};
+          writeFileSync(root+'diagnostic-result.json',JSON.stringify(result,null,2));
+          console.log(JSON.stringify({decision:result.decision,error:detail.error,source:detail.marker,afterFailureCounts:counts},null,2));
+          NODE
+            exit 0
+          fi
+          grep -F 'target-postflight-ok' artifacts/f6-u03k/local-77/commit.log
+          tail -1 artifacts/f6-u03k/local-77/commit.log | grep -Fx 'COMMIT'
+          psql -XAt -F '|' -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03i_fresh -c "select (select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('r','p')),(select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public'),(select count(*) from pg_policy p join pg_class c on c.oid=p.polrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname='public')" >artifacts/f6-u03k/local-77/persisted-counts.txt
+          node --input-type=module <<'NODE'
+          import{readFileSync,writeFileSync}from'node:fs';
+          import{classifyLocalOutcome}from'./scripts/shoperation-f6-u03k-office-local-replay.mjs';
+          const dir='artifacts/f6-u03k/local-77/';
+          const c=readFileSync(dir+'persisted-counts.txt','utf8').trim().split('|').map(Number);
+          if(c.length!==3||c[0]<175||c[1]<344||c[2]<126)throw Error('F6U03K_PERSISTENCE_PROOF_INCOMPLETE');
+          writeFileSync(dir+'diagnostic-result.json',JSON.stringify({...classifyLocalOutcome({mode:'commit',exitCode:0,postflight:true,committed:true}),persisted:c,hostedTouched:false,providerProven:false},null,2));
+          NODE
+      - name: Separate exact-original rollback only if authentic main transaction really committed
+        shell: bash
+        env:
+          PGPASSWORD: f6-u03k-local-only
+        run: |
+          if grep -Fxq '0' artifacts/f6-u03k/local-77/exit-code.txt; then
+            set +e
+            psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5433 -U postgres -d f6_u03i_abort -f artifacts/f6-u03k/local-77/rollback.sql >artifacts/f6-u03k/local-77/rollback.log 2>artifacts/f6-u03k/local-77/rollback.err
+            status=$?
+            set -e
+            test "$status" -ne 0
+            grep -F 'F6U03I_INJECTED_ABORT_BEFORE_COMMIT' artifacts/f6-u03k/local-77/rollback.err
+            psql -XAt -F '|' -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5433 -U postgres -d f6_u03i_abort -c "select (select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('public','private') and c.relkind in ('r','p','v','m')),(select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname in ('public','private')),(select count(*) from pg_policy p join pg_class c on c.oid=p.polrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('public','private'))" >artifacts/f6-u03k/local-77/rollback-counts.txt
+            node --input-type=module <<'NODE'
+          import{readFileSync,writeFileSync}from'node:fs';
+          import{classifyLocalOutcome}from'./scripts/shoperation-f6-u03k-office-local-replay.mjs';
+          const root='artifacts/f6-u03k/local-77/';
+          const c=readFileSync(root+'rollback-counts.txt','utf8').trim().split('|').map(Number);
+          if(c.length!==3||c.some(v=>v!==0))throw Error('F6U03K_ROLLBACK_NOT_ATOMIC');
+          const p=classifyLocalOutcome({mode:'rollback',exitCode:3,forcedAbort:true,actualNoAppObjects:true});
+          writeFileSync(root+'rollback-proof.json',JSON.stringify({...p,counts:c},null,2));
+          NODE
+          else
+            echo 'No positive COMMIT: original SQL failed; independent rollback not claimed'
+          fi
+      - name: Save machine-readable negative or positive original SQL evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03k-original-sql-local-not-release-${{ github.sha }}
+          path: |
+            artifacts/f6-u03k/local-77/manifest.json
+            artifacts/f6-u03k/local-77/commit.log
+            artifacts/f6-u03k/local-77/commit.err
+            artifacts/f6-u03k/local-77/exit-code.txt
+            artifacts/f6-u03k/local-77/after-failure-counts.txt
+            artifacts/f6-u03k/local-77/persisted-counts.txt
+            artifacts/f6-u03k/local-77/diagnostic-result.json
+            artifacts/f6-u03k/local-77/rollback.log
+            artifacts/f6-u03k/local-77/rollback.err
+            artifacts/f6-u03k/local-77/rollback-counts.txt
+            artifacts/f6-u03k/local-77/rollback-proof.json
+          retention-days: 14
+          if-no-files-found: warn
