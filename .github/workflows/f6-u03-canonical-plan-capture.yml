@@ -1,5 +1,5 @@
 name: F6-U03g canonical plan capture (development-only)
-# F6-U03g captures existing Development Guard only; no database transport, DDL or hosted secret.
+# F6-U03g only captures the canonical guard for draft PR #1329; historical replay runs separately on an isolated PG17 service with no cloud credentials.
 on:
   push:
     branches:
@@ -32,7 +32,7 @@ jobs:
             --task "Core #1186 F6-U03g: replay historical 0046 schema and test positive application guard in an ephemeral PostgreSQL17 service, without hosted writes" \
             --files "scripts/shoperation-f6-u03g-historical-replay.mjs;tests/shoperation-f6-u03g-historical-replay.test.ts;scripts/shoperation-fresh-disposable-reprovision.mjs;docs/po/CORE_1186_F6_U03G_HISTORICAL_REPLAY_2026-10-15.md;.github/workflows/f6-u03g-historical-replay-proof.yml;.github/workflows/f6-u03-canonical-plan-capture.yml" \
             --risk critical \
-            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1323" \
+            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1329" \
             --write-plan --check
       - name: Print canonical guard and draft-plan diagnostic
         if: always()
