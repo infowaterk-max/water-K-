@@ -50,6 +50,15 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends postgresql-client
           psql --version
+      - name: Bind actual Docker service container IP
+        shell: bash
+        env:
+          F6_U03C_SERVICE_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          test -n "$F6_U03C_SERVICE_CONTAINER"
+          ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$F6_U03C_SERVICE_CONTAINER")"
+          test -n "$ip"
+          echo "F6_U03C_EXPECTED_SERVICE_IP=$ip" >> "$GITHUB_ENV"
       - name: Real PostgreSQL rollback and positive commit fixture
         shell: bash
         run: |
@@ -69,7 +78,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f6-u03c-postgres-rollback-\${{ github.sha }}
+          name: f6-u03c-postgres-rollback-${{ github.sha }}
           path: artifacts/f6-u03c/real-postgres-rollback.json
           if-no-files-found: warn
           retention-days: 30
