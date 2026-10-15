@@ -105,12 +105,13 @@
     "definition": {
       "acceptanceCriteria": [
         "Original frozen 59 filenames, bytes and source digest verified by validateReviewedBaseline; 18 main Git blobs verified by F6-U03j inspectOfficeGap without rewriting original SQL.",
-        "Single BEGIN and COMMIT envelopes entire original 59 SQL plus exactly 18 original timestamped Office candidate SQL files BEFORE original 0055, plus authentic target preflight/auth-bootstrap/neutral seed/postflight.",
+        "Single BEGIN and COMMIT envelopes entire original 59 SQL plus 17 original timestamped Office predecessor files BEFORE original 0055 and the 20260910070300 Communication Hub FK index follow-up AFTER original 0057, BEFORE 0058, plus authentic target preflight/auth-bootstrap/neutral seed/postflight.",
         "Docker peer IP, name, postgres role and real PG17 verification and rejection of inherited PGHOST, PGHOSTADDR, PGDATABASE, DATABASE_URL and Supabase selectors enforced before any SQL.",
         "Failure to execute any statement is recorded as LOCAL_SOURCE_BLOCKED with actual psql SQLSTATE/error line and no 59+18 COMMIT claim; verify no application schema persisted.",
         "Only genuine postflight and committed schema can yield LOCAL_SOURCE_REPLAY_COMMITTED; even then an independent pre-COMMIT fault must prove rollback and release stays blocked.",
         "Original 59-file F6-U03b hosted compiler abort-before-DROP and F6-U03f full strict guard unchanged, no hosted writes or managed provider acceptance.",
-        "Separate exact-head source workflow and normal CI/Truth/Lifecycle gates provide reproducible evidence."
+        "Separate exact-head source workflow and normal CI/Truth/Lifecycle gates provide reproducible evidence.",
+        "The distinct authentic source 20260910070300 is placed between original immutable 0057 and 0058, not before 0055; 17 other source-pinned original Office SQL files precede 0055."
       ],
       "invariants": [
         "Never edit or copy original 59 or 18 source SQL; treat main timestamped candidate files as diagnostic only, not release authority.",
@@ -268,9 +269,9 @@
       },
       {
         "id": "CH-U03K-05",
-        "scenario": "The temporary SQL uses two BEGIN/COMMIT envelopes or places a candidate after original 0055 rather than immediately before it.",
-        "finding": "A second transaction could commit half the schema, while the immutable 0055 still reaches a missing relation and fails.",
-        "resolution": "Compose one protected transaction using existing F6-U03i SQL and insert all verified predecessor source chunks before the original 0055 marker, checking exact position and one outer envelope.",
+        "scenario": "The candidate 20260910070300_communication_hub_2_0_fk_indexes_v1.sql is inserted before the 0055 foundation it depends on, rather than after 0057 when 0055–0057 have established its target columns.",
+        "finding": "Wrong placement of an original post-0057 FK index migration would introduce a synthetic release failure and misidentify the canonical source DAG even though the source itself is valid in its chronological slot.",
+        "resolution": "Split 18 immutable Office candidates by verified chronological role: 17 before 0055 and 20260910070300 after 0057 but before 0058; assert both placements and one BEGIN/COMMIT with negative tests.",
         "status": "resolved"
       },
       {
@@ -873,7 +874,8 @@
       "If authentic source SQL fails before COMMIT, preserve psql nonzero exit, exact SQL error (line and statement source marker), report LOCAL_SOURCE_BLOCKED with no positive claim and confirm transaction did not commit.",
       "If SQL and postflight actually pass, check persisted schema and run a distinct fresh Docker PG17 injected pre-COMMIT error, verifying complete rollback.",
       "Machine output reports ALWAYS RELEASE_NOT_AUTHORIZED; supersession, Auth/Storage, TLS and signed-in tenant Alap/Pro semantics remain BLOCKED.",
-      "Exact-head canonical Development Guard, Plan Before Code, Edit-Time, Quality/TypeScript/Build, Completion Truth/Lifecycle checks for this diagnostic only."
+      "Exact-head canonical Development Guard, Plan Before Code, Edit-Time, Quality/TypeScript/Build, Completion Truth/Lifecycle checks for this diagnostic only.",
+      "The 20260910070300 Communication Hub FK-index file runs only after original 0057 and before original 0058, not in the 17-file pre-0055 Office predecessor prelude."
     ],
     "unresolvedRisks": [
       "18 candidate timestamped sources can contain superseded authorization, plan guards or unsafe grants; diagnostic isolated Docker execution is no authority for release.",
@@ -1019,5 +1021,5 @@
       }
     ]
   },
-  "notes": "F6-U03k critical Docker-only diagnostic of 18 source-authentic Office candidate timestamps pre-0055; any local PASS is not release approval, no original source mutation, #1228 remains owner. Specialist challenge model-generated."
+  "notes": "F6-U03k critical Docker-only diagnostic of 17 source-authentic Office predecessors pre-0055 and one 20260910070300 follow-up post-0057; any local PASS is not release approval, no original source mutation, #1228 remains owner. Specialist challenge model-generated. Corrected source chronology before code commit: 17 predecessor SQL before 0055 and 20260910070300 FK index follow-up after 0057, before 0058. Not all 18 belong ahead of 0055."
 }
