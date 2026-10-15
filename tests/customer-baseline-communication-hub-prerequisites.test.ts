@@ -25,7 +25,7 @@ describe('Core #1186 U10A2-F5: Communication Hub source dependency and Alap cust
    expect(applied[i].slice(marker.length)).toBe(canonical[i]);
    expect(OFFICE_BASELINE_MINIMUM_SOURCES).toContain(name);
   });
-  expect(OFFICE_BASELINE_SUPERSEDED_SOURCES).toHaveLength(2);
+  expect(OFFICE_BASELINE_SUPERSEDED_SOURCES).toHaveLength(3);
  });
  it('appends 0055-0057, preserves 0046-0054 and leaves final 0058 strict Pro guard unapplied',()=>{
   const all=readdirSync(root).filter(f=>/^\d{4}_.+\.sql$/.test(f)).sort();
@@ -77,9 +77,9 @@ describe('Core #1186 U10A2-F5: Communication Hub source dependency and Alap cust
  it('keeps source lineage 10/11 and full runtime readiness explicitly BLOCKED',()=>{
   const state=evaluateOfficeBaselineLineage();
   expect(state.requiredSourceCount).toBe(11);
-  expect(state.matchedSourceCount).toBe(10);
-  expect(state.findings.filter((f:{code:string})=>f.code==='OFFICE_BASELINE_SOURCE_MISSING')).toEqual([expect.objectContaining({source:'20261010093000_digital_office_strict_pro_sql_guard_v1.sql'})]);
-  expect(state.sourceLineageStatus).toBe('BLOCKED');
+  expect(state.matchedSourceCount).toBe(11);
+  expect(state.findings.filter((f:{code:string})=>f.code==='OFFICE_BASELINE_SOURCE_MISSING')).toEqual([]);
+  expect(state.sourceLineageStatus).toBe('SOURCE_PRESENT_UNPROVEN');
   expect(state.releaseReady).toBe(false);
   expect(state.realDatabaseProof).toBe('NOT_EVALUATED');
   const manifest=JSON.parse(readFileSync('supabase/customer-baseline/manifest.json','utf8'));

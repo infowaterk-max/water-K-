@@ -89,5 +89,8 @@ describe('Core #1186 F6-U01: Alap customer rights and Pro-only internal Office S
   expect(manifest.proofContractSha256).toBeNull();
   expect(manifest.notes).toContain('F6-U01');
   expect(manifest.notes).toContain('U02');
+  const script=readFileSync('scripts/shoperation-office-baseline-lineage.mjs','utf8');
+  expect(script).toContain('OFFICE_UNSAFE_GLOBAL_PRO_RLS_REPLAY');
+  expect(script).toContain('20261015090000_digital_office_plan_scoped_sql_guard_v2.sql');
  });
 });
