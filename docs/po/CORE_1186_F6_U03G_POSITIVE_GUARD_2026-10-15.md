@@ -6,7 +6,7 @@
 
 The F6-U03f source-only candidate now includes an exact 177-table/4621-definition historical Fresh Install guard, 113 neutral rows, seven neutral catalog MD5 values, Auth and Storage checks, schema ACLs, six Supabase provider event functions, Auth external trigger, and `ACCESS EXCLUSIVE NOWAIT` locks. Its first real PostgreSQL17 run proved only **negative** mismatch rejection before any DROP. A positive result from that guard's actual SQL execution path was not demonstrated.
 
-This unit aims for an **executable positive branch**, with negative mutation tests, but exclusively in one ephemeral `f6_u03g_fixture` PostgreSQL17 GitHub Actions service.
+This unit aims for an **executable positive branch**, with negative mutation tests, but exclusively in one ephemeral `postgres` PostgreSQL17 GitHub Actions service.
 
 ## Fixture fidelity and explicit limits
 
@@ -19,7 +19,7 @@ To execute the *original imported F6-U03f guard* successfully against that diffe
 ## Safeguards
 
 - The fixture runner refuses normal CLI execution, any ambient `PG*` libpq selectors or hosted database URL, and requires GitHub Actions with an explicit ephemeral marker.
-- It verifies the **exact** PostgreSQL database name `f6_u03g_fixture`, superuser, server major version **17**, and the network address of the Docker PostgreSQL service *before running fixture SQL*.
+- It verifies the **exact** PostgreSQL database name `postgres`, superuser, server major version **17**, and the network address of the Docker PostgreSQL service *before running fixture SQL*.
 - The workflow contains no Supabase credentials or ability to access the real Fresh Install. The fixture's password is non-secret test data.
 - One positive `BEGIN; DO $f6_guard$ ...; ROLLBACK;` run must complete without an error, exercising all 177 application table locks and data hash checks.
 - Six negative mutations simulate non-neutral customer data, an equal-row-count neutral catalog change, lost public schema USAGE, Auth user data, Storage objects and a disabled provider-like event trigger. Each must be **rejected with the expected actual F6-U03f exception**, and an independent subsequent positive guard run proves rollback.
