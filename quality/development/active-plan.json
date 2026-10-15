@@ -1,19 +1,20 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-B55A7A31-F4",
-  "task": "Core #1186 U10A2 F4 canonical Team Chat 2 foundation, mention/object integrity and owner transfer source lineage 0052-0054",
+  "taskId": "DEV-B55A7A31-F5",
+  "task": "Core #1186 U10A2 F5 additive canonical Communication Hub 2.0 source migrations 0055-0057 (mailboxes, attachments/delegation, customer object links) with basic Alap preservation",
   "status": "closed",
   "guardDigest": "b55a7a31",
-  "changeBaseSha": "4b317eddbdffb8876abf8d3eb99f5446c7c18c4d",
+  "changeBaseSha": "feba6b7d0b0e24d3271e9f85d28c1be8aa63d0a9",
   "plannedFilePatterns": [
-    "supabase/customer-baseline/migrations/0052_digital_office_team_chat_2_foundation_v1.sql",
-    "supabase/customer-baseline/migrations/0053_digital_office_team_chat_2_integrity_v1.sql",
-    "supabase/customer-baseline/migrations/0054_digital_office_team_chat_owner_transfer_v1.sql",
+    "supabase/customer-baseline/migrations/0055_communication_hub_2_0_foundation_v1.sql",
+    "supabase/customer-baseline/migrations/0056_communication_hub_2_0_mailbox_default_assignment_v1.sql",
+    "supabase/customer-baseline/migrations/0057_communication_hub_2_0_advanced_guards_and_object_links_v1.sql",
     "supabase/customer-baseline/manifest.json",
-    "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
     "tests/customer-baseline-team-permissions-prerequisites.test.ts",
     "tests/customer-baseline-office-privacy-prerequisites.test.ts",
-    "tests/shoperation-office-db-readiness.test.ts"
+    "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
+    "tests/shoperation-office-db-readiness.test.ts",
+    "tests/customer-baseline-communication-hub-prerequisites.test.ts"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -49,7 +50,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical additive canonical 0052–0054 SQL modifies per-tenant participant tables, service_role-only mentions and business-object references, trigger-bound referential integrity and member-controlled owner transfer. All three must be evaluated as an ordered atomic dependency; partial schema and RPC replay cannot be considered ready, and Pro-only Team Chat access must not be enabled for Alap.",
+      "rationale": "Critical Office SQL chain includes provider inbound/outbound attachment security, delegation attribution, mailbox default assignment, customer business-object links, advanced Pro functions and sensitive service-role wrappers. Historical strict Pro final source has a separate identified conflict with accepted Alap customer support and must NOT be introduced in this F5 source-only tranche.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -66,35 +67,30 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Append source-body-identical customer baseline SQL 0052, 0053, 0054 after F3 0051 without changing earlier migrations and with verifiable canonical SHA256 provenance.",
-        "0052 must keep owner/member role constraint, service-only RLS tables for mentions/object links, tenant-aware object lookup, audit-backed service-role Team Chat RPC.",
-        "0053 must preserve two referential-integrity enforcement triggers for message mentions and object links and reject invalid user/object/thread relationships.",
-        "0054 must preserve active owner-initiated transfer only; no owner seizure, no target outside tenant, no browser EXECUTE for transfer RPC.",
-        "Negative tests reject missing last source 0054, forged 0054 payload, or dropped 0053 integrity, and preserve all F3 final 0051 RLS and F2 obsolete plan-sync protection.",
-        "After adding 0052–0054, source lineage reports seven matched modern Office sources and four remaining active prerequisites; customer baseline counts 55 files.",
-        "Customer baseline manifest remains snapshot-reviewed, freshInstallProofRequired true, proof hash null; no hosted runtime or Pro Office completion claims.",
-        "No staging, platform or production database write, no Supabase project resume, no paid Vercel preview, no Builder or template work."
+        "Append contiguous 0055–0057 with exact original SQL source bodies and SHA256 provenance to customer baseline, without changing earlier migrations.",
+        "0055 extends canonical Office/customer mailboxes, commercial references, provider inbound attachment quarantine, outbound attachment scan and delegation evidence without creating parallel schemas or making provider mailbox active.",
+        "0056 mailbox default-assignee trigger must never overwrite explicit manual assignment and requires active existing responsible member.",
+        "0057 separates basic customer support from advanced Pro-only mailbox responsibility/relationship edits, delegation and linked commerce object privileges via service_role-only wrappers and effective feature check; legacy v1/v5 service_role bypass is revoked.",
+        "New tests check complete canonical source body and order, service-only grants/revocations, attachment clean-scan prerequisites, explicit assignment preservation and missing/tampered 0057 fail-closed source gate.",
+        "Existing 0047 and 0048-0054 negative tests and obsolete fixed-list Team Chat plan-sync interdiction must remain intact; after 0057 58 ordered files and 10/11 Office minimum source matches.",
+        "Do not deploy 0058 strict Pro RLS source unchanged: it would deny Alap customer Office read despite accepted Alap officeCommunication/support rights. Keep 0058 separately unresolved and enforce source missing BLOCK, never mark database ready.",
+        "No hosted Fresh Install proof or staging/platform/production database changes, Vercel or Builder/Template changes."
       ],
       "invariants": [
-        "Alap customer email/support remains enabled while advanced Team Chat remains Pro-only.",
-        "SQL provenance and existing 0046–0051 immutable.",
-        "No actor can seize a private conversation through a service-only owner-transfer RPC.",
-        "Invalid mentions and object links fail at database trigger boundary even if RPC validation is bypassed.",
-        "The four missing active Office source dependencies prevent complete readiness.",
-        "Source-only proof does not establish authenticated PostgreSQL RLS in a hosted target."
+        "Alap customer-facing officeCommunication/support and basic customer email access remain possible; advanced Office and Team Chat remain Pro-only.",
+        "No public/anon/authenticated direct execution of service-role-only mail/inbound scans, mailbox/relationship modification or owner transfer.",
+        "Pending or unscanned attachments cannot be treated as clean send evidence.",
+        "Provider mailbox responsibility default must not replace explicitly chosen assignee.",
+        "Attached business objects and stored customer-delegation attribution stay instance/actor-scoped.",
+        "Historical source hashes are immutable; F2 legacy fixed-list plan-sync migration never re-enters."
       ],
       "forbiddenStates": [
-        "Partial 0052 without integrity 0053 and transfer 0054 treated ready.",
-        "Nonparticipant mention or cross-instance object accepted by service-role trigger.",
-        "Browser EXECUTE on admin_transfer_office_thread_owner_v1 exposed to authenticated or anon.",
-        "User outside current active chat owner independently transfers ownership.",
-        "Historic plan-sync SQL restores Alap Team Chat.",
-        "Hosted/database readiness marked true without real PostgreSQL replay and auth/RLS matrix."
-      ],
-      "nonGoals": [
-        "No Office runtime routes, sidebar navigation, tenant order handling or worker edits.",
-        "No real database mutation or activation of Fresh Install.",
-        "No release merge of incomplete F4 or previous stacked draft ancestors."
+        "Unchanged 0058 strict Pro RLS gate added with blanket subscription_plan='pro' requirement for all Office customer threads/tasks.",
+        "Manual mailbox assignee overwritten by trigger on repeated updates.",
+        "Customer email attachment sent despite missing malware scan clean evidence.",
+        "Direct legacy v1 or v5 RPC EXECUTE on service_role retained after v2/v6 final advanced wrapper.",
+        "Duplicate alternate mailbox/email engine created outside canonical Office tables.",
+        "Any source-parity-only test used as hosted database readiness proof."
       ]
     },
     "model": {
@@ -126,52 +122,53 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Missing 0053 means service_role writes can bypass mention and object integrity.",
-        "Transfer RPC accidentally executed from authenticated role or by non-owner.",
-        "Owner active constraint disappears while older trigger rewrites are copied.",
-        "Per-tenant entity lookup for linked commerce objects is bypassed.",
-        "Previous F3/F1 tests assume last migration 0051 and fail when immutable append-only chain advances.",
-        "Legacy hard-coded plan entitlement replay slips into Office later than 0054."
+        "Large historical 0055 source refers to missing schema predecessor not represented by 11 minimum source set.",
+        "Service-role customer-email delegation helper accepts a forged actor or tenant.",
+        "Provider inbound attachment scan/finalize accepts unscanned/quarantined data.",
+        "Mailbox trigger changes manual assignment or active membership incorrectly.",
+        "0057 advanced object link guard leaves old RPC callable, bypassing Pro entitlement.",
+        "Team Chat remains Pro-only but wrong 0058 blanket RLS would unintentionally hide Alap customer threads.",
+        "Migration after 0057 is assumed to be final and source checker claims full proof."
       ],
       "edgeCases": [
-        "Object link references a different tenant with same object UUID.",
-        "Mention author differs from message author.",
-        "Left participant is mentioned in a new message.",
-        "Owner transfer targets actor (self).",
-        "Owner tries to transfer to an inactive or nonparticipant account.",
-        "No active owner remains because previous owner left.",
-        "Mention integrity missing while RPC-level validation passes.",
-        "Closing migration contains a correct SHA marker but truncated SQL.",
-        "Backend role bypasses browser checks but must still honor RPC/trigger guards.",
-        "Manifest historical 0046 proof copied to new 0054 snapshot."
+        "Zero mailbox responsibility or inactive mailbox when a new customer thread is created.",
+        "A customer thread already has assigned_to during mailbox_key update.",
+        "Provider email includes multiple inbound attachment entries with invalid paths.",
+        "Storage object missing between scan and queue insert.",
+        "Delegation expired or belongs to another tenant.",
+        "Customer user reference attached to a different webshop.",
+        "Pro advanced office feature manually disabled but subscription remains Pro.",
+        "Alap customer email must remain supported without Team Chat or advanced Office privileges.",
+        "0060 upgrade from stale staging schema missing office_message_attachments.",
+        "Someone renames forbidden hard-coded customer-email plan migration into 0058."
       ],
       "invariants": [
-        "Alap customer email/support remains enabled while advanced Team Chat remains Pro-only.",
-        "SQL provenance and existing 0046–0051 immutable.",
-        "No actor can seize a private conversation through a service-only owner-transfer RPC.",
-        "Invalid mentions and object links fail at database trigger boundary even if RPC validation is bypassed.",
-        "The four missing active Office source dependencies prevent complete readiness.",
-        "Source-only proof does not establish authenticated PostgreSQL RLS in a hosted target."
+        "Alap customer-facing officeCommunication/support and basic customer email access remain possible; advanced Office and Team Chat remain Pro-only.",
+        "No public/anon/authenticated direct execution of service-role-only mail/inbound scans, mailbox/relationship modification or owner transfer.",
+        "Pending or unscanned attachments cannot be treated as clean send evidence.",
+        "Provider mailbox responsibility default must not replace explicitly chosen assignee.",
+        "Attached business objects and stored customer-delegation attribution stay instance/actor-scoped.",
+        "Historical source hashes are immutable; F2 legacy fixed-list plan-sync migration never re-enters."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F4-ATOMIC",
-        "summary": "Append all three unchanged canonical migrations in order with permanent source, SQL-level invariant and negative omission/tampering regression.",
+        "id": "ALT-F5-SOURCE-THREE",
+        "summary": "Append source-exact 0055 Communication Hub foundation, 0056 default assignment, 0057 advanced guards as one reviewed critical source tranche, with focused SQL security and negative lineage evidence.",
         "disposition": "selected",
-        "reason": "Preserves source traceability and requires both integrity trigger safety and owner-transfer security before accepting this bounded tranche."
+        "reason": "Preserves original prerequisite ordering and allows source-only progress while leaving conflicting final Pro-wide RLS explicitly blocked."
       },
       {
-        "id": "ALT-F4-SPLIT",
-        "summary": "Copy owner/member foundation now, defer integrity triggers and owner transfer to independent deployments.",
+        "id": "ALT-F5-AUTO-ALL-FOUR",
+        "summary": "Copy all four missing SQL sources, including 0058 strict Pro read policies for all Office tables, in one batch.",
         "disposition": "rejected",
-        "reason": "Allows unsafe intermediate service-role writes without 0053 enforcement and omits owner-transfer operation dependency."
+        "reason": "0058 as authored denies Alap customer thread reading despite accepted Alap customer support/communication. No unsafe cosmetic fix or silent PO contract change."
       },
       {
-        "id": "ALT-F4-REWRITE",
-        "summary": "Rewrite source Team Chat access controls into a new custom replacement SQL migration and mark original sources superseded.",
+        "id": "ALT-F5-REWRITE-FOUNDATION",
+        "summary": "Rebuild the older Communication Hub foundation with ad-hoc custom email and attachment tables instead of canonical source chain.",
         "disposition": "rejected",
-        "reason": "Risks invalidating canonical schema/function behavior and preserves no independent source hash lineage or reproducible replay contract."
+        "reason": "Would create shadow email/delegation engines and destroy source provenance/dependency authority."
       }
     ],
     "specialistReviews": [
@@ -179,113 +176,111 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Security-definer RPCs could let a caller impersonate chat owner, forge tenant ownership, or bind objects outside a tenant when independent triggers are missing.",
-        "resolution": "Carry exact source role checks, service_role-only RPC EXECUTE, 0053 integrity triggers, 0054 current-owner transfer validation and scope negative tests as a single immutable SQL transaction.",
+        "finding": "The final 0058 Pro guard changes public.can_read_office_thread_v1 and installs restrictive Pro-only policies over all Office threads, messages, tasks, denying Alap customer support.",
+        "resolution": "Keep the guard out of F5; 0058 requires separate PO-contract-aligned, real Pro/Alap RLS correction and negative read matrix. Do not alter supported Alap plan silently.",
         "evidence": [
-          "supabase/migrations/20260909204503_digital_office_team_chat_2_foundation_v1.sql",
-          "supabase/migrations/20260909204524_digital_office_team_chat_2_integrity_v1.sql",
-          "supabase/migrations/20260909204547_digital_office_team_chat_owner_transfer_v1.sql"
+          "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql",
+          "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Message mention and object link FKs may appear correct despite cross-tenant pointers, invalid author and missing object validation.",
-        "resolution": "Preserve 0053 PostgreSQL trigger functions and their service-role enforcement and block hosted proof until real row-level mutation matrix is executed.",
+        "finding": "Communication Hub foundation introduces email delegation references, provider attachment scan status and business object links which cannot be proved by syntactic parity.",
+        "resolution": "Check original table/trigger/RPC body and fail closed until real empty-target SQL replay plus tenant/role/malware-scan negative behavioral fixtures.",
         "evidence": [
-          "supabase/migrations/20260909204524_digital_office_team_chat_2_integrity_v1.sql"
+          "supabase/migrations/20260910070000_communication_hub_2_0_foundation_v1.sql"
         ]
       },
       {
         "role": "Runtime",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Team Chat Pro boundaries could conflict with Alap customer communication and earlier normalized plan_capability_grants.",
-        "resolution": "Keep F2 two superseded fixed-list entitlement migrations forbidden, preserve 0046 Alap customer support grant and 0051 current-user RLS helper, and do not assert backend route closure from SQL files.",
+        "finding": "Existing basic Alap support route and customerEmail capability may be incorrectly gated by advanced service-role wrappers or old v5 queue calls.",
+        "resolution": "Require 0057 advanced-only functions and legacy wrapper revocations, retain 0046 Alap grants and do not interpret source-only migrations as runtime mail-provider delivery proof.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
-          "scripts/shoperation-office-baseline-lineage.mjs"
+          "supabase/migrations/20260910070200_communication_hub_2_0_advanced_guards_and_object_links_v1.sql",
+          "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Static sources cannot prove a real role/RLS, tenant-isolation or task reentrancy outcome on actual empty Supabase PostgreSQL.",
-        "resolution": "Keep manifest reviewed/unverified, parent issue open, no database write and require fresh target replay prior to merge or release claims.",
+        "finding": "Staging schema may differ and historical 0055 depends on multiple Office attachment and commercial tables outside required 11-source list.",
+        "resolution": "Keep manifest snapshot-reviewed/hosted proof null, no SQL target writes, no partial merge; require complete actual disposable Fresh Install plus Alap/Pro role and trigger proof.",
         "evidence": [
-          "supabase/customer-baseline/manifest.json",
-          "scripts/shoperation-office-db-readiness.mjs"
+          "scripts/shoperation-office-baseline-lineage.mjs",
+          "supabase/customer-baseline/manifest.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-F4-01",
-        "scenario": "Service role inserts office_message_mentions with mentioned user who is not a thread participant.",
-        "finding": "RPC-only validation is bypassable under privileged direct SQL and might reveal private information in cross-user notifications.",
-        "resolution": "Preserve the 0053 trigger that validates internal message author, thread type and participant's read entitlement before insert/update.",
+        "id": "CH-F5-01",
+        "scenario": "Alap user reads a customer Office thread after unmodified strict Pro migration 0058 applied.",
+        "finding": "Strict Pro subscription SQL in 0058 returns false and applies restrictive SELECT to all threads/messages/tasks, violating Alap basic support right.",
+        "resolution": "Explicitly exclude 0058 from F5 and retain source-lineage BLOCK; require F6 remediation and Alap/Pro RLS regression before any deploy or merge.",
         "status": "resolved"
       },
       {
-        "id": "CH-F4-02",
-        "scenario": "Store operator writes object cards linking another tenant's order or customer even though the chat thread belongs to their current tenant.",
-        "finding": "Without table-boundary check, mention/object link FKs may be valid while business object scope is compromised.",
-        "resolution": "Preserve private.office_chat_object_exists_v1 tenant-aware source and 0053 object-integrity trigger, and retain real SQL row fixture proof blocker.",
+        "id": "CH-F5-02",
+        "scenario": "Mailbox key change on a customer thread with an explicitly selected assignee.",
+        "finding": "Default mailbox-responsible assignment could overwrite manual owner and route private customer correspondence to a different merchant user.",
+        "resolution": "Retain canonical 0056 early return when assigned_to not null and verify it in focused regression.",
         "status": "resolved"
       },
       {
-        "id": "CH-F4-03",
-        "scenario": "A user with elevated support permissions tries to transfer ownership of a private thread they do not own.",
-        "finding": "Store operator might otherwise use admin_transfer_office_thread_owner_v1 to seize a conversation without participant consent.",
-        "resolution": "Require the original 0054 current active owner, current read access and active target checks, and forbid authenticated EXECUTE grant.",
+        "id": "CH-F5-03",
+        "scenario": "Inbound provider attachment has no clean quarantine scan but is finalized or exposed to customer.",
+        "finding": "Malware exposure and tenant data leak are possible if service wrappers skip clean status evidence.",
+        "resolution": "Retain 0055 clean-scan and service-role-only functions and require real scan/workflow proof before product readiness.",
         "status": "resolved"
       },
       {
-        "id": "CH-F4-04",
-        "scenario": "Only Team Chat 0052 is copied, missing 0053 trigger integrity and 0054 ownership transition source.",
-        "finding": "Source prerequisites appear partially present but authorization cannot safely accept mentions/object links or ownership events.",
-        "resolution": "Add an atomic-three-file invariant and negative missing 0053/0054 test; partial or tampered source must always BLOCK.",
+        "id": "CH-F5-04",
+        "scenario": "Service-role operator invokes obsolete direct v1 mailbox or v5 customer email queue after v2/v6 advanced guards are installed.",
+        "finding": "Legacy RPC EXECUTE privilege bypasses revised advanced Pro checks and tenant object-link security.",
+        "resolution": "Ensure 0057 explicitly revokes old service_role privileges and requires effective advanced actor in guarded wrappers.",
         "status": "resolved"
       },
       {
-        "id": "CH-F4-05",
-        "scenario": "A previous 0047 or 0051 focused historical test expects itself to be last and now produces a false failure.",
-        "finding": "Additive immutable migration order is correct but old test assumed a fixed terminal file count.",
-        "resolution": "Update only trailing count/order assertions, keeping original 0047 and 0051 SQL parity/security checks intact.",
+        "id": "CH-F5-05",
+        "scenario": "A customer email references another tenant's order through an object link.",
+        "finding": "Business-object card reveals foreign commercial data despite valid customer thread scope.",
+        "resolution": "Preserve 0057 private office_chat_object_exists_v1 instance scoped enforcement and integrity trigger, then test real foreign-tenant mutation rejection.",
         "status": "resolved"
       },
       {
-        "id": "CH-F4-06",
-        "scenario": "A migration with legacy teamChat fixed-list sync is renamed to look like an active Team Chat 2.0 migration.",
-        "finding": "Recreating old sync_webshop_plan_entitlements SQL could grant Team Chat to Alap despite hardened current-user RLS.",
-        "resolution": "Keep the F2 superseded-source and renamed fixed-list SQL tests unchanged and verify Alap normalized plan authority remains the canonical source.",
+        "id": "CH-F5-06",
+        "scenario": "Old fixed-list customer email plan-sync migration is renamed to look like a new active 0055 SQL.",
+        "finding": "Plan sync silently restores Alap Team Chat contrary to normalized plan capability grants.",
+        "resolution": "Preserve F2 named and renamed legacy fixed-list SQL interdiction regression and immutable 0046 entitlement baseline.",
         "status": "resolved"
       },
       {
-        "id": "CH-F4-07",
-        "scenario": "The owner transfer procedure and integrity triggers parse but fail at actual PostgreSQL execution or violate RLS under service_role impersonation.",
-        "finding": "Textual tests and CI cannot prove data-plane SQL procedure semantics, trigger ordering or grants.",
-        "resolution": "Keep status snapshot-reviewed and actual PostgreSQL Fresh Install, GRANT/RLS and tenant matrix separately blocked until a proven disposable target is available.",
+        "id": "CH-F5-07",
+        "scenario": "Historically captured Office source proves byte parity but prereq office_message_attachments/delegations or provider storage objects are absent on fresh database.",
+        "finding": "Static checks would give false database ready status before actual migrations can execute.",
+        "resolution": "Record source match only; keep manifest and readiness BLOCKED until full 0001-0058 DAG, real empty-target replay and role/RLS/attachment checks.",
         "status": "resolved"
       },
       {
-        "id": "CH-F4-08",
-        "scenario": "The Team Chat 2 source introduces an owner role and partial backfill for internal conversation creators; pre-existing internal threads can have left or mismatched participants.",
-        "finding": "The partial owner state and unique active-owner index could reject a real replay or leave owner-transfer semantics inconsistent for historical private groups.",
-        "resolution": "Preserve full canonical 0052 owner backfill and active-owner uniqueness, test declared integrity constraints and require actual PostgreSQL empty-target plus populated upgrade fixtures before interpreting SQL source parity as safe rollout.",
+        "id": "CH-F5-08",
+        "scenario": "Only 0055 and 0056 are present while advanced 0057 guards are absent.",
+        "finding": "Base v1/v5 support RPC remains callable before final v2/v6 revocation, exposing Pro-only changes.",
+        "resolution": "Require atomic source stage 0055-0057; missing 0057 and body tampering must BLOCK lineage and prevent source-stage closure.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Verify parent #1299 at exact 4b317edd is fully CI green, then run F4 critical Development Guard and Plan Before Code PASS on the new branch before any implementation SQL.",
-      "Compare complete canonical 0052-0054 SQL bytes and SHA256 provenance and ordered migration file identities; reject exact-source omissions or tampering.",
-      "Prove 0053 integrity triggers for office_message_mentions and office_message_object_links, and service-only active owner transfer RPC in 0054.",
-      "Update historical F1/F3 tests for additive 55-file baseline, retaining all earlier source parity and 0051 final browser RLS restrictions.",
-      "Assert seven Office active sources matched, four still missing, two superseded fixed-list Alap grants still forbidden and database runtime proof never claimed.",
-      "Run native CI Plan/Edit-Time/Replay/quality/security/typecheck/build/Completion Truth and CI-emitted Lifecycle, with independent push and draft PR run at exact head.",
-      "No Supabase writes, no staging or production mutation, no inactive project restoration, no commercial release or merge without later real hosted Fresh Install."
+      "Before SQL edits verify F4 final exact-head CI, run F5 critical Development Guard and Plan Before Code with correct subsystems, known failures and challenge depth.",
+      "Append SQL 0055-0057 with original bytes and SHA256 source provenance; new focused tests must reject missing final 0057, changed body, source order and count drift.",
+      "Test sensitive email attachment scan/release, delegation, mailbox default-assignee nonoverwrite and advanced role-only v2/v6 guard/legacy wrapper revocations.",
+      "Preserve all F1/F3/F4 source parity and F2 plan-sync supersession tests while updating trailing 58-file sequence and 10/11 matched dependency count.",
+      "Add explicit regression proving historical 0058 strict Pro source would block Alap customer read; keep it excluded and 0058 missing source BLOCK.",
+      "Run exact-head Edit-Time/Incremental Replay/Quality/TypeScript/Build/Truth/Lifecycle with CI-emitted identical closure artifact. No database, staging or production writes."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
@@ -296,25 +291,27 @@
         "supabase/customer-baseline/manifest.json",
         "tests/customer-baseline-team-permissions-prerequisites.test.ts",
         "tests/customer-baseline-office-privacy-prerequisites.test.ts",
+        "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
         "tests/shoperation-office-db-readiness.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [
-        "supabase/migrations/20260909204503_digital_office_team_chat_2_foundation_v1.sql",
-        "supabase/migrations/20260909204524_digital_office_team_chat_2_integrity_v1.sql",
-        "supabase/migrations/20260909204547_digital_office_team_chat_owner_transfer_v1.sql",
-        "supabase/customer-baseline/migrations/0051_digital_office_rls_helper_exposure_closure_v1.sql"
+        "supabase/migrations/20260910070000_communication_hub_2_0_foundation_v1.sql",
+        "supabase/migrations/20260910070100_communication_hub_2_0_mailbox_default_assignment_v1.sql",
+        "supabase/migrations/20260910070200_communication_hub_2_0_advanced_guards_and_object_links_v1.sql",
+        "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql",
+        "supabase/customer-baseline/migrations/0054_digital_office_team_chat_owner_transfer_v1.sql"
       ],
       "mustCreate": [
-        "supabase/customer-baseline/migrations/0052_digital_office_team_chat_2_foundation_v1.sql",
-        "supabase/customer-baseline/migrations/0053_digital_office_team_chat_2_integrity_v1.sql",
-        "supabase/customer-baseline/migrations/0054_digital_office_team_chat_owner_transfer_v1.sql",
-        "tests/customer-baseline-office-team-chat-prerequisites.test.ts"
+        "supabase/customer-baseline/migrations/0055_communication_hub_2_0_foundation_v1.sql",
+        "supabase/customer-baseline/migrations/0056_communication_hub_2_0_mailbox_default_assignment_v1.sql",
+        "supabase/customer-baseline/migrations/0057_communication_hub_2_0_advanced_guards_and_object_links_v1.sql",
+        "tests/customer-baseline-communication-hub-prerequisites.test.ts"
       ],
       "forbidden": [],
       "proof": [
+        "tests/customer-baseline-communication-hub-prerequisites.test.ts",
         "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
-        "tests/customer-baseline-office-privacy-prerequisites.test.ts",
         "tests/shoperation-office-db-readiness.test.ts",
         "CI Completion Truth",
         "Lifecycle"
@@ -682,27 +679,27 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Canonical customer Fresh Install includes Team Permissions and participant-only Office privacy through 0051, but Team Chat 2.0 0052–0054 owner/mention/link guard sources are absent. Deploying a partial chain would allow unsafe privileged mention/object references or omit owner-transfer protection. Development Guard projected only database-schema for this precise F4 scope, not F3's additional admin-operations domain; align known failure set without suppressing security challenge coverage.",
+    "problemStatement": "Customer Fresh Install currently has 0054 Team Chat DB guards, but lacks source migrations for Communication Hub 2.0 (mailbox default responsibility, guarded customer-email attachments/delegation and object cards). A final strict-Pro SQL source is additionally unsafe as authored for the accepted Alap customer-support capabilities, so it cannot be copied until corrected.",
     "observableOutcomes": [
-      "Customer baseline has contiguous canonical 0052-0054 files, 55 total and exactly seven Office source matches without replacing the F2 hardcoded plan-sync authority.",
-      "Negative tests block missing 0053 integrity, missing 0054 final ownership transfer, forged provenance, browser RPC exposure and false hosted proof.",
-      "All SQL remains immutable and scope-limited, with only four remaining active Office source dependencies after F4."
+      "58 chronological customer baseline SQL files with exact 0055-0057 source bodies; static Office lineage reports 10/11 matched with only strict Pro guard missing.",
+      "Negative tests for partial/forged 0057 and for the historically unsafe final strict Pro customer read semantics.",
+      "No false hosted database, provider mailbox delivery or Pro-only Office completion claim."
     ],
     "unresolvedRisks": [
-      "Four active Communication Hub/strict-Pro SQL sources remain absent after bounded F4.",
-      "Actual PostgreSQL service_role trigger integrity and cross-tenant actor/owner lifecycle are not proven by source-only CI.",
-      "Fresh Install disposable Supabase project is inactive; active staging/platform cannot be used for schema mutation without separate proof."
+      "The historical 0058 strict Pro migration conflicts with Alap customer support and must be redesigned/proved in F6.",
+      "The complete Office schema DAG might have prerequisites outside 11 minimum source set; replay on fresh hosted PostgreSQL remains undone.",
+      "Email provider quarantine, storage, DNS and inbound/outbound delivery behavior cannot be proven by static SQL body checks."
     ],
     "scope": {
       "in": [
-        "Three exact canonical Team Chat 2.0 0052–0054 SQL sources and SHA256 provenance.",
-        "F4 negative referential integrity and active-owner transfer source regressions.",
-        "Increment legacy customer baseline tests/manifest only; no runtime/API/UI feature edits."
+        "Three source-exact Communication Hub SQL migrations 0055–0057, no source rewrite.",
+        "Focused static tests for source identity, malformed final guard, Alap/Pro conflict and current missing readiness.",
+        "Manifest remains snapshot-reviewed; legacy/source tests updated only for additive sequence."
       ],
       "out": [
-        "No staging, platform, production or Fresh Install hosted database writes.",
-        "No prematurely merging layered F1R/F3/F4 drafts or claiming Digital Office Pro ready.",
-        "No Template Factory, Builder or non-Core feature work."
+        "No strict Pro 0058 migration copy until contract-aligned RLS correction.",
+        "No real SQL write or project restoration to staging/platform/Fresh Install.",
+        "No Builder, Template Factory, marketing, automation or deployment work."
       ]
     }
   },
@@ -726,11 +723,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F4-INTEGRITY-SOURCE",
-        "requirement": "Import original 0052–0054 Team Chat foundation, message mention/object integrity trigger and active owner transfer SQL with strict source bytes, hash provenance and negative incomplete-chain tests.",
+        "id": "REQ-F5-COMM-SOURCE",
+        "requirement": "Preserve exact canonical Communication Hub SQL 0055–0057 and protect service-role-only advanced email, mailbox default assignment and customer object link behaviors with falsifiable source and negative missing/tamper tests.",
         "claimScope": {
           "capability": "CAP-AUTH",
-          "breadth": "office-team-chat-source-integrity",
+          "breadth": "Office Communication Hub source dependency parity",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -751,8 +748,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F4-INTEGRITY-MISSING",
-            "statement": "No partial Team Chat SQL chain without 0053 integrity and 0054 owner transfer may be accepted as source complete.",
+            "id": "NEG-F5-PARTIAL-ADVANCED",
+            "statement": "Missing final 0057 privilege revocation or edited 0057 advanced guard must never be reported complete.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -760,16 +757,16 @@
         ]
       },
       {
-        "id": "REQ-F4-NO-FALSE-READY",
-        "requirement": "Keep a 55-file customer baseline in reviewed and unproven status, show four remaining active Office dependencies and never assert authenticated tenant or hosted Fresh Install behavior.",
+        "id": "REQ-F5-ALAP-SAFE",
+        "requirement": "Explicitly prevent importing the conflicting strict Pro all-Office-read source 0058; preserve Alap customer Office grants and block full Office release until corrected SQL and real user RLS proof.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "source-only-not-release-ready",
+          "breadth": "Alap customer communication and blocked deployment",
           "strength": 2,
           "dimensions": [
             "scope",
-            "status",
-            "forbidden-state"
+            "forbidden-state",
+            "status"
           ]
         },
         "requiredCapabilities": [
@@ -785,8 +782,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F4-PREMATURE-RELEASE",
-            "statement": "Static Team Chat source tests and CI must never be mistaken for Pro rollout or real PostgreSQL RLS proof.",
+            "id": "NEG-F5-PRO-DENIES-ALAP",
+            "statement": "Customer email and support Alap rights may not be silently removed through blanket Pro-only Office table SELECT policies.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -795,12 +792,12 @@
       }
     ]
   },
-  "notes": "F4 stacked directly on exact fully green F3 draft PR #1299 head 4b317edd, not main. Three atomic 0052–0054 Team Chat source migrations, mention/object triggers and current owner transfer, Alap Pro grants unchanged; no merge/hosted claims before all dependent sources and disposable DB proof. Plan Before Code first projection found 9 database-schema known failures and 8-challenge minimum; gate-compliant plan corrected before any implementation source edit.",
+  "notes": "F5 stacked after fully verified draft #1300 head feba6b7d. Only 0055–0057 canonical Communication Hub sources; final historical 0058 strict Pro RLS source conflicts with accepted Alap customer support and is explicitly held for correction. No hosted DB or main merge.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "ffeb1bff0749d9c7ac0e61372e6587fdedc22986",
-    "closedAt": "2026-10-15T04:17:17.710Z",
+    "verifiedImplementationHead": "4a3c0bc99f6cf0156eec9c9f0b83e190328f42bb",
+    "closedAt": "2026-10-15T04:50:10.688Z",
     "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
     "learning": {
