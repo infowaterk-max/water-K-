@@ -20,7 +20,7 @@ const valid=()=>({
   storageObjects:0,storageUploads:0,migrations:0,
   externalForeignKeys:0,unexpectedExternalTriggers:0,appExtensions:0,
   neutralRowTotal:113,catalogMd5:HISTORICAL_SCHEMA_MD5,
-  neutralCatalogs:Object.fromEntries(Object.entries(NEUTRAL_CATALOGS).map(([k,[count,md5]])=>[k,{count,md5}])),
+  neutralCatalogs:Object.fromEntries(Object.entries(NEUTRAL_CATALOGS as Record<string,[number,string]>).map(([k,[count,md5]])=>[k,{count,md5}])),
   buckets,authTrigger:'auth.users/on_auth_user_created/private.handle_new_user',
 });
 describe('Core #1186 F6-U03b guarded, offline-only review',()=>{
