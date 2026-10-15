@@ -121,7 +121,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 // @ts-ignore Intentional ESM JavaScript runtime module without a declaration file.
-import {evaluateOfficeBaselineLineage,OFFICE_BASELINE_MINIMUM_SOURCES} from '../scripts/shoperation-office-baseline-lineage.mjs';
+import {evaluateOfficeBaselineLineage,OFFICE_BASELINE_MINIMUM_SOURCES,OFFICE_BASELINE_SUPERSEDED_SOURCES} from '../scripts/shoperation-office-baseline-lineage.mjs';
 
 describe('Core #1186 U10A2 additive Office Fresh Install source lineage gate',()=>{
   const a='20260908022500_privacy.sql';
@@ -150,11 +150,16 @@ describe('Core #1186 U10A2 additive Office Fresh Install source lineage gate',()
     const r=evaluateOfficeBaselineLineage();
     expect(r.contract).toBe('shoporation.office-customer-baseline-lineage.v1');
     expect(r.baselineMigrationCount).toBe(47);
-    expect(r.requiredSourceCount).toBeGreaterThanOrEqual(12);
+    expect(r.requiredSourceCount).toBe(11);
+    expect(r.supersededSourceCount).toBe(2);
+    expect(OFFICE_BASELINE_SUPERSEDED_SOURCES.map((x:{source:string})=>x.source)).toEqual([
+      '20260909204825_team_chat_plan_split_v1.sql',
+      '20260910061815_customer_email_plan_split_v1.sql',
+    ]);
     expect(r.sourceLineageStatus).toBe('BLOCKED');
     expect(r.releaseReady).toBe(false);
     expect(r.realDatabaseProof).toBe('NOT_EVALUATED');
-    expect(r.findings.filter((x:{code:string,source?:string})=>x.code==='OFFICE_BASELINE_SOURCE_MISSING').length).toBeGreaterThanOrEqual(12);
+    expect(r.findings.filter((x:{code:string,source?:string})=>x.code==='OFFICE_BASELINE_SOURCE_MISSING').length).toBe(11);
     expect(r.findings.some((x:{code:string,source?:string})=>x.code==='OFFICE_BASELINE_NEW_ORDINAL_DRIFT')).toBe(false);
     expect(OFFICE_BASELINE_MINIMUM_SOURCES.at(-1)).toContain('digital_office_strict_pro_sql_guard');
   });
@@ -207,6 +212,53 @@ describe('Core #1186 U10A2 additive Office Fresh Install source lineage gate',()
       const digest=createHash('sha256').update(f.sql[a]).digest('hex');
       writeFileSync(join(f.dst,'0046_alap_reconcile.sql'),`-- Shoperation-Office-Source: ${a} sha256=${digest}\n${f.sql[a]}`);
       expect(f.scan().sourceLineageStatus).toBe('BLOCKED');
+    }finally{f.cleanup()}
+  });
+  it('preserves current normalized 0014 grants and 0046 Alap/Pro split as the supersession authority',()=>{
+    const normalized=readFileSync(resolve(process.cwd(),'supabase/customer-baseline/migrations/0014_block11_entitlement_contract_v1.sql'),'utf8');
+    const reconciled=readFileSync(resolve(process.cwd(),'supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql'),'utf8');
+    expect(normalized).toContain('create table if not exists public.plan_capability_grants(');
+    expect(normalized).toContain('create or replace function private.sync_webshop_plan_entitlements(');
+    expect(normalized).toContain('from public.plan_capability_grants g');
+    expect(reconciled).toContain("where plan_code = 'alap'");
+    expect(reconciled).toContain("and capability_code = 'teamChat'");
+    expect(reconciled).toContain("where plan_code = 'pro' and capability_code = 'teamChat'");
+    expect(reconciled).toContain("where plan_code = 'alap' and capability_code = 'officeCommunication'");
+    expect(reconciled).toContain('ALAP_TEAM_CHAT_STALE_PLAN_ROW_REMAINS');
+    for(const {source} of OFFICE_BASELINE_SUPERSEDED_SOURCES){
+      const old=readFileSync(resolve(process.cwd(),'supabase/migrations',source),'utf8');
+      expect(old).toMatch(/create or replace function private\.sync_webshop_plan_entitlements\(/i);
+      expect(old).toMatch(/v_features\s*:=\s*array\s*\[/i);
+      expect(OFFICE_BASELINE_MINIMUM_SOURCES).not.toContain(source);
+    }
+  });
+  it('BLOCKs exact-provenance replay of both superseded legacy plan sync sources',()=>{
+    const f=base();
+    try{
+      f.add(47,a);f.add(48,b);
+      for(const [i,{source}] of OFFICE_BASELINE_SUPERSEDED_SOURCES.entries()){
+        const original=readFileSync(resolve(process.cwd(),'supabase/migrations',source),'utf8');
+        f.sql[source]=original;
+        writeFileSync(join(f.src,source),original);
+        f.add(49+i,source);
+      }
+      const result=f.scan();
+      expect(result.decision).toBe('BLOCK');
+      expect(result.findings.filter((x:{code:string})=>x.code==='OFFICE_SUPERSEDED_SOURCE_REPLAY')).toHaveLength(2);
+      expect(result.findings.filter((x:{code:string})=>x.code==='OFFICE_LEGACY_PLAN_SYNC_REPLAY')).toHaveLength(2);
+      expect(result.releaseReady).toBe(false);
+    }finally{f.cleanup()}
+  });
+  it('BLOCKs a renamed and unmarked copy of fixed-list entitlement sync SQL',()=>{
+    const f=base();
+    try{
+      f.add(47,a);f.add(48,b);
+      const old=readFileSync(resolve(process.cwd(),'supabase/migrations/20260910061815_customer_email_plan_split_v1.sql'),'utf8');
+      writeFileSync(join(f.dst,'0049_renamed_legacy_sync.sql'),old);
+      const result=f.scan();
+      expect(result.decision).toBe('BLOCK');
+      expect(result.findings).toContainEqual(expect.objectContaining({code:'OFFICE_LEGACY_PLAN_SYNC_REPLAY',file:'0049_renamed_legacy_sync.sql'}));
+      expect(result.realDatabaseProof).toBe('NOT_EVALUATED');
     }finally{f.cleanup()}
   });
   it('preserves explicit CLI fail-closed modes and non-mutating diagnostic mode',()=>{

@@ -1,10 +1,10 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-386A5ACE",
-  "task": "Core #1186 U10A2 source-lineage fail-closed Office customer baseline gate",
+  "taskId": "DEV-386A5ACE-U10A2-F2",
+  "task": "Core #1186 U10A2 F2 prevent replay of superseded Team Chat/customer email plan-sync SQL in Office Fresh Install lineage",
   "status": "closed",
   "guardDigest": "386a5ace",
-  "changeBaseSha": "907ce393f86eab3a2787828fda980e5f526208c9",
+  "changeBaseSha": "ea72ec341bd5125d34e0d6d0c0aeb539f181912e",
   "plannedFilePatterns": [
     "scripts/shoperation-office-baseline-lineage.mjs",
     "tests/shoperation-office-db-readiness.test.ts"
@@ -36,7 +36,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Prevent falsely treating strict Office SQL from merged #1288 as part of customer Fresh Install 0001–0046. This bounded unit only checks source lineage; actual DB proof explicitly deferred.",
+      "rationale": "Prevent 20260909204825 and 20260910061815 fixed-list SQL from overwriting Block 11 normalized plan-capability sync established by customer baseline 0014 and Alap Team Chat revocation in 0046. This is a source-lineage checker/test-only release, no migration or live DB write.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -53,27 +53,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Actual current 0001-0046 customer baseline is classified BLOCKED for Office SQL source-lineage; generic baseline READY does not imply Pro Digital Office readiness.",
-        "Check exactly ordered, verified SQL source migration bodies and provenance across additive ordered customer-baseline migrations; missing, truncated, duplicate, tampered, reordered and forged marker cases fail closed.",
-        "No comment-only, original supabase/migrations-only, manifest flag or 0047 containing only strict guard can produce Office source-complete.",
-        "A synthetic source-complete chain is explicitly SOURCE_PRESENT_UNPROVEN and never claims actual SQL execution, tenant/RLS/RPC/worker/staging or Fresh Install proof.",
-        "CLI default diagnostic is non-mutating; a require-lineage mode exits nonzero on current missing prerequisites; existing Office DB readiness tests and CI gates PASS.",
-        "No existing migrations, manifest READY, customer data, general baseline validator, staging/production or Builder/Factory changes."
+        "Two superseded source SQL files are explicitly classified as not for fresh-install replay, with precise immutable identities and machine-readable reasons.",
+        "Every canonical minimum source not superseded remains required in original dependency order, with byte/body SHA and ordinal checks; no implicit additional exemptions.",
+        "If any post-0046 customer migration contains provenance or replay of a superseded plan-sync function, the checker BLOCKS with a distinct finding even if the other Office source files match.",
+        "Baseline 0014 normalizes sync using plan_capability_grants and baseline 0046 forbids Alap teamChat and preserves Alap officeCommunication/support; tests assert both existing authorities and both superseded source bodies.",
+        "Current 0046+0047 baseline remains BLOCKED for missing real modern Office SQL; synthetic safe lineage may at most be SOURCE_PRESENT_UNPROVEN, never releaseReady or database-proven.",
+        "Negative regressions include exempt-source replay, forged comment, source drift, reversed active sources, duplicate, and missing mandatory source.",
+        "Only scripts/shoperation-office-baseline-lineage.mjs and tests/shoperation-office-db-readiness.test.ts may change after Plan Before Code PASS; no security or SQL changes and no extra Vercel deployment."
       ],
       "nonGoals": [
-        "No SQL migration write or replacement in this first bounded unit",
-        "No production DB, staging or disposable DB changes",
-        "No assertion that static source parity certifies SQL runtime"
+        "No import of SQL 0048+ or rewriting historical 0001-0047 files.",
+        "No live Supabase/staging/production DB mutation.",
+        "No changing Pro/Alap runtime entitlements or claiming hosted Fresh Install proof."
       ],
       "invariants": [
-        "Only customer-baseline migration SQL counts toward Office source lineage, not source directory or manifest READY.",
-        "Exactly matching source SQL body with correct additive order required, comments alone never sufficient.",
-        "No source-only outcome may imply database or production runtime readiness."
+        "Normalized Block 11 plan_capability_grants remains sole plan grant sync authority.",
+        "Alap cannot recover Team Chat; Alap customer transactional communication remains available.",
+        "Source parity never implies running database, browser or RLS readiness."
       ],
       "forbiddenStates": [
-        "Return ready for Office Pro solely on manifest.status=ready or supabase/migrations existence.",
-        "Return complete for missing/duplicate/misordered/mismatched source migration proof.",
-        "Modify historic baseline or import isolated unverified SQL."
+        "Legacy fixed-list plan sync executed after Block 11/0046 authority.",
+        "Legacy SQL omitted without traceable supersession reason or without negative-provenance proof.",
+        "Missing modern privacy/RPC source mislabeled ready."
       ]
     },
     "model": {
@@ -105,47 +106,47 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Source-only strict Pro guard falsely claimed to be installed in Fresh Install",
-        "Forged source marker without equivalent SQL accepted",
-        "Duplicate or reversed migrated source introduces drift",
-        "Fresh Install runtime/RLS proof falsely inferred from static copy"
+        "Superseded migration provenance mistakenly promoted to required active source.",
+        "Legacy source matched exact SHA but overwrote normalized function on replay.",
+        "A syntactically different source with same header accepted.",
+        "Active modern migration ordering drift hidden by supersession exemption."
       ],
       "invariants": [
-        "Source provenance must be exact-body matched and ordinal strictly increasing",
-        "Real Office readiness never true from source code alone",
-        "General 0046 customer baseline READY is independent from Pro Office closure"
+        "Normalized Block 11 plan_capability_grants remains sole plan grant sync authority.",
+        "Alap cannot recover Team Chat; Alap customer transactional communication remains available.",
+        "Source parity never implies running database, browser or RLS readiness."
       ],
       "edgeCases": [
-        "Empty baseline migration list",
-        "Missing expected source migration",
-        "Source SQL drift or truncated body",
-        "Duplicate provenance source mapped across baseline files",
-        "Out-of-order baseline sequence",
-        "Source migration marker with no SQL body",
-        "Long source SQL with nested functions",
-        "Overly broad prefix match on source ID",
-        "All sources present but runtime not tested",
-        "Extra unrelated baseline files"
+        "Only one of two superseded imports present.",
+        "Extra 0048+ source with forged superseded provenance.",
+        "Both superseded source imports installed in reverse order.",
+        "Missing 0014 normalized grants in local baseline.",
+        "0046 removed or Alap grant reintroduced.",
+        "Modern privacy migrations absent.",
+        "Superseded file content edited upstream after decision.",
+        "Exact-body active sources in wrong order.",
+        "Alap transactional email independently intact.",
+        "Future new active migration encountered without authority."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-NAIVE-0047",
-        "summary": "Copy latest strict Pro SQL directly into 0047 or cherry-pick a handful of upstream privacy migrations.",
+        "id": "ALT-F2-REPLAY",
+        "summary": "Import all 13 historical SQL files byte-identically including fixed-list plan-sync migrations.",
         "disposition": "rejected",
-        "reason": "Missing prerequisite functions, cross-migration DDL DAG and actual DB proof; unsafe baseline deployment."
+        "reason": "Overwrites canonical 0014 plan-grant sync; can regrant Alap Team Chat contrary to 0046."
       },
       {
-        "id": "ALT-LINEAGE-GATE",
-        "summary": "Publish deterministic offline source-migration parity and missing dependency gate, with explicit runtime-proof non-claim, before any baseline SQL edits.",
+        "id": "ALT-F2-SUPERSEDE",
+        "summary": "Explicitly mark the two obsolete plan-sync migrations as superseded/non-replayable in canonical existing source-lineage checker, retain all active Office prerequisite imports and negative evidence.",
         "disposition": "selected",
-        "reason": "Binds migration provenance and forces downstream Fresh Install implementation to address dependencies without changing a shared database."
+        "reason": "Honors later accepted package decision and normalized authority without a second entitlement engine."
       },
       {
-        "id": "ALT-NO-CHECK",
-        "summary": "Leave #1228 as a prose warning only until full migration is ready.",
+        "id": "ALT-F2-OVERRIDE",
+        "summary": "Replay historic fixed-list migrations and repair them afterward with additional later SQL.",
         "disposition": "rejected",
-        "reason": "Does not prevent a naive apparent 0047 closure and causes recurring operator errors."
+        "reason": "Leaves a dangerous intermediate executable state and extra shared-controller rewrites; unnecessary because those older bodies contain no needed Office schema."
       }
     ],
     "specialistReviews": [
@@ -153,111 +154,111 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Static file parity never validates SECURITY DEFINER privilege, GRANT/RLS or service_role paths.",
-        "resolution": "Source present is distinct SOURCE_PRESENT_UNPROVEN state; not deploy authorization or PASS for runtime Pro Office.",
+        "finding": "Labeling a source as superseded could falsely soften the proof gate if omission is unconditional.",
+        "resolution": "Require exact immutable source identities and block any executable or marked replay; preserve active 11-source hard requirements, still require independent DB proof.",
         "evidence": [
-          "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql",
-          "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql"
+          "supabase/migrations/20260910061815_customer_email_plan_split_v1.sql",
+          "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Replaying historic source files out of order after customer snapshot may fail due to DDL divergence.",
-        "resolution": "Checker requires strictly ordered additive files and exact SQL; later U10A2 release requires real disposable Fresh Install proof.",
+        "finding": "Historical fixed-list source functions overwrite the actual Block 11 normalized plan sync.",
+        "resolution": "Require the baseline 0014 and 0046 authority in source-level tests; never replay obsolete functions.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
-          "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql"
+          "supabase/customer-baseline/migrations/0014_block11_entitlement_contract_v1.sql",
+          "supabase/migrations/20260909204825_team_chat_plan_split_v1.sql"
         ]
       },
       {
         "role": "Runtime",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Alap storefront transactional email cannot be broken by Office-only readiness.",
-        "resolution": "Do not modify any SQL, entitlement, email worker or common default customer baseline gate.",
+        "finding": "Customer email remains Alap while Team Chat and Digital Office advanced are Pro-only.",
+        "resolution": "Do not change run-time entitlements or email worker; source checker asserts boundary on actual baseline contract.",
         "evidence": [
-          "scripts/shoperation-office-db-readiness.mjs",
-          "src/lib/entitlements/access.ts"
+          "src/lib/plans/catalog.ts",
+          "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Source-lineage parity is not evidence of a disposable Fresh Install or occupied staging safety.",
-        "resolution": "Keep database runtime acceptance UNKNOWN and separate; source-only gate never confers rollout authority.",
+        "finding": "Removing two mandatory source files is not database readiness or deployment proof.",
+        "resolution": "Machine state remains BLOCKED on current baseline; synthetic source-only COMPLETE remains REVIEW, not DONE.",
         "evidence": [
-          "supabase/customer-baseline/manifest.json",
-          "supabase/customer-baseline/target-postflight.sql"
+          "scripts/shoperation-office-baseline-lineage.mjs",
+          "supabase/customer-baseline/manifest.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U10A2-01",
-        "scenario": "0047 adds only U10A1 source file.",
-        "finding": "A strict guard depends on missing modern privacy helpers.",
-        "resolution": "Required source dependency sequence reports earlier missing files; never returns SOURCE_PRESENT_UNPROVEN.",
+        "id": "CH-F2-01",
+        "scenario": "Both legacy fixed-list plan functions imported after 0046",
+        "finding": "Alap Team Chat could reappear.",
+        "resolution": "Source checker blocks any post-0046 superseded replay with dedicated finding.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-02",
-        "scenario": "An operator adds only matching provenance comments.",
-        "finding": "Textual marker does not mean executable SQL was migrated.",
-        "resolution": "Require exact normalized source body alongside dedicated provenance; negative test marker spoof.",
+        "id": "CH-F2-02",
+        "scenario": "Only one legacy file copied",
+        "finding": "Partial unsafe authority replacement.",
+        "resolution": "Independently block each forbidden source.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-03",
-        "scenario": "All source files copied but runtime schema different.",
-        "finding": "Static parity is not Fresh Install DB proof.",
-        "resolution": "Result remains SOURCE_PRESENT_UNPROVEN, real DB proof explicitly NOT_EVALUATED.",
+        "id": "CH-F2-03",
+        "scenario": "Provenance removed from legacy replay",
+        "finding": "Simple marker matching could miss unsafe unmarked import.",
+        "resolution": "Reject unmarked new migrations via source provenance contract and scan for forbidden fixed-list function body in post-0046 files.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-04",
-        "scenario": "Duplicate source replay or reverse-ordered chain.",
-        "finding": "Unsafe DDL dependency ordering.",
-        "resolution": "Reject duplicates and invalid sequence; regression tests.",
+        "id": "CH-F2-04",
+        "scenario": "Required modern privacy file absent",
+        "finding": "A perceived positive lineage might omit vital RLS dependency.",
+        "resolution": "Retain all eleven active upstream requirements unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-05",
-        "scenario": "Provenance marker swapped after SQL",
-        "finding": "Source provenance and payload can diverge, causing false assurance.",
-        "resolution": "Exact canonical source SHA/body verification and unique ordered source records; reject ambiguous evidence.",
+        "id": "CH-F2-05",
+        "scenario": "Legacy source filename changed",
+        "finding": "Known obsolete SQL reappears under renamed file.",
+        "resolution": "Block executable fixed-list sync definition/body rather than only known filename.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-06",
-        "scenario": "SQL body complete but source id mismatch",
-        "finding": "Source provenance and payload can diverge, causing false assurance.",
-        "resolution": "Exact canonical source SHA/body verification and unique ordered source records; reject ambiguous evidence.",
+        "id": "CH-F2-06",
+        "scenario": "0014 normal authority deleted",
+        "finding": "No canonical plan source after exclusions.",
+        "resolution": "Negative tests require 0014 grant-backed function and 0046 Alap reconciliation.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-07",
-        "scenario": "An empty source migration is present",
-        "finding": "Source provenance and payload can diverge, causing false assurance.",
-        "resolution": "Exact canonical source SHA/body verification and unique ordered source records; reject ambiguous evidence.",
+        "id": "CH-F2-07",
+        "scenario": "All remaining eleven active Office SQL source bodies match their declared SHA256 provenance and migration sequence.",
+        "finding": "An entirely source-matching customer baseline can still lack a successful empty-target schema replay, participant privacy behavior, authenticated grants and service-RPC checks.",
+        "resolution": "The checker only reports SOURCE_PRESENT_UNPROVEN and realDatabaseProof NOT_EVALUATED; separate disposable Fresh Install and actor/role proof remains mandatory.",
         "status": "resolved"
       },
       {
-        "id": "CH-U10A2-08",
-        "scenario": "A nested DO block is truncated",
-        "finding": "Source provenance and payload can diverge, causing false assurance.",
-        "resolution": "Exact canonical source SHA/body verification and unique ordered source records; reject ambiguous evidence.",
+        "id": "CH-F2-08",
+        "scenario": "A developer adds a new post-0047 SQL import carrying previously unseen source identity outside the approved Office dependency sequence.",
+        "finding": "Unknown provenance might add an unreviewed helper or another privilege-changing function that bypasses the explicitly superseded legacy source list.",
+        "resolution": "Keep OFFICE_UNREVIEWED_SOURCE_PROVENANCE as a hard BLOCK for unmatched marker identities and require a new reviewed source-authority update before importing such migration.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Development Guard PASS before implementation; Plan Before Code PASS with source-only scoped completion contract.",
-      "Unit tests actual baseline remains BLOCKED and synthetic exact source bodies with provenance are ordered, tamper/duplicate/missing/reversed blocked, complete source reports runtime NOT_EVALUATED.",
-      "Non-mutating CLI --json report exits 0 diagnostic and --require-office-source exits nonzero for current baseline; existing db:customer:guard unchanged.",
-      "Edit-Time Reference and Implementation Sync, Incremental Replay, targeted Vitest, TypeScript, exact SHA CI Completion Truth and Lifecycle before merging.",
-      "No DB source migration or staged rollout; #1186/#1228 remain OPEN."
+      "Check exact current main and prior #1291; preserve its draft hosted Fresh Install blocker.",
+      "Source-only Development Guard / Plan Before Code PASS before first code edit.",
+      "Negative Vitest proof for both legacy migrations, headerless renamed copy, incomplete source, ordering, baseline authority and safety non-claim.",
+      "CI quality, TypeScript, build, release risk, security, Completion Truth and Lifecycle closure must pass at exact PR head.",
+      "No changing original SQL, shared plan catalog, staging or paid services; #1186/#1228 and hosted Fresh Install remain OPEN."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
@@ -265,6 +266,7 @@
         "quality-knowledge-system"
       ],
       "mustEdit": [
+        "scripts/shoperation-office-baseline-lineage.mjs",
         "tests/shoperation-office-db-readiness.test.ts"
       ],
       "mayEdit": [],
@@ -274,9 +276,7 @@
         "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
         "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql"
       ],
-      "mustCreate": [
-        "scripts/shoperation-office-baseline-lineage.mjs"
-      ],
+      "mustCreate": [],
       "forbidden": [
         "staging database write",
         "historic migration rewrite",
@@ -583,28 +583,28 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Merged #1288 forward-only strict Office SQL requires modern public/private Office RLS and feature helpers absent in canonical customer-baseline 0001-0046; existing general baseline READY and schema migration source presence could be mistaken for Pro Office Fresh Install readiness, causing missing dependency errors or false authorization guarantees.",
+    "problemStatement": "U10A2 minimum SQL list currently treats two obsolete fixed-list plan-sync migrations as mandatory dependencies even though baseline 0014 and 0046 already supersede them. Replaying them after 0046 would overwrite the normalized plan-capability grant function and resurrect forbidden Alap Team Chat.",
     "observableOutcomes": [
-      "Real main baseline reports 8+ missing ordered Office source dependencies and Office sourceLineage BLOCKED with runtime proof NOT_EVALUATED.",
-      "A provenance-comment-only or truncated migration fails closed.",
-      "An artificial full exact-body ordered chain reports SOURCE_PRESENT_UNPROVEN, never true deployed security.",
-      "Opt-in require-office-source CLI rejects current baseline; no default general fresh customer baseline regression."
+      "Explicit two-item superseded source set with machine-readable reason, not counted among required active source imports.",
+      "Existing source-lineage scanner BLOCKS obsolete plan-sync replays including disguised/unmarked executable copies.",
+      "Actual baseline stays BLOCKED for remaining modern source SQL and no data-plane claim is promoted.",
+      "Static regression confirms 0014 grant-backed sync, 0046 Alap Team Chat revoked, customer communication preserved."
     ],
     "unresolvedRisks": [
-      "Complete Office migration DAG extends beyond selected mandatory predecessors; final import must use full dependency and disposable DB proof.",
-      "New customer baseline SQL and occupied staging migration provenance remain unimplemented.",
-      "Service-role RPC, signed attachment, worker and real tenant authorization remain unverified."
+      "Office 0048+ schema dependencies and GRANT/RLS remain unimplemented.",
+      "Host Fresh Install target is inactive, so no hosted database proof.",
+      "Occupied staging Office privacy catalog remains legacy; no rollout authority."
     ],
     "scope": {
       "in": [
-        "Only new source-lineage checker script and focused tests",
-        "Read-only source and customer baseline files for exact migrated-body/provenance matching",
-        "No change to global db:customer:guard default"
+        "Only canonical source-lineage script and regression file.",
+        "Treat two obsolete plan-sync sources as superseded by 0014/0046 and block their replay.",
+        "No new migration or entitlement controller."
       ],
       "out": [
-        "No source or customer baseline SQL edits",
-        "No automated staging or Supabase calls",
-        "No assertive database or RLS runtime readiness claim"
+        "No SQL database writes or target restore.",
+        "No edits to historical files or customer baseline manifest.",
+        "No assertion of full Digital Office readiness."
       ]
     }
   },
@@ -627,11 +627,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-U10A2-SOURCE-PROVENANCE",
-        "requirement": "Fail-closed immutable ordered source migration evidence and explicit current baseline blockers for Pro Office SQL.",
+        "id": "REQ-U10A2-F2-NO-LEGACY-SYNC",
+        "requirement": "The Office Fresh Install source checker must reject any replay of the two superseded fixed-list plan-sync SQL migrations while retaining every actual modern Office dependency and never overstating runtime proof.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "Office baseline source-lineage only",
+          "breadth": "Office SQL source dependency guard only",
           "strength": 1,
           "dimensions": [
             "status",
@@ -652,8 +652,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-OFFICE-FALSE-READY",
-            "statement": "No comment-only, truncated, reordered, duplicate or incomplete baseline may be called Office source-present or database ready.",
+            "id": "NEG-F2-ALAP-CHAT-REGRANT",
+            "statement": "No historical or disguised hardcoded Team Chat/customer email plan-sync implementation may be accepted after normalized 0014/0046 authority.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -662,12 +662,12 @@
       }
     ]
   },
-  "notes": "Bounded U10A2 source-provenance blocker on exact main 907ce393f86eab3a2787828fda980e5f526208c9. Does not implement 0047 or apply SQL. Full U10A2 and #1186 remain OPEN/PARTIAL; no false DB-complete.",
+  "notes": "New F2 bounded plan on verified main ea72ec3. Supersede two obsolete historical fixed-list sync sources, guard against replay and preserve 11 active Office source dependencies. No SQL, env or runtime edits. Draft #1291 independent hosted Fresh Install proof pending; no merge of F2 until exact-head gates.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "45a7e534291a7eead2fc61cc281f9c37cac48aea",
-    "closedAt": "2026-10-14T20:43:41.616Z",
+    "verifiedImplementationHead": "082b3049a58c58f1010e506a5ec1f00c8ac29211",
+    "closedAt": "2026-10-15T03:03:26.250Z",
     "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
     "learning": {
