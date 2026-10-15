@@ -33,6 +33,14 @@ describe('Core F6-U03k original 59+18 source diagnostics, not release',()=>{
   expect(fk).toBeLessThan(old0058);
   expect(s.indexOf('ORIGINAL TARGET POSTFLIGHT')).toBeGreaterThan(old0058);
  });
+ it('preserves SQL dollar quoting literally rather than expanding JS replacement placeholders',()=>{
+  const s=composeOriginalSourceDiagnostic({mode:'commit'}).sql;
+  expect(s).toContain('$');
+  expect(s).toContain('CREATE');
+  expect(s.match(/^COMMIT;$/gm)).toHaveLength(1);
+  expect(s.indexOf('20260910070300_communication_hub_2_0_fk_indexes_v1.sql'))
+   .toBeGreaterThan(s.indexOf('0057_communication_hub_2_0_advanced_guards_and_object_links_v1.sql'));
+ });
  it('pre-COMMIT rollback candidate uses distinct local DB and still has 77 authentic sources',()=>{
   const a=composeOriginalSourceDiagnostic({mode:'commit'});
   const b=composeOriginalSourceDiagnostic({mode:'rollback'});
