@@ -1,5 +1,6 @@
 name: F6-U03c canonical plan capture (development-only)
-# CI-only plan capture; the job has no Supabase secret and cannot apply SQL.
+# F6-U03c CI-only Development Guard capture. It neither provisions a PostgreSQL service nor reads Supabase secrets.
+# The separate f6-u03c-postgres-rollback-proof.yml is the sole disposable-database evidence producer.
 on:
   push:
     branches:
