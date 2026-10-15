@@ -1,5 +1,7 @@
 name: F6-U03g canonical plan capture (development-only)
-# F6-U03g captures existing Development Guard only; no database transport, DDL or hosted secret.
+# F6-U03g binds canonical plan/source authority to PR #1332.
+# Captures Development Guard only; actual 47-file replay runs independently in a local PostgreSQL17 service.
+# No hosted Supabase credentials, SQL transport or reset authorization are in this workflow.
 on:
   push:
     branches:
