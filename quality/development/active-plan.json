@@ -3,7 +3,7 @@
   "taskId": "DEV-B55A7A31-F6-U01",
   "task": "Core #1186 U10A2-F6-U01: source-only corrected Alap customer/Pro internal Office SQL and immutable baseline 0058, no quality-infrastructure changes",
   "status": "ready-for-implementation",
-  "guardDigest": "b55a7a31",
+  "guardDigest": "a2c0620b",
   "changeBaseSha": "61d6080d43dad9455eae9ccc5874681b2bddb117",
   "plannedFilePatterns": [
     "supabase/migrations/20261015090000_digital_office_plan_scoped_sql_guard_v2.sql",
@@ -16,7 +16,8 @@
     "tests/customer-baseline-office-team-chat-prerequisites.test.ts"
   ],
   "expectedSubsystems": [
-    "database-schema"
+    "database-schema",
+    "quality-knowledge-system"
   ],
   "expectedDomains": [
     "DOMAIN-DATA"
@@ -31,15 +32,29 @@
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-018",
+    "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
     "SQ-KF-023",
+    "SQ-KF-024",
     "SQ-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-005",
+    "SQ-NK-010",
+    "SQ-NK-011",
     "SQ-NK-012",
     "SQ-NK-014",
+    "SQ-NK-015",
+    "SQ-NK-016",
+    "SQ-NK-017",
+    "SQ-NK-018",
+    "SQ-NK-019",
+    "SQ-NK-020",
+    "SQ-NK-021",
+    "SQ-NK-022",
+    "SQ-NK-023",
     "SQ-NK-024"
   ],
   "exceptions": [],
@@ -696,7 +711,8 @@
     "unresolvedRisks": [
       "Actual PostgreSQL + Supabase auth plan/tenant/participant behavioral proof is not run; shared stale staging cannot be treated as disposable.",
       "Full application DAG beyond eleven minimum SQL sources may contain missing table prereqs.",
-      "No live email provider/storage/attachment scan success evidence or production release; buyer-facing Alap UX not proven."
+      "No live email provider/storage/attachment scan success evidence or production release; buyer-facing Alap UX not proven.",
+      "F6-U01 projected source migration/test diff also exercises quality-knowledge-system known-failure edges; no quality-infrastructure script changes authorized in this 5/5 projected-risk unit."
     ],
     "scope": {
       "in": [
