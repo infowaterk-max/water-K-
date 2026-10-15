@@ -3,12 +3,17 @@ import {pathToFileURL} from 'node:url';
 
 export const OFFICE_TABLES=Object.freeze(['office_threads','office_messages','office_tasks']);
 export const REQUIRED_OFFICE_MIGRATIONS=Object.freeze([
-  '20260908022500', // customer/private Office read RLS foundation
-  '20260908023000', // membership hardening
-  '20260908024000', // function exposure closure
-  '20260909204825', // Alap/Pro Team Chat split
-  '20260910061815', // Alap ordinary email / Pro advanced Office split
-  '20260910070200', // advanced Office guard / object-link dependency (presence is not tenant RLS proof)
+  '20260908022500', // initial customer/private Office read
+  '20260908023000', // membership guard
+  '20260908023500', // private author read
+  '20260908024000', // current-user RLS helper exposure closure
+  '20260909204503', // Team Chat 2 participant foundation
+  '20260909204524', // message mention/business-link integrity triggers
+  '20260909204547', // current owner transfer
+  '20260910070000', // Communication Hub customer mailbox/delegation/scan
+  '20260910070100', // non-overwriting default assignee
+  '20260910070200', // advanced v2/v6 mail/commerce object guards
+  '20261015090000', // corrected Alap customer/Pro internal plan-scoped RLS
 ]);
 
 // Execute this SELECT using the read-only connected Supabase SQL tool.
@@ -22,10 +27,14 @@ export const OFFICE_CATALOG_READONLY_SQL=String.raw`select jsonb_build_object(
    and p.tablename in ('office_threads','office_messages','office_tasks')),'[]'::jsonb),
  'functions',coalesce((select jsonb_agg(jsonb_build_object(
    'schema',n.nspname,'name',p.proname,
-   'args',pg_get_function_identity_arguments(p.oid)))
+   'args',pg_get_function_identity_arguments(p.oid),
+   'definition',pg_get_functiondef(p.oid),
+   'authenticatedExecute',has_function_privilege('authenticated',p.oid,'EXECUTE'),
+   'anonExecute',has_function_privilege('anon',p.oid,'EXECUTE')))
    from pg_proc p join pg_namespace n on n.oid=p.pronamespace
    where n.nspname in ('public','private')
-   and p.proname in ('can_read_office_thread_v1','office_pro_plan_allowed_v1')),'[]'::jsonb),
+   and p.proname in ('can_read_office_thread_v1','current_user_can_read_office_thread_v1',
+     'office_effective_feature_enabled_v1','office_thread_plan_allowed_v2','office_task_plan_allowed_v2')),'[]'::jsonb),
  'migrations',coalesce((select jsonb_agg(jsonb_build_object(
    'version',version,'name',name))
    from supabase_migrations.schema_migrations),'[]'::jsonb),
@@ -109,19 +118,56 @@ export function evaluateOfficeDbReadiness(snapshot,{now=new Date(),maxAgeHours=2
     }
     const permissive=scoped.filter(p=>String(p?.permissive??'').toUpperCase()==='PERMISSIVE');
     if(!permissive.length)block('OFFICE_DB_PERMISSIVE_READ_POLICY_MISSING',{table});
-    // The participant-aware helper must remain part of ordinary SELECT access.
-    if(!permissive.some(p=>String(p.qual??'').includes('can_read_office_thread_v1')))
+    // Existing current-auth.uid() helper remains essential to block nonmember reads.
+    if(!permissive.some(p=>String(p.qual??'').includes('current_user_can_read_office_thread_v1')))
       block('OFFICE_DB_PARTICIPANT_POLICY_MISSING',{table});
-    // A dedicated RESTRICTIVE Pro subscription policy may protect every
-    // permissive SELECT policy; otherwise each permissive policy needs its own
-    // Pro predicate, since permissive policies combine with OR semantics.
-    const restrictivePro=scoped.some(p=>String(p.permissive??'').toUpperCase()==='RESTRICTIVE'&&isProGuard(p.qual));
-    if(!restrictivePro&&permissive.some(p=>!isProGuard(p.qual)))
-      block('OFFICE_DB_PRO_SUBSCRIPTION_RLS_MISSING',{table});
+    if(table==='office_tasks'&&!permissive.some(p=>String(p.qual??'').includes('can_manage_support')))
+      block('OFFICE_DB_UNLINKED_TASK_SUPPORT_POLICY_MISSING',{table});
+    const restrictive=scoped.filter(p=>String(p?.permissive??'').toUpperCase()==='RESTRICTIVE');
+    const helper=table==='office_tasks'?'office_task_plan_allowed_v2':'office_thread_plan_allowed_v2';
+    const expectedPredicate=table==='office_threads'
+      ?'private.office_thread_plan_allowed_v2(instance_id,id)'
+      : 'private.'+helper+'(instance_id,thread_id)';
+    if(!restrictive.some(p=>p.policyname===table+'_plan_scoped_v2'
+      && String(p.qual??'').replace(/\s+/g,'').includes(expectedPredicate.replace(/\s+/g,''))))
+      block('OFFICE_DB_PLAN_SCOPED_RLS_MISSING',{table});
+    for(const p of restrictive){
+      if(isProGuard(p.qual))
+        block('OFFICE_DB_ALAP_CUSTOMER_READ_BLOCKED',{table,policy:String(p.policyname??'')});
+      if(!String(p.qual??'').replace(/\s+/g,'').includes(expectedPredicate.replace(/\s+/g,'')))
+        block('OFFICE_DB_UNKNOWN_RESTRICTIVE_POLICY',{table,policy:String(p.policyname??'')});
+    }
   }
-  const functionNames=new Set(functions.filter(f=>f?.schema==='private'||f?.schema==='public').map(f=>f?.name));
-  if(policies.some(p=>/office_pro_plan_allowed_v1\s*\(/i.test(String(p?.qual??'')))&&!functionNames.has('office_pro_plan_allowed_v1'))
-    block('OFFICE_DB_PRO_PLAN_HELPER_MISSING');
+
+  const getFn=(schema,name)=>functions.find(f=>f?.schema===schema&&f?.name===name);
+  const fnText=(schema,name)=>String(getFn(schema,name)?.definition??'').toLowerCase().replace(/\s+/g,' ');
+  const actor=getFn('public','can_read_office_thread_v1');
+  if(!actor)block('OFFICE_DB_PARTICIPANT_READ_HELPER_MISSING');
+  if(actor?.authenticatedExecute!==false||actor?.anonExecute!==false)
+    block('OFFICE_DB_BROWSER_ACTOR_RPC_EXPOSED');
+  const readDef=fnText('public','can_read_office_thread_v1');
+  const customerIdx=readDef.indexOf("if v_thread.conversation_type='customer'");
+  const proIdx=readDef.indexOf("subscription_plan='pro'");
+  if(customerIdx<0||proIdx<customerIdx
+    ||!readDef.includes("officecommunication')")||!readDef.includes('can_manage_support')
+    ||!readDef.includes("teamchat')")||!readDef.includes('office_active_participant_v1')
+    ||!readDef.includes('evaluate_store_capability_v1'))
+    block('OFFICE_DB_READ_FUNCTION_PLAN_SCOPE_INVALID');
+  const featureDef=fnText('private','office_effective_feature_enabled_v1');
+  if(!featureDef.includes('officecommunicationadvanced')||!featureDef.includes('teamchatsecureattachments')
+    ||!featureDef.includes("v_plan is distinct from 'pro'")
+    ||!featureDef.includes("when 'platform' then 500"))
+    block('OFFICE_DB_ADVANCED_PRO_CAP_UNVERIFIED');
+  const currentDef=fnText('private','current_user_can_read_office_thread_v1');
+  if(!currentDef.includes('auth.uid()')||!currentDef.includes('can_read_office_thread_v1'))
+    block('OFFICE_DB_CURRENT_USER_RLS_HELPER_INVALID');
+  const threadDef=fnText('private','office_thread_plan_allowed_v2');
+  if(!threadDef.includes('auth.uid()')||!threadDef.includes('can_read_office_thread_v1'))
+    block('OFFICE_DB_THREAD_PLAN_HELPER_INVALID');
+  const taskDef=fnText('private','office_task_plan_allowed_v2');
+  if(!taskDef.includes('auth.uid()')||!taskDef.includes("officecommunication')")
+    ||!taskDef.includes('can_manage_support')||!taskDef.includes('office_thread_plan_allowed_v2'))
+    block('OFFICE_DB_TASK_PLAN_HELPER_INVALID');
   return{
     contract:'shoporation.office-db-readiness-report.v1',
     target:snapshot.target??null,
@@ -129,7 +175,7 @@ export function evaluateOfficeDbReadiness(snapshot,{now=new Date(),maxAgeHours=2
     decision:findings.length?'BLOCK':'REVIEW',
     claim:findings.length?'DB_NOT_READY':'METADATA_CANDIDATE_ONLY',
     authoritative:false,
-    requires:['authenticated-role-behavioral-proof','tenant-plan-transition-proof','service-role-RPC-proof','migration-source-identity','current-Block11-plan-sync-compatibility'],
+    requires:['canonical-source-lineage-proof','authenticated-role-behavioral-proof','tenant-plan-transition-proof','service-role-RPC-proof','migration-source-identity','current-Block11-plan-sync-compatibility'],
     findings,
   };
 }

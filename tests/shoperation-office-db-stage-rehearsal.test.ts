@@ -1,4 +1,5 @@
 import {describe,it,expect} from 'vitest';
+import {readFileSync} from 'node:fs';
 import {
   OFFICE_STAGING_PROJECT_ID,OFFICE_STAGE_EXPOSURE_READONLY_SQL,
   REQUIRED_OFFICE_ROLE_PROOFS,evaluateOfficeDbStagingRehearsal,
@@ -6,6 +7,24 @@ import {
 import {OFFICE_TABLES,REQUIRED_OFFICE_MIGRATIONS} from '../scripts/shoperation-office-db-readiness.mjs';
 
 const now=new Date('2026-10-12T12:00:00Z'),sha='a'.repeat(40);
+const v2=readFileSync('supabase/migrations/20261015090000_digital_office_plan_scoped_sql_guard_v2.sql','utf8');
+const privacy=readFileSync('supabase/customer-baseline/migrations/0051_digital_office_rls_helper_exposure_closure_v1.sql','utf8');
+function fnDef(s:string,name:string){
+  const i=s.indexOf('create or replace function '+name+'(');
+  if(i<0)throw Error('MISSING_STAGE_TEST_FN:'+name);
+  const e=s.indexOf('revoke all on function ',i);
+  if(e<0)throw Error('MISSING_STAGE_TEST_FN_END:'+name);
+  return s.slice(i,e);
+}
+function currentFunctions(){
+  return[
+    {schema:'public',name:'can_read_office_thread_v1',definition:fnDef(v2,'public.can_read_office_thread_v1'),authenticatedExecute:false,anonExecute:false},
+    {schema:'private',name:'office_effective_feature_enabled_v1',definition:fnDef(v2,'private.office_effective_feature_enabled_v1')},
+    {schema:'private',name:'current_user_can_read_office_thread_v1',definition:fnDef(privacy,'private.current_user_can_read_office_thread_v1')},
+    {schema:'private',name:'office_thread_plan_allowed_v2',definition:fnDef(v2,'private.office_thread_plan_allowed_v2')},
+    {schema:'private',name:'office_task_plan_allowed_v2',definition:fnDef(v2,'private.office_task_plan_allowed_v2')},
+  ];
+}
 function fixture(){
   const snapshot:any={
     contract:'shoporation.office-db-catalog-snapshot.v1',target:'staging',
@@ -15,11 +34,17 @@ function fixture(){
       participantTablePresent:true,threadConversationTypePresent:true,privateCurrentUserReadHelperPresent:true,
     },
     planAuthority:{normalizedGrantTablePresent:true,tenantSyncPresent:true,tenantSyncUsesNormalizedGrants:true},
-    functions:[{schema:'public',name:'can_read_office_thread_v1'},{schema:'private',name:'office_pro_plan_allowed_v1'}],
-    policies:OFFICE_TABLES.flatMap(t=>[
-      {schemaname:'public',tablename:t,policyname:t+'_read',permissive:'PERMISSIVE',roles:['authenticated'],cmd:'SELECT',qual:'private.current_user_can_read_office_thread_v1(instance_id,id)'},
-      {schemaname:'public',tablename:t,policyname:t+'_pro',permissive:'RESTRICTIVE',roles:['authenticated'],cmd:'SELECT',qual:'private.office_pro_plan_allowed_v1(instance_id)'},
-    ]),
+    functions:currentFunctions(),
+    policies:OFFICE_TABLES.flatMap(t=>{
+      const thread=t==='office_threads',task=t==='office_tasks';
+      return[
+       {schemaname:'public',tablename:t,policyname:t+'_store_all',permissive:'PERMISSIVE',roles:['authenticated'],cmd:'SELECT',
+        qual:task?"(thread_id is null and public.can_manage_support(instance_id,auth.uid())) or (thread_id is not null and private.current_user_can_read_office_thread_v1(instance_id,thread_id))"
+          :thread?'private.current_user_can_read_office_thread_v1(instance_id,id)':'private.current_user_can_read_office_thread_v1(instance_id,thread_id)'},
+       {schemaname:'public',tablename:t,policyname:t+'_plan_scoped_v2',permissive:'RESTRICTIVE',roles:['authenticated'],cmd:'SELECT',
+        qual:task?'private.office_task_plan_allowed_v2(instance_id,thread_id)':thread?'private.office_thread_plan_allowed_v2(instance_id,id)':'private.office_thread_plan_allowed_v2(instance_id,thread_id)'},
+      ];
+    }),
   };
   const exposure:any={
     contract:'shoporation.office-stage-exposure-snapshot.v1',capturedAt:'2026-10-12T11:50:00Z',
@@ -41,6 +66,12 @@ describe('Core #1186 U11B read-only staging migration dependency and rollback re
     expect(r.ddlApplied).toBe(false);expect(r.currentRoleProofsVerified).toBe(false);
     expect(r.stages.map((x:any)=>x.id)).toEqual(['S1','S2','S3','S4','S5','S6']);
     expect(r.forbiddenMigrationReplay).toContain('20260910061815_customer_email_plan_split_v1');
+    expect(r.forbiddenMigrationReplay).toContain('20261010093000_digital_office_strict_pro_sql_guard_v1');
+    expect(REQUIRED_OFFICE_ROLE_PROOFS).toContain('alap_customer_support_select_allowed');
+    expect(REQUIRED_OFFICE_ROLE_PROOFS).toContain('alap_internal_chat_select_denied');
+    expect(REQUIRED_OFFICE_ROLE_PROOFS).toContain('post_downgrade_private_chat_select_denied');
+    expect(REQUIRED_OFFICE_ROLE_PROOFS).not.toContain('alap_office_select_denied');
+    expect(REQUIRED_OFFICE_ROLE_PROOFS).not.toContain('post_downgrade_office_select_denied');
   });
   it('BLOCKs the actual legacy ALL-policy and missing privacy schema shape',()=>{
     const x=fixture();x.snapshot.policies=OFFICE_TABLES.map((t:string)=>({

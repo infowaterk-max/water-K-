@@ -4,9 +4,11 @@ import {evaluateOfficeDbReadiness,OFFICE_TABLES} from './shoperation-office-db-r
 
 export const OFFICE_STAGING_PROJECT_ID='rfuvzgumbardvbvqjxdq';
 export const REQUIRED_OFFICE_ROLE_PROOFS=Object.freeze([
-  'anon_select_denied','alap_office_select_denied','pro_participant_select_allowed',
-  'pro_nonparticipant_select_denied','cross_tenant_select_denied',
-  'post_downgrade_office_select_denied','expired_entitlement_denied',
+  'anon_select_denied',
+  'alap_customer_support_select_allowed','alap_internal_chat_select_denied',
+  'pro_participant_select_allowed','pro_nonparticipant_select_denied',
+  'cross_tenant_select_denied','post_downgrade_private_chat_select_denied',
+  'post_downgrade_customer_support_unchanged','expired_entitlement_denied',
   'actor_rpc_spoof_denied','service_rpc_enforced','alap_support_unchanged',
 ]);
 
@@ -108,7 +110,7 @@ export function evaluateOfficeDbStagingRehearsal(
     authoritative:false,
     ddlApplied:false,
     currentRoleProofsVerified:false,
-    forbiddenMigrationReplay:['20260909204825_team_chat_plan_split_v1','20260910061815_customer_email_plan_split_v1'],
+    forbiddenMigrationReplay:['20260909204825_team_chat_plan_split_v1','20260910061815_customer_email_plan_split_v1','20261010093000_digital_office_strict_pro_sql_guard_v1'],
     findings,stages,
     nextAction:'Generate a Block11-compatible SQL migration only after disposable role/tenant rehearsal; never replay historical fixed-plan sync.',
   };

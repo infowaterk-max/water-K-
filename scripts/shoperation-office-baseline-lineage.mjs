@@ -17,7 +17,7 @@ export const OFFICE_BASELINE_MINIMUM_SOURCES=Object.freeze([
   '20260910070000_communication_hub_2_0_foundation_v1.sql',
   '20260910070100_communication_hub_2_0_mailbox_default_assignment_v1.sql',
   '20260910070200_communication_hub_2_0_advanced_guards_and_object_links_v1.sql',
-  '20261010093000_digital_office_strict_pro_sql_guard_v1.sql',
+  '20261015090000_digital_office_plan_scoped_sql_guard_v2.sql',
 ]);
 
 // The following historical SQL predates canonical Block 11 grant-backed plan sync
@@ -27,11 +27,16 @@ export const OFFICE_BASELINE_MINIMUM_SOURCES=Object.freeze([
 export const OFFICE_BASELINE_SUPERSEDED_SOURCES=Object.freeze([
   Object.freeze({source:'20260909204825_team_chat_plan_split_v1.sql',supersededBy:['0014_block11_entitlement_contract_v1.sql','0046_alap_team_chat_plan_grant_reconcile.sql'],reason:'Legacy fixed-list plan-sync grants Alap Team Chat contrary to the normalized capability matrix.'}),
   Object.freeze({source:'20260910061815_customer_email_plan_split_v1.sql',supersededBy:['0014_block11_entitlement_contract_v1.sql','0046_alap_team_chat_plan_grant_reconcile.sql'],reason:'Legacy customer-email plan-sync recreates the hard-coded Alap Team Chat grant; customer email itself is preserved by 0046.'}),
+  Object.freeze({source:'20261010093000_digital_office_strict_pro_sql_guard_v1.sql',supersededBy:['20261015090000_digital_office_plan_scoped_sql_guard_v2.sql'],reason:'Historical blanket Pro-only RLS denies Alap customer Office communication and is superseded by current-user type-aware Office v2.'}),
 ]);
 const SUPERSEDED_NAMES=new Set(OFFICE_BASELINE_SUPERSEDED_SOURCES.map(item=>item.source));
 // Detect renamed or unmarked copies too, not only replay with authentic provenance.
 const FIXED_LIST_PLAN_SYNC=/create\s+or\s+replace\s+function\s+(?:"?private"?\.)?"?sync_webshop_plan_entitlements"?\s*\(/i;
 const FIXED_LIST_FEATURE_ARRAY=/\bv_features\s*:=\s*array\s*\[/i;
+// Detect harmful old v1 SQL even if renamed and stripped of its source marker.
+// Old global restrictive Pro SELECT on office_threads would AND away Alap
+// customer support even when corrected plan-scoped RLS is subsequently present.
+const UNSAFE_GLOBAL_PRO_OFFICE_RLS=/create\s+policy\s+office_threads_strict_pro_v1\s+on\s+public\.office_threads[\s\S]*?using\s*\(\s*private\.office_pro_plan_allowed_v1\s*\(\s*instance_id\s*\)\s*\)/i;
 
 const PROVENANCE=/^-- Shoperation-Office-Source: (\S+\.sql) sha256=([a-f0-9]{64})\r?\n/;
 const sha256=data=>createHash('sha256').update(data).digest('hex');
@@ -65,6 +70,8 @@ export function evaluateOfficeBaselineLineage({
     const content=readFileSync(resolve(baselinePath,file),'utf8');
     if(FIXED_LIST_PLAN_SYNC.test(content)&&FIXED_LIST_FEATURE_ARRAY.test(content))
       findings.push({code:'OFFICE_LEGACY_PLAN_SYNC_REPLAY',file});
+    if(UNSAFE_GLOBAL_PRO_OFFICE_RLS.test(content))
+      findings.push({code:'OFFICE_UNSAFE_GLOBAL_PRO_RLS_REPLAY',file});
     const match=PROVENANCE.exec(content);
     if(!match) continue;
     const [,name,digest]=match;

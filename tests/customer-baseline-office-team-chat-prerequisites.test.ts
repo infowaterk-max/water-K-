@@ -25,7 +25,7 @@ describe('Core #1186 U10A2-F4: Team Chat 2 source integrity 0052-0054',()=>{
    expect(applied[i].slice(header.length)).toBe(canonical[i]);
    expect(OFFICE_BASELINE_MINIMUM_SOURCES).toContain(name);
   });
-  expect(OFFICE_BASELINE_SUPERSEDED_SOURCES).toHaveLength(2);
+  expect(OFFICE_BASELINE_SUPERSEDED_SOURCES).toHaveLength(3);
   names.forEach(name=>expect(OFFICE_BASELINE_SUPERSEDED_SOURCES.some((s:{source:string})=>s.source===name)).toBe(false));
  });
  it('keeps immutable 0047-0051 and appends exactly 0052-0054 as customer baseline files 53-55',()=>{
@@ -70,9 +70,9 @@ describe('Core #1186 U10A2-F4: Team Chat 2 source integrity 0052-0054',()=>{
  it('remains BLOCKED with exactly four missing Office sources and no hosted Fresh Install proof',()=>{
   const state=evaluateOfficeBaselineLineage();
   expect(state.requiredSourceCount).toBe(11);
-  expect(state.matchedSourceCount).toBe(10);
-  expect(state.findings.filter((f:{code:string})=>f.code==='OFFICE_BASELINE_SOURCE_MISSING')).toHaveLength(1);
-  expect(state.sourceLineageStatus).toBe('BLOCKED');
+  expect(state.matchedSourceCount).toBe(11);
+  expect(state.findings.filter((f:{code:string})=>f.code==='OFFICE_BASELINE_SOURCE_MISSING')).toHaveLength(0);
+  expect(state.sourceLineageStatus).toBe('SOURCE_PRESENT_UNPROVEN');
   expect(state.releaseReady).toBe(false);
   expect(state.realDatabaseProof).toBe('NOT_EVALUATED');
   const manifest=JSON.parse(readFileSync('supabase/customer-baseline/manifest.json','utf8'));
