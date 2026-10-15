@@ -62,7 +62,7 @@ export function statusSQL(){
  ['f6u03e_authenticated','f6u03e_private','USAGE'],['f6u03e_authenticated','f6u03e_private','CREATE'],
  ['f6u03e_service_role','f6u03e_private','USAGE'],['f6u03e_service_role','f6u03e_private','CREATE'],
  ];
- return "SELECT (SELECT label FROM f6u03e_public.orders WHERE id=7)||'|'||(SELECT count(*) FROM pg_trigger WHERE tgname='f6u03e_external_auth_trigger')::text||'|'||(SELECT count(*) FROM f6u03e_audit.events)::text"+
+ return "SELECT (SELECT label FROM f6u03e_public.orders WHERE id=7)||'|'||(SELECT count(*) FROM pg_trigger WHERE tgname='f6u03e_external_auth_trigger')::text||'|'||(SELECT count(*) FROM f6u03e_audit.events)::text||'|'"+
  permissions.map(([role,schema,priv])=>"||has_schema_privilege('"+role+"','"+schema+"','"+priv+"')::int::text").join('')+";";
 }
 function psql(sql,env,{fails=false}={}){
