@@ -24,11 +24,8 @@
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "auth-access-authority",
-    "database-schema",
     "quality-knowledge-system",
-    "release-infrastructure",
-    "tenant-context-authority"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -293,6 +290,27 @@
         "finding": "Local fixture has provider shims not genuine services.",
         "resolution": "Emit blocked Hosted/59/RLS booleans and independent sample names.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-CATALOG-06",
+        "scenario": "Local PostgreSQL category totals sum to 4621 but class membership differs from hosted reference.",
+        "finding": "Aggregated object count alone cannot discriminate an unexpected additional class replacing a missing expected class.",
+        "resolution": "Require exactly all seven known object kinds without duplicates, missing values or additions before comparing group digests.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-CATALOG-07",
+        "scenario": "Expected class record contains a valid format digest but is silently substituted with fixture-derived values.",
+        "finding": "A fixture-produced reference can self-attest equivalence and mask genuine schema drift without any external comparison.",
+        "resolution": "Use only seven independently observed read-only Fresh Install group digests committed as immutable static expected metadata.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-CATALOG-08",
+        "scenario": "A per-kind MD5 summary is interpreted as proof that restored provider-managed triggers and tenant RLS work.",
+        "finding": "Group hashing does not exercise Auth lifecycle callbacks, role grants, service storage or authenticated tenant data paths.",
+        "resolution": "Explicitly restrict evidence to historical fixture diagnostics and keep all hosted provider and signed-in RLS requirements BLOCKED.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -306,11 +324,8 @@
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/pull/1332",
       "authority": [
-        "auth-access-authority",
-        "database-schema",
         "quality-knowledge-system",
-        "release-infrastructure",
-        "tenant-context-authority"
+        "release-infrastructure"
       ],
       "mustEdit": [
         ".github/workflows/f6-u03g-catalog-plan-capture.yml",
@@ -325,7 +340,10 @@
         "tests/shoperation-f6-u03g-catalog-drift.test.ts"
       ],
       "forbidden": [],
-      "proof": [],
+      "proof": [
+        "tests/shoperation-f6-u03g-catalog-drift.test.ts",
+        ".github/workflows/f6-u03g-catalog-drift-proof.yml"
+      ],
       "unknown": [],
       "plannedDeletions": []
     },
@@ -867,7 +885,30 @@
         "decision": "PASS"
       }
     },
-    "executionAuthorized": true
+    "executionAuthorized": true,
+    "problemStatement": "A genuine isolated PostgreSQL17 replay of the original 47-file 0046 schema creates the same 4621 application object count as Fresh Install, yet the exact raw MD5 differs; the absence of class-level evidence prevents identifying whether indexes, RLS, functions, columns or triggers are responsible while the fail-closed F6-U03f guard must remain unchanged.",
+    "observableOutcomes": [
+      "An exact canonical object_defs-derived query computes seven named category counts and MD5 digests from the original historical PostgreSQL17 database.",
+      "The independently observed hosted seven-group signatures are checked against actual local PostgreSQL17 output with explicit per-category mismatched names and zero false green.",
+      "Independent negative tests and exact-head CI prove incomplete records and forged hashes are rejected while every hosted reset and 59-file completion claim remains false."
+    ],
+    "unresolvedRisks": [
+      "Provider-managed Auth, Storage and event triggers differ from temporary local stand-ins and remain unproven for live migrations.",
+      "PostgreSQL's stored definition serialization or role characteristics can change MD5 values despite matching object counts; diagnosis must not normalize the canonical guard.",
+      "The original 0047-0058 SQL and signed-in Alap/Pro cross-tenant RLS have not been executed on any complete Fresh Install target."
+    ],
+    "scope": {
+      "in": [
+        "Build immutable seven-category count and hash diagnostics from the original F6-U03f 4621-definition SQL and the read-only hosted snapshot.",
+        "Execute original 47 historical 0046 SQL files in an isolated real Docker PostgreSQL17 service and report per-kind catalog comparisons.",
+        "Fail-closed negative tests, existing canonical Dev Guard, Plan Before Code, full CI/Truth/Lifecycle and exact-head fixture proof."
+      ],
+      "out": [
+        "No executing any hosted SQL, modifying Supabase project settings, connecting to platform/staging or exposing live credentials.",
+        "No editing application migration SQL or weakening or removing F6-U03b abort-before-DROP and original F6-U03f guard.",
+        "No claiming complete 59-file migrations, real Supabase Auth/Storage/PostgREST acceptance or signed-in Alap/Pro RLS."
+      ]
+    }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
