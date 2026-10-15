@@ -328,8 +328,7 @@
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03g-catalog-plan-capture.yml",
-        "quality/development/active-plan.json"
+        ".github/workflows/f6-u03g-catalog-plan-capture.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
@@ -1034,5 +1033,5 @@
       }
     ]
   },
-  "notes": "Scope-limited per-class diagnostics for genuine 0046 PostgreSQL17 replica, not full hosted F6 transaction. Independently observed read-only Fresh Install 2026-10-15 group counts 1981+1161+380+615+126+250+108=4621; retain historical canonical raw MD5 e312b40ad91150ce937f4aa00db587f3 unchanged. Guard DEV-90EB737A risk 4/5, 45 applicable known failures. Specialist reviews are challenge-model analysis, not external signoffs. Hosted reset remains blocked."
+  "notes": "Scope-limited per-class diagnostics for genuine 0046 PostgreSQL17 replica, not full hosted F6 transaction. Independently observed read-only Fresh Install 2026-10-15 group counts 1981+1161+380+615+126+250+108=4621; retain historical canonical raw MD5 e312b40ad91150ce937f4aa00db587f3 unchanged. Guard DEV-90EB737A risk 4/5, 45 applicable known failures. Specialist reviews are challenge-model analysis, not external signoffs. Hosted reset remains blocked. Exact-head CI found the original generated semantic MUST_EDIT route incorrectly included quality/development/active-plan.json (a canonical metadata file excluded from material code diff); the committed plan itself remains included in plannedFilePatterns and is checked by Plan Before Code, but Implementation Sync must require actual material code/workflow changes, not metadata."
 }
