@@ -3,7 +3,7 @@
   "taskId": "DEV-B55A7A31-F3",
   "task": "Core #1186 U10A2-F3 atomic four-source Digital Office privacy and RLS hardening migration lineage (0048-0051)",
   "status": "ready-for-implementation",
-  "guardDigest": "b55a7a31",
+  "guardDigest": "a6919f1a",
   "changeBaseSha": "b44e9b3633300d15f17315de7368c12919141598",
   "plannedFilePatterns": [
     "supabase/customer-baseline/migrations/0048_digital_office_privacy_foundation_v1.sql",
@@ -16,6 +16,7 @@
     "tests/shoperation-office-db-readiness.test.ts"
   ],
   "expectedSubsystems": [
+    "admin-operations",
     "database-schema"
   ],
   "expectedDomains": [
@@ -25,19 +26,28 @@
     "database-schema"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-013",
-    "SQ-KF-014",
-    "SQ-KF-022",
-    "SQ-KF-025",
+    "SQ-KF-001",
+    "SQ-KF-002",
     "SQ-KF-006",
     "SQ-KF-009",
     "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
+    "SQ-KF-013",
+    "SQ-KF-014",
+    "SQ-KF-016",
+    "SQ-KF-017",
     "SQ-KF-018",
-    "SQ-KF-023"
+    "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-005",
+    "SQ-NK-006",
+    "SQ-NK-008",
     "SQ-NK-012",
     "SQ-NK-014",
     "SQ-NK-024"
@@ -210,6 +220,17 @@
         "evidence": [
           "supabase/customer-baseline/manifest.json",
           "scripts/shoperation-office-db-readiness.mjs"
+        ]
+      },
+      {
+        "role": "Operations",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Office actor/tenant privacy migrations affect merchant admin operation permissions and audit workflows in addition to database schema authority.",
+        "resolution": "Expand Known Failure scope to admin-operations and preserve the existing admin audit/service-role mutation contracts in all 0048-0051 source bodies and CI regression checks.",
+        "evidence": [
+          "supabase/migrations/20260908022500_digital_office_privacy_foundation_v1.sql",
+          "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql"
         ]
       }
     ],
@@ -673,7 +694,7 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "First four modern Digital Office privacy SQL predecessors are absent from canonical customer Fresh Install. Source 0048 introduces temporary browser-callable actor-parameterized thread read function, while 0051 closes exposure; copying one source in isolation is an unsafe partial migration.",
+    "problemStatement": "First four modern Digital Office privacy SQL predecessors are absent from canonical customer Fresh Install. Source 0048 introduces temporary browser-callable actor-parameterized thread read function, while 0051 closes exposure; copying one source in isolation is an unsafe partial migration. Development Guard identified both database-schema and admin-operations authorities, requiring the expanded failure set and negative knowledge before any SQL implementation.",
     "observableOutcomes": [
       "Customer baseline contains 0048-0051 exact source-derived SQL and source-lineage matches four of eleven active Office predecessors.",
       "Negative regression blocks omission or tamper of any of the four and blocks absence of final 0051 actor-parameterized RPC closure.",
@@ -786,5 +807,5 @@
       }
     ]
   },
-  "notes": "F3 additive four-source privacy stage stacked on F1R draft #1298 exact head b44e9b36, not main. Four sources are inseparable because final 0051 closes browser actor-param security-definer RPC exposure introduced by 0048; source-only and no release before hosted empty-target actor proof. Parent 1228/1186 remain OPEN."
+  "notes": "F3 additive four-source privacy stage stacked on F1R draft #1298 exact head b44e9b36, not main. Four sources are inseparable because final 0051 closes browser actor-param security-definer RPC exposure introduced by 0048; source-only and no release before hosted empty-target actor proof. Parent 1228/1186 remain OPEN. Plan Before Code initial failure on newly discovered admin-operations known failures corrected without weakening the gate; source edits remain forbidden until corrected PASS."
 }
