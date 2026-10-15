@@ -12,6 +12,9 @@ export const PROOF_SCOPE='HISTORICAL_0046_LOCAL_POSTGRES17_ONLY';
 export const HISTORICAL_FINGERPRINT='e312b40ad91150ce937f4aa00db587f3';
 export const FIXTURE_DB='f6_u03g_fixture';
 export const HOSTED_EXECUTION_ENABLED=false;
+// Reproducible business-field fingerprint: excludes ONLY migration-time created_at/updated_at.
+// The hosted F6-U03f guard still uses its unchanged full-row checksums.
+export const HISTORICAL_SEMANTIC_HASHES=Object.freeze({"addon_capability_grants":"603e4da6e9b73f18f08de9b648c8d140","addon_entitlement_catalog":"5473d5997c31315a35079931e7dd02a4","addon_plan_compatibility":"52e8cd3fc13054647ffbcc11f57005a0","entitlement_capabilities":"40322eeb7f0e10a7d7c152bff76be208","entitlement_source_precedence":"ca5807f662fb84702666283f3711eaaf","plan_capability_grants":"d307f9e67a73809f936a379f55e35351","subscription_plan_catalog":"52a3bcaab39483dee0b8c13bc1153ecd"});
 const failure=s=>{throw new Error(s);};
 export function historicalSource(root=process.cwd()){
  const v=validateReviewedBaseline(root);
@@ -78,11 +81,11 @@ export function positiveApplicationPreflightSql(root=process.cwd()){
  "IF (SELECT count(*) FROM pg_class c JOIN pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='public' AND c.relkind IN('r','p') AND NOT c.relispartition)<>175 OR (SELECT count(*) FROM pg_class c JOIN pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname='private' AND c.relkind IN('r','p') AND NOT c.relispartition)<>2 THEN RAISE EXCEPTION 'F6U03G_TABLE_SET_MISMATCH'; END IF;",
  "FOR rec IN SELECT ns.nspname AS sch,c.relname AS tbl FROM pg_class c JOIN pg_namespace ns ON ns.oid=c.relnamespace WHERE ns.nspname IN('public','private') AND c.relkind IN('r','p') AND NOT c.relispartition ORDER BY ns.nspname,c.relname LOOP",
  "EXECUTE format('LOCK TABLE %I.%I IN ACCESS EXCLUSIVE MODE NOWAIT',rec.sch,rec.tbl);",
- "EXECUTE format('SELECT count(*),md5(coalesce(string_agg(to_jsonb(x)::text,E''\\n'' ORDER BY to_jsonb(x)::text),'''')) FROM %I.%I x',rec.sch,rec.tbl) INTO n,digest;",
+ "EXECUTE format('SELECT count(*),md5(coalesce(string_agg((to_jsonb(x) - ''created_at'' - ''updated_at'')::text,E''\\n'' ORDER BY (to_jsonb(x) - ''created_at'' - ''updated_at'')::text),'''')) FROM %I.%I x',rec.sch,rec.tbl) INTO n,digest;",
  "IF rec.sch='public' AND rec.tbl=ANY(ARRAY["+Object.keys(NEUTRAL_ROWS).map(x=>"'"+x+"'").join(',')+"]) THEN",
  "CASE rec.tbl",
  ...Object.entries(NEUTRAL_ROWS).map(([name,[count,hash]])=>
-  "WHEN '"+name+"' THEN IF n<>"+count+" OR digest<>'"+hash+"' THEN RAISE EXCEPTION 'F6U03G_NEUTRAL_DRIFT:"+name+"'; END IF;"),
+  "WHEN '"+name+"' THEN IF n<>"+count+" OR digest<>'"+HISTORICAL_SEMANTIC_HASHES[name]+"' THEN RAISE EXCEPTION 'F6U03G_SEMANTIC_NEUTRAL_DRIFT:"+name+"'; END IF;"),
  "ELSE RAISE EXCEPTION 'F6U03G_UNKNOWN_CATALOG'; END CASE;",
  "ELSIF n<>0 THEN RAISE EXCEPTION 'F6U03G_CUSTOMER_ROW_PRESENT: %.%',rec.sch,rec.tbl; END IF;",
  'END LOOP;',
@@ -123,7 +126,7 @@ export function runHistoricalProof(env=process.env,root=process.cwd()){
   return Object.freeze({
    contract:'shoperation.f6-u03g.historical-replay.v1',
    decision:'PASS',scope:PROOF_SCOPE,pgVersion:parts[3],historicalMigrationsApplied:reviewed.historicalCount,
-   historicalCatalogDefinitions:Number(count),historicalCatalogMd5:checksum,
+   historicalCatalogDefinitions:Number(count),historicalCatalogMd5:checksum,neutralComparison:'SEMANTIC_EXCLUDING_CREATED_UPDATED_AT',
    sourceSetSha256:reviewed.sourceSetSha256,
    currentBaselineMigrationsApplied:0,hostedSupabaseTouched:false,providerEventProof:false,
    fullTransactionGuardProved:false,realAlapProRlsProved:false,
