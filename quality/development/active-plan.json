@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-B55A7A31",
   "task": "Core #1186 U10A2 F1 first additive customer Fresh Install Team Permissions prerequisite from canonical SQL",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "b55a7a31",
   "changeBaseSha": "ea72ec341bd5125d34e0d6d0c0aeb539f181912e",
   "plannedFilePatterns": [
@@ -778,5 +778,18 @@
       }
     ]
   },
-  "notes": "Actual 0047 SQL first additive schema chain; existing 0046 baseline unchanged, status snapshot-reviewed awaiting new Fresh Install proof. Source and tests in scope; parent #1186 / #1228 remain OPEN."
+  "notes": "Actual 0047 SQL first additive schema chain; existing 0046 baseline unchanged, status snapshot-reviewed awaiting new Fresh Install proof. Source and tests in scope; parent #1186 / #1228 remain OPEN.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "1b26aab7d13a031a8f18e65d60ff4c7df5b45650",
+    "closedAt": "2026-10-14T21:47:12.715Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
