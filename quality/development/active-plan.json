@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-B55A7A31-F1R",
   "task": "Core #1186 U10A2 F1R reapply proven 0047 Team Permissions source to F2 current main, preserving eleven active and two superseded Office migration authorities",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "b55a7a31",
   "changeBaseSha": "dc726ea075d6918883595442d446e37c023731e4",
   "plannedFilePatterns": [
@@ -790,5 +790,18 @@
       }
     ]
   },
-  "notes": "Reconciliation F1R of source-verified original draft #1291 onto exact F2 merged main dc726ea. Preserve immutable original old PR, canonical source 0047, two superseded forbidden SQL migrations, historical 0046 proof, and unverified 0047 manifest. No hosted Fresh Install claim."
+  "notes": "Reconciliation F1R of source-verified original draft #1291 onto exact F2 merged main dc726ea. Preserve immutable original old PR, canonical source 0047, two superseded forbidden SQL migrations, historical 0046 proof, and unverified 0047 manifest. No hosted Fresh Install claim.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "3cbd1c7a3a0c2c93e05e34652975761b2672fc6d",
+    "closedAt": "2026-10-15T03:27:45.010Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
