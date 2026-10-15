@@ -227,8 +227,8 @@ describe('Core #1186 U10A2 additive Office Fresh Install source lineage gate',()
     expect(reconciled).toContain('ALAP_TEAM_CHAT_STALE_PLAN_ROW_REMAINS');
     for(const {source} of OFFICE_BASELINE_SUPERSEDED_SOURCES){
       const old=readFileSync(resolve(process.cwd(),'supabase/migrations',source),'utf8');
-      expect(old).toMatch(/create or replace function private\\.sync_webshop_plan_entitlements\\(/i);
-      expect(old).toMatch(/v_features\\s*:=\\s*array\\s*\\[/i);
+      expect(old).toMatch(/create or replace function private\.sync_webshop_plan_entitlements\(/i);
+      expect(old).toMatch(/v_features\s*:=\s*array\s*\[/i);
       expect(OFFICE_BASELINE_MINIMUM_SOURCES).not.toContain(source);
     }
   });
