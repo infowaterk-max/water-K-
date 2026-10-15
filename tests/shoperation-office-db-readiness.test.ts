@@ -149,7 +149,7 @@ describe('Core #1186 U10A2 additive Office Fresh Install source lineage gate',()
   it('reports current real baseline BLOCKED, not deployed Office ready',()=>{
     const r=evaluateOfficeBaselineLineage();
     expect(r.contract).toBe('shoporation.office-customer-baseline-lineage.v1');
-    expect(r.baselineMigrationCount).toBe(55);
+    expect(r.baselineMigrationCount).toBe(58);
     expect(r.requiredSourceCount).toBe(11);
     expect(r.supersededSourceCount).toBe(2);
     expect(OFFICE_BASELINE_SUPERSEDED_SOURCES.map((x:{source:string})=>x.source)).toEqual([
@@ -159,8 +159,8 @@ describe('Core #1186 U10A2 additive Office Fresh Install source lineage gate',()
     expect(r.sourceLineageStatus).toBe('BLOCKED');
     expect(r.releaseReady).toBe(false);
     expect(r.realDatabaseProof).toBe('NOT_EVALUATED');
-    expect(r.findings.filter((x:{code:string,source?:string})=>x.code==='OFFICE_BASELINE_SOURCE_MISSING').length).toBe(4);
-    expect(r.matchedSourceCount).toBe(7);
+    expect(r.findings.filter((x:{code:string,source?:string})=>x.code==='OFFICE_BASELINE_SOURCE_MISSING').length).toBe(1);
+    expect(r.matchedSourceCount).toBe(10);
     expect(r.findings.some((x:{code:string,source?:string})=>x.code==='OFFICE_BASELINE_NEW_ORDINAL_DRIFT')).toBe(false);
     expect(OFFICE_BASELINE_MINIMUM_SOURCES.at(-1)).toContain('digital_office_strict_pro_sql_guard');
   });

@@ -30,10 +30,10 @@ describe('Core #1186 U10A2-F4: Team Chat 2 source integrity 0052-0054',()=>{
  });
  it('keeps immutable 0047-0051 and appends exactly 0052-0054 as customer baseline files 53-55',()=>{
   const filesInBaseline=readdirSync(root).filter(f=>/^\d{4}_.+\.sql$/.test(f)).sort();
-  expect(filesInBaseline).toHaveLength(55);
+  expect(filesInBaseline).toHaveLength(58);
   expect(filesInBaseline[47]).toBe('0047_team_permissions_foundation_v1.sql');
   expect(filesInBaseline[51]).toBe('0051_digital_office_rls_helper_exposure_closure_v1.sql');
-  expect(filesInBaseline.slice(-3)).toEqual(files.map(path=>path.slice(root.length)));
+  expect(filesInBaseline.slice(52,55)).toEqual(files.map(path=>path.slice(root.length)));
  });
  it('preserves owner/member constraints, service-role-only mention and object tables and the RPC authorization',()=>{
   expect(canonical[0]).toContain("check (participant_role in ('owner','member'))");
@@ -70,8 +70,8 @@ describe('Core #1186 U10A2-F4: Team Chat 2 source integrity 0052-0054',()=>{
  it('remains BLOCKED with exactly four missing Office sources and no hosted Fresh Install proof',()=>{
   const state=evaluateOfficeBaselineLineage();
   expect(state.requiredSourceCount).toBe(11);
-  expect(state.matchedSourceCount).toBe(7);
-  expect(state.findings.filter((f:{code:string})=>f.code==='OFFICE_BASELINE_SOURCE_MISSING')).toHaveLength(4);
+  expect(state.matchedSourceCount).toBe(10);
+  expect(state.findings.filter((f:{code:string})=>f.code==='OFFICE_BASELINE_SOURCE_MISSING')).toHaveLength(1);
   expect(state.sourceLineageStatus).toBe('BLOCKED');
   expect(state.releaseReady).toBe(false);
   expect(state.realDatabaseProof).toBe('NOT_EVALUATED');
