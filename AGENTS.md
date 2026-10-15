@@ -44,6 +44,15 @@ A `review` edit-time finding requires an explicit exception in `quality/developm
 - Do not treat CI or deployment readiness as Product Owner or runtime proof.
 - Do not wait for final CI to discover a Known Failure that could have been prevented during implementation.
 
+## ROADMAP-ORDERED DEVELOPMENT CONTINUATION
+
+When the Product Owner says “folytassuk”, “rendben, folytassuk” or otherwise asks to continue Shoperation development without changing scope:
+
+1. Inspect the current main HEAD, open/active PRs and workflows, current CI/Completion Truth/Lifecycle results, active task blockers and the canonical `quality/knowledge/living-roadmap.v2.json`. Historical chat state is not a substitute for repository proof.
+2. Resume the current unfinished, dependency-eligible development block before selecting a new one; honor any explicit PO instruction to stop after a named block. Do not opportunistically switch to Builder, Factory or template production while higher-priority Core closure and its operational/adversarial proof are still open.
+3. Use `docs/architecture/UNIFIED_CAPABILITY_ECOSYSTEM_ROADMAP_2026-10-15.md` only as the staged accepted cross-pillar scope trace: Stage A Core-owned graph/contract continuity within Core, Stage B Builder integration after Core acceptance, Stage C Factory/portfolio integration after Builder acceptance. It is not an implementation claim, a new independent gate or an authority override.
+4. Continue under the existing Plan Before Code, exact-head verification and release governance. Do not treat a conversational “continue” as permission for unsafe production changes or fee-bearing provider activation.
+
 ## BEFORE HANDOFF
 
 Use the canonical operational sequence for serious work:
