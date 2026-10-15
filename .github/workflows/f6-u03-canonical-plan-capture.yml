@@ -32,7 +32,7 @@ jobs:
             --task "Core #1186 F6-U03f: transaction-local target identity and locked-data/managed-dependency guard (no hosted reset)" \
             --files "scripts/shoperation-f6-u03f-target-transaction-guard.mjs;tests/shoperation-f6-u03f-target-transaction-guard.test.ts;scripts/shoperation-fresh-disposable-reprovision.mjs;docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md;.github/workflows/f6-u03f-transaction-guard-proof.yml;.github/workflows/f6-u03-canonical-plan-capture.yml" \
             --risk critical \
-            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1322" \
+            --source-ref "https://github.com/infowaterk-max/water-K-/pull/1323" \
             --write-plan --check
       - name: Print canonical guard and draft-plan diagnostic
         if: always()
