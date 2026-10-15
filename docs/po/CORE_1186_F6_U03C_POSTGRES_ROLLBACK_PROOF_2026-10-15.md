@@ -33,3 +33,11 @@ The original Fresh Install project `istjjkdcvsvilrycqecd` remains active with a 
 4. Close the stacked PR chain under the accepted roadmap and repository lifecycle gates before moving to another Core block. Builder and Template Factory stay downstream.
 
 **This document records engineering acceptance scope, not a PO-approved production data deletion or a claim of hosted readiness.**
+
+## First real PostgreSQL16 evidence — verified run
+
+Isolated service job [#38726183273](https://github.com/infowaterk-max/water-K-/actions/runs/38726183273), exact source commit `68058c7bb4054c1826c02fcaf8ec52be817326d7`, completed **SUCCESS**. The downloaded `f6-u03c-postgres-rollback-68058c7bb4054c1826c02fcaf8ec52be817326d7` artifact contains `real-postgres-rollback.json` with `contract: shoperation.f6-u03c.postgresql-rollback.v1`, `scope: LOCAL_POSTGRES16_TRANSACTION_ONLY`, server version `160015`, **7/7 independent transaction faults** with restored original fixture row and external Auth-like trigger and **1/1 successful COMMIT** with new fixture row and restored trigger.
+
+Errors `BEFORE_DROP`, `AFTER_DROP`, `MIGRATION_0001`, `MIGRATION_0058`, `AUTH_BOOTSTRAP`, `NEUTRAL_SEED`, `POSTFLIGHT` are **fixture fault names**. These are NOT actual application customer-baseline migrations and not any Supabase project. The evidence explicitly declares `supabaseTouched: false`, `actualCustomerBaselineMigrationCount: 0`, `hostedFreshInstallProof: false`, `alapProRlsProof: false`.
+
+Original current branch CI on source commit `68058c7...` still blocked at `DEV-BLOCK-IMPLEMENTATION-SYNC-MISSING-REQUIRED`: the Development Guard's mandatory workflow file was modified *before* the plan base SHA, but needed an additional documented edit in the actual implementation diff. The accompanying guard capture workflow now declares its distinct responsibility and the evidence separation. The next exact-head CI must prove full normal Quality Tests, TypeScript, Completion Truth and Lifecycle. Do not treat a separate local-PG job success as whole-PR CI PASS.
