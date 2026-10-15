@@ -21,7 +21,8 @@ const block=code=>{throw new Error(code);};
 const git=(root,args)=>execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:20000}).trim();
 const gitBlob=body=>createHash('sha1').update('blob '+body.length+'\0').update(body).digest('hex');
 
-export function assertDisposableDbUrl(value,{projectRef=DISPOSABLE_FRESH_PROJECT_REF}={}){
+export function assertDisposableDbUrl(value){
+  const projectRef=DISPOSABLE_FRESH_PROJECT_REF;
   if(typeof value!=='string'||!value||/[\x00-\x1f\x7f]/.test(value))
     block('FRESH_REARM_DB_URL_INVALID');
   let url;
