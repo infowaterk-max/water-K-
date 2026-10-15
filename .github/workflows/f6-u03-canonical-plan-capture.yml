@@ -1,5 +1,6 @@
 name: F6-U03g canonical plan capture (development-only)
-# F6-U03g captures existing Development Guard only; no database transport, DDL or hosted secret.
+# F6-U03g captures canonical plan evidence for PR #1333 only; it never connects to Supabase or executes any SQL.
+# The separate f6-u03g-positive-guard-proof.yml alone runs translated SQL in an ephemeral PostgreSQL17 service.
 on:
   push:
     branches:
