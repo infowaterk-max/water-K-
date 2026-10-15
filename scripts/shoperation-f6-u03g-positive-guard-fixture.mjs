@@ -102,7 +102,17 @@ function concurrentNowait(env){
   if(!held)fail('F6U03G_LOCK_HOLDER_NOT_READY');
   const start=Date.now();expectBlocked(env,'could not obtain lock on relation');
   if(Date.now()-start>5000)fail('F6U03G_LOCK_WAIT_EXCEEDED_NOWAIT');
- }finally{other.kill('SIGTERM');}
+ }finally{
+  other.kill('SIGTERM');
+  // The client may terminate before PostgreSQL releases its backend lock.
+  // Never claim a post-fault positive guard until a separate session proves release.
+  let released=false;
+  for(let i=0;i<180;i++){
+   const cnt=execSQL("SELECT count(*) FROM pg_locks l JOIN pg_class c ON c.oid=l.relation JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='f6u03g_public' AND c.relname='sample_001' AND l.mode='AccessShareLock' AND l.granted AND l.pid<>pg_backend_pid();",env).out;
+   if(cnt==='0'){released=true;break;}
+  }
+  if(!released)fail('F6U03G_CONCURRENT_LOCK_NOT_RELEASED');
+ }
 }
 export function runFixture(env=process.env){
  validateEnvironment(env);const version=assertLocalServer(env);const evidence=[];
