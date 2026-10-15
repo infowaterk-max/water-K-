@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-BA50E105",
   "task": "Core #1186 F6-U03f: guarded transaction-local Fresh Install identity/data/dependency preflight, SQL execution disabled",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "ba50e105",
   "changeBaseSha": "8567529a0d6f42da032e903b35389ae44326ce1a",
   "plannedFilePatterns": [
@@ -942,5 +942,18 @@
       }
     ]
   },
-  "notes": "F6-U03f new scoped reviewed SQL guard, direct successor of verified F6-U03e commit 5db571cb. Planned external TLS identity and hosted safety proof deliberately BLOCKED. 8 adversarial challenges, 4 standard specialist modeled reviews and 3 limited completion requirements; no hosted Supabase writes. Plan Before Code run 38759524286 required exact new F6-U03f projection: digest ba50e105, dependency-contract/quality/release ownership, 19 failure rules, 14 in-scope acknowledged negative-knowledge entries and source-created doc/workflow. Previously inherited F6-U03e route data was corrected; the original SQL safety invariants remain unchanged. At exact current implementation projection CI 38759998242: failure scope only the 19 in-scope rules (TF-KF-015 is not projected); completed sourceRef reconciled with F6-U03f PR #1323. All guard requirements and 8 adversarial challenges retained. At CI run 38760248380, the full six-file scope projects Known Failure TF-KF-015 in addition to the prior 19. This previously omitted safety rule is explicitly ACKNOWLEDGED; no requirement was reduced."
+  "notes": "F6-U03f new scoped reviewed SQL guard, direct successor of verified F6-U03e commit 5db571cb. Planned external TLS identity and hosted safety proof deliberately BLOCKED. 8 adversarial challenges, 4 standard specialist modeled reviews and 3 limited completion requirements; no hosted Supabase writes. Plan Before Code run 38759524286 required exact new F6-U03f projection: digest ba50e105, dependency-contract/quality/release ownership, 19 failure rules, 14 in-scope acknowledged negative-knowledge entries and source-created doc/workflow. Previously inherited F6-U03e route data was corrected; the original SQL safety invariants remain unchanged. At exact current implementation projection CI 38759998242: failure scope only the 19 in-scope rules (TF-KF-015 is not projected); completed sourceRef reconciled with F6-U03f PR #1323. All guard requirements and 8 adversarial challenges retained. At CI run 38760248380, the full six-file scope projects Known Failure TF-KF-015 in addition to the prior 19. This previously omitted safety rule is explicitly ACKNOWLEDGED; no requirement was reduced.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "031a9c904dd9a480da1fa1ad5da3226976141873",
+    "closedAt": "2026-10-15T15:34:29.715Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1323",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
