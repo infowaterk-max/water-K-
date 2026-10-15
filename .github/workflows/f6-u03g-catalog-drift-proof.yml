@@ -3,12 +3,16 @@ on:
   push:
     branches:
       - feature/core-1186-f6-u03g-historical-catalog-diff
+      - feature/core-1186-f6-u03h-policy-role-parity
     paths:
       - scripts/shoperation-f6-u03g-catalog-drift.mjs
       - tests/shoperation-f6-u03g-catalog-drift.test.ts
       - .github/workflows/f6-u03g-catalog-drift-proof.yml
       - docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md
       - quality/development/active-plan.json
+      - scripts/shoperation-f6-u03h-policy-role-parity.mjs
+      - tests/shoperation-f6-u03h-policy-role-parity.test.ts
+      - docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md
   workflow_dispatch:
 permissions:
   contents: read
@@ -109,6 +113,29 @@ jobs:
           console.log(JSON.stringify({decision:r.decision,classParity:r.classParity,mismatchedKinds:r.mismatchedKinds,
            actualObjectCount:r.actualObjects,rawHashMatches:r.rawHashMatches},null,2));
           NODE
+      - name: Prove original policy raw OID versus deterministic role-name catalog on actual PG17
+        env:
+          PGPASSWORD: f6-u03g-local-only
+        run: |
+          node scripts/shoperation-f6-u03h-policy-role-parity.mjs --emit-sql artifacts/f6-u03h/policy-role
+          psql -XAt -F '|' -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03g_fixture -f artifacts/f6-u03h/policy-role/raw-policy.sql >artifacts/f6-u03h/policy-role/raw-policy.txt
+          psql -XAt -F '|' -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03g_fixture -f artifacts/f6-u03h/policy-role/named-policy.sql >artifacts/f6-u03h/policy-role/named-policy.txt
+          psql -XAt -F '|' -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03g_fixture -f artifacts/f6-u03h/policy-role/role-ids.sql >artifacts/f6-u03h/policy-role/role-ids.txt
+          node scripts/shoperation-f6-u03h-policy-role-parity.mjs --classify artifacts/f6-u03h/policy-role >artifacts/f6-u03h/policy-role/result.json
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const q=JSON.parse(readFileSync('artifacts/f6-u03h/policy-role/result.json','utf8'));
+          if(q.decision!=='DIAGNOSTIC_COMPLETE'||q.scope!=='LOCAL_HISTORICAL_0046_POLICY_ROLE_OID_DIAGNOSTIC_ONLY'
+            ||q.actualPolicyCount!==126||q.historicalSourcesExecuted!==47
+            ||q.hostedSupabaseTouched!==false||q.hosted59MigrationsApplied!==0
+            ||q.hostedResetAuthorized!==false||q.fullStrictGuardAccepted!==false
+            ||q.providerRoleSessionsProven!==false||q.authenticatedAlapProRlsProven!==false)
+            throw Error('F6U03H_DIAGNOSTIC_FALSE_GREEN');
+          console.log(JSON.stringify({verdict:q.verdict,rawMatches:q.rawMatches,
+             normalizedMatches:q.normalizedMatches,oidsDiffer:q.oidsDiffer,
+             localRoles:q.localRoles,hostedRoles:q.hostedRoles,
+             localRawMd5:q.localRawMd5,localNamedMd5:q.localNamedMd5},null,2));
+          NODE
       - name: Preserve exact-head local-only PostgreSQL17 diagnostic evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -116,6 +143,7 @@ jobs:
           name: f6-u03g-catalog-drift-local-pg17
           path: |
             artifacts/f6-u03g/catalog-drift/
+            artifacts/f6-u03h/policy-role/
             artifacts/f6-u03g/schema/manifest.json
             artifacts/f6-u03g/schema/replay.err
           retention-days: 14

@@ -1,23 +1,21 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-90EB737A",
-  "task": "Core #1186 F6-U03g: isolated historical 0046 catalog-type drift diagnosis against pinned read-only Fresh Install snapshot",
+  "taskId": "DEV-074C4B63",
+  "task": "Core #1186 F6-U03h: prove historical 0046 RLS policy role-OID portability without modifying canonical guard",
   "status": "closed",
-  "guardDigest": "90eb737a",
-  "changeBaseSha": "f1414318bd4a6705159577c59c1ac21f8048ffec",
+  "guardDigest": "074c4b63",
+  "changeBaseSha": "54127f23b17c010a481a46ca675cddec9d1462ae",
   "plannedFilePatterns": [
-    "scripts/shoperation-f6-u03g-catalog-drift.mjs",
-    "tests/shoperation-f6-u03g-catalog-drift.test.ts",
+    "scripts/shoperation-f6-u03h-policy-role-parity.mjs",
+    "tests/shoperation-f6-u03h-policy-role-parity.test.ts",
     ".github/workflows/f6-u03g-catalog-drift-proof.yml",
-    ".github/workflows/f6-u03g-catalog-plan-capture.yml",
-    "docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md",
+    ".github/workflows/f6-u03h-plan-capture.yml",
+    "docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
-    "release-infrastructure",
-    "shared-storefront",
-    "storefront-ui"
+    "release-infrastructure"
   ],
   "expectedDomains": [
     "DOMAIN-QUALITY",
@@ -32,59 +30,28 @@
     "SQ-KF-014",
     "SQ-KF-022",
     "SQ-KF-025",
-    "SQ-KF-001",
-    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
-    "SQ-KF-005",
     "SQ-KF-006",
-    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
-    "SQ-KF-015",
-    "SQ-KF-016",
-    "SQ-KF-017",
     "SQ-KF-018",
-    "SQ-KF-019",
     "SQ-KF-020",
     "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-004",
     "TF-KF-005",
-    "TF-KF-006",
     "TF-KF-007",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
-    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "TF-KF-015"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
-    "SQ-NK-004",
     "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012",
     "SQ-NK-016",
@@ -100,11 +67,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1332",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1335",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical: compare immutable 0046 app SQL object-kind hashes with an independently read-only Fresh Install snapshot using the exact F6-U03f canonical definition query, never changing 59-file SQL or bypassing hosted abort-before-DROP. No provider equivalence asserted.",
+      "rationale": "Critical risk task on historic security-related RLS policy metadata. Evidence must be sourced from genuine 47-file historical PostgreSQL17 replay and independent read-only hosted catalog role identity, with tamper/failure cases. Only diagnostic parity can be concluded; F6-U03f live and destructive target checks remain untouched.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -121,27 +88,26 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Derive the catalog-kind SELECT from the canonical unchanged F6-U03f object_defs query, rejecting altered query structure or SQL execution authority.",
-        "Pin independently observed read-only Fresh Install 7 object classes totaling 4621 and their per-kind count+MD5, with explicit source timestamp and project ref; never pass cloud credentials into the CI runner.",
-        "Execute original 47-file historical 0046 migration transaction in an isolated actual Docker PostgreSQL17 fixture; extract all seven local class hashes without rewriting original migrations or expected hosted fingerprint.",
-        "Report same-count-different-hash drift at class granularity, never misclassify mismatch as guard PASS, and publish a verifiable exact-head result artifact.",
-        "Negative tests reject missing/extra kind, count drift, digest tampering, invalid metadata, fake fixture success and unsafe SQL substitutions.",
-        "Keep unchanged F6-U03b unconditional RAISE EXCEPTION before either DROP, no hosted SQL write, and verify Plan Before Code + full exact-head CI/Truth/Lifecycle and genuine isolated PG17 workflow for bounded claims."
+        "Use the exact F6-U03f catalog SQL as the source for role-name-normalized policy digest, replacing only p.polroles::text with a single deterministic role-name projection; all original SQL remains byte-identical.",
+        "Verify independent hosted reference 126 policies, 124 authenticated and 2 anon, with hosted role OIDs 16485 and 16484 respectively; local OIDs must be observed rather than prescribed.",
+        "Real 47/47 source-pinned Docker PG17 replay produces raw and stable policy MD5, and an explicit fail-closed comparison identifies whether numeric OIDs alone explain the prior mismatch.",
+        "Report only bounded local policy metadata equivalence if normalized hashes match; fail on a remaining normalized mismatch without adjusting expected fingerprints.",
+        "Preserve F6-U03b abort-before-DROP and F6-U03f full strict target guard, no hosted write nor staging/Fresh project reallocation.",
+        "Run exact-head independent Docker PG17 proof, canonical CI, Security, Truth and Lifecycle before closing this scoped diagnostic."
       ],
       "invariants": [
-        "CANONICAL F6-U03f TRANSACTION_GUARD_SQL and source 47 historical migration SQL bytes are never modified.",
-        "Read-only hosted reference contains precisely seven known kinds and total of 4621 definitions; any missing, extra, invalid hash, or changed count is blocking.",
-        "Class hashes are taken from a compiled copy of existing object_defs, not a new approximation or independently redefined object census.",
-        "The only SQL execution uses GitHub-owned disposable Docker postgres:17 with verified loopback peer IP, fixed f6_u03g_fixture database and non-cloud credentials.",
-        "No per-kind or structural parity status authorizes 59-file replay, hosted schema reset, provider Auth/Storage readiness or signed-in Alap/Pro RLS.",
-        "No new Control Plane, duplicate entitlement source or network connection to other active Supabase projects."
+        "Only seven catalog object kinds are present, all unchanged original definition checks remain intact.",
+        "Original F6-U03f and original 47 migration SQL bytes are not edited, and 59-file source compiler remains hard-disabled before any DROP.",
+        "Stable policy projection sorts role names deterministically and fails on unmapped OIDs; it never guesses a role or changes RLS decision semantics.",
+        "All SQL tests are isolated, pinned to disposable PostgreSQL17 Docker peer, fixed local database and known fixture role.",
+        "Local normalized equality never certifies full hosted F6-U03f target guard, TLS identity, 59-file replay or signed-in tenant RLS."
       ],
       "forbiddenStates": [
-        "Removing or modifying FRESH_REPROVISION_HOSTED_EXECUTION_NOT_AUTHORIZED or allowing destructive hosted SQL.",
-        "An all-green or TRUE parity claim when one of seven class digests differs, even with all counts correct.",
-        "Embedding a hosted project credential or connecting a test runner to Supabase.",
-        "Substituting synthetic SQL for genuine 47-file historical replay to mask a fingerprint mismatch.",
-        "Crediting local PostgreSQL fixture provider event-trigger/Storage/Auth semantics as real Supabase proof."
+        "Changing p.polroles::text in the canonical live guard or silently accepting a changed raw schema fingerprint.",
+        "Reporting POLICY_OID_ONLY based on matching counts or a fabricated/synthetic no-replay fixture.",
+        "Treating a missing/unknown role as PUBLIC or permissive role without fail-closed flag.",
+        "Connecting to hosted Supabase for SQL execution via CI environment or applying a destructive schema reset.",
+        "Promoting fixture to genuine Auth/Storage/event trigger and Alap/Pro runtime proof."
       ]
     },
     "model": {
@@ -173,42 +139,42 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Object counts equal 4621 but individual definitions differ in one category and are marked equivalent.",
-        "Query extractor strips canonical WHERE clauses or rebuilds query from an unverified SQL fragment.",
-        "CI checkout is on a different source revision from the pinned historical migration inputs.",
-        "A local libpq redirect points the PostgreSQL client at a real Supabase connection.",
-        "An absent category or extra category is ignored by a set-like comparison.",
-        "A failed replay gets reported as a successful fingerprint diagnosis.",
-        "Execution path deletes a schema despite F6-U03b hard stop remaining a higher-priority prerequisite."
+        "Role OIDs differ as expected but policy expression text differs too, leading to a false normalized pass.",
+        "Naive substitution changes original object catalog UNION or sorts roles nondeterministically.",
+        "A role OID has no corresponding pg_roles row and COALESCE incorrectly maps it to PUBLIC.",
+        "CI local libpq environment points to an external hosted PostgreSQL target.",
+        "Source history drifts from canonical 0046 and the replay silently bypasses failed SQL.",
+        "Normalizing policy roles is incorrectly used to weaken the production target guard."
       ],
       "edgeCases": [
-        "All seven counts match but a single function definition MD5 differs.",
-        "One class has count=0 or is missing from JSON; reject before comparison.",
-        "One unexpected kind appears even if the aggregate remains 4621.",
-        "Normalized definition output may vary across roles/versions; report class differences rather than auto-adjusting expectations.",
-        "Historical 0026 has two distinct SQL files; 0001–0046 means exactly 47 source blobs.",
-        "Fixture DB name differs from hosted postgres; keep full unchanged F6-U03f target check blocked.",
-        "JSON hashes are uppercase/shortened/wrong type; do not accept them."
+        "All 126 policy names exist, but one expression or USING clause is changed.",
+        "authenticated/anon role OIDs are equal across environments but named-role hashes still differ.",
+        "pg_policy contains a PUBLIC marker OID 0 alongside authenticated role; preserve PUBLIC marker deterministically.",
+        "Role-order variations generate different polroles arrays but equal semantic role membership; deterministic normalization makes names comparable.",
+        "One unresolvable nonzero OID cannot be mapped to a role name and must be flagged.",
+        "Local database has PG17 and exact object count, but provider-managed Auth is only stubbed.",
+        "Local migration 0026 appears twice under different names and both must be verified.",
+        "Raw catalog MD5 remains blocked due to OID even when stable policy digest matches."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-U03G-CLASS-DIFF",
-        "summary": "Reuse unchanged canonical 4621-object object_defs query and calculate per-kind counts/hashes from real isolated historical replay, compared to read-only observed pinned target.",
+        "id": "ALT-U03H-CANONICAL-DERIVED",
+        "summary": "Derive role-name-normalized per-policy SQL from existing F6-U03f catalog source and execute on genuine 0046 temporary PostgreSQL17, compared to independently read-only hosted reference.",
         "disposition": "selected",
-        "reason": "Localizes the actual drift without relaxing any SQL guard or touching Supabase."
+        "reason": "Preserves production fail-closed raw fingerprint while isolating environmental OID serialization from semantic policy contents."
       },
       {
-        "id": "ALT-U03G-PATCH-MD5",
-        "summary": "Change expected hosted MD5 or ignore differences on the original guard to make the fixture green.",
+        "id": "ALT-U03H-PATCH-HOSTED",
+        "summary": "Replace strict F6-U03f live raw fingerprint with a role-name-normalized catalog hash so isolated PostgreSQL test passes.",
         "disposition": "rejected",
-        "reason": "Would incorrectly bypass real schema drift and violate fail-closed integrity."
+        "reason": "Would weaken production schema drift detection and conflate provider-specific security authority with local fixture semantics."
       },
       {
-        "id": "ALT-U03G-HOSTED-LOCK",
-        "summary": "Run full ACCESS EXCLUSIVE guard or 59 migrations directly on occupied Fresh Install.",
+        "id": "ALT-U03H-FORCE-OIDS",
+        "summary": "Create roles with the exact hosted OID numbers inside Docker, or edit pg_catalog so replay fingerprint matches by force.",
         "disposition": "rejected",
-        "reason": "No independently proven TLS/managed quiescence/external provider acceptance; destructive action explicitly prohibited."
+        "reason": "Not a portable proof and would fabricate the environmental identity that the diagnostic is meant to distinguish."
       }
     ],
     "specialistReviews": [
@@ -216,10 +182,10 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Copying hosted catalog signatures to CI could silently be treated as execution identity proof.",
-        "resolution": "Hosted evidence is read-only seven aggregate hashes only; driver uses pinned Docker PG17 and no Supabase env/secrets; results explicitly say no hosted transaction.",
+        "finding": "A matching normalized policy digest could be misreported as the full hosted transaction guard accepting a local source replay.",
+        "resolution": "Keep the canonical guard unchanged and require explicit local-only scope flags; tested normalized equality cannot authorize live execution or credential use.",
         "evidence": [
-          "scripts/shoperation-f6-u03g-catalog-drift.mjs",
+          "scripts/shoperation-f6-u03h-policy-role-parity.mjs",
           ".github/workflows/f6-u03g-catalog-drift-proof.yml"
         ]
       },
@@ -227,120 +193,121 @@
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Grouping catalog results with a different SQL definition might hide differences.",
-        "resolution": "Extract the existing literal SQL from F6-U03f guard and replace only the exact terminal SELECT; test query identity and original MD5 remains intact.",
+        "finding": "pg_policy.polroles stores role OIDs which are database-local metadata; names are resolved using pg_roles but missing entries can invalidate certainty.",
+        "resolution": "Use sorted role-name projection with unknown-role sentinel, fail if unknown role appears, verify individual role OID summaries at both ends.",
         "evidence": [
-          "scripts/shoperation-f6-u03g-catalog-drift.mjs",
-          "tests/shoperation-f6-u03g-catalog-drift.test.ts"
-        ]
-      },
-      {
-        "role": "Release",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "The historical 47-file proof does not imply later 0047–0058 or provider behavior.",
-        "resolution": "Emit distinct local-only report, full raw hash parity remains BLOCKED, no live release or RLS claims.",
-        "evidence": [
-          "docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md"
+          "tests/shoperation-f6-u03h-policy-role-parity.test.ts"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "New ad hoc schema compare could become a second release authority.",
-        "resolution": "Keep existing Development Guard, Plan Before Code, canonical CI/Truth/Lifecycle sole decision authority; helper reports diagnostics only.",
+        "finding": "A generated diagnostic query can drift from the actual full canonical object_defs SQL during refactoring.",
+        "resolution": "Extract source from compileCatalogQueries().original and replace only the unique exact role OID textual fragment; unit test canonical query digest and no mutation.",
         "evidence": [
-          ".github/workflows/f6-u03g-catalog-plan-capture.yml"
+          "scripts/shoperation-f6-u03g-catalog-drift.mjs",
+          "tests/shoperation-f6-u03h-policy-role-parity.test.ts"
+        ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "One genuine local PG17 transaction alone does not prove provider-managed Supabase Auth, Storage, TLS host or newly added 0047-0058 SQL.",
+        "resolution": "Keep owner-specific release gates and Fresh Install hosted reset BLOCKED; publish CI results only for 0046 policy role identity diagnostic.",
+        "evidence": [
+          "docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-CATALOG-01",
-        "scenario": "All object counts match but one object's source is different.",
-        "finding": "The existing overall MD5 differs despite matching 4621 object count.",
-        "resolution": "Compare seven per-kind immutable hashes, verdict fails closed by exact hash.",
+        "id": "CH-U03H-01",
+        "scenario": "Same policy count and role distribution but a predicate changes from tenant-private to overly permissive.",
+        "finding": "Count-only check may silently pass despite a security-relevant policy expression modification.",
+        "resolution": "Compare complete canonical policy definition text with exactly the OID serialization replaced; require matching MD5.",
         "status": "resolved"
       },
       {
-        "id": "CH-CATALOG-02",
-        "scenario": "Generated SQL re-implements original object_defs and omits object class.",
-        "finding": "A new object census may generate false matches.",
-        "resolution": "Derive from original F6-U03f catalog SELECT and allow only strict terminal aggregate replacement.",
+        "id": "CH-U03H-02",
+        "scenario": "Unknown nonzero role OID is normalized to a default or PUBLIC role.",
+        "finding": "Unmapped principals can be misclassified and conceal a real security policy drift.",
+        "resolution": "The derived query emits a sentinel and the proof rejects any unmapped role OID before evaluating parity.",
         "status": "resolved"
       },
       {
-        "id": "CH-CATALOG-03",
-        "scenario": "CI accidentally uses hosted PostgreSQL connection.",
-        "finding": "Inherited libpq selectors could redirect psql.",
-        "resolution": "Ephemeral docker-only job, fixed local DB, role, peer IP, PG17; no Supabase secrets.",
+        "id": "CH-U03H-03",
+        "scenario": "Local migration fixture passes without executing all 47 unchanged historical files.",
+        "finding": "Synthetic table counts cannot attest application policy SQL parity.",
+        "resolution": "Assert every historical Git blob against canonical hosted source, then transactionally apply all 47 files in Docker PG17.",
         "status": "resolved"
       },
       {
-        "id": "CH-CATALOG-04",
-        "scenario": "Failure in one of 47 migration sources is silently ignored.",
-        "finding": "A partial fixture has meaningless fingerprints.",
-        "resolution": "psql ON_ERROR_STOP=1 atomic COMMIT required before category queries; any failure blocks.",
+        "id": "CH-U03H-04",
+        "scenario": "The helper edits the production F6-U03f policy hash definition rather than a diagnostic SELECT.",
+        "finding": "A false-positive full-guard result may pass even when the true target changed.",
+        "resolution": "Derive only one separate read-only query from canonical SQL and test strict guard SHA/no code modification.",
         "status": "resolved"
       },
       {
-        "id": "CH-CATALOG-05",
-        "scenario": "Local catalog mismatch is rebranded as a full successful 59-file replay.",
-        "finding": "Local fixture has provider shims not genuine services.",
-        "resolution": "Emit blocked Hosted/59/RLS booleans and independent sample names.",
+        "id": "CH-U03H-05",
+        "scenario": "Role order changes in arrays across database clusters but membership remains the same.",
+        "finding": "Direct string comparison can fail on ordering despite equivalent role membership.",
+        "resolution": "Resolve and sort role names as a multiset with explicit deterministic separators; never drop duplicates silently.",
         "status": "resolved"
       },
       {
-        "id": "CH-CATALOG-06",
-        "scenario": "Local PostgreSQL category totals sum to 4621 but class membership differs from hosted reference.",
-        "finding": "Aggregated object count alone cannot discriminate an unexpected additional class replacing a missing expected class.",
-        "resolution": "Require exactly all seven known object kinds without duplicates, missing values or additions before comparing group digests.",
+        "id": "CH-U03H-06",
+        "scenario": "Fresh Install reference MD5 changes after historical snapshot read and local fixture still marks a current pass.",
+        "finding": "Snapshot mismatch does not establish live state freshness or connection identity.",
+        "resolution": "Label reference date/project; require separate live target confirmation for any later action; never claim deploy READY.",
         "status": "resolved"
       },
       {
-        "id": "CH-CATALOG-07",
-        "scenario": "Expected class record contains a valid format digest but is silently substituted with fixture-derived values.",
-        "finding": "A fixture-produced reference can self-attest equivalence and mask genuine schema drift without any external comparison.",
-        "resolution": "Use only seven independently observed read-only Fresh Install group digests committed as immutable static expected metadata.",
+        "id": "CH-U03H-07",
+        "scenario": "PGHOSTADDR or DATABASE_URL leaks into CI, redirecting fixture replay away from Docker.",
+        "finding": "A destructive historical script could act on the wrong cluster if peer selection is not pinned.",
+        "resolution": "Preserve hard-coded Docker loopback/role/DB and inspect container-reported IP before any replay.",
         "status": "resolved"
       },
       {
-        "id": "CH-CATALOG-08",
-        "scenario": "A per-kind MD5 summary is interpreted as proof that restored provider-managed triggers and tenant RLS work.",
-        "finding": "Group hashing does not exercise Auth lifecycle callbacks, role grants, service storage or authenticated tenant data paths.",
-        "resolution": "Explicitly restrict evidence to historical fixture diagnostics and keep all hosted provider and signed-in RLS requirements BLOCKED.",
+        "id": "CH-U03H-08",
+        "scenario": "A normalized policy match is interpreted as successful authenticated tenant RLS.",
+        "finding": "Metadata hash equality cannot test JWT, session claims, role grants, provider triggers and tenant scope.",
+        "resolution": "Keep provider semantics and signed-in Alap/Pro RLS as explicit unresolved blockers despite local diagnostic PASS.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Canonical Development Guard (DEV-90EB737A) PASS; review full guard/Known Failures and Plan Before Code before implementation.",
-      "Unit tests for deriving exact query SQL from TRANSACTION_GUARD_SQL, verifying F6-U03f original source remains unchanged.",
-      "Unit tests of the seven immutable reference groups and fail-closed mismatch/missing/extra metadata with 4621 count.",
-      "Run actual original 47 historical SQL files in isolated postgres:17, prove local endpoint identity, execute grouped SQL, record all classes and accurate drift verdict.",
-      "Confirm original offline 59-file compiled REVIEW abort remains before all DROP and hosted credentials absent.",
-      "Full exact-head Quality Tests, TypeScript, build, Security Audit, Completion Truth and Lifecycle plus isolated PostgreSQL17 run."
+      "Run canonical guard with 21 applicable Known Failures, critically review negative-knowledge; Plan Before Code must PASS on exact branch before first implementation edit.",
+      "Unit-test derivation from immutable F6-U03f catalog SQL and no mutation of policy/guard roles; reject unsafe role OIDs and query drift.",
+      "Run exact 47 original historic files on isolated actual Docker PostgreSQL17 with peer identity and source blob checks.",
+      "Compute hosted and local raw and role-name stable policy hashes; match actual named-role digest e5dc03a08c272c6b993b45306c5f664d, role distributions and 126 count.",
+      "Adversarial fixtures mutate expression, role identity and count to prove fail-closed differentiation.",
+      "Check original 59-file compiler abort-before-DROP and report hosted/59/authenticated-RLS false.",
+      "Run full exact-head CI, Security Audit, Completion Truth, Lifecycle; no merge of stacked drafts until dependencies reconcile."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/pull/1332",
+      "request": "https://github.com/infowaterk-max/water-K-/pull/1335",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03g-catalog-plan-capture.yml"
+        ".github/workflows/f6-u03g-catalog-drift-proof.yml",
+        ".github/workflows/f6-u03h-plan-capture.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        ".github/workflows/f6-u03g-catalog-drift-proof.yml",
-        "docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md",
-        "scripts/shoperation-f6-u03g-catalog-drift.mjs",
-        "tests/shoperation-f6-u03g-catalog-drift.test.ts"
+        "docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md",
+        "scripts/shoperation-f6-u03h-policy-role-parity.mjs",
+        "tests/shoperation-f6-u03h-policy-role-parity.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-f6-u03g-catalog-drift.test.ts",
+        "tests/shoperation-f6-u03h-policy-role-parity.test.ts",
         ".github/workflows/f6-u03g-catalog-drift-proof.yml"
       ],
       "unknown": [],
@@ -352,16 +319,16 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          ".github/workflows/f6-u03g-catalog-plan-capture.yml",
+          ".github/workflows/f6-u03g-catalog-drift-proof.yml",
+          ".github/workflows/f6-u03h-plan-capture.yml",
           "quality/development/active-plan.json"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          ".github/workflows/f6-u03g-catalog-drift-proof.yml",
-          "docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md",
-          "scripts/shoperation-f6-u03g-catalog-drift.mjs",
-          "tests/shoperation-f6-u03g-catalog-drift.test.ts"
+          "docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md",
+          "scripts/shoperation-f6-u03h-policy-role-parity.mjs",
+          "tests/shoperation-f6-u03h-policy-role-parity.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -400,13 +367,13 @@
             "points": 2
           },
           {
-            "file": ".github/workflows/f6-u03g-catalog-plan-capture.yml",
+            "file": ".github/workflows/f6-u03h-plan-capture.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md",
+            "file": "docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -418,13 +385,13 @@
             "points": 0
           },
           {
-            "file": "scripts/shoperation-f6-u03g-catalog-drift.mjs",
+            "file": "scripts/shoperation-f6-u03h-policy-role-parity.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/shoperation-f6-u03g-catalog-drift.test.ts",
+            "file": "tests/shoperation-f6-u03h-policy-role-parity.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -463,13 +430,13 @@
               "points": 2
             },
             {
-              "file": ".github/workflows/f6-u03g-catalog-plan-capture.yml",
+              "file": ".github/workflows/f6-u03h-plan-capture.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md",
+              "file": "docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -481,13 +448,13 @@
               "points": 0
             },
             {
-              "file": "scripts/shoperation-f6-u03g-catalog-drift.mjs",
+              "file": "scripts/shoperation-f6-u03h-policy-role-parity.mjs",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/shoperation-f6-u03g-catalog-drift.test.ts",
+              "file": "tests/shoperation-f6-u03h-policy-role-parity.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -532,7 +499,7 @@
           {
             "id": 1,
             "files": [
-              ".github/workflows/f6-u03g-catalog-plan-capture.yml"
+              ".github/workflows/f6-u03h-plan-capture.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -549,7 +516,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03g-catalog-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03h-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -562,7 +529,7 @@
           {
             "id": 2,
             "files": [
-              "docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md"
+              "docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -573,7 +540,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -610,7 +577,7 @@
           {
             "id": 4,
             "files": [
-              "scripts/shoperation-f6-u03g-catalog-drift.mjs"
+              "scripts/shoperation-f6-u03h-policy-role-parity.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -627,7 +594,7 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-f6-u03g-catalog-drift.mjs",
+                  "file": "scripts/shoperation-f6-u03h-policy-role-parity.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -640,7 +607,7 @@
           {
             "id": 5,
             "files": [
-              "tests/shoperation-f6-u03g-catalog-drift.test.ts"
+              "tests/shoperation-f6-u03h-policy-role-parity.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -651,7 +618,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-f6-u03g-catalog-drift.test.ts",
+                  "file": "tests/shoperation-f6-u03h-policy-role-parity.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -668,40 +635,40 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1332",
-              "developmentBaseSha": "f1414318bd4a6705159577c59c1ac21f8048ffec"
+              "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1335",
+              "developmentBaseSha": "54127f23b17c010a481a46ca675cddec9d1462ae"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "f1414318bd4a6705159577c59c1ac21f8048ffec",
+            "targetBaseSha": "54127f23b17c010a481a46ca675cddec9d1462ae",
             "lease": {
-              "expectedBaseSha": "f1414318bd4a6705159577c59c1ac21f8048ffec",
+              "expectedBaseSha": "54127f23b17c010a481a46ca675cddec9d1462ae",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               ".github/workflows/f6-u03g-catalog-drift-proof.yml",
-              ".github/workflows/f6-u03g-catalog-plan-capture.yml",
-              "docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md",
+              ".github/workflows/f6-u03h-plan-capture.yml",
+              "docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md",
               "quality/development/active-plan.json",
-              "scripts/shoperation-f6-u03g-catalog-drift.mjs",
-              "tests/shoperation-f6-u03g-catalog-drift.test.ts"
+              "scripts/shoperation-f6-u03h-policy-role-parity.mjs",
+              "tests/shoperation-f6-u03h-policy-role-parity.test.ts"
             ],
             "operations": [
               {
-                "operation": "create",
+                "operation": "modify",
                 "file": ".github/workflows/f6-u03g-catalog-drift-proof.yml",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": ".github/workflows/f6-u03g-catalog-plan-capture.yml",
+                "file": ".github/workflows/f6-u03h-plan-capture.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md",
+                "file": "docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md",
                 "generated": null
               },
               {
@@ -711,12 +678,12 @@
               },
               {
                 "operation": "create",
-                "file": "scripts/shoperation-f6-u03g-catalog-drift.mjs",
+                "file": "scripts/shoperation-f6-u03h-policy-role-parity.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/shoperation-f6-u03g-catalog-drift.test.ts",
+                "file": "tests/shoperation-f6-u03h-policy-role-parity.test.ts",
                 "generated": null
               }
             ],
@@ -755,13 +722,13 @@
                   "points": 2
                 },
                 {
-                  "file": ".github/workflows/f6-u03g-catalog-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03h-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -773,13 +740,13 @@
                   "points": 0
                 },
                 {
-                  "file": "scripts/shoperation-f6-u03g-catalog-drift.mjs",
+                  "file": "scripts/shoperation-f6-u03h-policy-role-parity.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/shoperation-f6-u03g-catalog-drift.test.ts",
+                  "file": "tests/shoperation-f6-u03h-policy-role-parity.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -812,7 +779,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-f6-u03g-catalog-drift.test.ts"
+                "tests/shoperation-f6-u03h-policy-role-parity.test.ts"
               ],
               "externalGateIds": []
             },
@@ -824,11 +791,11 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 ".github/workflows/f6-u03g-catalog-drift-proof.yml",
-                ".github/workflows/f6-u03g-catalog-plan-capture.yml",
-                "docs/po/CORE_1186_F6_U03G_CATALOG_DRIFT_2026-10-15.md",
+                ".github/workflows/f6-u03h-plan-capture.yml",
+                "docs/po/CORE_1186_F6_U03H_POLICY_OID_PARITY_2026-10-15.md",
                 "quality/development/active-plan.json",
-                "scripts/shoperation-f6-u03g-catalog-drift.mjs",
-                "tests/shoperation-f6-u03g-catalog-drift.test.ts"
+                "scripts/shoperation-f6-u03h-policy-role-parity.mjs",
+                "tests/shoperation-f6-u03h-policy-role-parity.test.ts"
               ],
               "filesAbsent": []
             },
@@ -843,7 +810,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "48e495b3",
+            "manifestDigest": "ef24824a",
             "decision": "PASS"
           }
         ],
@@ -885,33 +852,35 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "A genuine isolated PostgreSQL17 replay of the original 47-file 0046 schema creates the same 4621 application object count as Fresh Install, yet the exact raw MD5 differs; the absence of class-level evidence prevents identifying whether indexes, RLS, functions, columns or triggers are responsible while the fail-closed F6-U03f guard must remain unchanged.",
+    "problemStatement": "The genuine 47-file historical PostgreSQL17 replay reconstructs 4621 canonical catalog objects; only the 126 RLS-policy definitions differ from the real Fresh Install host, even though table counts and six other object-kind hashes match. The canonical F6-U03f raw policy catalog uses p.polroles::text, which includes cluster-dependent role OIDs, but actual divergence may include policy expression changes. We need isolated evidence separating OID serialization from real security policy differences.",
     "observableOutcomes": [
-      "An exact canonical object_defs-derived query computes seven named category counts and MD5 digests from the original historical PostgreSQL17 database.",
-      "The independently observed hosted seven-group signatures are checked against actual local PostgreSQL17 output with explicit per-category mismatched names and zero false green.",
-      "Independent negative tests and exact-head CI prove incomplete records and forged hashes are rejected while every hosted reset and 59-file completion claim remains false."
+      "An immutable query derived from the unchanged canonical F6-U03f object_defs source computes both raw and role-name-normalized per-policy fingerprints with explicit 126-policy count.",
+      "A real isolated Docker PostgreSQL17 replay executes all 47 source-authentic migrations, displays local anon/authenticated role OIDs and tests role-name-normalized MD5 against independently observed Fresh Install reference e5dc03a08c272c6b993b45306c5f664d.",
+      "A passing diagnostic distinguishes raw OID differences from actual SQL-expression or role membership differences and never authorizes a hosted reset or a full guard PASS.",
+      "Negative unit/CI cases fail on missing names, unknown policy roles, 125/127 policy counts, altered role mappings, changed policy expressions or fake local-run success.",
+      "Exact-head Plan Before Code, Development Guard, Edit-Time Guard, Resumable Replay, all Quality tests, TS, production build, Truth Gate and Lifecycle are checked."
     ],
     "unresolvedRisks": [
-      "Provider-managed Auth, Storage and event triggers differ from temporary local stand-ins and remain unproven for live migrations.",
-      "PostgreSQL's stored definition serialization or role characteristics can change MD5 values despite matching object counts; diagnosis must not normalize the canonical guard.",
-      "The original 0047-0058 SQL and signed-in Alap/Pro cross-tenant RLS have not been executed on any complete Fresh Install target."
+      "Role names may differ across environments in addition to numeric OIDs; an identical normalized digest must only support a bounded diagnostic inference.",
+      "Provider-managed Auth, Storage, event triggers, ACL and libpq/TLS target identity cannot be established by a disposable Docker Postgres replay.",
+      "No evidence yet proves that 59 historical+new Office SQL migrations can be safely applied to the hosted Fresh Install schema or tenant-authenticated access paths."
     ],
     "scope": {
       "in": [
-        "Build immutable seven-category count and hash diagnostics from the original F6-U03f 4621-definition SQL and the read-only hosted snapshot.",
-        "Execute original 47 historical 0046 SQL files in an isolated real Docker PostgreSQL17 service and report per-kind catalog comparisons.",
-        "Fail-closed negative tests, existing canonical Dev Guard, Plan Before Code, full CI/Truth/Lifecycle and exact-head fixture proof."
+        "Source-authentic local 0001-0046 replay and role-name-normalized RLS-policy catalog calculation derived from unchanged F6-U03f SQL.",
+        "Read-only Fresh Install reference observation and isolated PostgreSQL17 comparison with adverse role, digest and count tests.",
+        "Existing canonical plan, edit-time, knowledge, CI, Truth and Lifecycle gates for proof-only unit."
       ],
       "out": [
-        "No executing any hosted SQL, modifying Supabase project settings, connecting to platform/staging or exposing live credentials.",
-        "No editing application migration SQL or weakening or removing F6-U03b abort-before-DROP and original F6-U03f guard.",
-        "No claiming complete 59-file migrations, real Supabase Auth/Storage/PostgREST acceptance or signed-in Alap/Pro RLS."
+        "Never alter canonical transaction guard, baseline migration SQL, Supabase projects, staging status or production database policies.",
+        "Never rewrite or normalize the security-relevant production fingerprint in a way that bypasses guards.",
+        "No live 59-file migration, schema DROP, external provider positive proof, or customer-logged-in Alap/Pro/RLS acceptance."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1332",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1335",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -930,16 +899,16 @@
     },
     "requirements": [
       {
-        "id": "REQ-CATALOG-SOURCE",
-        "requirement": "Use only canonical object_defs, exact unchanged 47 historical SQL sources and seven read-only hosted baseline group digests.",
+        "id": "REQ-U03H-SOURCE",
+        "requirement": "Derive role-name-normalized policy query only from unchanged F6-U03f object_defs and pin authentic 47-file historical replay.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "historical-0046-drift-diagnostics",
+          "breadth": "historical-0046-policy-proof",
           "strength": 2,
           "dimensions": [
             "tests",
-            "regression",
-            "scope"
+            "scope",
+            "regression"
           ]
         },
         "requiredCapabilities": [
@@ -955,8 +924,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-CATALOG-REWRITE",
-            "statement": "Original F6-U03f guard or historical migration SQL is weakened or rewritten.",
+            "id": "NEG-U03H-GUARD",
+            "statement": "Canonical F6-U03f guard or review-only hosted SQL is modified for easier fixture success.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -964,11 +933,11 @@
         ]
       },
       {
-        "id": "REQ-CATALOG-FAILCLOSED",
-        "requirement": "Real local PG17 47-file replay and seven-class catalog comparison report exact mismatched kinds without false PASS.",
+        "id": "REQ-U03H-PARITY",
+        "requirement": "Real Docker PostgreSQL17 replay validates 126 policies, local role OIDs, normalized role-name hash against read-only hosted baseline; falsification tests prevent false PASS.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "real-local-pg17-class-diff",
+          "breadth": "local-role-oid-parity-diagnostic",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -989,8 +958,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-CATALOG-FAKE",
-            "statement": "Fixture PASS issued on mismatched hash, count or absent real PostgreSQL run.",
+            "id": "NEG-U03H-FAKE",
+            "statement": "Policy equivalence is claimed despite missing genuine PostgreSQL 47-file replay, altered SQL or mismatched normalized hash.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -998,16 +967,16 @@
         ]
       },
       {
-        "id": "REQ-CATALOG-BOUNDARY",
-        "requirement": "Never use diagnostic signatures to authorize hosted 59 migrations, Supabase resets or Alap/Pro tenant acceptance.",
+        "id": "REQ-U03H-LIMIT",
+        "requirement": "Full F6-U03f strict target, hosted migrations, provider Auth/Storage and signed-in Alap/Pro RLS remain separately blocked without provider proof.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "source-and-fixture-only",
+          "breadth": "no-hosted-execution",
           "strength": 2,
           "dimensions": [
             "scope",
-            "forbidden-state",
-            "plan"
+            "plan",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -1023,8 +992,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-CATALOG-HOSTED",
-            "statement": "A hosted SQL or RLS success claim is made without execution.",
+            "id": "NEG-U03H-LIVE",
+            "statement": "A local policy digest normalization becomes authorizing evidence for hosted reset.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1033,14 +1002,14 @@
       }
     ]
   },
-  "notes": "Scope-limited per-class diagnostics for genuine 0046 PostgreSQL17 replica, not full hosted F6 transaction. Independently observed read-only Fresh Install 2026-10-15 group counts 1981+1161+380+615+126+250+108=4621; retain historical canonical raw MD5 e312b40ad91150ce937f4aa00db587f3 unchanged. Guard DEV-90EB737A risk 4/5, 45 applicable known failures. Specialist reviews are challenge-model analysis, not external signoffs. Hosted reset remains blocked. Exact-head CI found the original generated semantic MUST_EDIT route incorrectly included quality/development/active-plan.json (a canonical metadata file excluded from material code diff); the committed plan itself remains included in plannedFilePatterns and is checked by Plan Before Code, but Implementation Sync must require actual material code/workflow changes, not metadata.",
+  "notes": "Critical plan DEV-074C4B63, 21 applicable Known Failures, risk 4/5; project hosted reference observed read-only 2026-10-15: anon oid 16484 (2 policy), authenticated oid 16485 (124 policies), role-name policy fingerprint e5dc03a08c272c6b993b45306c5f664d. This is local portability analysis, no hosted transactions. Reviews model engineering challenges, not external human approvals. Closing metadata reconstructed explicitly from CI #38796183468 Completion Truth VERIFIED_DONE (pass=9, no stale/missing) and Lifecycle candidate-emitted at cf07aa5e2a344112b228a1f7f5adf72a8592cc53; original CI-emitted active-plan.closed.json was NOT downloadable in the uploaded artifact. The next exact-head CI is authoritative for persisted closure PASS; no byte-identical provenance assertion.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "a2a8bf9ddbfa755e2979a4f984a4669fd0451705",
-    "closedAt": "2026-10-15T19:21:55.788Z",
+    "verifiedImplementationHead": "cf07aa5e2a344112b228a1f7f5adf72a8592cc53",
+    "closedAt": "2026-10-15T19:48:43.871Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1332",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1335",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
