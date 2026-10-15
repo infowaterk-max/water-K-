@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-B55A7A31-F6-U01",
   "task": "Core #1186 U10A2-F6-U01: source-only corrected Alap customer/Pro internal Office SQL and immutable baseline 0058, no quality-infrastructure changes",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "a2c0620b",
   "changeBaseSha": "61d6080d43dad9455eae9ccc5874681b2bddb117",
   "plannedFilePatterns": [
@@ -784,5 +784,18 @@
       }
     ]
   },
-  "notes": "F6 stacked on exact green F5 draft #1301 head 61d6080d. New canonical v2 forward-only source replacing unsafe immutable 20261010093000 strict Pro v1 authority. Alap customer Office still supported; Team Chat and advanced Pro; source-only and metadata-only proofs do not authorize live database action. Safety Release Risk decomposition required: F6-U01 database-schema changes only (<=5 points); U02 quality-infrastructure script/checker changes separate; no overlap of high-risk subsystem. U01 projection expanded to include only the existing Office test's ordered customer migration-count fixture (59), not its readiness implementation; U02 owns script policy/evaluator changes."
+  "notes": "F6 stacked on exact green F5 draft #1301 head 61d6080d. New canonical v2 forward-only source replacing unsafe immutable 20261010093000 strict Pro v1 authority. Alap customer Office still supported; Team Chat and advanced Pro; source-only and metadata-only proofs do not authorize live database action. Safety Release Risk decomposition required: F6-U01 database-schema changes only (<=5 points); U02 quality-infrastructure script/checker changes separate; no overlap of high-risk subsystem. U01 projection expanded to include only the existing Office test's ordered customer migration-count fixture (59), not its readiness implementation; U02 owns script policy/evaluator changes.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "1a36bac5a874f59ffd5f63c133e8150fe8d04437",
+    "closedAt": "2026-10-15T05:21:08.497Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
