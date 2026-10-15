@@ -12,7 +12,7 @@ import {compileAtomicReview} from './shoperation-fresh-disposable-reprovision.mj
 // compiler. No Supabase credential, target URL, schema reset or cloud connection.
 export const SCOPE='LOCAL_PG17_TRANSLATED_GUARD_POSITIVE_ONLY';
 export const HOSTED_EXECUTION_ENABLED=false;
-export const FIXTURE_DB='f6_u03g_fixture';
+export const FIXTURE_DB='postgres';
 export const FIXTURE_PASSWORD='f6-u03g-disposable-only';
 export const FIXTURE_SOURCE_SHA256=createHash('sha256').update(TRANSACTION_GUARD_SQL).digest('hex');
 const fail=x=>{throw new Error(x);};
@@ -142,7 +142,7 @@ function psql(sql,env,{shouldFail=false,expectedError}={}){
 }
 function observations(env){
  const snapshot=JSON.parse(psql(READ_ONLY_SQL,env).stdout);
- if(snapshot.database!=='f6_u03g_fixture'||snapshot.dbRole!=='postgres'||snapshot.serverMajor!==17
+ if(snapshot.database!=='postgres'||snapshot.dbRole!=='postgres'||snapshot.serverMajor!==17
   ||snapshot.publicTables!==175||snapshot.privateTables!==2
   ||snapshot.externalDependencies?.length!==1||
   snapshot.externalDependencies[0].dependent!=='trigger on_auth_user_created on table auth.users'
