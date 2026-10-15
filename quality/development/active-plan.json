@@ -12,7 +12,9 @@
     "tests/customer-baseline-office-plan-scoped-rls.test.ts",
     "tests/customer-baseline-office-privacy-prerequisites.test.ts",
     "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
-    "tests/customer-baseline-communication-hub-prerequisites.test.ts"
+    "tests/customer-baseline-communication-hub-prerequisites.test.ts",
+    "scripts/shoperation-office-db-stage-rehearsal.mjs",
+    "tests/shoperation-office-db-stage-rehearsal.test.ts"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -95,7 +97,8 @@
         "Reject old blanket Pro restrictive SELECT policies, missing per-type restrictive plan-scoped v2 policies, broad ALL policies, unguarded PERMISSIVE OR policies, unsigned per-actor helper exposure and SQL function definitions with global Pro checks ahead of customer branch.",
         "Require signed-in user current-user-bound thread/task helper definitions, Alap officeCommunication/customer-support branch and subscription Pro cap for Team Chat; only METADATA_CANDIDATE_ONLY review, never authoritative, even with valid snapshot.",
         "Update current and negative existing test fixtures to reflect 3 superseded sources and static source-present-but-unproven 59 customer SQL files; disallow false hosted RLS or Fresh Install claim.",
-        "No SQL write, Supabase activation, Vercel or Builder work and no modification to F6-U01 SQL source/manifest."
+        "No SQL write, Supabase activation, Vercel or Builder work and no modification to F6-U01 SQL source/manifest.",
+        "Synchronize downstream staging-role rehearsal script and fixture with corrected Alap customer allowed / Alap internal denied / post-downgrade private denied distinctions; add old strict-Pro v1 to forbidden replay list. No real role proof made."
       ],
       "invariants": [
         "Existing 0058 canonical SQL and SHA256 bytes are immutable after F6-U01 green.",
@@ -293,6 +296,13 @@
         "finding": "Old RLS status mistaken for current runtime posture.",
         "resolution": "Preserve time freshness/target checks, partial snapshot failure and non-authoritative result.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-U02-09",
+        "scenario": "Staging role-proof checklist still asserts alap_office_select_denied and post_downgrade_office_select_denied as global facts.",
+        "finding": "This machine consumer would falsely reject legitimate Alap customer support or incentivize restoring the blanket Pro customer denial.",
+        "resolution": "Update read-only rehearsal role-proof identifiers to narrow Alap customer allowed versus internal denied and downgraded private denied, and update its synthetic regression fixture without any SQL writes.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -315,7 +325,9 @@
         "tests/customer-baseline-office-plan-scoped-rls.test.ts",
         "tests/customer-baseline-office-privacy-prerequisites.test.ts",
         "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
-        "tests/customer-baseline-communication-hub-prerequisites.test.ts"
+        "tests/customer-baseline-communication-hub-prerequisites.test.ts",
+        "scripts/shoperation-office-db-stage-rehearsal.mjs",
+        "tests/shoperation-office-db-stage-rehearsal.test.ts"
       ],
       "mayEdit": [],
       "mustCreate": [],
@@ -329,7 +341,9 @@
         "tests/shoperation-office-db-readiness.test.ts",
         "tests/customer-baseline-office-plan-scoped-rls.test.ts",
         "CI Completion Truth",
-        "Lifecycle"
+        "Lifecycle",
+        "scripts/shoperation-office-db-stage-rehearsal.mjs",
+        "tests/shoperation-office-db-stage-rehearsal.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -694,7 +708,7 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Two read-only quality scripts still require superseded plan-split and old unsafe global Pro source, causing false-positive or impossible readiness status after F6-U01 corrected SQL. Separate U02 normalizes provenance and evidence semantics without touching customer DB. Exact critical guard projects release-infrastructure, not quality-knowledge-system, but remains isolated 2/5 points. Existing known failures for both source and Factory release proofs acknowledged; no unrelated implementation authorized.",
+    "problemStatement": "Two read-only quality scripts still require superseded plan-split and old unsafe global Pro source, causing false-positive or impossible readiness status after F6-U01 corrected SQL. Separate U02 normalizes provenance and evidence semantics without touching customer DB. Exact critical guard projects release-infrastructure, not quality-knowledge-system, but remains isolated 2/5 points. Existing known failures for both source and Factory release proofs acknowledged; no unrelated implementation authorized. Edit-Time Reference Sync detected existing staging rehearsal proof consumer and correctly BLOCKED U02 until both its script/test contracts and new role proof labels are reconciled.",
     "observableOutcomes": [
       "SOURCE_PRESENT_UNPROVEN 11/11 with 59 exact migration sources, three historical sources superseded, no hosted release claim.",
       "Read-only catalog metadata checker treats plan-scoped v2 policies/current-user SQL as minimum REVIEW and rejects historical blanket Pro, old migration identities and forged helper signatures."
@@ -804,5 +818,5 @@
       }
     ]
   },
-  "notes": "U02 follows fully green F6-U01 #1303 b430dcfe, strictly quality-infrastructure only; no SQL/manifest edits; provides 11/11 source parity and read-only snapshot minimum, but no hosted Fresh Install or user RLS behavior proof."
+  "notes": "U02 follows fully green F6-U01 #1303 b430dcfe, strictly quality-infrastructure only; no SQL/manifest edits; provides 11/11 source parity and read-only snapshot minimum, but no hosted Fresh Install or user RLS behavior proof. Development Edit-Time Guard discovered required downstream staging rehearsal consumer. Planned two additional files before editing, preserving reference and implementation sync."
 }
