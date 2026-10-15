@@ -114,9 +114,17 @@ describe('Customer e-mail Alap / Pro plan split',()=>{
 describe('Customer baseline 0046 genuine Fresh Install attestation',()=>{
   it('attests the exact successful 0046 Fresh Install proof without claiming full Digital Office closure',()=>{
     const manifest=JSON.parse(read('supabase/customer-baseline/manifest.json'));
-    expect(manifest.status).toBe('ready');
-    expect(manifest.freshInstallProofRequired).toBe(false);
-    expect(manifest.proofContractSha256).toBe('a04b0990e7cf7a0a21591b9fd81fa44d5010ca8818b7edb7f00397c6b84807bb');
+    // The historic 0046 Fresh Install remains proven, but additive 0047 must
+    // never inherit the prior READY attestation without an exact new proof.
+    if(manifest.freshInstallProofRequired){
+      expect(manifest.status).toBe('snapshot-reviewed');
+      expect(manifest.proofContractSha256).toBeNull();
+      expect(manifest.notes).toContain('0047_team_permissions_foundation_v1.sql');
+    }else{
+      expect(manifest.status).toBe('ready');
+      expect(manifest.proofContractSha256).toMatch(/^[a-f0-9]{64}$/);
+    }
+    expect(manifest.notes).toContain('a04b0990e7cf7a0a21591b9fd81fa44d5010ca8818b7edb7f00397c6b84807bb');
     expect(manifest.notes).toContain('37919705159');
     expect(manifest.notes).toContain('113806799257');
     expect(manifest.notes).toContain('0046_alap_team_chat_plan_grant_reconcile.sql');
