@@ -58,7 +58,7 @@ export function validateOccupiedTargetSnapshot(snapshot){
   if(snapshot.authTrigger!=='auth.users/on_auth_user_created/private.handle_new_user')
     fail('FRESH_REPROVISION_AUTH_TRIGGER_DRIFT');
   return Object.freeze({decision:'REVIEW_ONLY',projectRef:DISPOSABLE_FRESH_PROJECT_REF,
-    neutralRowTotal:113,appTables:177,hostedDatabaseTouched:false});
+    neutralRowTotal:113,appTables:177,catalogMd5:HISTORICAL_SCHEMA_MD5,hostedDatabaseTouched:false});
 }
 
 export function compileAtomicReview(root=process.cwd()){
