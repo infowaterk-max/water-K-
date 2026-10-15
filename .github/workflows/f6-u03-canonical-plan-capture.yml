@@ -1,9 +1,9 @@
-name: F6-U03f canonical plan capture (development-only)
-# F6-U03f captures existing Development Guard only; no database transport, DDL or hosted secret.
+name: F6-U03g canonical plan capture (development-only)
+# F6-U03g captures existing Development Guard only; no database transport, DDL or hosted secret.
 on:
   push:
     branches:
-      - feature/core-1186-f6-u03f-schema-grants-event-rehearsal
+      - feature/core-1186-f6-u03g-schema-grants-event-rehearsal
     paths:
       - .github/workflows/f6-u03-canonical-plan-capture.yml
       - quality/development/active-plan.json
@@ -29,8 +29,8 @@ jobs:
         continue-on-error: true
         run: |
           node scripts/shoperation-development-guard.mjs \
-            --task "Core #1186 F6-U03f: transaction-local target identity and locked-data/managed-dependency guard (no hosted reset)" \
-            --files "scripts/shoperation-f6-u03f-target-transaction-guard.mjs;tests/shoperation-f6-u03f-target-transaction-guard.test.ts;scripts/shoperation-fresh-disposable-reprovision.mjs;docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md;.github/workflows/f6-u03f-transaction-guard-proof.yml;.github/workflows/f6-u03-canonical-plan-capture.yml" \
+            --task "Core #1186 F6-U03g: reconstruct historical 0046 customer-baseline on isolated PostgreSQL17 and prove full transaction guard acceptance" \
+            --files "scripts/shoperation-f6-u03g-positive-fixture.mjs;tests/shoperation-f6-u03g-positive-fixture.test.ts;.github/workflows/f6-u03g-positive-fixture-proof.yml;docs/po/CORE_1186_F6_U03G_0046_POSITIVE_FIXTURE_2026-10-15.md;.github/workflows/f6-u03-canonical-plan-capture.yml" \
             --risk critical \
             --source-ref "https://github.com/infowaterk-max/water-K-/pull/1323" \
             --write-plan --check
@@ -62,7 +62,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: f6-u03f-transaction-guard-development-guard-${{ github.sha }}
+          name: f6-u03g-positive-fixture-development-guard-${{ github.sha }}
           path: |
             quality/development/active-plan.json
             artifacts/shoperation-development-guard/development-guard.json
