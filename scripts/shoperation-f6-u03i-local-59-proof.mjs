@@ -19,6 +19,16 @@ const COMPANIONS=[
 ];
 const SAFE_OUTPUT='artifacts/f6-u03i/local-59';
 
+export function boundLocalFixtureBootstrap(localDatabase){
+ if(!Object.values(LOCAL_DATABASES).includes(localDatabase))fail('F6U03I_UNAPPROVED_FIXTURE_DB');
+ const original=fixtureBootstrapSql();
+ const pinned="'f6_u03g_fixture'";
+ if(original.split(pinned).length!==2||!original.includes('F6U03G_WRONG_POSTGRES'))
+  fail('F6U03I_ORIGINAL_LOCAL_FIXTURE_GUARD_DRIFT');
+ return original.replace(pinned,"'"+localDatabase+"'");
+}
+
+
 export function composeLocalFresh59({root=process.cwd(),mode}={}){
  if(!Object.hasOwn(LOCAL_DATABASES,mode))fail('F6U03I_LOCAL_MODE_INVALID');
  const source=validateReviewedBaseline(root);
@@ -102,7 +112,8 @@ function cli(){
   fail('F6U03I_NO_HOSTED_OR_UNSCOPED_CLI');
  const good=composeLocalFresh59({mode:'commit'}),bad=composeLocalFresh59({mode:'rollback'});
  mkdirSync(out,{recursive:true});
- writeFileSync(join(out,'bootstrap.sql'),fixtureBootstrapSql());
+ writeFileSync(join(out,'bootstrap-fresh.sql'),boundLocalFixtureBootstrap(LOCAL_DATABASES.commit));
+ writeFileSync(join(out,'bootstrap-abort.sql'),boundLocalFixtureBootstrap(LOCAL_DATABASES.rollback));
  writeFileSync(join(out,'commit.sql'),good.sql);
  writeFileSync(join(out,'rollback.sql'),bad.sql);
  writeFileSync(join(out,'manifest.json'),JSON.stringify({commit:good.manifest,rollback:bad.manifest},null,2));

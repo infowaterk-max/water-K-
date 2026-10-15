@@ -92,8 +92,8 @@ jobs:
         env:
           PGPASSWORD: f6-u03i-local-only
         run: |
-          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03i/local-59/bootstrap.sql >artifacts/f6-u03i/local-59/bootstrap-fresh.log
-          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5433 -U postgres -d f6_u03i_abort -f artifacts/f6-u03i/local-59/bootstrap.sql >artifacts/f6-u03i/local-59/bootstrap-abort.log
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03i/local-59/bootstrap-fresh.sql >artifacts/f6-u03i/local-59/bootstrap-fresh.log
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5433 -U postgres -d f6_u03i_abort -f artifacts/f6-u03i/local-59/bootstrap-abort.sql >artifacts/f6-u03i/local-59/bootstrap-abort.log
       - name: Execute original target preflight plus all 59 SQL files, seed and postflight atomically
         env:
           PGPASSWORD: f6-u03i-local-only

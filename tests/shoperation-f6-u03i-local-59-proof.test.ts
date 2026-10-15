@@ -1,6 +1,6 @@
 import {describe,it,expect} from 'vitest';
 // @ts-expect-error JS source-only compiler
-import {composeLocalFresh59,validateIsolatedObservation,HOSTED_EXECUTION_ENABLED} from '../scripts/shoperation-f6-u03i-local-59-proof.mjs';
+import {composeLocalFresh59,validateIsolatedObservation,boundLocalFixtureBootstrap,HOSTED_EXECUTION_ENABLED} from '../scripts/shoperation-f6-u03i-local-59-proof.mjs';
 // @ts-expect-error JS canonical reviewer
 import {validateReviewedBaseline} from '../scripts/shoperation-disposable-fresh-replay.mjs';
 // @ts-expect-error JS canonical review
@@ -30,6 +30,15 @@ describe('F6-U03i 59-source PostgreSQL17 atomicity',()=>{
   expect(b.sql).toContain('f6_u03i_abort');
   expect(b.sql.indexOf('F6U03I_INJECTED_ABORT_BEFORE_COMMIT')).toBeLessThan(b.sql.lastIndexOf('COMMIT;'));
   expect(a.manifest.sqlSha256).not.toBe(b.manifest.sqlSha256);
+ });
+ it('binds only the unchanged isolated fixture target assertion to each local PostgreSQL service',()=>{
+  const p=boundLocalFixtureBootstrap('f6_u03i_fresh');
+  const q=boundLocalFixtureBootstrap('f6_u03i_abort');
+  expect(p).toContain("current_database()<>'f6_u03i_fresh'");
+  expect(q).toContain("current_database()<>'f6_u03i_abort'");
+  expect(p).toContain('F6U03G_WRONG_POSTGRES');
+  expect(q).toContain('F6U03G_WRONG_POSTGRES');
+  expect(()=>boundLocalFixtureBootstrap('postgres')).toThrow('F6U03I_UNAPPROVED_FIXTURE_DB');
  });
  it('fails closed on invalid requests and incomplete proof',()=>{
   expect(()=>composeLocalFresh59({mode:'other'})).toThrow('F6U03I_LOCAL_MODE_INVALID');
