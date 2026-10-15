@@ -162,7 +162,7 @@
         ]
       },
       {
-        "role": "Database",
+        "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
         "finding": "Historical fixed-list source functions overwrite the actual Block 11 normalized plan sync.",
@@ -240,16 +240,16 @@
       },
       {
         "id": "CH-F2-07",
-        "scenario": "All sources present",
-        "finding": "Source matching cannot prove live RLS.",
-        "resolution": "Return only SOURCE_PRESENT_UNPROVEN / realDatabaseProof NOT_EVALUATED.",
+        "scenario": "All remaining eleven active Office SQL source bodies match their declared SHA256 provenance and migration sequence.",
+        "finding": "An entirely source-matching customer baseline can still lack a successful empty-target schema replay, participant privacy behavior, authenticated grants and service-RPC checks.",
+        "resolution": "The checker only reports SOURCE_PRESENT_UNPROVEN and realDatabaseProof NOT_EVALUATED; separate disposable Fresh Install and actor/role proof remains mandatory.",
         "status": "resolved"
       },
       {
         "id": "CH-F2-08",
-        "scenario": "New 0048+ source introduced",
-        "finding": "Unknown provenance bypass.",
-        "resolution": "Unknown source remains fail-closed until authority updated.",
+        "scenario": "A developer adds a new post-0047 SQL import carrying previously unseen source identity outside the approved Office dependency sequence.",
+        "finding": "Unknown provenance might add an unreviewed helper or another privilege-changing function that bypasses the explicitly superseded legacy source list.",
+        "resolution": "Keep OFFICE_UNREVIEWED_SOURCE_PROVENANCE as a hard BLOCK for unmatched marker identities and require a new reviewed source-authority update before importing such migration.",
         "status": "resolved"
       }
     ],
@@ -266,6 +266,7 @@
         "quality-knowledge-system"
       ],
       "mustEdit": [
+        "scripts/shoperation-office-baseline-lineage.mjs",
         "tests/shoperation-office-db-readiness.test.ts"
       ],
       "mayEdit": [],
@@ -275,9 +276,7 @@
         "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
         "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql"
       ],
-      "mustCreate": [
-        "scripts/shoperation-office-baseline-lineage.mjs"
-      ],
+      "mustCreate": [],
       "forbidden": [
         "staging database write",
         "historic migration rewrite",
