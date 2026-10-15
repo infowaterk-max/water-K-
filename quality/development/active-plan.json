@@ -190,7 +190,7 @@
         ]
       },
       {
-        "role": "Database",
+        "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
         "finding": "pg_policy.polroles stores role OIDs which are database-local metadata; names are resolved using pg_roles but missing entries can invalidate certainty.",
@@ -200,7 +200,7 @@
         ]
       },
       {
-        "role": "Quality",
+        "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
         "finding": "A generated diagnostic query can drift from the actual full canonical object_defs SQL during refactoring.",
