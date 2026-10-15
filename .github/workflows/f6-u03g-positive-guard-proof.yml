@@ -1,0 +1,85 @@
+name: F6-U03g positive PostgreSQL17 guard fixture (not hosted)
+on:
+  push:
+    branches:
+      - feature/core-1186-f6-u03g-positive-guard-fixture
+    paths:
+      - .github/workflows/f6-u03g-positive-guard-proof.yml
+      - .github/workflows/f6-u03-canonical-plan-capture.yml
+      - scripts/shoperation-f6-u03g-positive-guard-fixture.mjs
+      - tests/shoperation-f6-u03g-positive-guard-fixture.test.ts
+      - docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  positive-and-negative-guard:
+    name: Prove original guard positive path on isolated PG17 fixture
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f6-u03g-disposable-only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+    env:
+      F6_U03G_EPHEMERAL: 'yes'
+    steps:
+      - name: Checkout reviewed full source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install local PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+      - name: Pin actual Docker container peer
+        shell: bash
+        env:
+          F6_U03G_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          test -n "$F6_U03G_CONTAINER"
+          ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$F6_U03G_CONTAINER")"
+          test -n "$ip"
+          echo "F6_U03G_DOCKER_IP=$ip" >> "$GITHUB_ENV"
+      - name: Run existing SQL guard positive path and six rollback rejections
+        shell: bash
+        run: |
+          mkdir -p artifacts/f6-u03g
+          node scripts/shoperation-f6-u03g-positive-guard-fixture.mjs --ci-ephemeral > artifacts/f6-u03g/positive-guard-proof.json
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const e=JSON.parse(readFileSync('artifacts/f6-u03g/positive-guard-proof.json','utf8'));
+          if(e.scope!=='LOCAL_PG17_TRANSLATED_GUARD_POSITIVE_ONLY'||e.decision!=='PASS'
+           ||e.fixtureAppTables!==177||e.fixtureNeutralRows!==113
+           ||e.positiveTransactions!==1||e.rejectedDriftScenarios!==6
+           ||e.fixtureSubstitutions.length!==15
+           ||e.executedAgainstSupabase!==false||e.hostedResetExecutionEnabled!==false
+           ||e.actual59MigrationsApplied!==0||e.original4621DefinitionGuardProved!==false
+           ||e.providerSupabaseBehaviorProved!==false||e.signedInAlapProRlsProved!==false)
+            throw Error('F6U03G_FIXTURE_EVIDENCE_INVALID');
+          console.log('F6-U03g real PG17 positive guard PASS + six independently rejected drift attempts.');
+          NODE
+      - name: Preserve fixture-only exact-head evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03g-positive-guard-${{ github.sha }}
+          path: artifacts/f6-u03g/positive-guard-proof.json
+          if-no-files-found: warn
+          retention-days: 30

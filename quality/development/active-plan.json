@@ -1,20 +1,18 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-BA50E105",
-  "task": "Core #1186 F6-U03f: guarded transaction-local Fresh Install identity/data/dependency preflight, SQL execution disabled",
+  "taskId": "DEV-074C4B63",
+  "task": "Core #1186 F6-U03g: positive isolated PostgreSQL17 transaction guard fixture, no hosted writes",
   "status": "closed",
-  "guardDigest": "ba50e105",
-  "changeBaseSha": "8567529a0d6f42da032e903b35389ae44326ce1a",
+  "guardDigest": "074c4b63",
+  "changeBaseSha": "fa723ab3ffda78b0d40803f8ec77155a334c8ce1",
   "plannedFilePatterns": [
-    "scripts/shoperation-f6-u03f-target-transaction-guard.mjs",
-    "tests/shoperation-f6-u03f-target-transaction-guard.test.ts",
-    "scripts/shoperation-fresh-disposable-reprovision.mjs",
-    "docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md",
-    ".github/workflows/f6-u03f-transaction-guard-proof.yml",
+    "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs",
+    "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts",
+    "docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md",
+    ".github/workflows/f6-u03g-positive-guard-proof.yml",
     ".github/workflows/f6-u03-canonical-plan-capture.yml"
   ],
   "expectedSubsystems": [
-    "dependency-contract",
     "quality-infrastructure",
     "release-infrastructure"
   ],
@@ -27,17 +25,17 @@
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-013",
+    "SQ-KF-014",
+    "SQ-KF-022",
+    "SQ-KF-025",
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-006",
     "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-013",
-    "SQ-KF-014",
     "SQ-KF-018",
     "SQ-KF-020",
-    "SQ-KF-022",
-    "SQ-KF-025",
     "TF-KF-001",
     "TF-KF-005",
     "TF-KF-007",
@@ -72,7 +70,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical risk: compile future in-transaction database identity/row/catalog/role checks as a guarded review artifact, not a live reset. Preserve immutable one-project external TLS binding, fail-closed proof semantics, known App/managed boundaries, and exact-head CI.",
+      "rationale": "Critical transaction-safety code warrants positive database branch coverage without any live database writes; limit fixture transformations to exact expected-value substitutions and emit independent provenance.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -89,25 +87,23 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Canonical source review emits a BEGIN/SET LOCAL/guard/abort-before-DROP/59-file candidate with no hosted SQL execution path.",
-        "Transaction guard locks every nonpartition app relation NOWAIT before mutable row inventory and refuses unknown user/business rows, catalogs, SQL object drift and managed dependencies.",
-        "One local PostgreSQL service job exercises the transaction-guard primitive for success, unexpected row, neutral hash mismatch, NOWAIT lock and role/target mismatch without accessing Supabase.",
-        "Exact grant/event/known Auth trigger snapshots are checked without weakening previously discovered ACL safety requirements.",
-        "Exact-head canonical Quality Tests, TypeScript, build, Completion Truth and Lifecycle must PASS; hosted Fresh Install remains BLOCKED."
+        "Real PostgreSQL17 fixture executes a positively completing DO guard inside BEGIN/ROLLBACK and preserves original schema.",
+        "At least four different adversarial mutations (application data, neutral row hashes, role grants, external dependency or managed-state) are rejected by the same real guard with explicit error codes.",
+        "Fixture substitution manifest names exactly the source values changed; all source guard and production abort bytes remain unaltered.",
+        "No PGHOST/hosted DB URL or Supabase credentials can be passed to the runner; actual endpoint/Docker service identity is validated before any fixture SQL.",
+        "Full exact-head normal CI, isolated PostgreSQL result and Lifecycle verification; report LIMITED FIXTURE_ONLY scope."
       ],
       "invariants": [
-        "Guard statement must appear inside BEGIN and before all DROP statements and before permanent abort-before-DROP barrier.",
-        "Unsafe or missing target bindings never grant authority to invoke hosted destructive SQL.",
-        "All seven neutral catalog table hashes are compared to immutable pinned historical fingerprints; any extra row on any other app table aborts.",
-        "Known Auth dependency and six event trigger function identities, public/private ACLs and Storage boundaries remain required checks.",
-        "These changes do not become a parallel Control Plane or independent release READY authority."
+        "No DROP SCHEMA public/private, and no mutation of Supabase-managed production objects.",
+        "Positive trial uses the imported original source guard's real lock and row checks, never a stub that always returns true.",
+        "A fixture alteration triggers transaction rollback with no partial modification.",
+        "The rearm review still aborts unconditionally before DROP SCHEMA."
       ],
       "forbiddenStates": [
-        "An executable hosted schema-reset mode is added to code or workflow.",
-        "Database identity inferred only from current_database='postgres' is treated as proof of specific Supabase project.",
-        "Lock timeout or unexpected table/dependency rows are silently tolerated.",
-        "An invariant-mismatched snapshot produces claim of accepted migration readiness.",
-        "A passing fixture is labeled as Fresh Install 59 migrations or signed-in Alap/Pro permission proof."
+        "A locally rewritten fixture source is committed back into production source.",
+        "Fixture-only PASS is shown as the true exact historical 4621-object positive proof.",
+        "A cloud project, role, user, Auth or Storage object is changed.",
+        "A failed guard returns exit status zero due to an omitted ON_ERROR_STOP."
       ]
     },
     "model": {
@@ -139,44 +135,39 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "NOWAIT table locks are skipped, a customer row appears after count checks and is deleted.",
-        "App row checks verify only known neutral tables, leaving a hidden user row unexamined.",
-        "Neutral catalog count matches but changed cell values are ignored.",
-        "External Auth trigger is dropped by CASCADE and missing after source assembly.",
-        "Schema ACLs are not restored despite migration success.",
-        "The platform project has the same current_database, role and version as Fresh Install and could be mistakenly targeted.",
-        "Managed Storage file transfer appears between preflight and COMMIT.",
-        "An unconditional review-only abort is moved after DROP by a refactor."
+        "Fixture adapter skips actual SQL safety branches while claiming full-guard success.",
+        "SQL errors swallowed by psql permit invalid committed state.",
+        "Catalog hash fixture spoofed without digest provenance.",
+        "A malicious inherited PG* selector redirects loopback PostgreSQL to hosted target.",
+        "Cross-schema Auth trigger absent but fixture still passes.",
+        "Neutral catalog row mutation undetected because only row count checked."
       ],
       "edgeCases": [
-        "Unknown app relation under public/private, partitioned tables and sequences.",
-        "One new row in a previously empty customer or Office table.",
-        "Single neutral entitlement row changed but count unchanged.",
-        "Known Auth trigger changed function identity or a new managed dependent view.",
-        "One extra bucket, changed limit, changed provider event trigger function digest.",
-        "NOWAIT lock conflict from a concurrent session and forced statement timeout.",
-        "Restored grants to anon/authenticated missing, or anon receives CREATE.",
-        "Disconnected client near COMMIT must be classified UNKNOWN until independent postflight."
+        "Anonymous schema USAGE present but forbidden CREATE absent.",
+        "Fixture objects have fewer tables yet preserve row hashing and ACCESS EXCLUSIVE NOWAIT semantics.",
+        "Explicit mismatch of six managed event SHA strings.",
+        "Auth users and Storage object change after fixture setup.",
+        "A guard executes before irreversible statements and explicit ROLLBACK preserves all fixture objects."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F6-U03F-SOURCE",
-        "summary": "Add transaction-local SQL safety gate only to non-executable reviewed 59-file candidate.",
+        "id": "ALT-LOCAL-TRANSLATED",
+        "summary": "Prove actual positive SQL guard branch with fixture-only expected-value substitution and exact provenance",
         "disposition": "selected",
-        "reason": "Ensures realistic future DDL guard ordering with zero hosted migration risk."
+        "reason": "Achieves meaningful executable branch coverage at zero Supabase risk."
       },
       {
-        "id": "ALT-F6-U03F-LIVE",
-        "summary": "Execute new guard then DROP public/private on current Fresh Install database.",
+        "id": "ALT-HOSTED",
+        "summary": "Run guard and exclusive locks directly on current hosted Fresh Install",
         "disposition": "rejected",
-        "reason": "One read-only snapshot is not a transactional live authorization, and full provider quiescence / exact TLS binding remains unproven."
+        "reason": "Could lock provider access, lacks current transaction authority and unique verified endpoint."
       },
       {
-        "id": "ALT-F6-U03F-STATIC",
-        "summary": "Keep using prior standalone snapshot alone and declare reset ready.",
+        "id": "ALT-MOCK",
+        "summary": "Assert SQL text and mock positive return only",
         "disposition": "rejected",
-        "reason": "Does not lock or revalidate mutable state inside one transaction."
+        "reason": "Does not prove PostgreSQL transaction branch works."
       }
     ],
     "specialistReviews": [
@@ -184,108 +175,107 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "postgres/17/database=postgres is shared across Supabase projects.",
-        "resolution": "Explicitly mark project identity as outside-DB TLS verification unproved; never use SQL checks alone to authorize target DDL.",
+        "finding": "Locally translated SQL can wrongly be reused for a real Supabase endpoint.",
+        "resolution": "One-off CLI requires fixed ephemeral runner marker, Docker identity and no hosted URL; production review compiler never imports adapter.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md"
+          "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Historical snapshot is stale without locks and immutable hash comparison.",
-        "resolution": "Add NOWAIT locks, full app-row inventory and neutral JSONB hashes in transaction; fail closed.",
+        "finding": "Only row counts do not prove neutral data unchanged.",
+        "resolution": "Use real JSONB row hashing, mutate equal-count data and require guard failure.",
         "evidence": [
-          "scripts/shoperation-f6-u03f-target-transaction-guard.mjs"
+          ".github/workflows/f6-u03g-positive-guard-proof.yml"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "F6-U03b candidate must remain intentionally aborting before any schema DROP.",
-        "resolution": "Enforce source ordering and execution-disabled contract in unit tests and canonical CI.",
+        "finding": "Positive local guard execution does not close hosted migration or RLS evidence.",
+        "resolution": "Persist limited provenance and explicit hosted proof false; leave F6-U03b before-DROP abort in place.",
         "evidence": [
-          "tests/shoperation-f6-u03f-target-transaction-guard.test.ts"
+          "docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Passing source-only SQL generation may be mistakenly promoted to hosted Fresh Install READY.",
-        "resolution": "Only claim review compiler improvement; preserve existing Completion Truth scope and separate future hosted proof.",
+        "finding": "An isolated fixture could bypass Control Plane claim scope.",
+        "resolution": "Use canonical Plan Before Code and exact-head CI, require per-claim fixture-only PASS and never infer hosted READY.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md"
+          "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-F6-U03F-1",
-        "scenario": "Correct database/role but wrong Supabase project.",
-        "finding": "SQL-only identity is not unique across projects.",
-        "resolution": "Treat exact project ref + TLS peer checks as an external mandatory future dependency; review artifact is never executable hosted.",
+        "id": "CH-F6-U03G-1",
+        "scenario": "The SQL guard source checksum changes between the reviewed F6-U03f commit and the fixture execution checkout.",
+        "finding": "A stale or tampered SQL body would make any passing fixture execution irrelevant to the reviewed release unit.",
+        "resolution": "Compare exact original guard SHA256 before fixture translation and reject mismatches before issuing any PostgreSQL command.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-2",
-        "scenario": "Customer/Office rows appear between snapshot and DROP.",
-        "finding": "Historical zero counts do not protect subsequent user writes.",
-        "resolution": "Acquire bounded NOWAIT ACCESS EXCLUSIVE application locks then inventory every application row in the same transaction.",
+        "id": "CH-F6-U03G-2",
+        "scenario": "An untrusted GitHub Actions environment supplies PGHOSTADDR or a hosted DATABASE_URL despite the test fixture marker.",
+        "finding": "libpq can redirect a nominally local psql command to another database even when program output looks correct.",
+        "resolution": "Construct a minimal subprocess environment and bind the actual PostgreSQL container IP, expected database and PostgreSQL version before SQL.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-3",
-        "scenario": "Neutral table count matches but user changes entitlement data.",
-        "finding": "Counts are insufficient for catalog integrity.",
-        "resolution": "Require seven exact deterministic JSONB MD5 row-content fingerprints.",
+        "id": "CH-F6-U03G-3",
+        "scenario": "A deliberately raised SQL exception is swallowed by a connection command lacking ON_ERROR_STOP, then reported as success.",
+        "finding": "The migration-like unit could commit corrupted data even though an adversarial test intended to force transaction rollback.",
+        "resolution": "Execute with psql -X -v ON_ERROR_STOP=1 and require a specific nonzero result and unchanged fixture fingerprint.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-4",
-        "scenario": "Application function or RLS policy changed while table counts remain 177.",
-        "finding": "Row tables do not measure schema semantic identity.",
-        "resolution": "Require exact historical object-definition catalog hash before future DDL.",
+        "id": "CH-F6-U03G-4",
+        "scenario": "An overly broad fixture string substitution replaces SQL safety clauses rather than only fixture expected constants.",
+        "finding": "The apparent positive route could be produced by deleting an invariant that would otherwise reject a real unsafe reset.",
+        "resolution": "Allow only named and counted expected-value changes, record each replacement and independently assert the original abort barrier is unchanged.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-5",
-        "scenario": "Extra managed trigger depends on private schema.",
-        "finding": "Dropping private CASCADE can destroy new provider hooks.",
-        "resolution": "Recheck normalized pg_depend and require one exact known Auth dependency, unknown classes fail.",
+        "id": "CH-F6-U03G-5",
+        "scenario": "One of the seven neutral catalog data values changes but its row count remains the same during the positive proof.",
+        "finding": "A count-only assertion would miss an altered entitlement and mistakenly certify noncanonical permission or subscription data.",
+        "resolution": "Calculate PostgreSQL ordered JSONB row digests, alter content while preserving row count, and require a named catalog-hash exception.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-6",
-        "scenario": "A correctly replayed 59-file application schema is exposed to authenticated/anon traffic after DROP/CREATE without restoring their old namespace USAGE grants.",
-        "finding": "Although the new tables, policies and functions may exist, PostgreSQL CREATE SCHEMA resets the old named-role USAGE and CREATE privileges, causing unavailable Data API paths and potentially incorrect access.",
-        "resolution": "Before hosted authorization, require an exact regrant of the five documented public and three private role ACLs in the same transaction, with negative checks that anon/authenticated cannot CREATE and independent postflight Data API proof.",
+        "id": "CH-F6-U03G-6",
+        "scenario": "The fixture claims success after running only SELECT statements and never reaches the ACCESS EXCLUSIVE NOWAIT table loop.",
+        "finding": "Source assertions cannot confirm the transaction lock and table-by-table inspection operate in an actual PostgreSQL executor.",
+        "resolution": "Run the imported DO guard against all 177 fixture tables inside a PostgreSQL17 transaction and verify the DO completes.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-7",
-        "scenario": "Managed Storage data changes while app tables are locked.",
-        "finding": "Application locks do not freeze managed schemas and traffic.",
-        "resolution": "No hosted reset in this unit; future authorization requires quiescence and managed-state recheck with provider-level coordination.",
+        "id": "CH-F6-U03G-7",
+        "scenario": "The fixture replaces six managed event fingerprints with local function bodies but the proof describes these as real Supabase provider behavior.",
+        "finding": "Ephemeral trigger functions do not exercise the hosted PostgREST listener or provider extension and thus cannot justify readiness.",
+        "resolution": "Bind each local digest to its exact fixture definition and report provider-event-proof as false in the emitted evidence artifact.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03F-8",
-        "scenario": "The code is invoked as SQL and executes DROP on expected schema without PO signoff.",
-        "finding": "A syntactically executable guarded transaction is still destructive.",
-        "resolution": "Retain permanent intentional RAISE EXCEPTION before DROP; no hosted-runner path and no secret in CI.",
+        "id": "CH-F6-U03G-8",
+        "scenario": "A successful local fixture run is treated as a destructive hosted reset authorization without original schema replay or actor checks.",
+        "finding": "The positive route says nothing about the actual 4621 historical application definitions, provider quiescence, or Alap/Pro isolation.",
+        "resolution": "Keep the hosted compiler hard-stopped before DROP and label the result as fixture-only, with 59 migrations and signed-in RLS explicitly pending.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Canonical Development Guard Plan Before Code validates exact projected files, owners, negative knowledge and critical-risk depth.",
-      "Source-level guarded SQL tests check transaction lock order, fail-stop drift predicates and hard abort-before-DROP.",
-      "Real ephemeral PG fixture verifies lock conflict and abnormal app data abort on same transaction, without hosted secrets.",
-      "Separate read-only Fresh Install endpoint confirms pinned 175/2 app tables and seven neutral row-content digests but is not deletion authority.",
-      "Canonical exact-head Quality Tests, TypeScript, Production Build, Completion Truth and Lifecycle closure.",
-      "No hosted provider SQL mutation, 59-file migration execution or Office Alap/Pro RLS proof."
+      "Generate canonical plan/Plan Before Code on exact branch.",
+      "Run unit tests on restricted fixture replacements, source/abort immutability and transport guards.",
+      "Create isolated PostgreSQL17 fixture, prove positive imported SQL DO branch then negative equal-count neutral drift, row data and role grants.",
+      "Publish exact-head artifact with substitution provenance and hosted false claims.",
+      "Require full repository Quality Tests, TypeScript, Completion Truth, Lifecycle closure."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/pull/1323",
@@ -299,12 +289,14 @@
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        ".github/workflows/f6-u03f-transaction-guard-proof.yml",
-        "docs/po/CORE_1186_F6_U03F_TRANSACTION_GUARD_2026-10-15.md"
+        ".github/workflows/f6-u03g-positive-guard-proof.yml",
+        "docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md",
+        "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs",
+        "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-f6-u03f-target-transaction-guard.test.ts",
+        "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts",
         "GUARD-QUALITY-TESTS",
         "GUARD-PLAN-BEFORE-CODE",
         "GUARD-TYPECHECK"
@@ -323,10 +315,10 @@
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          ".github/workflows/f6-u03e-schema-restore-proof.yml",
-          "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
-          "scripts/shoperation-f6-u03e-schema-restore.mjs",
-          "tests/shoperation-f6-u03e-schema-restore.test.ts"
+          ".github/workflows/f6-u03g-positive-guard-proof.yml",
+          "docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md",
+          "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs",
+          "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -365,25 +357,25 @@
             "points": 2
           },
           {
-            "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
+            "file": ".github/workflows/f6-u03g-positive-guard-proof.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+            "file": "docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
+            "file": "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
+            "file": "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -422,25 +414,25 @@
               "points": 2
             },
             {
-              "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
+              "file": ".github/workflows/f6-u03g-positive-guard-proof.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+              "file": "docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
+              "file": "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
+              "file": "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -485,7 +477,7 @@
           {
             "id": 1,
             "files": [
-              ".github/workflows/f6-u03e-schema-restore-proof.yml"
+              ".github/workflows/f6-u03g-positive-guard-proof.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -502,7 +494,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
+                  "file": ".github/workflows/f6-u03g-positive-guard-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -515,7 +507,7 @@
           {
             "id": 2,
             "files": [
-              "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md"
+              "docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -526,7 +518,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -539,7 +531,7 @@
           {
             "id": 3,
             "files": [
-              "scripts/shoperation-f6-u03e-schema-restore.mjs"
+              "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -556,7 +548,7 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
+                  "file": "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -569,7 +561,7 @@
           {
             "id": 4,
             "files": [
-              "tests/shoperation-f6-u03e-schema-restore.test.ts"
+              "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -580,7 +572,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
+                  "file": "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -597,24 +589,24 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1321",
-              "developmentBaseSha": "7d3439be97f9aae64d03658dac2e8b4e954d65ff"
+              "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1323",
+              "developmentBaseSha": "fa723ab3ffda78b0d40803f8ec77155a334c8ce1"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "7d3439be97f9aae64d03658dac2e8b4e954d65ff",
+            "targetBaseSha": "fa723ab3ffda78b0d40803f8ec77155a334c8ce1",
             "lease": {
-              "expectedBaseSha": "7d3439be97f9aae64d03658dac2e8b4e954d65ff",
+              "expectedBaseSha": "fa723ab3ffda78b0d40803f8ec77155a334c8ce1",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               ".github/workflows/f6-u03-canonical-plan-capture.yml",
-              ".github/workflows/f6-u03e-schema-restore-proof.yml",
-              "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
-              "scripts/shoperation-f6-u03e-schema-restore.mjs",
-              "tests/shoperation-f6-u03e-schema-restore.test.ts"
+              ".github/workflows/f6-u03g-positive-guard-proof.yml",
+              "docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md",
+              "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs",
+              "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts"
             ],
             "operations": [
               {
@@ -624,22 +616,22 @@
               },
               {
                 "operation": "create",
-                "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
+                "file": ".github/workflows/f6-u03g-positive-guard-proof.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+                "file": "docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
+                "file": "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
+                "file": "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts",
                 "generated": null
               }
             ],
@@ -677,25 +669,25 @@
                   "points": 2
                 },
                 {
-                  "file": ".github/workflows/f6-u03e-schema-restore-proof.yml",
+                  "file": ".github/workflows/f6-u03g-positive-guard-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "scripts/shoperation-f6-u03e-schema-restore.mjs",
+                  "file": "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/shoperation-f6-u03e-schema-restore.test.ts",
+                  "file": "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -724,7 +716,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-f6-u03e-schema-restore.test.ts"
+                "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts"
               ],
               "externalGateIds": []
             },
@@ -736,10 +728,10 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 ".github/workflows/f6-u03-canonical-plan-capture.yml",
-                ".github/workflows/f6-u03e-schema-restore-proof.yml",
-                "docs/po/CORE_1186_F6_U03E_ACL_EVENT_ROLLBACK_2026-10-15.md",
-                "scripts/shoperation-f6-u03e-schema-restore.mjs",
-                "tests/shoperation-f6-u03e-schema-restore.test.ts"
+                ".github/workflows/f6-u03g-positive-guard-proof.yml",
+                "docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_2026-10-15.md",
+                "scripts/shoperation-f6-u03g-positive-guard-fixture.mjs",
+                "tests/shoperation-f6-u03g-positive-guard-fixture.test.ts"
               ],
               "filesAbsent": []
             },
@@ -754,7 +746,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "bddb96a7",
+            "manifestDigest": "53bf0fe4",
             "decision": "PASS"
           }
         ],
@@ -792,32 +784,29 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Fresh Install current historical schema cannot be reset until the future SQL transaction can recheck exact destination identity, lock all app tables and validate all application row inventories, seven neutral catalogs, 4621 canonical catalog definitions, external auth trigger, bucket/role/event definitions and zero managed Auth/Storage/migration state. The source-pinned 59-file review transaction is deliberately executable only up to a permanent pre-DROP RAISE EXCEPTION; the new guard must remain review-only.",
+    "problemStatement": "The F6-U03f source guard has a successful pathway that has never been exercised in any PostgreSQL database: the isolated negative fixture aborts on a deliberately mismatched schema. Test actual positive completion of the existing DO guard, plus adversarial fail-closed behavior, using an ephemeral PostgreSQL17 fixture and a strictly bounded fixture-only translation of historical expected fingerprints. Do not infer that the 177-table/4621-definition Supabase target itself has passed.",
     "observableOutcomes": [
-      "An immutable SQL fragment performs transaction-scoped DB/role/version/PG application_name checks, uses pg_try_advisory_xact_lock plus NOWAIT bounded app-table locks before scanning rows.",
-      "Inside the same transaction, the code enumerates every existing public/private table, rejects any non-neutral rows, compares seven exact neutral row counts/hashes and refuses mismatched object inventory.",
-      "The guard validates the known external auth.users trigger, namespace owners/ACLs and managed Auth/Storage/event boundaries; unknown evidence blocks.",
-      "Integration of the SQL fragment into existing 59-file review compiler occurs while retaining the unconditional abort-before-DROP invariant and with zero database transports.",
-      "A separate fixture-only PostgreSQL17 workflow may exercise lock/rollback primitives without touching any Supabase project; the actual hosted 59-file reset/tenant proof stays blocked."
+      "Run the existing F6-U03f SQL guard's positive path under real PostgreSQL17 with fixture-only counts, row hashes, managed event digests and object hash bound to actual disposable fixture state.",
+      "Test real original F6-U03f lock and row fingerprint paths for user data drift, neutral catalog alteration, Auth/Storage state and ACL drift; injected failures preserve fixture tables.",
+      "Prove every replacement is enumerated, fixture-scoped and one-way; compare original guard/source SHA and retain original hosted abort-before-DROP unchanged.",
+      "Emit honest fixture-only PASS with no hosted connection and no 59 actual migrations applied."
     ],
     "unresolvedRisks": [
-      "SQL current_database/postgres role/version cannot distinguish the platform from Fresh Install; outside-DB TLS/project endpoint binding is a mandatory independent condition.",
-      "The protected managed Auth/Storage user state cannot be exhaustively frozen by application-table locks; future hosted authorization must include provider traffic quiescence and a separately approved target-only execution path.",
-      "Provider event-trigger effects and PostgREST data API readiness are not covered by the source-only SQL fragment.",
-      "Textual SQL review cannot establish proof of actual hosted rollback/migration/Alap-Pro RLS; executable proof requires separate governed permission."
+      "The fixture reproduces guard control-flow but not the original 177 tables, full 4621 definitions, six real provider event functions or actual Supabase listener behavior.",
+      "The exact hosted project endpoint/TLS and provider write quiescence are not established.",
+      "The current Fresh Install still carries prior schema and none of 59 customer migrations was applied by this unit."
     ],
     "scope": {
       "in": [
-        "Introduce immutable, source-reviewed PostgreSQL SQL preflight generator with transaction-local app locks and strict row/catalog/dependency/ACL/managed-state checks.",
-        "Wire the preflight BEFORE the existing hard abort barrier and before any destructive SQL in the F6-U03b 59-file candidate without enabling hosted execution.",
-        "Add adversarial unit tests for target/role mismatch, neutral table hash drift, unknown data, event/ACL drift and SQL statement ordering.",
-        "Use existing canonical Development Guard, Plan Before Code, CI, Completion Truth, Lifecycle; document explicit no-hosted-action boundary."
+        "Add a fixture-only guard SQL compiler that imports the unmodified F6-U03f production guard and applies only enumerated local expected-value replacements.",
+        "Add disposable PG17 GitHub workflow with local Auth/Storage/provider-like metadata, fixture catalog tables/rows and real transactional positive/negative execution.",
+        "Add unit tests that require immutable original F6-U03f source and retained hardcoded abort-before-DROP in its 59-file review candidate.",
+        "Run full ordinary CI, Completion Truth and Lifecycle on exact branch head."
       ],
       "out": [
-        "No actual SQL execution on any hosted Supabase project, no DDL and no migration application.",
-        "No loosening existing F6-U03b fail-before-DROP or F6-U03e fixture-only transport policies.",
-        "No extra active Supabase project, no platform/staging status changes.",
-        "No claim of actual 59-file hosted replay, provider event readiness, Data API exposure or signed-in Alap/Pro RLS proof."
+        "No Supabase connector write, reset, cloud migration, permissions changes or new active project.",
+        "No fixture SQL adapter may be called from the hosted reset compiler or replace production guard literals in repository source.",
+        "No assertion that a positive fixture proves the 177-table/4621-object hosted schema, actual provider-managed event callbacks, POSTGREST or signed-in Alap/Pro RLS."
       ]
     }
   },
@@ -840,11 +829,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F6-U03F-TRANSACTION-GUARD",
-        "requirement": "Before any destructive SQL, re-check database role/version and exact owned app rows with NOWAIT transactional locks and immutable catalog fingerprints.",
+        "id": "REQ-F6-U03G-POSITIVE",
+        "requirement": "Positive existing SQL transaction guard must run through the actual PostgreSQL17 fixture code path, without stubs.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "source-level-future-sql-preflight",
+          "breadth": "fixture-only-positive-guard",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -865,8 +854,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6-U03F-ROW",
-            "statement": "Unknown user row or neutral catalog hash drift passes the reviewed SQL guard.",
+            "id": "NEG-F6-U03G-MOCK",
+            "statement": "Positive result is produced without an actual PostgreSQL DO guard execution.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -874,16 +863,15 @@
         ]
       },
       {
-        "id": "REQ-F6-U03F-MANAGED",
-        "requirement": "Require known managed Auth/Storage/ACL/DDL-event dependencies and fail closed on any unknown exception.",
+        "id": "REQ-F6-U03G-NEGATIVE",
+        "requirement": "Mutated catalog/user/privilege fixture must fail in same guard with preserved transaction state.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "managed-schema-preflight-review",
+          "breadth": "fixture-only-negatives",
           "strength": 2,
           "dimensions": [
-            "scope",
-            "forbidden-state",
-            "tests"
+            "tests",
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -899,8 +887,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6-U03F-DEPENDENCY",
-            "statement": "Unknown provider dependence or lost schema role privileges is ignored.",
+            "id": "NEG-F6-U03G-DATA",
+            "statement": "A same-count neutral data mutation bypasses the guard.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -908,14 +896,15 @@
         ]
       },
       {
-        "id": "REQ-F6-U03F-NO-HOSTED",
-        "requirement": "Keep compiled 59-file future transaction deliberately non-executable before DROP and prohibit any cloud runner or reset-ready overclaim.",
+        "id": "REQ-F6-U03G-NO-HOSTED",
+        "requirement": "Keep production transaction and guarded 59-file compiler entirely disabled; fixture proof cannot claim hosted readiness.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "no-hosted-execution",
+          "breadth": "non-hosted-truth",
           "strength": 2,
           "dimensions": [
             "plan",
+            "scope",
             "forbidden-state"
           ]
         },
@@ -932,8 +921,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6-U03F-DROP",
-            "statement": "A CLI or GitHub workflow enables the hosted 59-file destructive replay.",
+            "id": "NEG-F6-U03G-HOSTED",
+            "statement": "A fixture-only positive result enables hosted DROP SCHEMA or 59 migrations.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -942,12 +931,12 @@
       }
     ]
   },
-  "notes": "F6-U03f new scoped reviewed SQL guard, direct successor of verified F6-U03e commit 5db571cb. Planned external TLS identity and hosted safety proof deliberately BLOCKED. 8 adversarial challenges, 4 standard specialist modeled reviews and 3 limited completion requirements; no hosted Supabase writes. Plan Before Code run 38759524286 required exact new F6-U03f projection: digest ba50e105, dependency-contract/quality/release ownership, 19 failure rules, 14 in-scope acknowledged negative-knowledge entries and source-created doc/workflow. Previously inherited F6-U03e route data was corrected; the original SQL safety invariants remain unchanged. At exact current implementation projection CI 38759998242: failure scope only the 19 in-scope rules (TF-KF-015 is not projected); completed sourceRef reconciled with F6-U03f PR #1323. All guard requirements and 8 adversarial challenges retained. At CI run 38760248380, the full six-file scope projects Known Failure TF-KF-015 in addition to the prior 19. This previously omitted safety rule is explicitly ACKNOWLEDGED; no requirement was reduced.",
+  "notes": "F6-U03g proposed positive fixture proof, not actual 177-table/4621-definition Supabase recreation. Canonical Development Guard PASS risk4/5 failures20 on branch fa723ab3ffda78b0d40803f8ec77155a334c8ce1. Engineering specialist evaluations are modeled reviews, not human acceptance. Adversarial challenge wording strengthened to meet canonical meaningful-scenario and independent resolution checks; no safety gates waived.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "031a9c904dd9a480da1fa1ad5da3226976141873",
-    "closedAt": "2026-10-15T15:34:29.715Z",
+    "verifiedImplementationHead": "56f864456d88d181dbab378c168afbb3e80ff515",
+    "closedAt": "2026-10-15T17:52:24.629Z",
     "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1323",
     "learning": {
