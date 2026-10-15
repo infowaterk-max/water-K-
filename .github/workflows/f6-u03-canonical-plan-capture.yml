@@ -1,4 +1,5 @@
-name: F6-U03 canonical plan capture (temporary)
+name: F6-U03b canonical plan capture (development-only)
+# CI-only plan capture; the job has no Supabase secret and cannot apply SQL.
 on:
   push:
     branches:
