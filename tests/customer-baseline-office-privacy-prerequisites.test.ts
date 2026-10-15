@@ -31,9 +31,9 @@ describe('Core #1186 U10A2-F3: atomic Office privacy source dependency 0048-0051
  });
  it('requires chronological, contiguous 0048-0051 and a 52-file append-only customer baseline',()=>{
   const all=readdirSync(root).filter(f=>/^\d{4}_.+\.sql$/.test(f)).sort();
-  expect(all).toHaveLength(52);
-  expect(all.at(-5)).toBe('0047_team_permissions_foundation_v1.sql');
-  expect(all.slice(-4)).toEqual(files.map(f=>f.slice(root.length)));
+  expect(all).toHaveLength(55);
+  expect(all[47]).toBe('0047_team_permissions_foundation_v1.sql');
+  expect(all.slice(48,52)).toEqual(files.map(f=>f.slice(root.length)));
  });
  it('preserves participant RLS, eligible assignees, author read-state, browser actor closure',()=>{
   expect(canonical[0]).toContain('create table if not exists public.office_thread_participants');
@@ -54,8 +54,8 @@ describe('Core #1186 U10A2-F3: atomic Office privacy source dependency 0048-0051
  it('reports four verified source bodies but seven remaining blockers, never database-ready',()=>{
   const r=evaluateOfficeBaselineLineage();
   expect(r.requiredSourceCount).toBe(11);
-  expect(r.matchedSourceCount).toBe(4);
-  expect(r.findings.filter((x:{code:string})=>x.code==='OFFICE_BASELINE_SOURCE_MISSING')).toHaveLength(7);
+  expect(r.matchedSourceCount).toBe(7);
+  expect(r.findings.filter((x:{code:string})=>x.code==='OFFICE_BASELINE_SOURCE_MISSING')).toHaveLength(4);
   expect(r.sourceLineageStatus).toBe('BLOCKED');
   expect(r.releaseReady).toBe(false);
   expect(r.realDatabaseProof).toBe('NOT_EVALUATED');

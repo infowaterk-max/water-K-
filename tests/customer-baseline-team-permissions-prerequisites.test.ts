@@ -26,8 +26,8 @@ describe('Core #1186 U10A2-F1: first append-only Team Permissions Fresh Install 
    const files=readdirSync(root).filter(f=>f.endsWith('.sql')).sort();
    expect(files[0]).toBe('0001_shoperation_v1_schema.sql');
    expect(files.indexOf('0046_alap_team_chat_plan_grant_reconcile.sql')+1).toBe(files.indexOf('0047_team_permissions_foundation_v1.sql'));
-   expect(files.at(-1)).toBe('0051_digital_office_rls_helper_exposure_closure_v1.sql');
-   expect(files.length).toBe(52);
+   expect(files.at(-1)).toBe('0054_digital_office_team_chat_owner_transfer_v1.sql');
+   expect(files.length).toBe(55);
  });
  it('preserves prerequisite role/instance/audit tables in earlier customer snapshot',()=>{
    const historical=read(root+'0001_shoperation_v1_schema.sql').toLowerCase();
