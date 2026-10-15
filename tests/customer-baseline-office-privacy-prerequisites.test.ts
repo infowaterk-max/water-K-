@@ -31,7 +31,7 @@ describe('Core #1186 U10A2-F3: atomic Office privacy source dependency 0048-0051
  });
  it('requires chronological, contiguous 0048-0051 and a 52-file append-only customer baseline',()=>{
   const all=readdirSync(root).filter(f=>/^\d{4}_.+\.sql$/.test(f)).sort();
-  expect(all).toHaveLength(58);
+  expect(all).toHaveLength(59);
   expect(all[47]).toBe('0047_team_permissions_foundation_v1.sql');
   expect(all.slice(48,52)).toEqual(files.map(f=>f.slice(root.length)));
  });

@@ -29,10 +29,10 @@ describe('Core #1186 U10A2-F5: Communication Hub source dependency and Alap cust
  });
  it('appends 0055-0057, preserves 0046-0054 and leaves final 0058 strict Pro guard unapplied',()=>{
   const all=readdirSync(root).filter(f=>/^\d{4}_.+\.sql$/.test(f)).sort();
-  expect(all).toHaveLength(58);
+  expect(all).toHaveLength(59);
   expect(all[46]).toBe('0046_alap_team_chat_plan_grant_reconcile.sql');
   expect(all[54]).toBe('0054_digital_office_team_chat_owner_transfer_v1.sql');
-  expect(all.slice(-3)).toEqual(files.map(f=>f.slice(root.length)));
+  expect(all.slice(55,58)).toEqual(files.map(f=>f.slice(root.length)));
   expect(all.some(x=>x.includes('strict_pro_sql_guard'))).toBe(false);
  });
  it('retains service-role-only attachment quarantine, delegation and clean-scan prerequisites',()=>{
