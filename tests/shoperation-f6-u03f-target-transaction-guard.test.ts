@@ -35,6 +35,12 @@ describe('Core F6-U03f transaction-local non-executing guard',()=>{
    expect(s).toContain("F6U03F_NEUTRAL_CATALOG_HASH_DRIFT");
    expect(s).toContain("F6U03F_CATALOG_ROW_TOTAL_DRIFT");
    expect(s).toContain("ORDER BY to_jsonb(x)::text");
+   expect(s).toContain('F6U03F_APPLICATION_SCHEMA_HASH_DRIFT');
+   expect(s).toContain('catalog_items<>4621');
+   expect(s).toContain('e312b40ad91150ce937f4aa00db587f3');
+   expect(s).toContain('pg_get_functiondef');
+   expect(s).toContain('pg_get_indexdef');
+   expect(s).toContain('pg_get_constraintdef');
  });
  it('blocks unknown Auth/Storage changes and managed dependencies, ACLs and event function digests',()=>{
    const s=TRANSACTION_GUARD_SQL;
@@ -70,6 +76,7 @@ describe('Core F6-U03f transaction-local non-executing guard',()=>{
    expect(r.hostedExecutionEnabled).toBe(false);
    expect(r.projectTLSIdentityProven).toBe(false);
    expect(r.fullObjectFingerprintProven).toBe(false);
+   expect(r.fullObjectFingerprintGuardIncluded).toBe(true);
    expect(r.liveTransactionalGuardProven).toBe(false);
    expect(r.hosted59MigrationsProven).toBe(false);
    expect(r.sqlSha256).toMatch(/^[a-f0-9]{64}$/);
