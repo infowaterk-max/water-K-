@@ -223,7 +223,7 @@
         ]
       },
       {
-        "role": "Operations",
+        "role": "Runtime",
         "mode": "review",
         "verdict": "challenge-resolved",
         "finding": "Office actor/tenant privacy migrations affect merchant admin operation permissions and audit workflows in addition to database schema authority.",
