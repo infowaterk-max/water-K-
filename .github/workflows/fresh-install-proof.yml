@@ -2,16 +2,51 @@ name: Fresh Install proof
 
 on:
   workflow_dispatch:
+    inputs:
+      f6_u03b_review_only:
+        description: 'Offline, zero-database-access F6-U03b reprovision source review ONLY'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
   issues: write
 
-env:
-  SHOPERATION_FRESH_INSTALL_DB_URL: ${{ secrets.SHOPERATION_FRESH_INSTALL_DB_URL }}
-
 jobs:
+  offline-reprovision-review:
+    name: Review F6-U03b candidate with no database access
+    if: ${{ inputs.f6_u03b_review_only == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout complete reviewed source history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Compile offline-only guarded 59-file plan
+        shell: bash
+        run: |
+          mkdir -p artifacts/fresh-install-proof
+          node scripts/shoperation-fresh-disposable-reprovision.mjs --review-offline > artifacts/fresh-install-proof/f6-u03b-offline-review.json
+      - name: Publish review-only non-execution evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03b-offline-reprovision-review-${{ github.sha }}
+          path: artifacts/fresh-install-proof/f6-u03b-offline-review.json
+          if-no-files-found: error
+          retention-days: 30
+
   prove:
+    if: ${{ inputs.f6_u03b_review_only != true }}
+    env:
+      SHOPERATION_FRESH_INSTALL_DB_URL: ${{ secrets.SHOPERATION_FRESH_INSTALL_DB_URL }}
     name: Prove clean Shoperation install
     runs-on: ubuntu-latest
     timeout-minutes: 20
