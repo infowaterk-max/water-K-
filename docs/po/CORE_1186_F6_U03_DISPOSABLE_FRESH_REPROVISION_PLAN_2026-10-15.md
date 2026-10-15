@@ -62,6 +62,18 @@ The uncommitted local safety-prototype bundle contains a Node runner, SQL catalo
 
 **Disposition:** do not attach the local prototype to the workflow, do not grant `executionAuthorized=true`, and do not delete the reusable disposable schema while either blocker is open. Integrate fixes into the existing Fresh Install proof/contract-hash authority under a genuine, new F6-U03 Development Guard. This plan amendment is **documentation only** and is not itself a Plan Before Code PASS.
 
+## 2026-10-15 offline hardening result (no repository-gate or database proof)
+
+A replacement **OFFLINE-ONLY** F6-U03 prototype was built and executed in an isolated local sandbox with **14/14 Node.js tests PASS**. It is provided in the conversation artifact `F6-U03-hardened-offline-candidate.zip`, **not** added to this GitHub implementation branch. The offline runner contains an immutable `EXECUTION_ENABLED=false` stop, so it cannot perform target schema mutation.
+
+Against synthetic disposable Git fixtures the hardening now:
+- Pins all **59** migration paths plus Auth bootstrap, seed and pre/postflight files by Git blob content to the existing **reviewed 6a29778b6ea971f42fe25eb26181b192a97ab23d** ancestor. Any source byte/file-set drift blocks; a newly calculated checksum of unreviewed sources is not accepted by itself.
+- Rejects synthetic SQL tampering with unchanged filenames, extra migrations, fake reviewed commit and psql meta-command injection.
+- Enforces exact Fresh Install connection/role/host reference; requires `verify-full` TLS with a configured trusted CA file, rejects inherited `PGHOSTADDR`, `PGSERVICE`, `PGOPTIONS`, conflicting `PGSSLMODE` and other `PG*` variables, and constructs a minimal process environment.
+- Confirms proposed single-transaction statement ordering, leaves `storage` managed tables untouched, and preserves exact 2026-10-15 object/neutral-catalog data fingerprints.
+
+**Limitation:** synthetic Git test pass does not prove repository Development Guard, Plan Before Code, exact-head CI, PostgreSQL fault rollback, live TLS/project binding, Supabase provider integrity, 59 real SQL migration replay, authenticated Alap/Pro behavioral isolation or Completion Truth. The runner's execution path is intentionally **not implemented/authorized**. Integration requires a full genuine repo checkout and a new F6-U03 plan passing the original guard; do not silently manufacture a PASS with a sparse/mock checkout. The real Fresh Install target remains unchanged/occupied; no reset was attempted.
+
 ## Immediate resumable work
 
 1. Confirm this plan and its actual source/authority dependencies under the existing Development Guard/Plan Before Code workflow for a **new** F6-U03 release unit; do not reuse closed F6-U02 `quality/development/active-plan.json` authority.
