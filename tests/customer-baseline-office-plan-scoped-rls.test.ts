@@ -58,6 +58,8 @@ describe('Core #1186 F6-U01: Alap customer rights and Pro-only internal Office S
   expect(sql).toContain('revoke all on function public.can_read_office_thread_v1(uuid,uuid,uuid)');
   expect(sql).toContain('from public,anon,authenticated;');
   expect(sql).toContain('grant execute on function public.can_read_office_thread_v1(uuid,uuid,uuid) to service_role');
+  expect(sql).toContain('revoke all on function private.office_pro_plan_allowed_v1(uuid)');
+  expect(sql).not.toContain('grant execute on function private.office_pro_plan_allowed_v1(uuid) to authenticated');
   for(const fn of ['office_thread_plan_allowed_v2','office_task_plan_allowed_v2']){
    expect(sql).toContain('create or replace function private.'+fn+'(');
    expect(sql).toContain('revoke all on function private.'+fn+'(uuid,uuid)');
