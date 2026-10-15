@@ -1,0 +1,79 @@
+name: F6-U03g real PG17 synthetic 177-table positive and negative guard
+on:
+  push:
+    branches:
+      - feature/core-1186-f6-u03g-positive-fixture-transaction
+    paths:
+      - .github/workflows/f6-u03g-positive-guard-fixture.yml
+      - .github/workflows/f6-u03-canonical-plan-capture.yml
+      - scripts/shoperation-f6-u03g-positive-guard-fixture.mjs
+      - tests/shoperation-f6-u03g-positive-guard-fixture.test.ts
+      - docs/po/CORE_1186_F6_U03G_POSITIVE_GUARD_FIXTURE_2026-10-15.md
+      - quality/development/active-plan.json
+permissions:
+  contents: read
+jobs:
+  verify-real-pg17:
+    name: Run 177 relation locks, seven catalog hashes and NOWAIT contention
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f6-u03g-ephemeral-only
+          POSTGRES_DB: f6_u03g_fixture
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d f6_u03g_fixture"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+    env:
+      F6_U03G_EPHEMERAL: 'yes'
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+      - name: Bind actual ephemeral Docker PostgreSQL service
+        env:
+          F6_U03G_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          test -n "$F6_U03G_CONTAINER"
+          ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$F6_U03G_CONTAINER")"
+          test -n "$ip"
+          echo "F6_U03G_CONTAINER_IP=$ip" >> "$GITHUB_ENV"
+      - name: Prove PG17 transaction guard success and adversarial failure
+        run: |
+          mkdir -p artifacts/f6-u03g
+          node scripts/shoperation-f6-u03g-positive-guard-fixture.mjs --ephemeral-ci > artifacts/f6-u03g/real-pg17-synthetic-guard.json
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const r=JSON.parse(readFileSync('artifacts/f6-u03g/real-pg17-synthetic-guard.json','utf8'));
+          if(r.decision!=='PASS'||r.scope!=='LOCAL_SYNTHETIC_177_TABLES_ONLY'
+            ||r.applicationRelations!==177||r.neutralCatalogs!==7||r.syntheticNeutralRows!==113
+            ||r.positiveTransactions!==2||r.negativeTrials!==5
+            ||r.hostedSupabaseTouched!==false||r.hostedResetAuthorized!==false
+            ||r.historical4621ObjectsProven!==false||r.original59MigrationsApplied!==0
+            ||r.alapProRlsProven!==false)throw Error('F6U03G_FALSE_OR_PARTIAL_PROOF');
+          console.log('F6-U03g real PG17 synthetic guard: 2 positive, 5 negative PASS');
+          NODE
+      - name: Publish limited-scope exact-head evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03g-pg17-synthetic-${{ github.sha }}
+          path: artifacts/f6-u03g/real-pg17-synthetic-guard.json
+          if-no-files-found: warn
+          retention-days: 30
