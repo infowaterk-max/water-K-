@@ -34,6 +34,23 @@
 - Ensure no `DROP SCHEMA` plan executes unless a clean target can be established and the entire checked replay is available in the same transaction.
 - Independent safety review required because schema deletion is a high-risk operation **even on this isolated disposable target**.
 
+## Read-only fingerprint and Storage authority refinement (2026-10-15)
+
+Further isolated Supabase catalog verification of the exact Fresh Install ref found **4,621 catalog entries** across application functions, relations, columns, policies, indexes, triggers and constraints; their sorted, stable current-state MD5 digest is `e312b40ad91150ce937f4aa00db587f3`. A hardened disposable-reset **candidate** can require this exact digest in addition to count checks; matching the current target proves *no observed drift from this catalog snapshot*, not provenance from the historical 0046 proof. Recompute and revalidate against actual target immediately before any authorized reset.
+
+The seven neutral catalog tables also have exact sorted JSONB-row digests (MD5):
+- `addon_capability_grants`: `603e4da6e9b73f18f08de9b648c8d140`
+- `addon_entitlement_catalog`: `ab9929cc98f52e790627f7f29e5e6cea`
+- `addon_plan_compatibility`: `52e8cd3fc13054647ffbcc11f57005a0`
+- `entitlement_capabilities`: `b0837c65a65b17613030b647e74764f5`
+- `entitlement_source_precedence`: `c60294237cba6a8100c39eae1ed7c29b`
+- `plan_capability_grants`: `c0d071de44955a6eb0225bd86159f37d`
+- `subscription_plan_catalog`: `cb1a33c97779af7bb0e009b1ba650410`
+
+**Newly verified external provider boundary:** [Supabase Storage schema documentation](https://supabase.com/docs/guides/storage/schema/design) explicitly forbids directly mutating Storage-managed SQL rows; Storage object/bucket mutations belong to the Storage API. Therefore an atomic PostgreSQL app-schema reset **cannot honestly claim to have reset the four preexisting Storage buckets**. Do not delete or truncate `storage.buckets`/objects in SQL, and do not mislabel reused but validated empty buckets as newly created. Record preexisting Storage state separately, or obtain and verify genuine Storage-API-managed cleanup in an independently authorized operation. Treat the two proof claims distinctly: **application schema zero-state proof** versus **full provider environment fresh-state proof**.
+
+**Local candidate only:** an isolated offline script+SQL candidate was checked with 4 mocked Node tests PASS (identity, negative URLs, order, explicit execute control). This is **not committed** to this PR, not canonical Development Guard PASS, not actual SQL execution and not runtime proof. It must not be promoted to runnable workflow or any destructive DB action until a new F6-U03 scoped Development Transaction passes existing Plan Before Code / review and negative fault-path proof.
+
 ## Immediate resumable work
 
 1. Confirm this plan and its actual source/authority dependencies under the existing Development Guard/Plan Before Code workflow for a **new** F6-U03 release unit; do not reuse closed F6-U02 `quality/development/active-plan.json` authority.
