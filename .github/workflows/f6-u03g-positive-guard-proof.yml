@@ -24,11 +24,11 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: f6-u03g-disposable-only
-          POSTGRES_DB: f6_u03g_fixture
+          POSTGRES_DB: postgres
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d f6_u03g_fixture"
+          --health-cmd "pg_isready -U postgres -d postgres"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 15
