@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-90EB737A",
   "task": "Core #1186 F6-U03g: isolated historical 0046 catalog-type drift diagnosis against pinned read-only Fresh Install snapshot",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "90eb737a",
   "changeBaseSha": "f1414318bd4a6705159577c59c1ac21f8048ffec",
   "plannedFilePatterns": [
@@ -1033,5 +1033,18 @@
       }
     ]
   },
-  "notes": "Scope-limited per-class diagnostics for genuine 0046 PostgreSQL17 replica, not full hosted F6 transaction. Independently observed read-only Fresh Install 2026-10-15 group counts 1981+1161+380+615+126+250+108=4621; retain historical canonical raw MD5 e312b40ad91150ce937f4aa00db587f3 unchanged. Guard DEV-90EB737A risk 4/5, 45 applicable known failures. Specialist reviews are challenge-model analysis, not external signoffs. Hosted reset remains blocked. Exact-head CI found the original generated semantic MUST_EDIT route incorrectly included quality/development/active-plan.json (a canonical metadata file excluded from material code diff); the committed plan itself remains included in plannedFilePatterns and is checked by Plan Before Code, but Implementation Sync must require actual material code/workflow changes, not metadata."
+  "notes": "Scope-limited per-class diagnostics for genuine 0046 PostgreSQL17 replica, not full hosted F6 transaction. Independently observed read-only Fresh Install 2026-10-15 group counts 1981+1161+380+615+126+250+108=4621; retain historical canonical raw MD5 e312b40ad91150ce937f4aa00db587f3 unchanged. Guard DEV-90EB737A risk 4/5, 45 applicable known failures. Specialist reviews are challenge-model analysis, not external signoffs. Hosted reset remains blocked. Exact-head CI found the original generated semantic MUST_EDIT route incorrectly included quality/development/active-plan.json (a canonical metadata file excluded from material code diff); the committed plan itself remains included in plannedFilePatterns and is checked by Plan Before Code, but Implementation Sync must require actual material code/workflow changes, not metadata.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "a2a8bf9ddbfa755e2979a4f984a4669fd0451705",
+    "closedAt": "2026-10-15T19:21:55.788Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1332",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
