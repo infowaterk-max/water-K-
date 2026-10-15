@@ -14,7 +14,8 @@
     "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
     "tests/customer-baseline-communication-hub-prerequisites.test.ts",
     "scripts/shoperation-office-db-stage-rehearsal.mjs",
-    "tests/shoperation-office-db-stage-rehearsal.test.ts"
+    "tests/shoperation-office-db-stage-rehearsal.test.ts",
+    "tests/pro-entitlement-guards.test.ts"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
@@ -98,7 +99,8 @@
         "Require signed-in user current-user-bound thread/task helper definitions, Alap officeCommunication/customer-support branch and subscription Pro cap for Team Chat; only METADATA_CANDIDATE_ONLY review, never authoritative, even with valid snapshot.",
         "Update current and negative existing test fixtures to reflect 3 superseded sources and static source-present-but-unproven 59 customer SQL files; disallow false hosted RLS or Fresh Install claim.",
         "No SQL write, Supabase activation, Vercel or Builder work and no modification to F6-U01 SQL source/manifest.",
-        "Synchronize downstream staging-role rehearsal script and fixture with corrected Alap customer allowed / Alap internal denied / post-downgrade private denied distinctions; add old strict-Pro v1 to forbidden replay list. No real role proof made."
+        "Synchronize downstream staging-role rehearsal script and fixture with corrected Alap customer allowed / Alap internal denied / post-downgrade private denied distinctions; add old strict-Pro v1 to forbidden replay list. No real role proof made.",
+        "Legacy Pro entitlement test must require corrected OFFICE_DB_PLAN_SCOPED_RLS_MISSING/ OFFICE_DB_ALAP_CUSTOMER_READ_BLOCKED/ OFFICE_DB_BROWSER_ACTOR_RPC_EXPOSED flags and forbid historical blanket-Pro marker; no implementation logic downgrade to green the CI."
       ],
       "invariants": [
         "Existing 0058 canonical SQL and SHA256 bytes are immutable after F6-U01 green.",
@@ -303,6 +305,13 @@
         "finding": "This machine consumer would falsely reject legitimate Alap customer support or incentivize restoring the blanket Pro customer denial.",
         "resolution": "Update read-only rehearsal role-proof identifiers to narrow Alap customer allowed versus internal denied and downgraded private denied, and update its synthetic regression fixture without any SQL writes.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-F6-U02-OLD-CONSUMER",
+        "scenario": "Inherited pro-entitlement-guards test demands historical OFFICE_DB_PRO_SUBSCRIPTION_RLS_MISSING despite corrected Alap-safe plan-scoped read policies.",
+        "finding": "The outdated assertion fails CI although the corrected RLS readiness checker must reject global Pro-only policies; reverting the implementation to satisfy test would knowingly reintroduce Alap customer-support denial.",
+        "resolution": "Update exactly the legacy test's readiness marker list to require new plan-scoped RLS, Alap-customer-denial and browser-actor-exposure negative statuses, and assert old blanket-Pro marker is absent. Keep Plan Before Code, quality infrastructure boundaries and all independent security gates.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -311,7 +320,8 @@
       "Static source-lineage test exact 59 files, 11/11 active, three superseded, original SQL v1 still immutable, unmarked renamed unsafe v1 rejection.",
       "Readiness metadata test corrected source versions, SQL definition proofs, both per-table restrictive plan-scoped RLS and signed-in current-user permissive policies; reject historic Pro/global/ALL.",
       "Verify catalog SQL strictly a SELECT and realDatabaseProof remains NOT_EVALUATED, decision max REVIEW/metadata.",
-      "Quality/TypeScript/build/Truth/Lifecycle exact-head CI, CI artifact byte identical closure; no Supabase SQL execution."
+      "Quality/TypeScript/build/Truth/Lifecycle exact-head CI, CI artifact byte identical closure; no Supabase SQL execution.",
+      "Include tests/pro-entitlement-guards.test.ts as required downstream quality consumer. Plan-only amendment and Plan Before Code PASS precedes test edit."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
@@ -327,7 +337,8 @@
         "tests/customer-baseline-office-team-chat-prerequisites.test.ts",
         "tests/customer-baseline-communication-hub-prerequisites.test.ts",
         "scripts/shoperation-office-db-stage-rehearsal.mjs",
-        "tests/shoperation-office-db-stage-rehearsal.test.ts"
+        "tests/shoperation-office-db-stage-rehearsal.test.ts",
+        "tests/pro-entitlement-guards.test.ts"
       ],
       "mayEdit": [],
       "mustCreate": [],
@@ -343,7 +354,8 @@
         "CI Completion Truth",
         "Lifecycle",
         "scripts/shoperation-office-db-stage-rehearsal.mjs",
-        "tests/shoperation-office-db-stage-rehearsal.test.ts"
+        "tests/shoperation-office-db-stage-rehearsal.test.ts",
+        "tests/pro-entitlement-guards.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -818,5 +830,5 @@
       }
     ]
   },
-  "notes": "U02 follows fully green F6-U01 #1303 b430dcfe, strictly quality-infrastructure only; no SQL/manifest edits; provides 11/11 source parity and read-only snapshot minimum, but no hosted Fresh Install or user RLS behavior proof. Development Edit-Time Guard discovered required downstream staging rehearsal consumer. Planned two additional files before editing, preserving reference and implementation sync."
+  "notes": "U02 follows fully green F6-U01 #1303 b430dcfe, strictly quality-infrastructure only; no SQL/manifest edits; provides 11/11 source parity and read-only snapshot minimum, but no hosted Fresh Install or user RLS behavior proof. Development Edit-Time Guard discovered required downstream staging rehearsal consumer. Planned two additional files before editing, preserving reference and implementation sync. Latest source head b2abbff: 3592/3593 tests PASS; one historical pro-entitlement-guards test still asserts OFFICE_DB_PRO_SUBSCRIPTION_RLS_MISSING. Amend test contract after fresh Plan Before Code PASS; do not revert corrected Alap/Pro SQL evaluator."
 }
