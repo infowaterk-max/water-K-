@@ -1,18 +1,19 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-074C4B63",
-  "task": "Core #1186 F6-U03b: guarded occupied Fresh Install recovery and atomic customer baseline proof, no automatic execution",
-  "status": "closed",
-  "guardDigest": "074c4b63",
-  "changeBaseSha": "5284242510ab0501a21ad4f27b33aa19043dd0f5",
+  "taskId": "DEV-9901C962",
+  "task": "Core #1186 F6-U03c: verify real PostgreSQL DDL rollback on an isolated fixture database, no Supabase access",
+  "status": "ready-for-implementation",
+  "guardDigest": "9901c962",
+  "changeBaseSha": "6aaedd1b8b2a647a0321f57a80e253da5ed1087b",
   "plannedFilePatterns": [
-    "scripts/shoperation-fresh-disposable-reprovision.mjs",
-    "tests/shoperation-fresh-disposable-reprovision.test.ts",
-    "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md",
-    ".github/workflows/fresh-install-proof.yml",
+    "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs",
+    "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts",
+    ".github/workflows/f6-u03c-postgres-rollback-proof.yml",
+    "docs/po/CORE_1186_F6_U03C_POSTGRES_ROLLBACK_PROOF_2026-10-15.md",
     ".github/workflows/f6-u03-canonical-plan-capture.yml"
   ],
   "expectedSubsystems": [
+    "database-schema",
     "quality-infrastructure",
     "release-infrastructure"
   ],
@@ -34,8 +35,10 @@
     "SQ-KF-006",
     "SQ-KF-008",
     "SQ-KF-009",
+    "SQ-KF-010",
     "SQ-KF-018",
     "SQ-KF-020",
+    "SQ-KF-023",
     "TF-KF-001",
     "TF-KF-005",
     "TF-KF-007",
@@ -53,6 +56,7 @@
     "SQ-NK-005",
     "SQ-NK-010",
     "SQ-NK-012",
+    "SQ-NK-014",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -66,11 +70,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1308",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1317",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This unit creates the only reviewed path toward deleting and reconstructing a disposable hosted application schema, so critical-tier negative proof, exact source integrity and true transaction rollback must be demonstrated. Existing quality guards only establish the implementation contract; independent hosted target and behavioral proof remain required. Failure or uncertainty must block rather than relax identity and data constraints.",
+      "rationale": "Critical safety unit; isolate all executing DDL in a temporary PostgreSQL service with an immutable fixture connection, explicit negative scenarios, and no cloud credentials. Failure cannot reach production or the existing Fresh Install service.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -87,27 +91,23 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "An opt-in reset can target only project istjjkdcvsvilrycqecd with explicit manual dispatch input and validated PostgreSQL connection authority; all ordinary runs remain non-destructive.",
-        "Object, data, Auth, Storage and cross-schema dependency preconditions are checked immediately inside the same database transaction as any cleanup, under serialization, and any uncertainty blocks.",
-        "All 59 exact reviewed migration files and canonical Auth bootstrap, neutral seed, clean target preflight and postflight are applied and validated in the same transaction before COMMIT.",
-        "At least one integration rollback test confirms failed migration/restore cannot leave an empty or partially installed application schema after a canceled transaction.",
-        "Structured evidence reports precise project ref, reviewed source identity, expected and observed schema fingerprints, cleanup intent, applied files and rollback/commit state without leaking secrets.",
-        "The workflow and tests reject all fake provenance, unauthorized Storage deletion, unexpected business rows and attempted changes to non-disposable projects."
+        "CI proves at least six independently injected failure stages cause an error and preserve the pre-existing fixture row and external trigger.",
+        "CI proves one positive fully committed fixture replay changes data and restores an equivalent external trigger; all checks use the actual PostgreSQL service rather than a mocked command.",
+        "Only fixed loopback connection, local fixture DB and prefixed fixture schemas can be used; incorrect host/database/users/env redirection fail before execution.",
+        "The application database and original Fresh Install workflow remain entirely unchanged, with actual provider proof still BLOCKED.",
+        "Quality tests, typecheck, build, Completion Truth and Lifecycle remain exact-head verified under existing canonical guardians."
       ],
       "invariants": [
-        "Platform and staging project state and databases are never touched, even if supplied credentials or variables point to either project.",
-        "Only the known disposable application's public/private owned objects are eligible for reset, and no Supabase-managed schema object may be deleted.",
-        "An unknown or nonneutral record, authenticated user, Storage object, migration-history row or managed-schema dependency blocks destructive execution.",
-        "Any destructive SQL and its canonical migration replay remain in one database transaction; COMMIT occurs only after postflight PASS.",
-        "No source-only review, CI PASS, postflight simulation or old historical 0046 proof can masquerade as F6-U03b hosted deployment proof."
+        "Fixture-only SQL must mention no unprefixed public, private, auth, storage, realtime or Supabase-managed tables/schema DROP.",
+        "Rollback must retain both original user-equivalent row and managed-schema-equivalent trigger after any injected error.",
+        "A test that never reaches a genuine PostgreSQL server cannot be reported as passing the Postgres rollback proof.",
+        "The rollback workflow has no production or Supabase secrets and no automatic cloud write connection."
       ],
       "forbiddenStates": [
-        "Schema cleanup committed without the 59 migrations and postflight completing successfully.",
-        "Any destructive action triggered by a push or pull request or absent an exact manual opt-in bound to the disposable target.",
-        "Direct deletion of storage.objects, storage.buckets or auth managed user/session metadata through SQL.",
-        "Undetected cross-schema dependency cascade against unrelated auth, storage, realtime or platform extensions.",
-        "Project identity derived exclusively from untrusted URL text or inherited PGHOSTADDR/PGSERVICE selectors.",
-        "Publishing READY or merging an unverified destructive workflow before fault-injection proof and exact-head Completion Truth."
+        "Any fixture test obtains a Supabase connection string from the runtime environment.",
+        "Any failed transaction commits an empty or partially recreated fixture schema.",
+        "An unexpected fixture schema, wrong DB, host or pg redirect environment selector is accepted.",
+        "A local PostgreSQL DDL rollback PASS is promoted to live 59-migration hosted readiness."
       ]
     },
     "model": {
@@ -139,44 +139,40 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Wrong connection environment or pooler login silently selects platform instead of the dedicated disposable database.",
-        "The target acquired commerce/user rows since the last read-only inventory and the reset removes customer data.",
-        "DROP SCHEMA public/private CASCADE removes Auth hooks and privileges outside the intended application authority.",
-        "Existing four Storage bucket upserts are treated as a virgin provider environment and create false postflight confidence.",
-        "A later migration fails and the runner commits an empty or half-created database due to shell or psql transaction errors.",
-        "A second concurrent proof run or web traffic changes schema/data in the window between guard and cleanup.",
-        "A Git checkout contains modified 0058 SQL while file names are unchanged and an unreviewed chain executes.",
-        "An external process timeout kills psql after COMMIT without trusted evidence of the final target state."
+        "A migration failure after DROP SCHEMA is silently continued, allowing COMMIT of partial schema.",
+        "Cross-schema trigger CASCADE deletion is not rolled back and auth-equivalent hooks remain absent.",
+        "Test command points to localhost but libpq inherited PGHOSTADDR or a service file redirects to another server.",
+        "Fixture tests pass by checking SQL text only, never exercising a running PostgreSQL service.",
+        "Connection terminates before COMMIT and old table/trigger are lost.",
+        "Fixture-only evidence is overclaimed as proof of production Supabase reset."
       ],
       "edgeCases": [
-        "Exactly seven known neutral entitlement catalogs contain 113 rows while all other 170 application tables have zero.",
-        "Auth.users has a single known public/private-dependent trigger and Storage has exactly four known empty buckets.",
-        "An extension-owned public object or an unexpected foreign key from a managed schema appears after catalog snapshot.",
-        "PostgreSQL transaction fails at migration 0001, corrected 0058, Auth bootstrap, neutral seed or target postflight.",
-        "Connection attempt carries PGOPTIONS, PGHOSTADDR, PGSERVICE, sslmode=require or an unapproved pooler host.",
-        "A reviewed migration contains a psql meta-command, an extra 0060 SQL file, or missing customer-baseline companion.",
-        "RLS and grants recreated in a freshly created public schema differ from the original Supabase schema defaults.",
-        "Pooler session mode, TLS CA rotation or role permissions prevent the same-connection transaction protocol."
+        "Abort BEFORE_DROP, AFTER_DROP, EARLY_DDL, LATE_DDL, BOOTSTRAP, SEED, POSTFLIGHT.",
+        "Cross-schema trigger depends on a fixture-private trigger function; DROP SCHEMA ... CASCADE removes it and rollback restores it.",
+        "One successful COMMIT recreates trigger while preserving the simulated auth-schema table.",
+        "Hard command timeout and an explicit forced-client-disconnect before COMMIT.",
+        "Unexpected DB name, hostname, PGHOSTADDR, PGSERVICE, or nonlocal socket fallback.",
+        "Eventual stale GitHub artifact at previous SHA is not accepted for new branch head."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F6-U03B-ATOMIC",
-        "summary": "Use opt-in manual guarded reprovision added to the existing Fresh Install proof workflow with one transactional Postgres connection.",
+        "id": "ALT-F6-U03C-EPHEMERAL",
+        "summary": "Use an isolated PostgreSQL 16 CI service and executable fixture-only rollback trials.",
         "disposition": "selected",
-        "reason": "Preserves one authoritative workflow, exact-source evidence and transactional rollback while keeping the project allowlist and provider-managed schemas intact."
+        "reason": "Demonstrates real PostgreSQL transactional DDL semantics and external trigger rollback with zero Supabase risk."
       },
       {
-        "id": "ALT-F6-U03B-GLOBAL-RESET",
-        "summary": "Run generic linked Supabase db reset or unrestricted DROP SCHEMA CASCADE on the existing hosted target.",
+        "id": "ALT-F6-U03C-REMOTE",
+        "summary": "Test rollback by dropping the existing Fresh Install app schemas inside a live transaction.",
         "disposition": "rejected",
-        "reason": "Could select historical migrations or delete managed/auth-related dependencies without precise provenance, rollback and provider-state guarantees."
+        "reason": "Even rolled-back DDL could hold locks, affect current Auth dependencies or fail dangerously before mature independent evidence is available."
       },
       {
-        "id": "ALT-F6-U03B-NEW-PROJECT",
-        "summary": "Create or activate a separate Supabase project to avoid cleaning the disposable existing test schema.",
+        "id": "ALT-F6-U03C-MOCK",
+        "summary": "Test only regex statement ordering and mocked psql execution.",
         "disposition": "rejected",
-        "reason": "Conflicts with the existing two-active-project budget arrangement and needlessly creates billing and operational complexity."
+        "reason": "Already covered by F6-U03b; does not prove actual ROLLBACK restores state after CASCADE."
       }
     ],
     "specialistReviews": [
@@ -184,156 +180,134 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Using the repository database secret with any manual workflow is too permissive unless the target is cryptographically bound and all routing/TLS redirects are rejected.",
-        "resolution": "Use dedicated target-scoped connection policy, exact ref confirmation, TLS certificate checks and no automatic destructive event path; retain human execution authority.",
+        "finding": "Even fixture-only DROP SCHEMA is unsafe when scripts read global PG connection defaults.",
+        "resolution": "Use fixed local fixture DB, explicit CLI args, isolated process env, loopback server identity check and never access cloud secrets.",
         "evidence": [
-          "scripts/shoperation-disposable-fresh-replay.mjs",
-          ".github/workflows/fresh-install-proof.yml"
+          ".github/workflows/f6-u03c-postgres-rollback-proof.yml",
+          "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "An occupied database could accumulate rows or cross-schema dependencies without changing its superficial table and policy counts.",
-        "resolution": "Require transactional full schema fingerprint, seven neutral catalog row hashes, every table count and external dependent-object enumeration; stop on drift.",
+        "finding": "Database DDL rollback must include external trigger dependencies, not just an isolated app table.",
+        "resolution": "Simulate Auth schema and trigger dependent on app-private function; confirm rollback and explicit positive recreation.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03_DISPOSABLE_FRESH_REPROVISION_PLAN_2026-10-15.md",
-          "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md"
-        ]
-      },
-      {
-        "role": "Runtime",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Postgres one-session atomic DDL may still change non-database Storage state or lose client certainty when the connection drops near commit.",
-        "resolution": "Keep provider-managed buckets intact, avoid Storage API writes, and classify uncertain commit results as UNKNOWN until an independent postflight.",
-        "evidence": [
-          "supabase/customer-baseline/target-preflight.sql",
-          "supabase/customer-baseline/target-postflight.sql"
+          "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Exact Git-reviewed 59-file source parity and quality CI do not by themselves constitute hosted Fresh Install actor and RLS evidence.",
-        "resolution": "Keep schema proof, live postflight, human PO acceptance, tenant Alap/Pro RLS and provider delivery as distinct required gates and evidence producers.",
+        "finding": "A local Postgres proof is not a Supabase Customer Baseline clean-target proof.",
+        "resolution": "Keep separate local fixture assertion and live outstanding proof obligations; preserve manual opt-in disabled hosted path.",
         "evidence": [
-          "quality/development/active-plan.json",
-          ".github/workflows/ci.yml"
+          "docs/po/CORE_1186_F6_U03C_POSTGRES_ROLLBACK_PROOF_2026-10-15.md"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Adding another deploy runner rather than extending the canonical workflow risks conflicting Completion Truth and replay evidence ownership.",
-        "resolution": "Extend current Fresh Install workflow behind opt-in and use existing Knowledge/Atlas/Failure Intake and exact-head evidence semantics.",
+        "finding": "New infrastructure must not fork Fresh Install authority or bypass Control Plane evidence semantics.",
+        "resolution": "Keep standalone isolated verification producer and document it as subordinate to existing release-proof and Completion Truth, not an independent READY gate.",
         "evidence": [
-          ".github/workflows/fresh-install-proof.yml",
-          "scripts/shoperation-development-guard.mjs"
+          ".github/workflows/ci.yml",
+          "quality/knowledge/guard-registry.v1.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-F6-U03B-01",
-        "scenario": "The exact connection URL looks disposable but PGHOSTADDR or a pooler selector redirects the child process.",
-        "finding": "Lexical URL equality cannot prove live endpoint binding when inherited libpq selectors override its effective target.",
-        "resolution": "Reuse F6-U03a minimal environment and validated TLS target, reject redirects and verify endpoint before issuing any DDL.",
+        "id": "CH-F6-U03C-1",
+        "scenario": "Fixture runner inherits a hosted PG URL that sends destructive SQL to Supabase.",
+        "finding": "An ambient env could override an otherwise localhost-looking command.",
+        "resolution": "Reject PG* inherited variables and construct minimal subprocess env with fixed host/db/user/port; verify inet_server_addr, current_database and current_user before fixture SQL.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03B-02",
-        "scenario": "An unrelated customer record appears after the previous read-only inventory but before the destructive transaction.",
-        "finding": "Past zero-row evidence is stale and cannot authorize deleting an app schema that now stores user data.",
-        "resolution": "Re-read exact catalog and every application row count inside the locked transaction, rejecting any nonneutral row or hash drift.",
+        "id": "CH-F6-U03C-2",
+        "scenario": "DROP SCHEMA CASCADE removes a cross-schema trigger and later SQL fails.",
+        "finding": "This external dependency must be restored by transaction rollback.",
+        "resolution": "Run a real PG fixture with external trigger; after failure assert old record and exact trigger function presence.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03B-03",
-        "scenario": "A new cross-schema trigger or managed-schema foreign key depends on a public/private application function or table.",
-        "finding": "Dropping those schemas may cascade beyond the intended isolated app objects and remove provider dependencies.",
-        "resolution": "Enumerate and allowlist only known Auth bootstrap dependencies; fail closed on any unrecognized managed-schema dependent object.",
+        "id": "CH-F6-U03C-3",
+        "scenario": "psql processes remaining commands despite an injection error.",
+        "finding": "Without ON_ERROR_STOP partial replacement can be committed.",
+        "resolution": "Use -X -v ON_ERROR_STOP=1 on one connection and verify nonzero exit and complete rollback.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03B-04",
-        "scenario": "A failure at migration 0058 leaves earlier SQL already executed against the freshly cleared schema.",
-        "finding": "Without one Postgres session and explicit error stopping, DDL may commit while later baseline replay fails.",
-        "resolution": "Wrap cleanup, clean-target preflight, all migration SQL, bootstrap, seed and postflight in one BEGIN/COMMIT with ON_ERROR_STOP; prove ROLLBACK in fault tests.",
+        "id": "CH-F6-U03C-4",
+        "scenario": "Only negative failures are run; success path never establishes bootstrap restoration.",
+        "finding": "Rollback alone does not prove a viable committed replay.",
+        "resolution": "Positive fixture transaction must commit a new app row and recreate known cross-schema trigger.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03B-05",
-        "scenario": "A concurrent proof invocation runs while the first reset is already inspecting or reconstructing application objects.",
-        "finding": "Concurrent target mutations can make object counts stale and deadlock or invalidate the guarded assumption.",
-        "resolution": "Take an advisory transaction lock and bounded lock/statement timeouts, aborting immediately if exclusive proof ownership is unavailable.",
+        "id": "CH-F6-U03C-5",
+        "scenario": "The test fixture is accidentally executed against the default postgres DB.",
+        "finding": "Even prefixed objects would mutate an unintended database.",
+        "resolution": "Require a dedicated fixed ephemeral database named f6_u03c_fixture and loopback host, rejecting all other strings.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03B-06",
-        "scenario": "An attacker changes historical 0058 migration bytes while preserving the documented 59-file name sequence.",
-        "finding": "A migration count alone cannot establish trusted source correctness, and changed policy logic can compromise Alap/Pro roles.",
-        "resolution": "Require exact approved F6-U02 Git blob identities and review contract from the already proven F6-U03a source verifier before any reset.",
+        "id": "CH-F6-U03C-6",
+        "scenario": "A CI PASS on mocked or local-only fixtures is used as hosted Fresh Install completion evidence.",
+        "finding": "Scope and proof provenance are different.",
+        "resolution": "Explicitly emit LOCAL_POSTGRES_ONLY in artifacts and document outstanding target lock/credential/Storage/59-file RLS proof.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03B-07",
-        "scenario": "Existing managed Storage bucket metadata differs or contains an uploaded file despite application tables being empty.",
-        "finding": "The canonical baseline SQL contains Storage bucket upserts, but direct SQL Storage cleanup would violate provider API authority.",
-        "resolution": "Require exactly four known empty buckets and zero upload/upload-session objects; refuse SQL deletion of any Storage row or unrelated bucket.",
+        "id": "CH-F6-U03C-7",
+        "scenario": "Client is terminated before COMMIT.",
+        "finding": "Postgres should roll back connection-local transaction.",
+        "resolution": "Include precommit client disconnect if possible and verify unchanged fixture rows/trigger.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6-U03B-08",
-        "scenario": "A push/pull-request event or routine manual proof with no exact target confirmation attempts to execute DROP SCHEMA.",
-        "finding": "An improperly wired workflow input could activate destructive reset using a shared stored database secret.",
-        "resolution": "Make guarded reprovision manual opt-in with explicit exact target/project confirmation and separate workflow condition; default mode remains empty-target proof.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-F6-U03B-09",
-        "scenario": "The transaction succeeds but the client loses connection just after commit and reports no exact outcome artifact.",
-        "finding": "A missing terminal log does not justify assuming either rollback or successful canonical deployment.",
-        "resolution": "Return UNKNOWN/BLOCKED; require independent read-only postflight and exact-head source lineage before any READY claim.",
+        "id": "CH-F6-U03C-8",
+        "scenario": "Postgres container not healthy and tests accidentally skip.",
+        "finding": "A skipped integration job is not real proof.",
+        "resolution": "Require separate mandatory workflow job with service health and no allow-failure/continue-on-error.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Require new F6-U03b canonical Development Guard/Plan Before Code PASS from exact inherited F6-U03a closure SHA and all required authority/known-failure mappings.",
-      "Show default dry-run/ordinary workflow modes cannot invoke destructive SQL under every relevant GitHub event and input combination.",
-      "Run adversarial source tamper, project identity, PG environment, neutral catalog hash, tenant/commerce data, Auth, Storage and cross-schema dependency negative tests.",
-      "Exercise real PostgreSQL transaction rollback using disposable offline instances or fault-injection fixtures at preflight, migrations, bootstrap, seed and postflight stages.",
-      "Verify exact 59 migration ordering, checked Auth restoration, no partial commit and independent read-only target postflight under trusted TLS.",
-      "Record branch+commit+run scoped result, no secrets, verified project identity and explicit limits distinguishing DB schema replay from full provider fresh-state proof.",
-      "Require exact-head quality tests, TypeScript, production build, Completion Truth, Lifecycle closure and the existing Future hosted schema/actor proof before READY."
+      "Run exact new canonical Development Guard and Plan Before Code on full GH checkout with matching atlas ownership and 22 Known Failures.",
+      "Run pure unit tests for SQL generator and strict loopback target guard with forbidden environment overrides.",
+      "Run real Postgres16 GH service under fixed name and verify exact connected target before fixture-only DDL.",
+      "Force at least seven errors and check original fixture row + external trigger restored each time; then prove successful commit and positive trigger recreation.",
+      "Prove no database credentials or data from the hosted Supabase target are exposed to this new workflow.",
+      "Require full exact-head standard CI, TypeScript, Completion Truth and Lifecycle; keep Source/Hosted claim scope distinct."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/pull/1308",
+      "request": "https://github.com/infowaterk-max/water-K-/pull/1317",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03-canonical-plan-capture.yml",
-        ".github/workflows/fresh-install-proof.yml"
+        ".github/workflows/f6-u03-canonical-plan-capture.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md",
-        "scripts/shoperation-fresh-disposable-reprovision.mjs",
-        "tests/shoperation-fresh-disposable-reprovision.test.ts"
+        ".github/workflows/f6-u03c-postgres-rollback-proof.yml",
+        "docs/po/CORE_1186_F6_U03C_POSTGRES_ROLLBACK_PROOF_2026-10-15.md",
+        "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs",
+        "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-fresh-disposable-reprovision.test.ts",
+        "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts",
         "GUARD-QUALITY-TESTS",
         "GUARD-PLAN-BEFORE-CODE",
-        "GUARD-TYPECHECK",
-        "GUARD-CUSTOMER-BASELINE"
+        "GUARD-TYPECHECK"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -344,15 +318,15 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          ".github/workflows/f6-u03-canonical-plan-capture.yml",
-          ".github/workflows/fresh-install-proof.yml"
+          ".github/workflows/f6-u03-canonical-plan-capture.yml"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md",
-          "scripts/shoperation-fresh-disposable-reprovision.mjs",
-          "tests/shoperation-fresh-disposable-reprovision.test.ts"
+          ".github/workflows/f6-u03c-postgres-rollback-proof.yml",
+          "docs/po/CORE_1186_F6_U03C_POSTGRES_ROLLBACK_PROOF_2026-10-15.md",
+          "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs",
+          "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -391,25 +365,25 @@
             "points": 2
           },
           {
-            "file": ".github/workflows/fresh-install-proof.yml",
+            "file": ".github/workflows/f6-u03c-postgres-rollback-proof.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md",
+            "file": "docs/po/CORE_1186_F6_U03C_POSTGRES_ROLLBACK_PROOF_2026-10-15.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
-            "file": "scripts/shoperation-fresh-disposable-reprovision.mjs",
+            "file": "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/shoperation-fresh-disposable-reprovision.test.ts",
+            "file": "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -448,25 +422,25 @@
               "points": 2
             },
             {
-              "file": ".github/workflows/fresh-install-proof.yml",
+              "file": ".github/workflows/f6-u03c-postgres-rollback-proof.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md",
+              "file": "docs/po/CORE_1186_F6_U03C_POSTGRES_ROLLBACK_PROOF_2026-10-15.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
-              "file": "scripts/shoperation-fresh-disposable-reprovision.mjs",
+              "file": "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/shoperation-fresh-disposable-reprovision.test.ts",
+              "file": "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -511,7 +485,7 @@
           {
             "id": 1,
             "files": [
-              ".github/workflows/fresh-install-proof.yml"
+              ".github/workflows/f6-u03c-postgres-rollback-proof.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -528,7 +502,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/fresh-install-proof.yml",
+                  "file": ".github/workflows/f6-u03c-postgres-rollback-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -541,7 +515,7 @@
           {
             "id": 2,
             "files": [
-              "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md"
+              "docs/po/CORE_1186_F6_U03C_POSTGRES_ROLLBACK_PROOF_2026-10-15.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -552,7 +526,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03C_POSTGRES_ROLLBACK_PROOF_2026-10-15.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -565,7 +539,7 @@
           {
             "id": 3,
             "files": [
-              "scripts/shoperation-fresh-disposable-reprovision.mjs"
+              "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -582,7 +556,7 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-fresh-disposable-reprovision.mjs",
+                  "file": "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -595,7 +569,7 @@
           {
             "id": 4,
             "files": [
-              "tests/shoperation-fresh-disposable-reprovision.test.ts"
+              "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -606,7 +580,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-fresh-disposable-reprovision.test.ts",
+                  "file": "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -623,24 +597,24 @@
             "transaction": {
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1308",
-              "developmentBaseSha": "5284242510ab0501a21ad4f27b33aa19043dd0f5"
+              "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1317",
+              "developmentBaseSha": "6aaedd1b8b2a647a0321f57a80e253da5ed1087b"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "5284242510ab0501a21ad4f27b33aa19043dd0f5",
+            "targetBaseSha": "6aaedd1b8b2a647a0321f57a80e253da5ed1087b",
             "lease": {
-              "expectedBaseSha": "5284242510ab0501a21ad4f27b33aa19043dd0f5",
+              "expectedBaseSha": "6aaedd1b8b2a647a0321f57a80e253da5ed1087b",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
               ".github/workflows/f6-u03-canonical-plan-capture.yml",
-              ".github/workflows/fresh-install-proof.yml",
-              "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md",
-              "scripts/shoperation-fresh-disposable-reprovision.mjs",
-              "tests/shoperation-fresh-disposable-reprovision.test.ts"
+              ".github/workflows/f6-u03c-postgres-rollback-proof.yml",
+              "docs/po/CORE_1186_F6_U03C_POSTGRES_ROLLBACK_PROOF_2026-10-15.md",
+              "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs",
+              "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts"
             ],
             "operations": [
               {
@@ -649,23 +623,23 @@
                 "generated": null
               },
               {
-                "operation": "modify",
-                "file": ".github/workflows/fresh-install-proof.yml",
+                "operation": "create",
+                "file": ".github/workflows/f6-u03c-postgres-rollback-proof.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md",
+                "file": "docs/po/CORE_1186_F6_U03C_POSTGRES_ROLLBACK_PROOF_2026-10-15.md",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "scripts/shoperation-fresh-disposable-reprovision.mjs",
+                "file": "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/shoperation-fresh-disposable-reprovision.test.ts",
+                "file": "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts",
                 "generated": null
               }
             ],
@@ -703,25 +677,25 @@
                   "points": 2
                 },
                 {
-                  "file": ".github/workflows/fresh-install-proof.yml",
+                  "file": ".github/workflows/f6-u03c-postgres-rollback-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03C_POSTGRES_ROLLBACK_PROOF_2026-10-15.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
-                  "file": "scripts/shoperation-fresh-disposable-reprovision.mjs",
+                  "file": "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/shoperation-fresh-disposable-reprovision.test.ts",
+                  "file": "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -750,7 +724,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-fresh-disposable-reprovision.test.ts"
+                "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts"
               ],
               "externalGateIds": []
             },
@@ -762,10 +736,10 @@
             "expectedPostUnitState": {
               "filesPresent": [
                 ".github/workflows/f6-u03-canonical-plan-capture.yml",
-                ".github/workflows/fresh-install-proof.yml",
-                "docs/po/CORE_1186_F6_U03B_ATOMIC_REPROVISION_2026-10-15.md",
-                "scripts/shoperation-fresh-disposable-reprovision.mjs",
-                "tests/shoperation-fresh-disposable-reprovision.test.ts"
+                ".github/workflows/f6-u03c-postgres-rollback-proof.yml",
+                "docs/po/CORE_1186_F6_U03C_POSTGRES_ROLLBACK_PROOF_2026-10-15.md",
+                "scripts/shoperation-f6-u03c-rollback-rehearsal.mjs",
+                "tests/shoperation-f6-u03c-rollback-rehearsal.test.ts"
               ],
               "filesAbsent": []
             },
@@ -780,7 +754,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "13ed1559",
+            "manifestDigest": "2209ee40",
             "decision": "PASS"
           }
         ],
@@ -818,39 +792,35 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The dedicated disposable Shoperation Fresh Install target still contains the previous 0046 customer-baseline PostgreSQL schema, while the canonical 59-migration proof requires an empty application target. Blind migration replay or arbitrary schema reset could destroy unknown data or damage Supabase-managed Auth/Storage state. Build a guarded, explicit, fully rollback-capable reprovision process without a parallel proof authority.",
+    "problemStatement": "The F6-U03b review compiler has an intentional abort-before-DROP barrier. The project has not yet demonstrated actual PostgreSQL DDL DROP SCHEMA CASCADE rollback, dependent cross-schema trigger recovery, or effect of failure midway through a replay. Establish an isolated, genuinely executing PostgreSQL fixture without touching any Supabase project.",
     "observableOutcomes": [
-      "An ordinary push, pull request or scheduled build cannot invoke any destructive SQL; default manual Fresh Install proof remains empty-target-only and returns BLOCK for the occupied database.",
-      "An explicit manual opt-in can only select the exact dedicated disposable project identity, validated over TLS and through full known-schema, catalog, cross-schema, Auth and Storage preconditions before proposed cleanup.",
-      "The controlled reprovision transaction proves a clean application schema, applies exactly the 59 canonical customer-baseline SQL files, restores Auth bootstrap and neutral seed, and validates target postflight before committing.",
-      "Fault injection before cleanup, during the migration chain, during Auth bootstrap, during postflight and on connection loss produces a BLOCKED proof and leaves the old schema intact when PostgreSQL rollback is available.",
-      "Exact-head GitHub evidence distinguishes occupied-target reproducible replay from a truly virgin provider environment; authenticated Alap/Pro role and RLS behaviors remain separately required."
+      "An independently created, ephemeral PostgreSQL 16 service runs fixture-only rollback trials at before/after DDL, migration equivalent, trigger bootstrap, seed and postflight, and validates recovery of original data and an externally dependent trigger.",
+      "An explicit success case commits replacement fixture schemas, creates an expected new record and restores its trigger.",
+      "The runner fails closed on any target other than localhost + a fixed disposable fixture DB name, never reads real Supabase URL/secrets, never drops public/private/auth/storage/realtime schemas and never claims proof for the 59 actual migrations.",
+      "The production Fresh Install proof flow and database content remain unchanged and hosted execution stays hard-disabled."
     ],
     "unresolvedRisks": [
-      "PostgreSQL schema DROP CASCADE can remove cross-schema Auth triggers and non-application dependent objects; all such dependencies must be explicitly enumerated, denied unless approved, and restored or their loss causes rollback.",
-      "Supabase Storage buckets are provider-managed and existing migration scripts upsert bucket metadata; evidence cannot honestly assert all-provider pristine state after an application schema reset.",
-      "The true database-URL TLS identity and transaction semantics can only be proven in a separate controlled hosted execution, not in mocked or static CI.",
-      "Operational interruption or competing traffic during schema reset could break transactional assumptions; serialization and exclusivity controls need validated proof."
+      "Local PostgreSQL rollback confirms generic transactional DDL behavior, not Supabase Auth/Storage extension-managed dependencies, RLS correctness, connection routing, or actual 59-file replay.",
+      "A real connection loss at uncertain COMMIT may require independent postflight classification; this isolated fixture can only test precommit connection interruption.",
+      "The current hosted target retains its former 0046 schema and should not be treated as clean until separately authorized, complete exact-source live verification."
     ],
     "scope": {
       "in": [
-        "Build strict guarded disposable-only *optional* app-schema reprovision into the existing Fresh Install proof workflow, rather than creating a second deployment authority.",
-        "Validate immutable reviewed baseline source, expected occupied-schema catalog fingerprint and known-only noncustomer catalog rows, zero Auth/Storage user data, managed buckets and external dependencies.",
-        "Implement bounded PostgreSQL atomic cleanup plus canonical 59-file replay, auth-bootstrap, neutral seed and final postflight; treat any failure as rollback.",
-        "Add fixture-based hostile tests covering wrong project, source tamper, data drift, managed schema changes, concurrent invocation and rollback/failure semantics.",
-        "Keep all execution manual, exact-project opt-in with evidence, and preserve all existing gates including tenant/plan signed-in RLS as separate future proof."
+        "Add one fixture-only PostgreSQL integration harness with explicit constant target and schema allowlist; assert actual destination before any fixture cleanup.",
+        "Create a GitHub Actions service postgres:16 for real rollback/failure-injection proof with no Supabase secrets, no privileged cloud connector and isolated fixture database.",
+        "Add Node/Vitest negative tests for target guards, statement order, failure injection, prohibited real schema names and non-destructive execution options.",
+        "Document exact limitations and handoff to the next genuinely controlled Supabase Fresh Install proof gate."
       ],
       "out": [
-        "No automatic PR/push/scheduled or Vercel-triggered destructive database action; no undocumented bypass of target-preflight or privileged user data guards.",
-        "No reset of waterk-platform, paused waterk-staging, any non-disposable database or Supabase managed Auth/Storage/realtime internal schemas.",
-        "No changes to customer data, actual production migrations, paid projects, billing configuration, template factory or VX Builder.",
-        "No completion claim for authenticated Office Alap/Pro roles or full customer acceptance based solely on schema replay."
+        "No Supabase schema write, reset, migration replay, Storage/Auth-managed modification or project state change.",
+        "No change to canonical 59-file Fresh Install workflow or removal of F6-U03b's hosted execution barrier.",
+        "No claim of full customer-baseline, cross-tenant, Alap/Pro or provider acceptance from an isolated PostgreSQL fixture."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1308",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1317",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -867,11 +837,79 @@
     },
     "requirements": [
       {
-        "id": "REQ-F6-U03B-CONTROLLED",
-        "requirement": "The existing Fresh Install workflow must preserve its non-destructive default and make hosted schema cleanup possible only through a separately authorized exact disposable-target manual dispatch.",
+        "id": "REQ-F6-U03C-LOCAL-ROLLBACK",
+        "requirement": "Prove actual PostgreSQL DROP SCHEMA CASCADE rollback restores fixture data and its external trigger after multiple injected failures.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "manual-guarded-release-workflow",
+          "breadth": "ephemeral-postgres-rollback-only",
+          "strength": 2,
+          "dimensions": [
+            "tests",
+            "regression",
+            "scope"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-F6-U03C-PARTIAL",
+            "statement": "An injected SQL error leaves a partially destroyed fixture schema.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-F6-U03C-ISOLATION",
+        "requirement": "The executable rehearsal must accept only fixed local service and fixture-prefixed schemas, without any real Supabase credentials.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "local-fixture-boundary",
+          "strength": 2,
+          "dimensions": [
+            "scope",
+            "forbidden-state",
+            "tests"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-F6-U03C-HOSTED",
+            "statement": "A CI fixture may connect to or mutate an actual hosted Supabase database.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-F6-U03C-NO-OVERCLAIM",
+        "requirement": "The isolated rollback proof must remain distinct from target schema reset, 59-file migration replay, provider-managed Storage and signed-in tenant RLS proof.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "no-hosted-completion-claim",
           "strength": 2,
           "dimensions": [
             "plan",
@@ -892,76 +930,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6-U03B-AUTOMATION",
-            "statement": "Untrusted push, pull request or default input triggers schema deletion.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-F6-U03B-ATOMIC",
-        "requirement": "A typed, exact-source reprovision procedure must fail closed on schema or user-data drift, and any failed migration must roll back the intended cleanup rather than leave partial installation.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "guarded-reset-transactions",
-          "strength": 2,
-          "dimensions": [
-            "tests",
-            "regression",
-            "forbidden-state"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-F6-U03B-ROLLBACK",
-            "statement": "Failed migration or Auth bootstrap commits emptied or inconsistent schema.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-F6-U03B-HOSTED-TRUTH",
-        "requirement": "Source-only and CI evidence cannot claim hosted 59-migration replay success, Alap/Pro signed-in Office behavior or full provider Fresh Install readiness without independently observed target proof.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "scope-bounded-proof-integrity",
-          "strength": 2,
-          "dimensions": [
-            "scope",
-            "claim-scope",
-            "truth"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-F6-U03B-OVERCLAIM",
-            "statement": "A preflight-only or fixture-based test becomes a claimed hosted database proof.",
+            "id": "NEG-F6-U03C-TRUTH",
+            "statement": "A local fixture PASS is reported as hosted Fresh Install and Office Ready.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -970,18 +940,5 @@
       }
     ]
   },
-  "notes": "F6-U03b development from F6-U03a closed exact commit ab5a155715156abb13a07796a8d44b8dcb3c226a. Development Guard PASS on GH full repo checkout run 38719526787 digest 074c4b63, risk 4/5. This plan authorizes ONLY construction and testing of guarded opt-in code/workflow, NOT the actual live Supabase schema deletion. Independent exact-target run requires explicit authorization after CI+rollback proof. Engineering specialist findings are threat-model reasoning, not externally signed human specialist approvals. Storage bucket upserts in canonical customer-baseline are historical known behavior and do not establish provider-virgin state. CI planned-projection (run 38720010251) corrected expectedDomains to DOMAIN-QUALITY + DOMAIN-RELEASE and canonical modified-code owner authorities to quality-knowledge-system + release-infrastructure. Auth, DB and tenant safety remain explicit checked dependencies in the critical plan and negative proof, not edited owners. No capability or risk claim downgraded.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "d7f2512109a4ddc59ee3e4ec352c6eb15356c0fe",
-    "closedAt": "2026-10-15T10:44:00.985Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1308",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "F6-U03c isolated Postgres16 rollback proof only. Generated canonical Development Guard on full checkout (run 38724728630), risk 4/5, 22 Known Failures. Permissions are strictly limited to ephemeral fixture executing SQL; no hosted project mutations or Customer Baseline readiness claim. Role entries are engineering threat-model reviews, not independently signed human endorsements."
 }
