@@ -111,7 +111,8 @@
         "Only genuine postflight and committed schema can yield LOCAL_SOURCE_REPLAY_COMMITTED; even then an independent pre-COMMIT fault must prove rollback and release stays blocked.",
         "Original 59-file F6-U03b hosted compiler abort-before-DROP and F6-U03f full strict guard unchanged, no hosted writes or managed provider acceptance.",
         "Separate exact-head source workflow and normal CI/Truth/Lifecycle gates provide reproducible evidence.",
-        "The distinct authentic source 20260910070300 is placed between original immutable 0057 and 0058, not before 0055; 17 other source-pinned original Office SQL files precede 0055."
+        "The distinct authentic source 20260910070300 is placed between original immutable 0057 and 0058, not before 0055; 17 other source-pinned original Office SQL files precede 0055.",
+        "Exactly 59 approved original numbered migrations and 19 candidate original timestamped source files (18 predecessors before 0055, one 20260910070300 post-0057), including SHA-pinned 20260903180000 v2 function creator before its 20260908030000 v3 revocation."
       ],
       "invariants": [
         "Never edit or copy original 59 or 18 source SQL; treat main timestamped candidate files as diagnostic only, not release authority.",
@@ -119,7 +120,8 @@
         "Every DB connection in workflow uses -h 127.0.0.1 Docker published ports, pinned local database names only, no inherited external libpq selector.",
         "Preserve original target-preflight/target-postflight/neutral seed in transaction and full source content, never weaken preflight or install synthetic office tables.",
         "psql ON_ERROR_STOP=1 and actual nonzero exit required for SQL failure; classify blocked, never success as readiness.",
-        "Full hosted F6-U03b execution abort remains before schema DROP and no transaction guard production code changes."
+        "Full hosted F6-U03b execution abort remains before schema DROP and no transaction guard production code changes.",
+        "Original v2 source may create legacy function only as temporary historical precedent inside isolated test; final SQL proof must not interpret that as authorization to expose v2 to client/service_role."
       ],
       "forbiddenStates": [
         "Any CI job connects to Supabase waterk-platform, waterk-staging, or Fresh Install.",
@@ -294,6 +296,20 @@
         "finding": "Local Postgres role mocks have no provider event semantics, TLS host proof, JWT boundary enforcement or customer Data API and cannot prove release readiness.",
         "resolution": "Hardcode releaseAuthorized=false, hostedTouched=false, providerProven=false, authenticatedTenantRlsProven=false in every result and require later independent acceptance.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-U03K-09",
+        "scenario": "Historical v2 inbound function's creation is skipped and v3 foundation tries to REVOKE privileges from a nonexistent record_inbound_office_email_v2(text,text,text,text,text).",
+        "finding": "A genuine source dependency fails before mailbox base finishes, even though static table-only DAG identified 18 files; skipping the REVOKE to pass Docker would change security semantics.",
+        "resolution": "Pin unchanged original 20260903180000 Git blob and include it before v3 source, ensure genuine v3 REVOKE occurs after v2; do not alter or skip revoke or grant in either SQL.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U03K-10",
+        "scenario": "An original v2 inbound function exposes sender-only thread selection while v3 replaces it with mailbox token threading; a successful local replay is declared acceptable without checking final v2 execute permissions.",
+        "finding": "A legacy security-definer email entrypoint could retain service_role execute access, reintroducing the cross-thread merge that modern v3 explicitly revokes.",
+        "resolution": "Keep all 19 original source bytes unchanged and require separate final service-role ACL proof and supersession review before a versioned production package can be approved; local Docker success is never authorization.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -301,7 +317,8 @@
       "Source-only compose complete 59 unchanged reviewed SQL and 18 original source-verified candidate prelude before original 0055, preserve actual original preflight/postflight/seed.",
       "Vitest adversarial cases on source hashes, source order, original abort-before-DROP and no hosted execution.",
       "Run actual two-service Docker PG17 CI; capture original SQL error, classify blocked and actual rollback aftermath; if commit succeeds, execute independent forced rollback.",
-      "Quality/TS/Build/Security/Completion Truth/Lifecycle exact head proving only scoped diagnostic, not release approval."
+      "Quality/TS/Build/Security/Completion Truth/Lifecycle exact head proving only scoped diagnostic, not release approval.",
+      "Source-pin upstream 20260903180000 v2 function creator in canonical main and validate chronological successor v3 SQL REVOKE; add negative tamper and marker ordering tests."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
@@ -867,7 +884,7 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Authentic frozen 59 SQL customer-baseline fails at original 0055 because public.office_mailboxes does not exist. Prior source-authentic F6-U03j verified 18 candidate original Office prerequisite/follow-up files and 23 table edges. Need independently execute original SQL in Docker 17 with candidates inserted before 0055 to reveal further missing SQL/provider dependencies, without claiming ready or weakening immutable source release package.",
+    "problemStatement": "Authentic frozen 59 SQL customer-baseline fails at original 0055 because public.office_mailboxes does not exist. Prior source-authentic F6-U03j verified 18 candidate original Office prerequisite/follow-up files and 23 table edges. Need independently execute original SQL in Docker 17 with candidates inserted before 0055 to reveal further missing SQL/provider dependencies, without claiming ready or weakening immutable source release package. Real PG17 original run #38807351988 completed isolated containers and failed in 20260908030000 when REVOKE on public.record_inbound_office_email_v2(text,text,text,text,text) found function absent. Main's original 20260903180000 source creates that legacy function; new diagnostic must include original Git-blob-pinned v2 source *before* the 20260908030000 predecessor, and still prove legacy grant is revoked by v3 before any final state claim.",
     "observableOutcomes": [
       "Pin complete original 59 file source hash and all 18 Office candidate original main Git blobs and content, preserve exact byte strings, and compose a one-transaction diagnostic with these 18 sources before 0055.",
       "Before any SQL, assert only real local Docker PG17 peer endpoint, database, role and server version and source-reviewed original preflight/auth-bootstrap/neutral-seed/postflight placement.",
@@ -875,7 +892,8 @@
       "If SQL and postflight actually pass, check persisted schema and run a distinct fresh Docker PG17 injected pre-COMMIT error, verifying complete rollback.",
       "Machine output reports ALWAYS RELEASE_NOT_AUTHORIZED; supersession, Auth/Storage, TLS and signed-in tenant Alap/Pro semantics remain BLOCKED.",
       "Exact-head canonical Development Guard, Plan Before Code, Edit-Time, Quality/TypeScript/Build, Completion Truth/Lifecycle checks for this diagnostic only.",
-      "The 20260910070300 Communication Hub FK-index file runs only after original 0057 and before original 0058, not in the 17-file pre-0055 Office predecessor prelude."
+      "The 20260910070300 Communication Hub FK-index file runs only after original 0057 and before original 0058, not in the 17-file pre-0055 Office predecessor prelude.",
+      "Add original 20260903180000_inbound_office_email_atomic_v2.sql from pinned canonical main as the earliest extra source before original 0055, and verify v3 migration REVOKEs service_role from this v2 API; no legacy API is promoted to release."
     ],
     "unresolvedRisks": [
       "18 candidate timestamped sources can contain superseded authorization, plan guards or unsafe grants; diagnostic isolated Docker execution is no authority for release.",
@@ -1021,5 +1039,5 @@
       }
     ]
   },
-  "notes": "F6-U03k critical Docker-only diagnostic of 17 source-authentic Office predecessors pre-0055 and one 20260910070300 follow-up post-0057; any local PASS is not release approval, no original source mutation, #1228 remains owner. Specialist challenge model-generated. Corrected source chronology before code commit: 17 predecessor SQL before 0055 and 20260910070300 FK index follow-up after 0057, before 0058. Not all 18 belong ahead of 0055."
+  "notes": "F6-U03k critical Docker-only diagnostic of 17 source-authentic Office predecessors pre-0055 and one 20260910070300 follow-up post-0057; any local PASS is not release approval, no original source mutation, #1228 remains owner. Specialist challenge model-generated. Corrected source chronology before code commit: 17 predecessor SQL before 0055 and 20260910070300 FK index follow-up after 0057, before 0058. Not all 18 belong ahead of 0055. Incremental real PG17 evidence at #38807351988: SQL error function public.record_inbound_office_email_v2(text,text,text,text,text) does not exist, triggered by 20260908030000 v3 REVOKE; original main 20260903180000 creates it. Scope extends from 59+18 to 59+19 original sources (18 before 0055, one FK follow-up after 0057), still local-only, no legacy grant acceptance."
 }
