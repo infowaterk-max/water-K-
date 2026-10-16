@@ -1,0 +1,85 @@
+name: F6-U03r original occupied PostgreSQL17 Office 0046 to 0058 upgrade and rollback
+on:
+  push:
+    branches: [feature/core-1186-f6-u03r-occupied-upgrade-proof]
+    paths:
+      - scripts/shoperation-f6-u03r-occupied-upgrade.mjs
+      - tests/shoperation-f6-u03r-occupied-upgrade.test.ts
+      - .github/workflows/f6-u03r-real-occupied-upgrade.yml
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-occupied-upgrade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      pg:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f6-u03r-local-only
+          POSTGRES_DB: f6_u03i_fresh
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d f6_u03i_fresh"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+    env:
+      PGPASSWORD: f6-u03r-local-only
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: |
+          npm ci --no-audit --no-fund
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+      - name: Reject inherited hosted SQL targets and prove disposable PostgreSQL17 Docker peer
+        env:
+          PG_CONTAINER: ${{ job.services.pg.id }}
+        run: |
+          for key in PGHOST PGHOSTADDR PGSERVICE PGSERVICEFILE PGDATABASE PGOPTIONS DATABASE_URL SUPABASE_DB_URL SHOPERATION_FRESH_INSTALL_DB_URL; do
+            if printenv "$key" >/dev/null 2>&1; then echo "F6U03R_UNSAFE_SELECTOR=$key" >&2; exit 1; fi
+          done
+          peer="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$PG_CONTAINER")"
+          actual="$(psql -XAt -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -c "select host(inet_server_addr())||'|'||current_database()||'|'||current_user||'|'||current_setting('server_version_num')")"
+          case "$actual" in "$peer|f6_u03i_fresh|postgres|17"????) echo 'DISPOSABLE_DOCKER_PG17_PROVED';; *) echo 'F6U03R_UNSAFE_DATABASE' >&2;exit 1;; esac
+      - name: Emit 78 exact original SQL sources split into 47 historic plus 31 upgrade and run adversarial tests
+        run: |
+          node scripts/shoperation-f6-u03r-occupied-upgrade.mjs --emit artifacts/f6-u03r/occupied-upgrade
+          npx vitest run tests/shoperation-f6-u03r-occupied-upgrade.test.ts
+      - name: Commit original 0046 schema then seed real existing customer Office thread, message, task
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03r/occupied-upgrade/bootstrap.sql >artifacts/f6-u03r/occupied-upgrade/bootstrap.log 2>&1
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03r/occupied-upgrade/legacy.sql >artifacts/f6-u03r/occupied-upgrade/legacy.log 2>&1
+          tail -1 artifacts/f6-u03r/occupied-upgrade/legacy.log | grep -Fx COMMIT
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03r/occupied-upgrade/seed.sql >artifacts/f6-u03r/occupied-upgrade/seed.log 2>&1
+          psql -XAt -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03r/occupied-upgrade/before.sql >artifacts/f6-u03r/occupied-upgrade/before.log
+      - name: Inject actual late migration fault and assert restored legacy state
+        run: |
+          if psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03r/occupied-upgrade/rollback.sql >artifacts/f6-u03r/occupied-upgrade/rollback.log 2>&1; then
+            echo F6U03R_FAULT_DID_NOT_FAIL >&2;exit 1
+          fi
+          grep -F F6U03R_INJECTED_ROLLBACK artifacts/f6-u03r/occupied-upgrade/rollback.log
+          psql -XAt -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03r/occupied-upgrade/after-rollback.sql >artifacts/f6-u03r/occupied-upgrade/after-rollback.log
+      - name: Commit 31 original forward source migrations, verify all historical positive data and real privacy RLS
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03r/occupied-upgrade/upgrade.sql >artifacts/f6-u03r/occupied-upgrade/upgrade.log 2>&1
+          grep -F F6U03R_UPGRADE_COMPLETE artifacts/f6-u03r/occupied-upgrade/upgrade.log
+          tail -1 artifacts/f6-u03r/occupied-upgrade/upgrade.log | grep -Fx COMMIT
+          psql -XAt -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03r/occupied-upgrade/after.sql >artifacts/f6-u03r/occupied-upgrade/after.log
+          node scripts/shoperation-f6-u03r-occupied-upgrade.mjs --assess artifacts/f6-u03r/occupied-upgrade
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03r-occupied-native-PG17-${{ github.sha }}
+          path: artifacts/f6-u03r/occupied-upgrade/
+          retention-days: 14
+          if-no-files-found: warn

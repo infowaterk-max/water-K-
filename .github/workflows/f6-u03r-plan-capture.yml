@@ -1,0 +1,55 @@
+name: F6-U03r critical occupied-database Office upgrade plan
+on:
+  push:
+    branches: [feature/core-1186-f6-u03r-occupied-upgrade-proof]
+    paths:
+      - .github/workflows/f6-u03r-plan-capture.yml
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  critical-plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --no-audit --no-fund
+      - name: Enforce canonical Plan Before Code gate before implementation
+        run: node scripts/shoperation-plan-before-code.mjs --check
+      - name: Guard development plan only, no implementation SQL execution
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186 F6-U03r: prove forward-only occupied 0046 to 0058 Office upgrade with 78 immutable original sources and preserved tenant rows in disposable PostgreSQL17" \
+            --files "scripts/shoperation-f6-u03r-occupied-upgrade.mjs;tests/shoperation-f6-u03r-occupied-upgrade.test.ts;.github/workflows/f6-u03r-plan-capture.yml;.github/workflows/f6-u03r-real-occupied-upgrade.yml;docs/po/CORE_1186_F6_U03R_OCCUPIED_UPGRADE_2026-10-16.md;quality/development/active-plan.json" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/issues/1228" \
+            --write-plan --check
+      - name: Run adversarial original occupied-upgrade unit tests
+        run: npx vitest run tests/shoperation-f6-u03r-occupied-upgrade.test.ts
+      - name: Inspect original Known Failures and draft plan
+        if: always()
+        run: |
+          cat artifacts/shoperation-development-guard/development-guard.md || :
+          node --input-type=module <<'NODE'
+          import {readFileSync,existsSync} from 'node:fs';
+          if(existsSync('quality/development/active-plan.json')){
+            const s=readFileSync('quality/development/active-plan.json').toString('base64');
+            for(let i=0;i<s.length;i+=1200)console.log('F6U03R_PLAN='+s.slice(i,i+1200));
+          }
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f6-u03r-original-development-guard-${{ github.sha }}
+          path: |
+            quality/development/active-plan.json
+            artifacts/shoperation-development-guard/development-guard.md
+            artifacts/shoperation-development-guard/development-guard.json
+          retention-days: 7
