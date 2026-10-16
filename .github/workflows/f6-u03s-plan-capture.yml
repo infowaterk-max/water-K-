@@ -1,0 +1,30 @@
+name: F6-U03s native Office forward release plan
+on:
+  push:
+    branches: [feature/core-1186-f6-u03s-forward-release-readiness]
+    paths:
+      - .github/workflows/f6-u03s-plan-capture.yml
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 24}
+      - run: npm ci --no-audit --no-fund
+      - name: Require canonical critical plan before implementation
+        run: node scripts/shoperation-plan-before-code.mjs --check
+      - name: Capture original Development Guard scope without changing committed plan
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186 F6-U03s read-only managed Fresh Install pre-release attestation with immutable 31 Office migrations exact source and plan; no hosted SQL write, staging resume or release authorization" \
+            --files ".github/workflows/f6-u03s-plan-capture.yml;scripts/shoperation-f6-u03s-forward-release-readiness.mjs;tests/shoperation-f6-u03s-forward-release-readiness.test.ts;docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md;quality/development/active-plan.json" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/issues/1228" \
+            --check
