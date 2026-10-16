@@ -225,7 +225,7 @@
         ]
       },
       {
-        "role": "Database",
+        "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
         "finding": "Policies may be attached to partitioned relations; only `pg_policy` joined to simple tables can be incomplete.",
