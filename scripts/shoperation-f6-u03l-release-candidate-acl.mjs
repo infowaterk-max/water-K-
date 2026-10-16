@@ -46,6 +46,10 @@ export function checkCandidateManifest(m){
     m.sources.slice(0,c).filter(x=>x.authority==='original-main-office-history').length!==18||
     m.sources.slice(e+1).some(x=>x.authority==='original-main-office-history'))
   fail('F6U03L_ORDERED_ORIGINAL_DEPENDENCY_INVALID');
+ const {candidateSha256,...unsigned}=m;
+ if(!/^[0-9a-f]{64}$/.test(candidateSha256||'')||
+    candidateSha256!==sha(JSON.stringify(unsigned)))
+  fail('F6U03L_CANDIDATE_DIGEST_DRIFT');
  return true;
 }
 export function buildCandidateManifest({root=process.cwd()}={}){
@@ -83,8 +87,9 @@ export function buildCandidateManifest({root=process.cwd()}={}){
   originalTargetPreflightAndPostflightPresent:true,localPg17CommitAndRollbackPreviouslyProven:true,
   knownOpenAcceptance:['legacy and Office-wide ACL/RLS supersession review','managed Supabase provider proof','signed-in Alap/Pro tenant JWT/RLS','TLS-bound hosted target and restore proof','PO release-package approval']
  };
- checkCandidateManifest(payload);
- return {...payload,candidateSha256:sha(JSON.stringify(payload))};
+ const manifest={...payload,candidateSha256:sha(JSON.stringify(payload))};
+ checkCandidateManifest(manifest);
+ return manifest;
 }
 export function buildFinalAclProbe(){
  return [

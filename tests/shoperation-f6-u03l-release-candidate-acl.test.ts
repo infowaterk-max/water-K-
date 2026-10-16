@@ -38,6 +38,14 @@ describe('F6-U03l immutable 78-source review candidate and effective inbound fun
   expect(()=>checkCandidateManifest({...m,sources:m.sources.map((v:{},i:number)=>i===40?{...v,gitBlob:'bad'}:v)})).toThrow('F6U03L_SOURCE_COUNT_OR_PROVENANCE_DRIFT');
   const changed=m.sources.map((v:{},i:number)=>i===40?{...v,ordinal:41,path:m.sources[39].path}:v);
   expect(()=>checkCandidateManifest({...m,sources:changed})).toThrow();
+  const validShapeButTamperedHash=m.sources.map((v:{},i:number)=>i===40?{...v,gitBlob:'0'.repeat(40)}:v);
+  expect(()=>checkCandidateManifest({...m,sources:validShapeButTamperedHash}))
+   .toThrow('F6U03L_CANDIDATE_DIGEST_DRIFT');
+  const validShapeButTamperedOrder=m.sources.map((v:{},i:number)=>i===20?{...v,path:'supabase/customer-baseline/migrations/9999_fake.sql'}:v);
+  expect(()=>checkCandidateManifest({...m,sources:validShapeButTamperedOrder}))
+   .toThrow('F6U03L_CANDIDATE_DIGEST_DRIFT');
+  expect(()=>checkCandidateManifest({...m,candidateSha256:'1'.repeat(64)}))
+   .toThrow('F6U03L_CANDIDATE_DIGEST_DRIFT');
  });
  it('generates ONLY a read-only exact-signature native PostgreSQL ACL probe',()=>{
   const sql=buildFinalAclProbe();
