@@ -167,37 +167,38 @@ jobs:
           d="$RUNNER_TEMP/fresh-safe"
           cat > "$d/owner-public.crt" <<'RECIPIENT'
           -----BEGIN CERTIFICATE-----
-          MIIEvzCCAyegAwIBAgIUNeABZI19ALrgFO+p6/snPmWDIgAwDQYJKoZIhvcNAQEL
-          BQAwbzE2MDQGA1UEAwwtU2hvcGVyYXRpb24gRnJlc2ggSW5zdGFsbCBSZWNvdmVy
-          eSAyMDI2LTEwLTE2MRQwEgYDVQQKDAtTaG9wZXJhdGlvbjEfMB0GA1UECwwWT3du
-          ZXIgT2ZmbGluZSBSZWNvdmVyeTAeFw0yNjEwMTYxNzQ0NDZaFw0yOTEwMTUxNzQ0
-          NDZaMG8xNjA0BgNVBAMMLVNob3BlcmF0aW9uIEZyZXNoIEluc3RhbGwgUmVjb3Zl
-          cnkgMjAyNi0xMC0xNjEUMBIGA1UECgwLU2hvcGVyYXRpb24xHzAdBgNVBAsMFk93
-          bmVyIE9mZmxpbmUgUmVjb3ZlcnkwggGiMA0GCSqGSIb3DQEBAQUAA4IBjwAwggGK
-          AoIBgQDMWobyKSwo5b4Ds6FYSC+Im+5MewwajahrByMb+wg3Y1aaruiwFCT2a5QK
-          qGgV4YX9dQtR1XT+4n1uFE+rVNoI0CwvTl58q/g+ctl9fNn3gzyuhH8rxO3Jmmjt
-          9LLNJxzgiBzYHrOGOEzcFNzD1zwKEgCrUCyc+g9LQX2aNsZQnuqEDpsFoXhJGwAV
-          m7nV9Fqt8CIm7H5JvK0JKe+XAyglJC31+hKYKiBayZzZt50/oRu5HiNAdnpARG1m
-          i0KbCR/Ruznj4xMHMVoqr3ID6s6TLh+NN+ts4S+uXF0fPnhVg8LOto5ZsXCpmV3L
-          JUokKe33E5kG/3OGTaWRenH9+wG+NzAIzhl133kTZ9kig/3R40bv+aEaaQYSHTWn
-          h5u4CF+ImRlgP8TUaoQHX0VqleHVxwID6Xnj+2M5qnfHQ9dTwreC864wdlsEKe+i
-          uEc2lHQydVZ2pqlra3l3E5u7OTIHv93c0cCaARnmyOc6Y9TR/MRGUX+ti1Hy6ZX5
-          kt5Pj00CAwEAAaNTMFEwHQYDVR0OBBYEFDJPQ1RUPmFnDBY3ncY688l60oeuMB8G
-          A1UdIwQYMBaAFDJPQ1RUPmFnDBY3ncY688l60oeuMA8GA1UdEwEB/wQFMAMBAf8w
-          DQYJKoZIhvcNAQELBQADggGBABnAi2NeCDeTRtycneX0PkllzdeF33F47gsMqLOu
-          FqHDTunOo+SYtOhjGdl2ctSoR+19ZG8k95fJ/etaB+c4UsKNjWWsLTFfosiX8/Zu
-          hrwDHvPFRi/hieshrbJ7Ipww8mmGM1DrIGK8hVYJpz/vQ9J5ebwlCzzi86vVxfTI
-          o335ZcZGZMMXQeM44bipRcyFJ2oqaMrjl0Jxuq2KtvFxqshjs2wISd5xoSzBZJHF
-          aNzrEUvD2RPyDAEkgjxatJnfZrMODUFjyuvR1Q5gW6IvN0ITHjWD5gi4O47zHhKZ
-          bNLW/QIiN7Z3syKIltz0Cyx/qSox3qUhkyfLELrOblYAdaLwsvBogDC5q+QLZBkq
-          HOlvAvZTrrv4194v7jTD9AXNcmK/zi8ObQCMPXF1MlZ774CNjJpPpYa3ZlvmMAKJ
-          /mFa4w0uueOARQy1e4HQs82+xXta/iE4Smdi/ehf5m9JdnSLTlUGhtfO8055G3bh
-          LCjJaIrSEvyWq+3LKedaS/Zw0g==
+          MIIE8zCCA1ugAwIBAgIUAh5aQCDhSx2IYcR42efgOAndJhEwDQYJKoZIhvcNAQEL
+          BQAwgYgxRjBEBgNVBAMMPVNob3BlcmF0aW9uIEZyZXNoIEluc3RhbGwgb2ZmbGlu
+          ZS1vd25lciByZWNvdmVyeSBPY3RvYmVyIDIwMjYxFDASBgNVBAoMC1Nob3BlcmF0
+          aW9uMSgwJgYDVQQLDB9GcmVzaCBJbnN0YWxsIERpc2FzdGVyIFJlY292ZXJ5MB4X
+          DTI2MTAxNjE3NDQ1N1oXDTM2MTAxMzE3NDQ1N1owgYgxRjBEBgNVBAMMPVNob3Bl
+          cmF0aW9uIEZyZXNoIEluc3RhbGwgb2ZmbGluZS1vd25lciByZWNvdmVyeSBPY3Rv
+          YmVyIDIwMjYxFDASBgNVBAoMC1Nob3BlcmF0aW9uMSgwJgYDVQQLDB9GcmVzaCBJ
+          bnN0YWxsIERpc2FzdGVyIFJlY292ZXJ5MIIBojANBgkqhkiG9w0BAQEFAAOCAY8A
+          MIIBigKCAYEA4Cp7jeB0Oi1+PmErt+SJU4YrEjBWolppxYaxqjUtntDnnlJwMUBu
+          gICzu0pn/mYRieJsCIHPqHTQNU5/CnxUQRZp1SwRETZj10m5+SgpNrvUsamkmjpE
+          OEHNJ5aIdaQIRCemU6EoIKbDpJuHCYTv7orY+O++b9eoYzWVIjCE1DfjJ6qFYEDX
+          5LvfYmtzJx21UtZerfM9esuG6sv4Er6pBh0JXxRiCfUESn4vtEnj1wJQHKFIOt8c
+          gkCjpZBYwxQw6V+CT5PmL/vLTwZ+hsGGbxom4J6uDSNSNVGOTrCmrq3M7khrZ14X
+          BH7Muz1NZmwjyDi8+GEk+vEo6xOA6wNldLx+4uZRPfzQpS2o4E1jLX2lb7vZ0m9s
+          iiiy98ZcGQrMoIaeOfNHbctQ86v++V+2jWqN9pu9GwTucjQojXWfNPGhaA8LvQEJ
+          sCYpdbrPShngWDo/jvN4LcoH3Jd4HCsKZpJp4mbZmwCb808X+lgcUkHVYXtz4nAS
+          MRow3mzmmnyRAgMBAAGjUzBRMB0GA1UdDgQWBBTa/R9AySV4L9m350kgcUzXSiIJ
+          KjAfBgNVHSMEGDAWgBTa/R9AySV4L9m350kgcUzXSiIJKjAPBgNVHRMBAf8EBTAD
+          AQH/MA0GCSqGSIb3DQEBCwUAA4IBgQA0rS5p4V51nvN+H2bbbLMkcNTiQ0smzGCX
+          Qog5ZELGil7oy0GrDQjhdQ6ay4kRYQevrofZmNv/M5Q8iR0/SSRy1CvlwMbFN6St
+          t4a5fFQ16oocu4aVRHiekFCBQvun4KAO6S8WYz7XwLnQAwYQ9HkO87uU0aFS69Pj
+          qEogKqs5aI8sbwSzGujHmDW85+97zQwynaDOfYbAGftjUuTeYsL2mz2osZL+V2BT
+          Zb3oTpkxT2ichdGUIgJFraWJX5tYTyy0r48JvEk0IxwQo8T8JW2gLqrtIF0NS45Z
+          301Chtx7dUgJiDlB/ccZggUeP1cAXRRaAx12atOC/gk1k4vKvfBJ0Mw7qSf0KeNg
+          JDGu7HbUlZY9VZ+U0qmHWcWlz5A+7019aOE9AyZHMs5IIYAv6sDsmrVmrY27J/Fm
+          IYs4KZI+yzbrJH6TpEgh2W0+stwicM0yjOk4h1bs5NmYRgY3puugVFl54kg4fNDa
+          PxJ5iIe73nfGJ6TyoV0qlWYmlqoNQ8k=
           -----END CERTIFICATE-----
           RECIPIENT
           openssl x509 -in "$d/owner-public.crt" -noout -checkend 86400 >/dev/null
           cert_sha="$(openssl x509 -in "$d/owner-public.crt" -outform DER | sha256sum | awk '{print $1}')"
-          test "$cert_sha" = 'c471dc8c840892d0da3da4e3fcc87378a0e00803fefc3f89e48752f45e22b8a8' || { echo 'F6_BACKUP_OWNER_CERTIFICATE_DRIFT'; exit 1; }
+          test "$cert_sha" = '8fb52aadb1fb2e5a35c678a535dcb3e1de31299eac86ab5eceec7f716f7a6e21' || { echo 'F6_BACKUP_OWNER_CERTIFICATE_DRIFT'; exit 1; }
           tar -C "$d" -cf "$d/plain.tar" app-owned.dump
           openssl cms -encrypt -binary -aes-256-gcm -in "$d/plain.tar" -out "$d/fresh-backup.cms" -outform DER -recip "$d/owner-public.crt"
           openssl cms -cmsout -inform DER -in "$d/fresh-backup.cms" -print | grep -q 'aes-256-gcm'
