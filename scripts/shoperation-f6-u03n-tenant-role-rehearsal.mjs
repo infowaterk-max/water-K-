@@ -118,9 +118,9 @@ INSERT INTO public.feature_entitlements(organization_id,instance_id,feature_code
  ('bbbbbbbb-0000-4000-8000-000000000001','bbbbbbbb-0000-4000-8000-000000000002','officeCommunication','plan',true),
  ('bbbbbbbb-0000-4000-8000-000000000001','bbbbbbbb-0000-4000-8000-000000000002','teamChat','plan',true) ON CONFLICT DO NOTHING;
 INSERT INTO public.office_threads(id,instance_id,subject,conversation_type,created_by,assigned_to) VALUES
- ('aaaaaaaa-0000-4000-8000-000000000010','aaaaaaaa-0000-4000-8000-000000000002','A customer','customer','aaaaaaaa-0000-4000-8000-000000000003','aaaaaaaa-0000-4000-8000-000000000003'),
+ ('aaaaaaaa-0000-4000-8000-000000000010','aaaaaaaa-0000-4000-8000-000000000002','A customer','customer','aaaaaaaa-0000-4000-8000-000000000003',null),
  ('aaaaaaaa-0000-4000-8000-000000000011','aaaaaaaa-0000-4000-8000-000000000002','A internal','internal_private','aaaaaaaa-0000-4000-8000-000000000003',null),
- ('bbbbbbbb-0000-4000-8000-000000000010','bbbbbbbb-0000-4000-8000-000000000002','B customer','customer','bbbbbbbb-0000-4000-8000-000000000003','bbbbbbbb-0000-4000-8000-000000000003'),
+ ('bbbbbbbb-0000-4000-8000-000000000010','bbbbbbbb-0000-4000-8000-000000000002','B customer','customer','bbbbbbbb-0000-4000-8000-000000000003',null),
  ('bbbbbbbb-0000-4000-8000-000000000011','bbbbbbbb-0000-4000-8000-000000000002','B internal','internal_private','bbbbbbbb-0000-4000-8000-000000000003',null);
 INSERT INTO public.office_thread_participants(instance_id,thread_id,user_id,participant_role)
 VALUES ('aaaaaaaa-0000-4000-8000-000000000002','aaaaaaaa-0000-4000-8000-000000000011','aaaaaaaa-0000-4000-8000-000000000003','owner'),
