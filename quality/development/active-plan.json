@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-90EB737A",
   "task": "Core #1186 F6-U03m: genuine Docker PG17 Office-wide catalog RLS/ACL/trigger inventory with fail-closed release blockers",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "90eb737a",
   "changeBaseSha": "82f039b0dfe7eb7b06196530ccc333519784bef9",
   "plannedFilePatterns": [
@@ -1057,5 +1057,18 @@
       }
     ]
   },
-  "notes": "Critical local catalog audit; manual reviewer signatures absent, semantic auth not proven; do not claim closed product Core; all findings are review inventory not vulnerabilities unless objectively demonstrable. Source files only quality/release authority despite run-time reading DB. Use native catalog, no new parallel Control Plane. Real #38852638579 native first inventory 192/447/129/123 (20/108/10/23 Office relevant, 8 provisional). Qualified risk classification requires schema USAGE in addition to object EXECUTE for direct callable SQL; managed API exposure remains unknown. Real #38852933819 native audit after schema USAGE: 8 findings, 4 private SECURITY DEFINER with authenticated EXECUTE+private USAGE, and 1 private sync_customer_office_participant_v1() is a trigger-only routine (its default PUBLIC ACL must not be mislabeled direct RPC); return type classification now mandatory."
+  "notes": "Critical local catalog audit; manual reviewer signatures absent, semantic auth not proven; do not claim closed product Core; all findings are review inventory not vulnerabilities unless objectively demonstrable. Source files only quality/release authority despite run-time reading DB. Use native catalog, no new parallel Control Plane. Real #38852638579 native first inventory 192/447/129/123 (20/108/10/23 Office relevant, 8 provisional). Qualified risk classification requires schema USAGE in addition to object EXECUTE for direct callable SQL; managed API exposure remains unknown. Real #38852933819 native audit after schema USAGE: 8 findings, 4 private SECURITY DEFINER with authenticated EXECUTE+private USAGE, and 1 private sync_customer_office_participant_v1() is a trigger-only routine (its default PUBLIC ACL must not be mislabeled direct RPC); return type classification now mandatory.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "b76691490c94d924d89db74deaa8b734e3595b25",
+    "closedAt": "2026-10-16T05:02:38.119Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
