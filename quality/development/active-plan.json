@@ -1,15 +1,15 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-C2C62999",
-  "task": "Core #1186 F6-U03t: source-anchored, read-only managed 0046 catalogue digest and empty migration-ledger provenance gate; block Office release and never claim signed provider JWT/PostgREST.",
-  "status": "closed",
+  "task": "Core #1186 F6-U03u real Supabase Auth/PostgREST read-only two-plan tenant-denial proof; no hosted writes, simulation or fake JWT release.",
+  "status": "ready-for-implementation",
   "guardDigest": "c2c62999",
-  "changeBaseSha": "33c557d3b7e74faeeba7b41c0b223cc03ba9704d",
+  "changeBaseSha": "69dba425893a5854a074c956524b8135c983f7c7",
   "plannedFilePatterns": [
-    ".github/workflows/f6-u03t-provenance-proof.yml",
-    "scripts/shoperation-f6-u03t-provenance-gate.mjs",
-    "tests/shoperation-f6-u03t-provenance-gate.test.ts",
-    "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
+    ".github/workflows/f6-u03u-provider-http-proof.yml",
+    "scripts/shoperation-f6-u03u-provider-http-proof.mjs",
+    "tests/shoperation-f6-u03u-provider-http-proof.test.ts",
+    "docs/po/CORE_1186_F6_U03U_PROVIDER_HTTP_PROOF_2026-10-16.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
@@ -102,11 +102,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1186",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical provider-catalog and ledger attestation gate. Reuse pinned F6-U03f source digest and F6-U03s 78-source proof. Distinguish observed known-hosted parity from absent historical migration provenance, JWT authorization, and full provider backup. No hosted SQL mutation.",
+      "rationale": "Critical source-only executable HTTP GET Auth user validation, strict PostgREST Office row grants/denials and unrelated token isolation, with offline mock/non-authority distinction. The current Fresh Install has no Auth users or modern Office 0048, so a live pass is impossible and release remains blocked.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -123,25 +123,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Reuse the canonical reviewed 78 SQL source authority and existing F6-U03f PostgreSQL catalog query without SQL duplication, migration or reset.",
-        "Generate a safe SELECT-only live-target probe returning the complete public/private 0046 catalogue count/digest, Supabase migration row count and absent modern Office marker.",
-        "Match 4621 known hosted legacy definitions and pinned MD5 only as known-hosted-snapshot parity, never certify source-to-managed migration provenance solely from a digest.",
-        "Reject wrong Fresh Install project, stale or forged observation, modified 78-source authority, changed 0046 catalog or nonempty unverified migration ledger; even clean input must report releaseAuthorized:false.",
-        "Positive/negative/fault-injection test suite and exact-HEAD CI, Completion Truth and Lifecycle proof for a stacked DRAFT PR."
+        "Pin single Fresh Install HTTPS project and require real Auth /auth/v1/user identity from three distinct externally approved actors; do not accept locally parsed JWT as signature proof.",
+        "Run strict readonly PostgREST exact Office thread ID allow/deny matrix for Alap, Pro, revoked-role and anonymous, treating 403/404 and redirects as failures rather than denial proof.",
+        "Reject cross-tenant leakage, unknown fields, wrong issuer, user metadata authorization, reused tokens, stale/future expired tokens and missing preapproved fixture IDs.",
+        "Positive and fault-injection offline tests exercise matrix but always mark simulated responses as non-authority; production HTTP proof only from explicit approved live GET run.",
+        "Exact-head CI, Completion Truth, Lifecycle, stacked DRAFT; no real managed provider/live JWT proven until accounts and Office schema exist."
       ],
       "invariants": [
-        "Only Supabase ref istjjkdcvsvilrycqecd may be observed; hosted read-only SELECT metadata only, no hosted DDL/DML.",
-        "Read-only verification cannot rewrite migration ledger or declare 0046 applied from an empty ledger.",
-        "Use F6-U03f canonical digest SQL and original 78-source manifests; do not duplicate source identity or modify Office SQL.",
-        "Do not claim real signed JWT/PostgREST coverage with zero users and no managed tenant fixtures.",
-        "Never modify waterk-platform, wake staging, create a paid project or write the private backup key into GitHub."
+        "GET-only Auth /user and PostgREST; no hosted SQL, user seed, password sign-in, refresh, mutation, staging wake or paid project.",
+        "Never publish tokens, service keys, Auth payload or personally identifying response bodies; ensure sanitized proof only.",
+        "Provider signed JWT only claims confirmed by Auth /user request matching expected subject, not by decoding token.",
+        "Actual remote provider success separate from source-only test closure; no automatic hosted Office release.",
+        "Core roadmap priority maintained."
       ],
       "forbiddenStates": [
-        "0046 source-to-host proven merely by hosted legacy MD5 match.",
-        "A zero-row migration ledger silently bootstrapped or marked applied.",
-        "Hosted managed release authorized by catalog check or locally simulated JWT only.",
-        "SQL write or secrets leakage during a read-only release audit.",
-        "Builder or Template development before Core closure."
+        "Mocked fetch accepted as live signed Auth proof.",
+        "A 403 permission/404 missing schema accepted as genuine RLS row-denial.",
+        "JWT service_role or anonymous user accepted as tenant identity.",
+        "Redirect or other host treated as authentic project.",
+        "Automatic migration ledger writes or Auth account creation."
       ]
     },
     "model": {
@@ -319,25 +319,25 @@
       "Commit only source validator, tests, approval-gate document and frozen plan; run exact-head Truth/Lifecycle on draft PR."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
+      "request": "https://github.com/infowaterk-max/water-K-/issues/1186",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03t-provenance-proof.yml"
+        ".github/workflows/f6-u03u-provider-http-proof.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
-        "scripts/shoperation-f6-u03t-provenance-gate.mjs",
-        "tests/shoperation-f6-u03t-provenance-gate.test.ts"
+        "docs/po/CORE_1186_F6_U03U_PROVIDER_HTTP_PROOF_2026-10-16.md",
+        "scripts/shoperation-f6-u03u-provider-http-proof.mjs",
+        "tests/shoperation-f6-u03u-provider-http-proof.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-f6-u03t-provenance-gate.test.ts",
-        ".github/workflows/f6-u03t-provenance-proof.yml"
+        ".github/workflows/f6-u03u-provider-http-proof.yml",
+        "tests/shoperation-f6-u03u-provider-http-proof.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -825,16 +825,16 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Fresh Install has a known 0046 catalogue with empty Supabase migration ledger. It is unsafe to infer original source provenance or readiness for 31 Office migrations solely from a clean 4621-object legacy digest.",
+    "problemStatement": "Actual provider-issued JWT and managed PostgREST Alap/Pro roles and cross-tenant denials were never proven; local PG17 synthetic JWT is not Auth provider evidence.",
     "observableOutcomes": [
-      "Non-executable read-only SQL with canonical catalogue fingerprint and explicit zero-ledger visibility.",
-      "Machine-readable fail-closed provenance decision, adversarial and negative tests, no hosted writes.",
-      "Provider JWT/PostgREST proofs remain separately blocked."
+      "Executable future owner-approved provider Auth+PostgREST GET proof.",
+      "No issuer/actor/RLS bypass accepted in positive/negative checks.",
+      "No hosted execution now, proper blocked verdict."
     ],
     "unresolvedRisks": [
-      "Owner off-platform private-key custody unconfirmed.",
-      "Empty managed migration ledger has no original 0046 source provenance.",
-      "Provider Auth/JWT/PostgREST Alap/Pro user journey unavailable on empty Fresh Install."
+      "Live Auth users 0 and Office 0048 table absent on Fresh Install; cannot assert provider proof.",
+      "Original 0046 hosted migration ledger empty.",
+      "Owner backup private key off-platform custody unconfirmed."
     ],
     "scope": {
       "in": [
@@ -855,7 +855,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1186",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -874,11 +874,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-T-01",
-        "requirement": "Exact 0046 managed catalogue digest matches pinned known-hosted historical snapshot without certifying lineage.",
+        "id": "REQ-U-01",
+        "requirement": "Single target provider Auth /user and PostgREST READ only.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03t-readonly-legacy-catalogue-provenance",
+          "breadth": "F6-U03u-provider-http-get-harness",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -899,8 +899,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-T-01",
-            "statement": "No hosted DDL, ledger write, or falsely asserted source provenance or provider JWT coverage.",
+            "id": "NEG-REQ-U-01",
+            "statement": "No hosted mutation, mock-issued JWT claim or automatic release.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -908,11 +908,11 @@
         ]
       },
       {
-        "id": "REQ-T-02",
-        "requirement": "Canonical original SQL source and migration-ledger state are checked fail-closed, and SQL emission is SELECT-only.",
+        "id": "REQ-U-02",
+        "requirement": "Alap, Pro, revoked and anon actor positive/negative strict proof matrix.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03t-readonly-legacy-catalogue-provenance",
+          "breadth": "F6-U03u-provider-http-get-harness",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -933,8 +933,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-T-02",
-            "statement": "No hosted DDL, ledger write, or falsely asserted source provenance or provider JWT coverage.",
+            "id": "NEG-REQ-U-02",
+            "statement": "No hosted mutation, mock-issued JWT claim or automatic release.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -942,11 +942,11 @@
         ]
       },
       {
-        "id": "REQ-T-03",
-        "requirement": "Release stays blocked on key custody, migration history, provider JWT/PostgREST and provider-managed recovery.",
+        "id": "REQ-U-03",
+        "requirement": "Mocked HTTP and missing hosted Auth prerequisites must never count as signed-JWT proof.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03t-readonly-legacy-catalogue-provenance",
+          "breadth": "F6-U03u-provider-http-get-harness",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -967,8 +967,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-T-03",
-            "statement": "No hosted DDL, ledger write, or falsely asserted source provenance or provider JWT coverage.",
+            "id": "NEG-REQ-U-03",
+            "statement": "No hosted mutation, mock-issued JWT claim or automatic release.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -977,18 +977,5 @@
       }
     ]
   },
-  "notes": "F6-U03t critical plan before implementation: verified parent #1400 HEAD 33c557d3b7e74faeeba7b41c0b223cc03ba9704d. New unit is read-only provenance diagnostic, not managed release authority. Physical SQL writes, backward migrations, JWT impersonation and live tenant seeding are forbidden. Corrected to exact F6-U03t Development Guard observed 46-failure scope, 5 subsystem set, negative-knowledge applicability and c2c62999 digest (first CI fail-closed). Workflow is canonical MUST_EDIT material proof; existing source modules remain unchanged. F6-U03t canonical Plan Before Code projection includes 21 negative-knowledge constraints; include the full set, not only the older Development Guard listing. Truth Gate at implementation head 51754e7a7c760a3627c511adbce4680d0e78e26a VERIFIED_DONE (9 passed, stale 0, missing 0), exact-head full CI quality 3818/3818, TypeScript/build/security success. Persist lifecycle LEARN without granting hosted release. The previous CI Lifecycle required closure metadata as expected.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "51754e7a7c760a3627c511adbce4680d0e78e26a",
-    "closedAt": "2026-10-16T19:48:08.600Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Critical plan and source scope authorized before code. Parent #1404 exact HEAD 69dba425893a5854a074c956524b8135c983f7c7. Real signed provider JWT/managed test remains blocked due zero auth users; harness may be developed source-only. NEVER store HTTP tokens in GitHub. No hosted SQL writes."
 }
