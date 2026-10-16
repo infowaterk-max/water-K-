@@ -151,7 +151,13 @@ export async function performOwnerApprovedLiveProbe({fixture,tokens,publishableK
  return Object.freeze({...proof,
   decision:'LIVE_AUTH_POSTGREST_GET_EVIDENCE_ONLY_RELEASE_STILL_BLOCKED',
   remoteTransportAuthority:'NODE_RUNTIME_REAL_HTTPS_GET',
-  providerSignedJwtProven:true,managedPostgrestReadOnlyRlsProven:true,
+  providerSignedJwtProven:true,
+  managedPostgrestReadOnlyMatrixObserved:true,
+  // Empty RLS results alone cannot establish that each fixture row exists;
+  // owner-controlled revoked role state also needs independent confirmation.
+  managedPostgrestReadOnlyRlsProven:false,
+  fixtureExistenceIndependentlyProven:false,
+  revokedRoleStateIndependentlyProven:false,
   appMigrationProvenanceReconciled:false,ownerRecoveryKeyConfirmed:false,
   releaseAuthorized:false});
 }
