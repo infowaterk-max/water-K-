@@ -22,4 +22,6 @@ Offline positive/negative tests exercise proper requests, identity verification,
 
 Even if separately approved real GET evidence is obtained later, it does NOT reconcile the empty hosted 0046 migration ledger, establish private-key custody or full Supabase Auth/Storage/PITR recovery, nor authorize the forward 31 Office migrations. The revoked role must be externally established before the read-only check; this script never changes role bindings.
 
+**Critical evidence limit:** HTTP 200 with an empty array can also arise if a fixture row does not exist. Therefore the live read-only matrix may attest observable Auth identity and HTTP allow/empty behaviour only. It always records managedPostgrestReadOnlyRlsProven:false, fixtureExistenceIndependentlyProven:false and revokedRoleStateIndependentlyProven:false until independently sourced presence and revoked-binding proofs can be established. Never promote these to full managed RLS acceptance.
+
 No hosted writes, no staging activation, no new paid project and no automatic template or Builder work. Issues #1186 and #1228 stay open until the entire capability closure chain passes.
