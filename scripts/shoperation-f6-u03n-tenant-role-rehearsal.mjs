@@ -116,7 +116,7 @@ INSERT INTO public.feature_entitlements(organization_id,instance_id,feature_code
  ('aaaaaaaa-0000-4000-8000-000000000001','aaaaaaaa-0000-4000-8000-000000000002','officeCommunication','plan',true),
  ('aaaaaaaa-0000-4000-8000-000000000001','aaaaaaaa-0000-4000-8000-000000000002','teamChat','manual',true),
  ('bbbbbbbb-0000-4000-8000-000000000001','bbbbbbbb-0000-4000-8000-000000000002','officeCommunication','plan',true),
- ('bbbbbbbb-0000-4000-8000-000000000001','bbbbbbbb-0000-4000-8000-000000000002','teamChat','plan',true);
+ ('bbbbbbbb-0000-4000-8000-000000000001','bbbbbbbb-0000-4000-8000-000000000002','teamChat','plan',true) ON CONFLICT DO NOTHING;
 INSERT INTO public.office_threads(id,instance_id,subject,conversation_type,created_by,assigned_to) VALUES
  ('aaaaaaaa-0000-4000-8000-000000000010','aaaaaaaa-0000-4000-8000-000000000002','A customer','customer','aaaaaaaa-0000-4000-8000-000000000003','aaaaaaaa-0000-4000-8000-000000000003'),
  ('aaaaaaaa-0000-4000-8000-000000000011','aaaaaaaa-0000-4000-8000-000000000002','A internal','internal_private','aaaaaaaa-0000-4000-8000-000000000003',null),
@@ -133,6 +133,16 @@ INSERT INTO public.office_tasks(instance_id,thread_id,title,created_by)
 SELECT instance_id,id,'F6N_SYNTHETIC_LOCAL_ONLY',created_by FROM public.office_threads
 WHERE id IN ('aaaaaaaa-0000-4000-8000-000000000010','aaaaaaaa-0000-4000-8000-000000000011','bbbbbbbb-0000-4000-8000-000000000010','bbbbbbbb-0000-4000-8000-000000000011');
 DO $f6n$ BEGIN
+ IF NOT EXISTS(
+   SELECT 1 FROM public.feature_entitlements e
+   WHERE e.instance_id='aaaaaaaa-0000-4000-8000-000000000002' AND e.feature_code='officeCommunication' AND e.enabled=true
+ ) OR NOT EXISTS(
+   SELECT 1 FROM public.feature_entitlements e
+   WHERE e.instance_id='bbbbbbbb-0000-4000-8000-000000000002' AND e.feature_code='teamChat' AND e.enabled=true
+ ) OR NOT EXISTS(
+   SELECT 1 FROM public.feature_entitlements e
+   WHERE e.instance_id='aaaaaaaa-0000-4000-8000-000000000002' AND e.feature_code='teamChat' AND e.source='manual' AND e.enabled=true
+ ) THEN RAISE EXCEPTION 'F6U03N_REQUIRED_ENTITLEMENT_SEED_NOT_MATERIALIZED'; END IF;
  IF (SELECT count(*) FROM public.organizations WHERE slug LIKE 'f6n-local-%')<>2
     OR (SELECT count(*) FROM public.office_threads WHERE subject LIKE 'A %' OR subject LIKE 'B %')<>4
     OR (SELECT count(DISTINCT organization_id) FROM public.webshop_instances WHERE slug LIKE 'f6n-local-%')<>2
