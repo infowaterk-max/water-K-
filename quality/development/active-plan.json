@@ -128,7 +128,8 @@
         "Negative tests show absent/garbled catalog, missing mandated v2/v3 function, malformed role grant, disabled RLS, exposed SECURITY DEFINER and missing source identity fail/flag correctly.",
         "Always release BLOCKED pending full semantic Office policy/ACL/RPC supersession review, signed-in tenant JWT Alap/Pro, managed provider Auth/Storage and approved migration package, even with zero findings.",
         "Exact-head source proof, quality, TS/build, Security Audit, Completion Truth and Lifecycle pass for inventory diagnostic only.",
-        "Every related catalog relation/function reports native anon/authenticated schema USAGE, and exposed privileged-function high signal requires both matching role function EXECUTE and schema USAGE; ACL-only cases get review severity."
+        "Every related catalog relation/function reports native anon/authenticated schema USAGE, and exposed privileged-function high signal requires both matching role function EXECUTE and schema USAGE; ACL-only cases get review severity.",
+        "Native pg_proc catalog identifies trigger-returning functions, and negative test differentiates trigger helper ACL review from genuinely callable SECURITY DEFINER with authenticated schema USAGE."
       ],
       "invariants": [
         "All 78 historical Git-pinned source bytes untouched; native SELECT-only catalog executes after real original PostgreSQL17 COMMIT.",
@@ -318,6 +319,13 @@
         "scenario": "A private-schema SECURITY DEFINER has effective EXECUTE for anon but no USAGE on its private namespace, and is classified as directly browser-exposable.",
         "finding": "Function EXECUTE alone is not a callable API: PostgreSQL requires schema USAGE, and provider Data API schema exposure is another independent gate. An unconditional HIGH finding is a false positive.",
         "resolution": "Query has_schema_privilege for each table/function namespace, classify high direct exposure only when schema USAGE and role EXECUTE are both true; retain ACL-only as REVIEW_REQUIRED and provider exposure separate.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U03M-10",
+        "scenario": "A native PostgreSQL trigger-returning helper (prorettype trigger) has EXECUTE to PUBLIC/authenticated with private schema USAGE and is marked as directly callable SECURITY DEFINER RPC.",
+        "finding": "PostgreSQL trigger functions can only run as triggers; routine-level EXECUTE metadata is not sufficient to classify direct SQL invocation as a browser RPC entrypoint.",
+        "resolution": "Collect function return type from pg_proc, classify `RETURNS trigger` function as trigger-only ACL review and never as direct-browser SQL RPC even with schema USAGE; separately review the enabled trigger and source integrity.",
         "status": "resolved"
       }
     ],
@@ -900,7 +908,8 @@
       "Fail closed on absent, malformed, incomplete, forged or contradictory native PG17 evidence; raw JSON evidence stored with final machine findings and source candidate version.",
       "Preserve explicit releaseAuthorized=false, hostedTouched=false, jwtTenantRlsProven=false, providerManagedProven=false even if diagnostic CI is SUCCESS.",
       "Exact-head independent Docker17 proof, negative Vitest, source provenance, normal CI, Truth and Lifecycle pass for scoped diagnostic only.",
-      "Distinguish effective object/function EXECUTE grants from schema USAGE for anon/authenticated, and do not label private SECURITY DEFINER high-risk direct browser exposure without namespace USAGE."
+      "Distinguish effective object/function EXECUTE grants from schema USAGE for anon/authenticated, and do not label private SECURITY DEFINER high-risk direct browser exposure without namespace USAGE.",
+      "Function catalog must include native PostgreSQL trigger-return signature flag; high direct-RPC exposure excludes trigger functions (which cannot be invoked directly)."
     ],
     "unresolvedRisks": [
       "Native Docker roles are fixture roles, not real Supabase JWT sessions; authenticated/Alap/Pro row-boundary tests remain blocked.",
@@ -1048,5 +1057,5 @@
       }
     ]
   },
-  "notes": "Critical local catalog audit; manual reviewer signatures absent, semantic auth not proven; do not claim closed product Core; all findings are review inventory not vulnerabilities unless objectively demonstrable. Source files only quality/release authority despite run-time reading DB. Use native catalog, no new parallel Control Plane. Real #38852638579 native first inventory 192/447/129/123 (20/108/10/23 Office relevant, 8 provisional). Qualified risk classification requires schema USAGE in addition to object EXECUTE for direct callable SQL; managed API exposure remains unknown."
+  "notes": "Critical local catalog audit; manual reviewer signatures absent, semantic auth not proven; do not claim closed product Core; all findings are review inventory not vulnerabilities unless objectively demonstrable. Source files only quality/release authority despite run-time reading DB. Use native catalog, no new parallel Control Plane. Real #38852638579 native first inventory 192/447/129/123 (20/108/10/23 Office relevant, 8 provisional). Qualified risk classification requires schema USAGE in addition to object EXECUTE for direct callable SQL; managed API exposure remains unknown. Real #38852933819 native audit after schema USAGE: 8 findings, 4 private SECURITY DEFINER with authenticated EXECUTE+private USAGE, and 1 private sync_customer_office_participant_v1() is a trigger-only routine (its default PUBLIC ACL must not be mislabeled direct RPC); return type classification now mandatory."
 }
