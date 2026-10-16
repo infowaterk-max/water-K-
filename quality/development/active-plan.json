@@ -307,8 +307,7 @@
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03s-plan-capture.yml",
-        "quality/development/active-plan.json"
+        ".github/workflows/f6-u03s-plan-capture.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
@@ -964,5 +963,5 @@
       }
     ]
   },
-  "notes": "F6-U03s implementation batch recorded: canonical 78-original source SHA f570cbaa2cc6dea53bb123b8192c59335855c6e6227e48d0f564c4c85261b81e; 31-forward suffix source audit, read-only live Fresh Install snapshot and adversarial tests. Exact-head CI gates remain required; no hosted SQL executed; owner off-platform key custody, provider JWT/API and ledger provenance remain separately blocked."
+  "notes": "F6-U03s implementation batch recorded: canonical 78-original source SHA f570cbaa2cc6dea53bb123b8192c59335855c6e6227e48d0f564c4c85261b81e; 31-forward suffix source audit, read-only live Fresh Install snapshot and adversarial tests. Exact-head CI gates remain required; no hosted SQL executed; owner off-platform key custody, provider JWT/API and ledger provenance remain separately blocked. Canonical edit-time implementation-sync excludes quality/development/active-plan.json from materialFiles as metadata; semantic mustEdit now covers only implementation source targets."
 }
