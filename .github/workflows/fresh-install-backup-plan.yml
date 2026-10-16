@@ -26,6 +26,8 @@ jobs:
             --risk critical \
             --source-ref "https://github.com/infowaterk-max/water-K-/issues/1228" \
             --write-plan --check
+      - name: Critical Plan Before Code must PASS before backup implementation
+        run: node scripts/shoperation-plan-before-code.mjs --check
       - name: Show draft plan and known failures only
         if: always()
         run: |

@@ -1,24 +1,20 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-074C4B63",
-  "task": "Core #1186 F6-U03r: prove forward-only occupied 0046 to 0058 Office upgrade with 78 immutable original sources and preserved tenant rows in disposable PostgreSQL17",
-  "status": "closed",
-  "guardDigest": "074c4b63",
-  "changeBaseSha": "f476b088cf4f594b560091b201ffbe4fc241a2be",
+  "taskId": "DEV-67438174",
+  "task": "Core #1186: protect existing Fresh Install PostgreSQL17 owner-owned public/private schema and catalog rows with native pg_dump and owner-key encrypted GitHub artifact; prove archive decrypt/restore, never run hosted DDL or expose credentials",
+  "status": "ready-for-implementation",
+  "guardDigest": "67438174",
+  "changeBaseSha": "86deae77577d38e8dc20ef0490d0af8661e11eb3",
   "plannedFilePatterns": [
-    "scripts/shoperation-f6-u03r-occupied-upgrade.mjs",
-    "tests/shoperation-f6-u03r-occupied-upgrade.test.ts",
-    ".github/workflows/f6-u03r-plan-capture.yml",
-    ".github/workflows/f6-u03r-real-occupied-upgrade.yml",
-    "docs/po/CORE_1186_F6_U03R_OCCUPIED_UPGRADE_2026-10-16.md",
+    ".github/workflows/fresh-install-backup-plan.yml",
+    ".github/workflows/fresh-install-encrypted-backup.yml",
+    "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
@@ -30,30 +26,63 @@
     "SQ-KF-014",
     "SQ-KF-022",
     "SQ-KF-025",
+    "SQ-KF-001",
+    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
+    "SQ-KF-005",
     "SQ-KF-006",
+    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
     "SQ-KF-018",
+    "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-023",
     "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-004",
     "TF-KF-005",
+    "TF-KF-006",
     "TF-KF-007",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
+    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015"
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
+    "SQ-NK-004",
     "SQ-NK-005",
+    "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012",
+    "SQ-NK-014",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -71,7 +100,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical data-preserving schema-upgrade rehearsal with occupied tenant records can reveal failures hidden by empty installation. Reuse all original 78 Git-pinned migrations in two committed stages on identity-verified disposable Docker PostgreSQL17; block hosted mutations and claims about real Auth-signed JWT, recovery/restore, schema parity or deployment.",
+      "rationale": "Database dump uses existing pinned Fresh Install repository secret only in isolated GitHub runner; never publish plaintext backup, password, encrypted archive without a private key or false hosted migration proof. Run pg_dump PG17 under TLS target-check and perform native pg_restore with original source schema before encrypted artifact upload; no managed DDL.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -88,28 +117,29 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Two separate real PG17 committed states: after original 0046 legacy baseline, and after original 0047..0058 plus 19 historical source migrations.",
-        "At least one nonzero prior Office thread with preserved exact ID, tenant and user, positive before/after upgrade; modern participant row backfill post-upgrade.",
-        "Fault-injection rollback from legacy state fails with ON_ERROR_STOP and proves original legacy table/policy remains without partially applied new participant table.",
-        "No source SQL copied with modifications; original 78 pinned Git blobs reused, and stage2 does not execute empty-target preflight or replay old baseline.",
-        "All operations local disposable PG17 with real native results; hosted untouched, signed Supabase JWT/Data API unproven.",
-        "Security/Quality/TypeScript/Build, exact-head Truth/Lifecycle and PR Draft, no merge."
+        "Fresh Install ref istjjkdcvsvilrycqecd, zero user/customer rows and known 175+2 legacy app tables confirmed read only immediately before dump; never operate on waterk-platform or staging.",
+        "Native PostgreSQL17 pg_dump reads all public/private application schema and rows using existing SHOPERATION_FRESH_INSTALL_DB_URL secret; validates explicit hostname/DB/username and TLS verify-full; zero external output of credentials.",
+        "One pg_dump -Fc custom archive is parsed by native pg_restore --list and its data is rehydrated into separately sourced local PG17 legacy 0046 schema; verify 113 original neutral catalog rows, supported core table counts and original schema class.",
+        "Encrypt archive with AES-256-GCM CMS and owner-held 3072-bit RSA public certificate; test encryption/decryption locally before exposure; no private key committed, uploaded or stored in GitHub.",
+        "Upload only encrypted backup (and manifest with non-sensitive counts/digests) as a retention-limited GitHub artifact; no plaintext backup artifact even if steps fail.",
+        "Never deploy reviewed 31 SQL migrations until backup archive, its decryption and restoration evidence are verified; do not modify Supabase schema or migration ledger in this unit."
       ],
       "invariants": [
-        "Never modify original 59 baseline SQL files or 19 main migration source files.",
-        "Require positive legacy data; cannot mark success if data missing before or after.",
-        "Do not skip, duplicate, reorder or drop any of 78 pinned source files.",
-        "Only Docker PG17 fixture with peer identity guard; fail if inherited hosted DB URLs.",
-        "Fault transaction must rollback without persistence, no destructive hosted executor.",
-        "Core #1186 and #1228 remain open pending migration provenance and provider API."
+        "Original application schema and customer data never mutated by backup job.",
+        "No GitHub Actions secret may be echoed, logged, uploaded, or written to repo.",
+        "Private key stays only in owner-controlled user-download artifact and never in GitHub/CI logs.",
+        "Stop on any wrong target URL, server peer, PgMajor, TLS check, user data drift, schema source drift or restore failure.",
+        "Never claim a backend-provider-auth/storage full cluster backup from pg_dump scoped public/private.",
+        "Never run hosted DB DDL, reset, staging resume, new Supabase project or Vercel deployment."
       ],
       "forbiddenStates": [
-        "Only empty database proves upgrade with no occupied records.",
-        "The old user or customer thread disappears, or duplicate fixture rows hide loss.",
-        "Any historical migration altered in generated replay.",
-        "Postflight accepts old office_*_store_all participant-unaware predicates.",
-        "A failed stage2 leaves half the schema mutated or participants present.",
-        "A local proof is described as signed JWT, production readiness or live Fresh Install acceptance."
+        "Plaintext dump in public repository or Actions artifacts.",
+        "Encrypted artifact uploaded even though native pg_restore fails or source ref differs.",
+        "Private key shared to GitHub Actions or committed to git.",
+        "PostgreSQL16 dumping PostgreSQL17 target.",
+        "A source-only or pg_restore list-only result described as completed restoration.",
+        "Rerun on any non-Fresh Install target or production DB.",
+        "Any of 31 customer baseline Office migrations applied before verified recovery."
       ]
     },
     "model": {
@@ -141,47 +171,50 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Existing pre-0047 Office data violates a new 0048 CHECK or participant FK.",
-        "Stage2 accidentally replays 0001 and drops old rows.",
-        "Office helper or GRANT migration requires main historical predecessor objects in exact order.",
-        "A rollback test passes because no legacy records existed.",
-        "Native original SQL emits error but generated fixture validator ignores psql exit code.",
-        "Final helper rights or modern RLS privacy policy fails while outer transaction commits."
+        "Existing GitHub Actions database URL secret is missing, stale or references non-Fresh-Install project.",
+        "TLS verification fails with pooler host/certificate mismatch or obsolete credentials.",
+        "GitHub runner uses unsupported pg_dump older than DB server major17.",
+        "A public Actions artifact contains an unencrypted `.dump` file.",
+        "An encrypted archive exists, but 0046 replay cannot restore its data or match row counts.",
+        "The public GitHub workflow accidentally logs the database URL or private key.",
+        "Backup captures app public/private but user assumes provider-managed auth/storage schemas are restored.",
+        "Source drift occurs between preflight and dump or after backup and before migration."
       ],
       "edgeCases": [
-        "The original 0001 baseline has different office_threads column definitions before 0048.",
-        "Auth user trigger exists after stage1 and may materialize profile rows.",
-        "A legacy customer thread with no participant and nonnull creator is backfilled by 0048.",
-        "Legacy tenant is Alap, retains customer case after upgrade.",
-        "Owner role and teamChat manual overrides must not unlock private Office on Alap.",
-        "Long transactions create risk for real hosted downtime even if local run succeeds.",
-        "Modern privacy function is defined after prerequisite main Office migrations."
+        "URL direct host versus eu-central-1 pooler variant and query-string sslmode handling.",
+        "TLS root CA bundle inside postgres17 Docker image.",
+        "Connection URL punctuation and special characters must never be string-concatenated in printed commands.",
+        "Postgres managed extensions not installed in isolated restore fixture; native data replay required against 0046 source-created objects.",
+        "No customer/auth users and zero storage objects, but 113 neutral catalog rows require exact rehydration.",
+        "Failure before encryption must not publish plaintext tar or dump artifacts.",
+        "GitHub Actions artifact expires; owner must securely retain the encrypted artifact and the offline private key.",
+        "Recovering provider-owned auth/storage buckets needs separate recovery procedure."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-R-STAGED",
-        "summary": "Use same original 78 reviewed SQL in two transactions separated at 0046, with nonzero legacy owner customer data and rollback.",
+        "id": "ALT-B-OWNER-KEY",
+        "summary": "Encrypt native pg_dump with owner-public certificate, native restore test, upload only ciphertext from Actions.",
         "disposition": "selected",
-        "reason": "Proves the actual upgrade lifecycle rather than only clean-state application, without touching hosted schema."
+        "reason": "Existing GH Actions secret can reach Fresh Install, and owner never discloses private key to repo or runner."
       },
       {
-        "id": "ALT-R-EMPTY",
-        "summary": "Rerun existing entire 78-source empty Fresh Install proof without historical user rows.",
+        "id": "ALT-B-PLAINTEXT",
+        "summary": "Upload raw pg_dump as public repository GitHub artifact.",
         "disposition": "rejected",
-        "reason": "Existing successful empty replay cannot establish data-preserving upgrade or prerequisite backfill."
+        "reason": "Would expose internal schema and potentially user or billing data to repository readers."
       },
       {
-        "id": "ALT-R-LIVE",
-        "summary": "Apply all SQL immediately to managed Fresh Install despite missing ledger.",
+        "id": "ALT-B-SERVICE-PROVIDER",
+        "summary": "Assume Supabase Free tier has an automatable managed point-in-time restoration.",
         "disposition": "rejected",
-        "reason": "Actual project provenance and approved backup are unverified; live writes are prohibited."
+        "reason": "No verified managed backup API or restore point is available on selected free plan."
       },
       {
-        "id": "ALT-R-REWRITE",
-        "summary": "Hand-edit historic migration files until live schema appears compatible.",
+        "id": "ALT-B-SQL-COPY",
+        "summary": "Replace native dump and replay with a read-only table count or handwritten INSERT statements.",
         "disposition": "rejected",
-        "reason": "Breaks review identity, pinned original SQL and previous verified proof."
+        "reason": "It does not capture schema, access-control or data accurately enough to restore the database."
       }
     ],
     "specialistReviews": [
@@ -189,108 +222,109 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Local peer PostgreSQL17 can prove database authorization but a provider-managed signed Auth JWT never enters the harness.",
-        "resolution": "Mark all provider JWT, API, Storage and hosted operations false in machine evidence; require separate online acceptance.",
+        "finding": "Even a disposable GitHub Action could leak sensitive data through job output or uploaded raw archives.",
+        "resolution": "Keep the recipient private key offline, ensure only the owner-public X509 cert is committed, encrypt first, upload only ciphertext, and deny artifact path to raw data.",
         "evidence": [
-          "scripts/shoperation-f6-u03r-occupied-upgrade.mjs"
+          ".github/workflows/fresh-install-encrypted-backup.yml"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A clean Fresh Install can succeed while upgrading historical Office tenants silently loses communication rows.",
-        "resolution": "Assert existing organization, tenant, owner and customer Office case identity before stage2 and after the native COMMIT; test injected rollback.",
+        "finding": "Successful `pg_dump` alone does not prove a restore is possible.",
+        "resolution": "Require native pg_restore rehydration to source-identical 0046 schema and actual row identity/count validation, not mere archive listing.",
         "evidence": [
-          "tests/shoperation-f6-u03r-occupied-upgrade.test.ts"
+          ".github/workflows/fresh-install-encrypted-backup.yml"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Existing managed migration history is empty and staging is paused so a local migration replay cannot be promoted to live approval.",
-        "resolution": "Scope Docker identity explicitly, block all hosted SQL writes and keep exact managed ledger reconciliation separate.",
+        "finding": "Provider snapshot is unavailable; logical public/private application dump is not the complete managed Supabase stack.",
+        "resolution": "Explicitly scope app-owned schema, provider-managed auth/storage out of scope, and keep 31 hosted migrations blocked until owner backup key and encrypted artifact delivered.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03R_OCCUPIED_UPGRADE_2026-10-16.md"
+          "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Marker-only tests can pass invalid SQL or lack source lineage, and partial reruns may accidentally execute old migration sources.",
-        "resolution": "Use canonical original generator, source manifest, psql ON_ERROR_STOP, explicit stage separators and exact native catalog row evidence.",
+        "finding": "A stale or spoofed SHOPERATION_FRESH_INSTALL_DB_URL risks accessing a different database or a TLS-unauthenticated endpoint.",
+        "resolution": "Parse exact ref host/user/database and use PGSSLMODE=verify-full with trusted root, no inherited PG selectors and explicit server major checking before pg_dump.",
         "evidence": [
-          ".github/workflows/f6-u03r-real-occupied-upgrade.yml"
+          ".github/workflows/fresh-install-encrypted-backup.yml"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-R-01",
-        "scenario": "A historic customer Office record is absent from initial seed and the upgrade returns zero rows without error.",
-        "finding": "An empty fixture is not evidence of safe legacy migration.",
-        "resolution": "Require a nonzero known thread ID before and after and reject missing positive control.",
+        "id": "CH-B-01",
+        "scenario": "GitHub secret missing.",
+        "finding": "No usable source database authority.",
+        "resolution": "Fail without artifacts, never substitute other database.",
         "status": "resolved"
       },
       {
-        "id": "CH-R-02",
-        "scenario": "The second stage reruns an earlier CREATE statement and reinitializes application tables.",
-        "finding": "Baseline replay would overwrite or collide with existing tenant records.",
-        "resolution": "Split exactly once at original 0047 marker and prohibit all pre-0047 source markers in upgrade.",
+        "id": "CH-B-02",
+        "scenario": "Secret points to waterk-platform or staging.",
+        "finding": "Wrong tenant database target could be backed up or modified.",
+        "resolution": "Strong URL parser rejects any other host or user.",
         "status": "resolved"
       },
       {
-        "id": "CH-R-03",
-        "scenario": "A generated SQL file has comments for all 78 migrations but silently drops actual source bytes.",
-        "finding": "Source marker counting alone is not a SQL validity proof.",
-        "resolution": "Compare full canonical SQL pieces byte-for-byte and enforce manifest Git blob integrity before real psql execution.",
+        "id": "CH-B-03",
+        "scenario": "A malicious or expired certificate weakens confidentiality.",
+        "finding": "Archive vulnerable or unrecoverable.",
+        "resolution": "Only fixed RSA3072 owner-public X509 certificate, CMS AES256-GCM and self-check; owner retains key.",
         "status": "resolved"
       },
       {
-        "id": "CH-R-04",
-        "scenario": "Legacy Office creators are backfilled incorrectly after 0048 participant creation.",
-        "finding": "Customer Office historical visibility may be lost without an explicit participant row.",
-        "resolution": "Require 0048 real source-trigger backfill for known creator and positive customer access control.",
+        "id": "CH-B-04",
+        "scenario": "Workflow uploads raw dump on error.",
+        "finding": "Catastrophic disclosure for public GitHub repo.",
+        "resolution": "Raw dump stays /tmp and upload step only accepts explicit ciphertext + safe metadata; no upload step uses if: always().",
         "status": "resolved"
       },
       {
-        "id": "CH-R-05",
-        "scenario": "The second transaction fails halfway but validators inspect data left by a previous successful run.",
-        "finding": "Uncleared local state could conceal rollback regression.",
-        "resolution": "Use separate Docker database or transaction-local injected failure with hard peer check and explicit catalog asserts.",
+        "id": "CH-B-05",
+        "scenario": "Managed PostgreSQL17 meets pg_dump16.",
+        "finding": "Logical backup fails or is unreliable.",
+        "resolution": "Run pinned postgres:17 client container and assert pg_dump major 17.",
         "status": "resolved"
       },
       {
-        "id": "CH-R-06",
-        "scenario": "An obsolete source from main is appended after new migration and supersedes Pro-only Office enforcement.",
-        "finding": "Migration order matters beyond simple filename sort.",
-        "resolution": "Reuse the earlier Git SHA pinned source manifest with main predecessors before 0055 and FK follow-up before 0058.",
+        "id": "CH-B-06",
+        "scenario": "A `pg_restore --list` check passes but data cannot be restored.",
+        "finding": "False-positive backup verification.",
+        "resolution": "Replay through PG17 local source schema and require exact neutral row counts.",
         "status": "resolved"
       },
       {
-        "id": "CH-R-07",
-        "scenario": "A local role GUC is mistaken for managed PostgREST and signed provider JWT proof.",
-        "finding": "Authentication source boundary would be falsely elevated to release.",
-        "resolution": "Verdict states local disposable fixture only with managed JWT/API/Storage false.",
+        "id": "CH-B-07",
+        "scenario": "Public/private archive lacks provider-managed auth session/Storage.",
+        "finding": "False full disaster-recovery claim.",
+        "resolution": "Explicit scope and validated zero auth users, 0 storage objects; separately note bucket/provider recovery limitations.",
         "status": "resolved"
       },
       {
-        "id": "CH-R-08",
-        "scenario": "The old customer record survives but its tenant membership or plan is changed by the upgrade.",
-        "finding": "Row-existence-only checks miss data mutation and cross-tenant rebind.",
-        "resolution": "Assert exact row instance_id, owner id, subscription plan and related tenancy identifiers on both sides of upgrade.",
+        "id": "CH-B-08",
+        "scenario": "Backup is restored but GitHub artifacts expire before downloaded.",
+        "finding": "No usable recovery artifact at release.",
+        "resolution": "Short retention and require user download both encrypted archive and separate private key before hosted migrations.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Canonical Development Guard PASS on exact planned files and 20 Known Failures before first implementation edit.",
-      "Critical Plan Before Code PASS on committed plan before implementation script, tests or CI workflow creation.",
-      "Compose source-accurate 78 original Git SQL, split at exact historical 0047 marker, emit legacy baseline and pending upgrade without rewriting source.",
-      "Bootstrap only isolated Docker PG17, run legacy installation, seed known prior tenant/user/thread, run validated stage2 positive upgrade and fault-injected rollback independently.",
-      "Run SQL through psql ON_ERROR_STOP with positive pre-state, post-state and native catalog data assertions and adversarial Vitest rejecting missing controls.",
-      "Edit-time / Knowledge / Incremental Replay plus exact-head full CI Security/Quality/TypeScript/Build, Completion Truth/Lifecycle and byte-identical CI closure plan; no automated merge."
+      "Run critical canonical Development Guard for bounded CI workflow and documentation; record exact guard digest and all 46 matching Known Failures.",
+      "Run Plan Before Code on committed fully risk-modeled plan before implementing backup workflow.",
+      "Verify encryption CMS AES256-GCM with offline private key, ship only owner-public X509 certificate and never commit private material.",
+      "Live workflow accepts only exact Fresh Install secret and TLS verified endpoint and authentic PostgreSQL17, with read-only preflight, native pg_dump and archive inspect.",
+      "Use isolated Docker PostgreSQL17 and existing source-pinned 0046 fixture bootstrap, restore original schema's data from backup and validate seven neutral catalogs.",
+      "Upload only cryptographically encrypted archive, download and decrypt offline, verify SHA and archives, and save report of actual restore evidence.",
+      "Run exact-head CI/Truth/Lifecycle, preserve issue #1186/#1228 OPEN and no hosted schema write/merge."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
@@ -299,20 +333,17 @@
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03r-plan-capture.yml"
+        ".github/workflows/fresh-install-backup-plan.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        ".github/workflows/f6-u03r-real-occupied-upgrade.yml",
-        "docs/po/CORE_1186_F6_U03R_OCCUPIED_UPGRADE_2026-10-16.md",
-        "scripts/shoperation-f6-u03r-occupied-upgrade.mjs",
-        "tests/shoperation-f6-u03r-occupied-upgrade.test.ts"
+        ".github/workflows/fresh-install-encrypted-backup.yml",
+        "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-f6-u03r-occupied-upgrade.test.ts",
-        ".github/workflows/f6-u03r-real-occupied-upgrade.yml"
+        ".github/workflows/fresh-install-encrypted-backup.yml"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -323,16 +354,14 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          ".github/workflows/f6-u03r-plan-capture.yml",
+          ".github/workflows/fresh-install-backup-plan.yml",
           "quality/development/active-plan.json"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          ".github/workflows/f6-u03r-real-occupied-upgrade.yml",
-          "docs/po/CORE_1186_F6_U03R_OCCUPIED_UPGRADE_2026-10-16.md",
-          "scripts/shoperation-f6-u03r-occupied-upgrade.mjs",
-          "tests/shoperation-f6-u03r-occupied-upgrade.test.ts"
+          ".github/workflows/fresh-install-encrypted-backup.yml",
+          "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md"
         ],
         "forbidden": [],
         "proof": [],
@@ -347,55 +376,38 @@
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 4,
+        "score": 2,
         "maxPoints": 5,
-        "subsystemCount": 2,
+        "subsystemCount": 1,
         "maxSubsystems": 3,
         "subsystems": [
           {
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
-          },
-          {
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
           }
         ],
         "files": [
           {
-            "file": ".github/workflows/f6-u03r-plan-capture.yml",
+            "file": ".github/workflows/fresh-install-backup-plan.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": ".github/workflows/f6-u03r-real-occupied-upgrade.yml",
+            "file": ".github/workflows/fresh-install-encrypted-backup.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "docs/po/CORE_1186_F6_U03R_OCCUPIED_UPGRADE_2026-10-16.md",
+            "file": "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
             "file": "quality/development/active-plan.json",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "scripts/shoperation-f6-u03r-occupied-upgrade.mjs",
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "file": "tests/shoperation-f6-u03r-occupied-upgrade.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -410,55 +422,38 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 4,
+          "score": 2,
           "maxPoints": 5,
-          "subsystemCount": 2,
+          "subsystemCount": 1,
           "maxSubsystems": 3,
           "subsystems": [
             {
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
-            },
-            {
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
             }
           ],
           "files": [
             {
-              "file": ".github/workflows/f6-u03r-plan-capture.yml",
+              "file": ".github/workflows/fresh-install-backup-plan.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": ".github/workflows/f6-u03r-real-occupied-upgrade.yml",
+              "file": ".github/workflows/fresh-install-encrypted-backup.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "docs/po/CORE_1186_F6_U03R_OCCUPIED_UPGRADE_2026-10-16.md",
+              "file": "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
               "file": "quality/development/active-plan.json",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
-            {
-              "file": "scripts/shoperation-f6-u03r-occupied-upgrade.mjs",
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "file": "tests/shoperation-f6-u03r-occupied-upgrade.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -473,7 +468,7 @@
           {
             "id": 0,
             "files": [
-              ".github/workflows/f6-u03r-plan-capture.yml"
+              ".github/workflows/fresh-install-backup-plan.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -490,7 +485,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03r-plan-capture.yml",
+                  "file": ".github/workflows/fresh-install-backup-plan.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -503,7 +498,7 @@
           {
             "id": 1,
             "files": [
-              ".github/workflows/f6-u03r-real-occupied-upgrade.yml"
+              ".github/workflows/fresh-install-encrypted-backup.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -520,7 +515,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03r-real-occupied-upgrade.yml",
+                  "file": ".github/workflows/fresh-install-encrypted-backup.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -533,7 +528,7 @@
           {
             "id": 2,
             "files": [
-              "docs/po/CORE_1186_F6_U03R_OCCUPIED_UPGRADE_2026-10-16.md"
+              "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -544,7 +539,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/po/CORE_1186_F6_U03R_OCCUPIED_UPGRADE_2026-10-16.md",
+                  "file": "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -577,60 +572,6 @@
               "violations": [],
               "decision": "PASS"
             }
-          },
-          {
-            "id": 4,
-            "files": [
-              "scripts/shoperation-f6-u03r-occupied-upgrade.mjs"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "files": [
-                {
-                  "file": "scripts/shoperation-f6-u03r-occupied-upgrade.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 5,
-            "files": [
-              "tests/shoperation-f6-u03r-occupied-upgrade.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "tests/shoperation-f6-u03r-occupied-upgrade.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
           }
         ],
         "releaseUnits": [
@@ -640,54 +581,42 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-              "developmentBaseSha": "acbff99f03515148cb0b21441fb87f7dcb9de3cd"
+              "developmentBaseSha": "3d5a432c0c3ddb8c41641257f381cdb69c1633b0"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "acbff99f03515148cb0b21441fb87f7dcb9de3cd",
+            "targetBaseSha": "3d5a432c0c3ddb8c41641257f381cdb69c1633b0",
             "lease": {
-              "expectedBaseSha": "acbff99f03515148cb0b21441fb87f7dcb9de3cd",
+              "expectedBaseSha": "3d5a432c0c3ddb8c41641257f381cdb69c1633b0",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              ".github/workflows/f6-u03r-plan-capture.yml",
-              ".github/workflows/f6-u03r-real-occupied-upgrade.yml",
-              "docs/po/CORE_1186_F6_U03R_OCCUPIED_UPGRADE_2026-10-16.md",
-              "quality/development/active-plan.json",
-              "scripts/shoperation-f6-u03r-occupied-upgrade.mjs",
-              "tests/shoperation-f6-u03r-occupied-upgrade.test.ts"
+              ".github/workflows/fresh-install-backup-plan.yml",
+              ".github/workflows/fresh-install-encrypted-backup.yml",
+              "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
+              "quality/development/active-plan.json"
             ],
             "operations": [
               {
                 "operation": "modify",
-                "file": ".github/workflows/f6-u03r-plan-capture.yml",
+                "file": ".github/workflows/fresh-install-backup-plan.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": ".github/workflows/f6-u03r-real-occupied-upgrade.yml",
+                "file": ".github/workflows/fresh-install-encrypted-backup.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "docs/po/CORE_1186_F6_U03R_OCCUPIED_UPGRADE_2026-10-16.md",
+                "file": "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
                 "generated": null
               },
               {
                 "operation": "modify",
                 "file": "quality/development/active-plan.json",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "scripts/shoperation-f6-u03r-occupied-upgrade.mjs",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "tests/shoperation-f6-u03r-occupied-upgrade.test.ts",
                 "generated": null
               }
             ],
@@ -697,60 +626,42 @@
               "release-infrastructure"
             ],
             "subsystems": [
-              "release-infrastructure",
-              "quality-infrastructure"
+              "release-infrastructure"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 4,
+              "score": 2,
               "maxPoints": 5,
-              "subsystemCount": 2,
+              "subsystemCount": 1,
               "maxSubsystems": 3,
               "subsystems": [
                 {
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
-                },
-                {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03r-plan-capture.yml",
+                  "file": ".github/workflows/fresh-install-backup-plan.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": ".github/workflows/f6-u03r-real-occupied-upgrade.yml",
+                  "file": ".github/workflows/fresh-install-encrypted-backup.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "docs/po/CORE_1186_F6_U03R_OCCUPIED_UPGRADE_2026-10-16.md",
+                  "file": "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
                   "file": "quality/development/active-plan.json",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "scripts/shoperation-f6-u03r-occupied-upgrade.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "file": "tests/shoperation-f6-u03r-occupied-upgrade.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -782,9 +693,7 @@
                 "GUARD-RELEASE-RISK",
                 "GUARD-TYPECHECK"
               ],
-              "proofFiles": [
-                "tests/shoperation-f6-u03r-occupied-upgrade.test.ts"
-              ],
+              "proofFiles": [],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
@@ -794,12 +703,10 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                ".github/workflows/f6-u03r-plan-capture.yml",
-                ".github/workflows/f6-u03r-real-occupied-upgrade.yml",
-                "docs/po/CORE_1186_F6_U03R_OCCUPIED_UPGRADE_2026-10-16.md",
-                "quality/development/active-plan.json",
-                "scripts/shoperation-f6-u03r-occupied-upgrade.mjs",
-                "tests/shoperation-f6-u03r-occupied-upgrade.test.ts"
+                ".github/workflows/fresh-install-backup-plan.yml",
+                ".github/workflows/fresh-install-encrypted-backup.yml",
+                "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
+                "quality/development/active-plan.json"
               ],
               "filesAbsent": []
             },
@@ -814,7 +721,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "96ed737f",
+            "manifestDigest": "945207d6",
             "decision": "PASS"
           }
         ],
@@ -855,41 +762,7 @@
         "decision": "PASS"
       }
     },
-    "executionAuthorized": true,
-    "problemStatement": "The proven source-authentic 78 SQL replay currently runs only on an empty PostgreSQL17 database, whereas the active managed Fresh Install contains an existing legacy Office schema with empty migration history. A naïve upgrade can delete tenant rows, break participant backfill, fail privacy policies or misapply dependencies. Split verified original source SQL at historical 0047 and prove occupied state survives the forward-only upgrade without touching hosted data.",
-    "observableOutcomes": [
-      "Use source-authentic 78 unchanged Git SQL blobs and their existing committed replay, split strictly between historical 0046 and 0047 markers without SQL content rewriting.",
-      "Create a locally confined PostgreSQL17 original-schema 0001..0046 committed legacy baseline under original empty-target preflight.",
-      "Insert actual fake persistent legacy organization, store, auth user, role and historical customer Office thread with explicit primary key identifiers; assert they exist before upgrade.",
-      "Apply only the ordered original remaining 0047..0058 plus 19 main predecessor/follow-up SQL sources in one separate transaction without rerunning destructive original preflight or baseline 0001.",
-      "Prove after commit that pre-existing fake records still exist unchanged and modern participant privacy helper, Office grants, RLS and backfilled participants are present.",
-      "Fault-inject an upgrade before COMMIT and verify rollback restores old policy and original fake customer thread with no new participant table, without losing tenant rows.",
-      "Emit exact native psql logs and unique Git source manifests with local PG17 peer identity verified, not synthetic success claims.",
-      "Run full Edit-Time, Reference Sync, Incremental Replay, Quality, TypeScript, Build, Completion Truth and Lifecycle exact-head gates. Keep target managed Fresh Install blocked pending provenance."
-    ],
-    "unresolvedRisks": [
-      "Historical source 0001..0046 may include a runtime trigger or partially prepared user that requires a neutral synthetic legacy fixture variant before source upgrade.",
-      "PostgreSQL17 native staged replay proves a local fixture but not actual managed target catalog equivalence because Supabase migration ledger is empty.",
-      "Managed Auth/JWT and Storage are not simulated by Docker role GUC; separately reviewed real HTTPS acceptance remains required.",
-      "PostgreSQL migrations may take long locks on a non-disposable large target; successful test does not authorize live online migration or downtime.",
-      "Source 0047..0058 may expect infrastructure object dependencies beyond simulated fixture; any real native error must fail closed and be resolved in source-safe implementation."
-    ],
-    "scope": {
-      "in": [
-        "Disposable Docker PostgreSQL17 staged migration 0046 to 0058",
-        "synthetic nonzero legacy tenant and Office records",
-        "read-only exact pre/post assertions and rollback",
-        "source-authentic immutable 78 SQL Git blobs",
-        "targeted adversarial test and dedicated CI"
-      ],
-      "out": [
-        "Hosted Supabase SQL writes, migrations or reset",
-        "editing 78 historical source SQL files",
-        "production schema release, merger or Vercel deploy",
-        "provider-issued signed JWT or managed Data API acceptance",
-        "staging unpause, new project or billing change"
-      ]
-    }
+    "executionAuthorized": true
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
@@ -912,11 +785,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-R-OCCUPIED",
-        "requirement": "Upgrade legacy 0046 customer and user fixture using unchanged 78 original source migrations and verify preserved row identities.",
+        "id": "REQ-B-CIPHER",
+        "requirement": "Owner-key ciphertext only, exact target TLS source, native PostgreSQL17 dump.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "native-PG17-occupied-source-upgrade",
+          "breadth": "fresh-install-owner-key-encrypted-app-schema-backup",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -937,8 +810,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-R-OCCUPIED",
-            "statement": "No all-zero/modified source or false hosted release claim.",
+            "id": "NEG-REQ-B-CIPHER",
+            "statement": "No plaintext archive, wrong target, or hosted migration.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -946,11 +819,11 @@
         ]
       },
       {
-        "id": "REQ-R-ROLLBACK",
-        "requirement": "Inject fault within second transaction to prove PostgreSQL rollback leaves original legacy schema and customer rows untouched.",
+        "id": "REQ-B-RESTORE",
+        "requirement": "Archive parse, isolated native rehydration of neutral data and source schema under PG17.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "native-PG17-occupied-source-upgrade",
+          "breadth": "fresh-install-owner-key-encrypted-app-schema-backup",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -971,8 +844,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-R-ROLLBACK",
-            "statement": "No all-zero/modified source or false hosted release claim.",
+            "id": "NEG-REQ-B-RESTORE",
+            "statement": "No plaintext archive, wrong target, or hosted migration.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -980,11 +853,11 @@
         ]
       },
       {
-        "id": "REQ-R-HONEST",
-        "requirement": "No hosted SQL write or signed provider JWT, managed PostgREST/Storage or commercial release acceptance claimed.",
+        "id": "REQ-B-NONMUTATION",
+        "requirement": "No hosted SQL writes, no other project and no false provider backup/hosted release claims.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "native-PG17-occupied-source-upgrade",
+          "breadth": "fresh-install-owner-key-encrypted-app-schema-backup",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -1005,8 +878,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-R-HONEST",
-            "statement": "No all-zero/modified source or false hosted release claim.",
+            "id": "NEG-REQ-B-NONMUTATION",
+            "statement": "No plaintext archive, wrong target, or hosted migration.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1015,18 +888,5 @@
       }
     ]
   },
-  "notes": "Pre-code Plan Before Code PASS run 38884459816 at 95337b06cc4f055171f17df9084e835602cc16d3. Proof uses 78 original Git blob-authenticated SQL files unchanged. Docker PG17 only.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "57ce55516c22b146e8d67be5c5f6cac0b2c663d8",
-    "closedAt": "2026-10-16T10:17:26.040Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
 }
