@@ -20,7 +20,7 @@ export const SCENARIOS=Object.freeze([
   actor('revoked_owner',T.BUser,[]),actor('active_A_owner_control',T.AUser,A)]},
  {name:'role_expired',mutation:"UPDATE public.role_bindings SET valid_from=now()-interval '2 days',valid_until=now()-interval '1 day' WHERE instance_id='"+T.BStore+"'::uuid AND user_id='"+T.BUser+"'::uuid AND role_code='owner' AND revoked_at IS NULL;",probes:[
   actor('expired_owner',T.BUser,[]),actor('active_A_owner_control',T.AUser,A)]},
- {name:'alap_customer_entitlement_expired',mutation:"UPDATE public.feature_entitlements SET valid_until=now()-interval '1 day' WHERE instance_id='"+T.AStore+"'::uuid AND feature_code='officeCommunication' AND enabled=true;",probes:[
+ {name:'alap_customer_entitlement_expired',mutation:"UPDATE public.feature_entitlements SET valid_from=now()-interval '2 days',valid_until=now()-interval '1 day' WHERE instance_id='"+T.AStore+"'::uuid AND feature_code='officeCommunication' AND enabled=true;",probes:[
   actor('A_expired_customer_entitlement',T.AUser,[]),actor('B_pro_unchanged_control',T.BUser,B)]},
  {name:'pro_to_alap_downgrade',mutation:"UPDATE public.webshop_instances SET subscription_plan='alap' WHERE id='"+T.BStore+"'::uuid AND subscription_plan='pro';",probes:[
   actor('B_downgraded_customer_only',T.BUser,[T.BCustomer]),actor('A_alap_customer_control',T.AUser,A)]}
