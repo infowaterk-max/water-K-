@@ -42,7 +42,7 @@ describe('F6-U03t readonly managed 0046 catalog and migration provenance guard',
   expect(()=>assessProvenance(modified)).toThrow('F6U03T_SOURCE_MANIFEST_INVALID');
  });
  it('classifies catalog fault, migration ledger change and premature 0048',()=>{
-  const x=good();x.observed.catalogCount=4620;x.observed.catalogMd5='0'.repeat(32);
+  const x:any=good();x.observed.catalogCount=4620;x.observed.catalogMd5='0'.repeat(32);
   x.observed.migrationLedger=1;x.observed.modernOfficeParticipants='office_thread_participants';
   const report=assessProvenance(x);
   expect(report.blockers).toContain('HOSTED_0046_CATALOG_DRIFT');
