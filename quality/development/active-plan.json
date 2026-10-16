@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-C2C62999",
   "task": "Core #1186 F6-U03t: source-anchored, read-only managed 0046 catalogue digest and empty migration-ledger provenance gate; block Office release and never claim signed provider JWT/PostgREST.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "c2c62999",
   "changeBaseSha": "33c557d3b7e74faeeba7b41c0b223cc03ba9704d",
   "plannedFilePatterns": [
@@ -977,5 +977,18 @@
       }
     ]
   },
-  "notes": "F6-U03t critical plan before implementation: verified parent #1400 HEAD 33c557d3b7e74faeeba7b41c0b223cc03ba9704d. New unit is read-only provenance diagnostic, not managed release authority. Physical SQL writes, backward migrations, JWT impersonation and live tenant seeding are forbidden. Corrected to exact F6-U03t Development Guard observed 46-failure scope, 5 subsystem set, negative-knowledge applicability and c2c62999 digest (first CI fail-closed). Workflow is canonical MUST_EDIT material proof; existing source modules remain unchanged. F6-U03t canonical Plan Before Code projection includes 21 negative-knowledge constraints; include the full set, not only the older Development Guard listing."
+  "notes": "F6-U03t critical plan before implementation: verified parent #1400 HEAD 33c557d3b7e74faeeba7b41c0b223cc03ba9704d. New unit is read-only provenance diagnostic, not managed release authority. Physical SQL writes, backward migrations, JWT impersonation and live tenant seeding are forbidden. Corrected to exact F6-U03t Development Guard observed 46-failure scope, 5 subsystem set, negative-knowledge applicability and c2c62999 digest (first CI fail-closed). Workflow is canonical MUST_EDIT material proof; existing source modules remain unchanged. F6-U03t canonical Plan Before Code projection includes 21 negative-knowledge constraints; include the full set, not only the older Development Guard listing. Truth Gate at implementation head 51754e7a7c760a3627c511adbce4680d0e78e26a VERIFIED_DONE (9 passed, stale 0, missing 0), exact-head full CI quality 3818/3818, TypeScript/build/security success. Persist lifecycle LEARN without granting hosted release. The previous CI Lifecycle required closure metadata as expected.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "51754e7a7c760a3627c511adbce4680d0e78e26a",
+    "closedAt": "2026-10-16T19:48:08.600Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
