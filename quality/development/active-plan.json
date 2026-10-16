@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-67438174",
   "task": "Core #1186: protect existing Fresh Install PostgreSQL17 owner-owned public/private schema and catalog rows with native pg_dump and owner-key encrypted GitHub artifact; prove archive decrypt/restore, never run hosted DDL or expose credentials",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "67438174",
   "changeBaseSha": "86deae77577d38e8dc20ef0490d0af8661e11eb3",
   "plannedFilePatterns": [
@@ -921,5 +921,18 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code."
+  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "74ed602bd7b6048cd75fb95c996e5f9d4f5b3b0e",
+    "closedAt": "2026-10-16T17:51:45.457Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
