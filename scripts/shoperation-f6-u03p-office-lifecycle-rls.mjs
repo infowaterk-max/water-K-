@@ -18,7 +18,7 @@ export const SCENARIOS=Object.freeze([
   actor('owner_after_leave',T.BUser,[T.BCustomer]),actor('other_tenant_customer_control',T.AUser,A)]},
  {name:'role_revoked',mutation:"UPDATE public.role_bindings SET revoked_at=now() WHERE instance_id='"+T.BStore+"'::uuid AND user_id='"+T.BUser+"'::uuid AND role_code='owner' AND revoked_at IS NULL;",probes:[
   actor('revoked_owner',T.BUser,[]),actor('active_A_owner_control',T.AUser,A)]},
- {name:'role_expired',mutation:"UPDATE public.role_bindings SET valid_until=now()-interval '1 day' WHERE instance_id='"+T.BStore+"'::uuid AND user_id='"+T.BUser+"'::uuid AND role_code='owner' AND revoked_at IS NULL;",probes:[
+ {name:'role_expired',mutation:"UPDATE public.role_bindings SET valid_from=now()-interval '2 days',valid_until=now()-interval '1 day' WHERE instance_id='"+T.BStore+"'::uuid AND user_id='"+T.BUser+"'::uuid AND role_code='owner' AND revoked_at IS NULL;",probes:[
   actor('expired_owner',T.BUser,[]),actor('active_A_owner_control',T.AUser,A)]},
  {name:'alap_customer_entitlement_expired',mutation:"UPDATE public.feature_entitlements SET valid_until=now()-interval '1 day' WHERE instance_id='"+T.AStore+"'::uuid AND feature_code='officeCommunication' AND enabled=true;",probes:[
   actor('A_expired_customer_entitlement',T.AUser,[]),actor('B_pro_unchanged_control',T.BUser,B)]},
