@@ -3,9 +3,9 @@ import {describe,it,expect} from 'vitest';
 import {CONTRACT,SCOPE,nativeCatalogSQL,validateCatalog,findOfficeRisks,reportCatalog} from '../scripts/shoperation-f6-u03m-office-catalog-audit.mjs';
 // @ts-expect-error Source-pinned original SQL review manifest JS ESM.
 import {buildCandidateManifest} from '../scripts/shoperation-f6-u03l-release-candidate-acl.mjs';
-const b={rls_enabled:true,force_rls:false,anon_select:false,auth_select:false,
+const b={rls_enabled:true,force_rls:false,anon_schema_usage:true,auth_schema_usage:true,anon_select:false,auth_select:false,
  anon_insert:false,auth_insert:false,anon_update:false,auth_update:false,anon_delete:false,auth_delete:false};
-const f={security_definer:false,body_touches_office:false,anon_execute:false,
+const f={security_definer:false,body_touches_office:false,anon_schema_usage:true,auth_schema_usage:true,anon_execute:false,
  auth_execute:false,service_execute:false,public_execute:false};
 function fixture(){
  const relations=Array.from({length:190},(_,i)=>({name:i===0?'public.office_mailboxes':'public.table_'+i,schema:'public',...b}));
@@ -53,6 +53,18 @@ describe('F6-U03m real PostgreSQL catalog-wide Office audit',()=>{
   expect(risks.map((z:any)=>z.rule)).toContain('OFFICE_BROWSER_TABLE_GRANT');
   expect(risks.map((z:any)=>z.rule)).toContain('OFFICE_EXPOSED_SECURITY_DEFINER');
   expect(risks.find((z:any)=>z.rule==='OFFICE_EXPOSED_SECURITY_DEFINER').priority).toBe('high');
+ });
+ it('does not overstate a private-schema function with EXECUTE but no schema USAGE as directly browser-callable',()=>{
+  const x=fixture();
+  x.functions[3]={...x.functions[3],name:'private.office_internal_helper()',
+   security_definer:true,body_touches_office:true,anon_execute:true,
+   anon_schema_usage:false,auth_schema_usage:false};
+  let f=findOfficeRisks(x).find((z:any)=>z.object==='private.office_internal_helper()');
+  expect(f).toBeDefined();
+  expect(f.priority).toBe('review');
+  x.functions[3].anon_schema_usage=true;
+  f=findOfficeRisks(x).find((z:any)=>z.object==='private.office_internal_helper()');
+  expect(f.priority).toBe('high');
  });
  it('review-flags UPDATE without explicit WITH CHECK but does not assert exploitable bypass',()=>{
   const x=fixture();
