@@ -24,11 +24,8 @@
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "auth-access-authority",
-    "database-schema",
     "quality-knowledge-system",
-    "release-infrastructure",
-    "tenant-context-authority"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -198,7 +195,7 @@
     ],
     "specialistReviews": [
       {
-        "role": "Database Integrity",
+        "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
         "finding": "Local source proof and a decryptable application backup cannot establish server-managed provider state or safe post-commit recovery.",
@@ -225,6 +222,16 @@
         "resolution": "Use existing exact original compiler, source manifest and exact SHA provenance.",
         "evidence": [
           "scripts/shoperation-f6-u03r-occupied-upgrade.mjs"
+        ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "A developer may accidentally treat read-only successful managed target matching as approval to commit production SQL.",
+        "resolution": "No execute action is included; require separate explicit approval, trusted source manifest provenance, owner retained decryption key, provider signed-JWT managed authorization and release evidence before hosted writes.",
+        "evidence": [
+          "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md"
         ]
       }
     ],
@@ -263,6 +270,27 @@
         "finding": "Scope and potentially irreversible DB operations would escape review.",
         "resolution": "No hosted SQL tool in production script; only source package validator and static catalog input.",
         "status": "resolved"
+      },
+      {
+        "id": "CH-S-06",
+        "scenario": "A post-backup schema change occurred after the original read-only catalog was gathered, even though the source original manifest remains pinned.",
+        "finding": "A stale managed observation must not release authorize a fresh target.",
+        "resolution": "Bind the observation to a read-only Supabase connection with recorded capture timestamp and exact 175+2 legacy fingerprint; a time/source mismatch invalidates the preflight and blocks any SQL release.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-S-07",
+        "scenario": "A planned F6-U03s operator tries to infer full recovery from app-owned public/private pg_dump, leaving Auth, Storage buckets and provider trigger grants outside restore.",
+        "finding": "A logical application backup does not provide managed cluster point-in-time recovery or provider service parity.",
+        "resolution": "Keep separate provider-managed recovery blockers explicitly, and require owner private-key custody independent of GitHub artifacts.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-S-08",
+        "scenario": "A local test suite claims to cover end-user Office visibility by testing helper functions only without actual provider-issued JWT or managed PostgREST HTTP.",
+        "finding": "Testing local role simulation alone permits account and tenant authorization regressions.",
+        "resolution": "Always report signedJwtProven=false and managedApiProven=false in this source-only unit and withhold release status until a separate real managed request proof.",
+        "status": "resolved"
       }
     ],
     "proofPlan": [
@@ -275,11 +303,8 @@
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
       "authority": [
-        "auth-access-authority",
-        "database-schema",
         "quality-knowledge-system",
-        "release-infrastructure",
-        "tenant-context-authority"
+        "release-infrastructure"
       ],
       "mustEdit": [
         ".github/workflows/f6-u03s-plan-capture.yml",
@@ -297,11 +322,7 @@
         "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
         ".github/workflows/f6-u03s-plan-capture.yml"
       ],
-      "unknown": [
-        "owner off-platform custody confirmation",
-        "provider signed JWT/API proof",
-        "hosted migration ledger provenance"
-      ],
+      "unknown": [],
       "plannedDeletions": []
     },
     "ecosystem": {
