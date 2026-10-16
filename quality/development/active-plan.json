@@ -1,23 +1,23 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-725C57A6",
-  "task": "Core #1186 F6-U03s read-only managed Fresh Install pre-release attestation with immutable 31 Office migrations exact source and plan; no hosted SQL write, staging resume or release authorization",
+  "taskId": "DEV-C2C62999",
+  "task": "Core #1186 F6-U03t: source-anchored, read-only managed 0046 catalogue digest and empty migration-ledger provenance gate; block Office release and never claim signed provider JWT/PostgREST.",
   "status": "closed",
-  "guardDigest": "725c57a6",
-  "changeBaseSha": "e2ac4703a116a06f159009bfefc03e3a0bd097cc",
+  "guardDigest": "c2c62999",
+  "changeBaseSha": "33c557d3b7e74faeeba7b41c0b223cc03ba9704d",
   "plannedFilePatterns": [
-    ".github/workflows/f6-u03s-plan-capture.yml",
-    "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
-    "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
-    "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
+    ".github/workflows/f6-u03t-provenance-proof.yml",
+    "scripts/shoperation-f6-u03t-provenance-gate.mjs",
+    "tests/shoperation-f6-u03t-provenance-gate.test.ts",
+    "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "auth-access-authority",
-    "customer-account",
     "database-schema",
     "quality-infrastructure",
-    "release-infrastructure"
+    "release-infrastructure",
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-QUALITY",
@@ -28,29 +28,35 @@
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-013",
-    "SQ-KF-014",
-    "SQ-KF-022",
-    "SQ-KF-025",
     "SQ-KF-001",
     "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
+    "SQ-KF-005",
     "SQ-KF-006",
     "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
+    "SQ-KF-012",
+    "SQ-KF-013",
+    "SQ-KF-014",
+    "SQ-KF-015",
+    "SQ-KF-016",
     "SQ-KF-017",
     "SQ-KF-018",
+    "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-022",
     "SQ-KF-023",
+    "SQ-KF-025",
     "TF-KF-001",
     "TF-KF-002",
+    "TF-KF-004",
     "TF-KF-005",
+    "TF-KF-006",
     "TF-KF-007",
-    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
@@ -58,14 +64,28 @@
     "TF-KF-013",
     "TF-KF-014",
     "TF-KF-015",
-    "TF-KF-020"
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
+    "SQ-NK-004",
     "SQ-NK-005",
     "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012",
     "SQ-NK-014",
@@ -86,7 +106,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical source-to-hosted release bridge with schema, privileges, tenant access and recovery dependencies. Keep immutable 31-source provenance, fail-closed exact managed 0046 catalogs and negative cases, but do not pretend to prove managed signed JWT or restore full Supabase platform from logical public/private dump. A read-only preflight cannot itself authorize destructive hosted writes.",
+      "rationale": "Critical provider-catalog and ledger attestation gate. Reuse pinned F6-U03f source digest and F6-U03s 78-source proof. Distinguish observed known-hosted parity from absent historical migration provenance, JWT authorization, and full provider backup. No hosted SQL mutation.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -103,27 +123,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Canonical source compiler yields exactly 78 Git-pinned originals and a 31-migration suffix beginning at 0047 and ending at 0058, with byte-level ordering and digest evidence.",
-        "Read-only hosted Fresh Install attests 175 public/two private PG17 tables, 113 neutral rows, zero auth, zero storage objects, intact provider event triggers/buckets, absent 0048 participants and zero migration ledger; never modify data.",
-        "The readiness result explicitly records releaseAuthorized:false and provides deterministic blocked reason codes for missing ledger provenance, owner custody, provider signed JWT and API proof.",
-        "Tests adversarially reject forged source manifest, drifted managed project, missing backup, incorrect 31-source markers, and impossible hosted success claims.",
-        "Exact-head CI, Truth and Lifecycle complete on stacked DRAFT branch, main unaffected."
+        "Reuse the canonical reviewed 78 SQL source authority and existing F6-U03f PostgreSQL catalog query without SQL duplication, migration or reset.",
+        "Generate a safe SELECT-only live-target probe returning the complete public/private 0046 catalogue count/digest, Supabase migration row count and absent modern Office marker.",
+        "Match 4621 known hosted legacy definitions and pinned MD5 only as known-hosted-snapshot parity, never certify source-to-managed migration provenance solely from a digest.",
+        "Reject wrong Fresh Install project, stale or forged observation, modified 78-source authority, changed 0046 catalog or nonempty unverified migration ledger; even clean input must report releaseAuthorized:false.",
+        "Positive/negative/fault-injection test suite and exact-HEAD CI, Completion Truth and Lifecycle proof for a stacked DRAFT PR."
       ],
       "invariants": [
-        "Only istjjkdcvsvilrycqecd can be observed; fail closed on all other projects and unbound records.",
-        "Never run hosted DDL, GRANT, REVOKE, ALTER, DROP or reset as part of F6-U03s.",
-        "Never edit any 78 original SQL files; prefer canonical existing compiler and source hash authority.",
-        "No fallback to waterk-platform or resuming staging; no extra paid projects.",
-        "Do not count a local 0046->0058 rollback proof as provider JWT/API or real post-commit recovery.",
-        "Keep source and owner backup private key out of public CI logs."
+        "Only Supabase ref istjjkdcvsvilrycqecd may be observed; hosted read-only SELECT metadata only, no hosted DDL/DML.",
+        "Read-only verification cannot rewrite migration ledger or declare 0046 applied from an empty ledger.",
+        "Use F6-U03f canonical digest SQL and original 78-source manifests; do not duplicate source identity or modify Office SQL.",
+        "Do not claim real signed JWT/PostgREST coverage with zero users and no managed tenant fixtures.",
+        "Never modify waterk-platform, wake staging, create a paid project or write the private backup key into GitHub."
       ],
       "forbiddenStates": [
-        "Missing real managed catalog promoted to passed preflight.",
-        "Empty Supabase migration history treated as proof that no old migrations ran or as provenance attestation.",
-        "Ready-to-migrate verdict despite unconfirmed owner-retained recovery key.",
-        "Mutation to hosted project by a read-only source-verification workflow.",
-        "Original SQL copied/reordered/rewritten to make provenance test pass.",
-        "Live application capability marked operational only from a read-only catalog."
+        "0046 source-to-host proven merely by hosted legacy MD5 match.",
+        "A zero-row migration ledger silently bootstrapped or marked applied.",
+        "Hosted managed release authorized by catalog check or locally simulated JWT only.",
+        "SQL write or secrets leakage during a read-only release audit.",
+        "Builder or Template development before Core closure."
       ]
     },
     "model": {
@@ -201,7 +219,7 @@
         "finding": "Local source proof and a decryptable application backup cannot establish server-managed provider state or safe post-commit recovery.",
         "resolution": "Report full cluster recovery and signed provider acceptance UNKNOWN; never authorize hosted migration in this unit.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md"
+          "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md"
         ]
       },
       {
@@ -231,7 +249,7 @@
         "finding": "A developer may accidentally treat read-only successful managed target matching as approval to commit production SQL.",
         "resolution": "No execute action is included; require separate explicit approval, trusted source manifest provenance, owner retained decryption key, provider signed-JWT managed authorization and release evidence before hosted writes.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md"
+          "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md"
         ]
       }
     ],
@@ -280,7 +298,7 @@
       },
       {
         "id": "CH-S-07",
-        "scenario": "A planned F6-U03s operator tries to infer full recovery from app-owned public/private pg_dump, leaving Auth, Storage buckets and provider trigger grants outside restore.",
+        "scenario": "A planned F6-U03t operator tries to infer full recovery from app-owned public/private pg_dump, leaving Auth, Storage buckets and provider trigger grants outside restore.",
         "finding": "A logical application backup does not provide managed cluster point-in-time recovery or provider service parity.",
         "resolution": "Keep separate provider-managed recovery blockers explicitly, and require owner private-key custody independent of GitHub artifacts.",
         "status": "resolved"
@@ -307,19 +325,19 @@
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03s-plan-capture.yml"
+        ".github/workflows/f6-u03t-provenance-proof.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
-        "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
-        "tests/shoperation-f6-u03s-forward-release-readiness.test.ts"
+        "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
+        "scripts/shoperation-f6-u03t-provenance-gate.mjs",
+        "tests/shoperation-f6-u03t-provenance-gate.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
-        ".github/workflows/f6-u03s-plan-capture.yml"
+        "tests/shoperation-f6-u03t-provenance-gate.test.ts",
+        ".github/workflows/f6-u03t-provenance-proof.yml"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -330,15 +348,15 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          ".github/workflows/f6-u03s-plan-capture.yml",
+          ".github/workflows/f6-u03t-provenance-proof.yml",
           "quality/development/active-plan.json"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
-          "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
-          "tests/shoperation-f6-u03s-forward-release-readiness.test.ts"
+          "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
+          "scripts/shoperation-f6-u03t-provenance-gate.mjs",
+          "tests/shoperation-f6-u03t-provenance-gate.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -371,13 +389,13 @@
         ],
         "files": [
           {
-            "file": ".github/workflows/f6-u03s-plan-capture.yml",
+            "file": ".github/workflows/f6-u03t-provenance-proof.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
+            "file": "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -389,13 +407,13 @@
             "points": 0
           },
           {
-            "file": "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+            "file": "scripts/shoperation-f6-u03t-provenance-gate.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
+            "file": "tests/shoperation-f6-u03t-provenance-gate.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -428,13 +446,13 @@
           ],
           "files": [
             {
-              "file": ".github/workflows/f6-u03s-plan-capture.yml",
+              "file": ".github/workflows/f6-u03t-provenance-proof.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
+              "file": "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -446,13 +464,13 @@
               "points": 0
             },
             {
-              "file": "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+              "file": "scripts/shoperation-f6-u03t-provenance-gate.mjs",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
+              "file": "tests/shoperation-f6-u03t-provenance-gate.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -467,7 +485,7 @@
           {
             "id": 0,
             "files": [
-              ".github/workflows/f6-u03s-plan-capture.yml"
+              ".github/workflows/f6-u03t-provenance-proof.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -484,7 +502,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03s-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03t-provenance-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -497,7 +515,7 @@
           {
             "id": 1,
             "files": [
-              "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md"
+              "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -508,7 +526,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
+                  "file": "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -545,7 +563,7 @@
           {
             "id": 3,
             "files": [
-              "scripts/shoperation-f6-u03s-forward-release-readiness.mjs"
+              "scripts/shoperation-f6-u03t-provenance-gate.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -562,7 +580,7 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+                  "file": "scripts/shoperation-f6-u03t-provenance-gate.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -575,7 +593,7 @@
           {
             "id": 4,
             "files": [
-              "tests/shoperation-f6-u03s-forward-release-readiness.test.ts"
+              "tests/shoperation-f6-u03t-provenance-gate.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -586,7 +604,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
+                  "file": "tests/shoperation-f6-u03t-provenance-gate.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -616,21 +634,21 @@
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              ".github/workflows/f6-u03s-plan-capture.yml",
-              "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
+              ".github/workflows/f6-u03t-provenance-proof.yml",
+              "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
               "quality/development/active-plan.json",
-              "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
-              "tests/shoperation-f6-u03s-forward-release-readiness.test.ts"
+              "scripts/shoperation-f6-u03t-provenance-gate.mjs",
+              "tests/shoperation-f6-u03t-provenance-gate.test.ts"
             ],
             "operations": [
               {
                 "operation": "modify",
-                "file": ".github/workflows/f6-u03s-plan-capture.yml",
+                "file": ".github/workflows/f6-u03t-provenance-proof.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
+                "file": "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
                 "generated": null
               },
               {
@@ -640,12 +658,12 @@
               },
               {
                 "operation": "create",
-                "file": "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+                "file": "scripts/shoperation-f6-u03t-provenance-gate.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
+                "file": "tests/shoperation-f6-u03t-provenance-gate.test.ts",
                 "generated": null
               }
             ],
@@ -678,13 +696,13 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03s-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03t-provenance-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
+                  "file": "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -696,13 +714,13 @@
                   "points": 0
                 },
                 {
-                  "file": "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+                  "file": "scripts/shoperation-f6-u03t-provenance-gate.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
+                  "file": "tests/shoperation-f6-u03t-provenance-gate.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -735,7 +753,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-f6-u03s-forward-release-readiness.test.ts"
+                "tests/shoperation-f6-u03t-provenance-gate.test.ts"
               ],
               "externalGateIds": []
             },
@@ -746,11 +764,11 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                ".github/workflows/f6-u03s-plan-capture.yml",
-                "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
+                ".github/workflows/f6-u03t-provenance-proof.yml",
+                "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
                 "quality/development/active-plan.json",
-                "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
-                "tests/shoperation-f6-u03s-forward-release-readiness.test.ts"
+                "scripts/shoperation-f6-u03t-provenance-gate.mjs",
+                "tests/shoperation-f6-u03t-provenance-gate.test.ts"
               ],
               "filesAbsent": []
             },
@@ -807,20 +825,16 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "A native local PG17 proof applied all original 31 Office forward migrations on an occupied 0046 fixture, and a separately recoverable owner-held encrypted backup of the managed Fresh Install application schemas now exists. However, Fresh Install is still on original 0046 with 175 public, two private tables and an empty migration ledger. No independently bound exact-source managed release candidate or irreversible hosted go/no-go record currently ties original 31 bytes, current managed identity, catalog, restore artifact and runtime proof; executing DDL now could compromise the source provenance or lose recovery.",
+    "problemStatement": "Fresh Install has a known 0046 catalogue with empty Supabase migration ledger. It is unsafe to infer original source provenance or readiness for 31 Office migrations solely from a clean 4621-object legacy digest.",
     "observableOutcomes": [
-      "An independently verified read-only snapshot identifies the exact Supabase Fresh Install project and 0046 schema, including existing auth/storage/provider-trigger invariants and 113 neutral catalog records.",
-      "All original 78 migration source paths and 31 forward files are bound in original pinned order, with byte hashes and no rewrite, omission or duplication.",
-      "A source-only release readiness report explicitly fails closed when no owner-confirmed durable recovery artifact exists, when managed migration ledger is missing/ambiguous, when live Auth/JWT Data API acceptance is absent, or when 0046 schema diff is detected.",
-      "The report records what is genuinely proven (read-only managed catalog, local PG17 occupied migration and encrypted application backup), without declaring production Office live or Core done.",
-      "No read-only workflow may apply migrations, change Supabase migrations ledger, perform DDL, start staging or touch platform project."
+      "Non-executable read-only SQL with canonical catalogue fingerprint and explicit zero-ledger visibility.",
+      "Machine-readable fail-closed provenance decision, adversarial and negative tests, no hosted writes.",
+      "Provider JWT/PostgREST proofs remain separately blocked."
     ],
     "unresolvedRisks": [
-      "Hosted 0046 to 0058 migration ledger is empty and cannot be inferred from prior source-only Git proof; an explicit provenance reconciliation is still required.",
-      "An independently decryptable application backup and separate private key exist in current conversation files, but owner offline-retention outside ChatGPT is not verifiable.",
-      "Native local PG17 passes do not prove Supabase-managed Auth-created JWT, PostgREST HTTP, Storage or provider event trigger behavior after deployment.",
-      "Auth users and tenant rows currently zero: absence of app customer data is not permission to downgrade RLS restrictions or skip signed-JWT negative journeys.",
-      "Any late hosted DDL/extension/provider-trigger drift after preflight invalidates proof and must fail closed."
+      "Owner off-platform private-key custody unconfirmed.",
+      "Empty managed migration ledger has no original 0046 source provenance.",
+      "Provider Auth/JWT/PostgREST Alap/Pro user journey unavailable on empty Fresh Install."
     ],
     "scope": {
       "in": [
@@ -860,11 +874,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-S-01",
-        "requirement": "A valid managed 0046 read-only attestation must match 175+2 tables, 113 rows and provider dependencies.",
+        "id": "REQ-T-01",
+        "requirement": "Exact 0046 managed catalogue digest matches pinned known-hosted historical snapshot without certifying lineage.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03s-source-managed-readiness-readonly",
+          "breadth": "F6-U03t-readonly-legacy-catalogue-provenance",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -885,8 +899,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-S-01",
-            "statement": "Do not run hosted DDL or overclaim provider JWT and recovery.",
+            "id": "NEG-REQ-T-01",
+            "statement": "No hosted DDL, ledger write, or falsely asserted source provenance or provider JWT coverage.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -894,11 +908,11 @@
         ]
       },
       {
-        "id": "REQ-S-02",
-        "requirement": "All 31 original Office forward sources are uniquely source- and order-authenticated without copy rewrite.",
+        "id": "REQ-T-02",
+        "requirement": "Canonical original SQL source and migration-ledger state are checked fail-closed, and SQL emission is SELECT-only.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03s-source-managed-readiness-readonly",
+          "breadth": "F6-U03t-readonly-legacy-catalogue-provenance",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -919,8 +933,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-S-02",
-            "statement": "Do not run hosted DDL or overclaim provider JWT and recovery.",
+            "id": "NEG-REQ-T-02",
+            "statement": "No hosted DDL, ledger write, or falsely asserted source provenance or provider JWT coverage.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -928,11 +942,11 @@
         ]
       },
       {
-        "id": "REQ-S-03",
-        "requirement": "Never release-authorize until owner key custody, provider-signed JWT and migration ledger provenance prove safe.",
+        "id": "REQ-T-03",
+        "requirement": "Release stays blocked on key custody, migration history, provider JWT/PostgREST and provider-managed recovery.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03s-source-managed-readiness-readonly",
+          "breadth": "F6-U03t-readonly-legacy-catalogue-provenance",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -953,8 +967,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-S-03",
-            "statement": "Do not run hosted DDL or overclaim provider JWT and recovery.",
+            "id": "NEG-REQ-T-03",
+            "statement": "No hosted DDL, ledger write, or falsely asserted source provenance or provider JWT coverage.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -963,12 +977,12 @@
       }
     ]
   },
-  "notes": "F6-U03s implementation batch recorded: canonical 78-original source SHA f570cbaa2cc6dea53bb123b8192c59335855c6e6227e48d0f564c4c85261b81e; 31-forward suffix source audit, read-only live Fresh Install snapshot and adversarial tests. Exact-head CI gates remain required; no hosted SQL executed; owner off-platform key custody, provider JWT/API and ledger provenance remain separately blocked. Canonical edit-time implementation-sync excludes quality/development/active-plan.json from materialFiles as metadata; semantic mustEdit now covers only implementation source targets. Integrity correction: F6-U03s asserts quality-gate readiness only, not CAP-RELEASE execution authority. Completion evidence GUARD-PLAN-BEFORE-CODE and GUARD-QUALITY-TESTS are CAP-QUALITY producers; hosted release remains explicitly unauthorized.",
+  "notes": "F6-U03t critical plan before implementation: verified parent #1400 HEAD 33c557d3b7e74faeeba7b41c0b223cc03ba9704d. New unit is read-only provenance diagnostic, not managed release authority. Physical SQL writes, backward migrations, JWT impersonation and live tenant seeding are forbidden. Corrected to exact F6-U03t Development Guard observed 46-failure scope, 5 subsystem set, negative-knowledge applicability and c2c62999 digest (first CI fail-closed). Workflow is canonical MUST_EDIT material proof; existing source modules remain unchanged. F6-U03t canonical Plan Before Code projection includes 21 negative-knowledge constraints; include the full set, not only the older Development Guard listing. Truth Gate at implementation head 51754e7a7c760a3627c511adbce4680d0e78e26a VERIFIED_DONE (9 passed, stale 0, missing 0), exact-head full CI quality 3818/3818, TypeScript/build/security success. Persist lifecycle LEARN without granting hosted release. The previous CI Lifecycle required closure metadata as expected.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "2a27c75206ad2c0a0e109fed544209d8205c45d9",
-    "closedAt": "2026-10-16T18:54:15.734Z",
+    "verifiedImplementationHead": "51754e7a7c760a3627c511adbce4680d0e78e26a",
+    "closedAt": "2026-10-16T19:48:08.600Z",
     "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
     "learning": {
