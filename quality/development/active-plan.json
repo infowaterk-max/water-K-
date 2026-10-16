@@ -22,11 +22,8 @@
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "auth-access-authority",
-    "database-schema",
     "quality-knowledge-system",
-    "release-infrastructure",
-    "tenant-context-authority"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -213,6 +210,16 @@
         "evidence": [
           "docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md"
         ]
+      },
+      {
+        "role": "Known Failure and Regression",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "A target unit could silently shadow original source bootstrap or suppress browser SELECT failures.",
+        "resolution": "Preserve same 78 checked Git blobs, run original F6-U03n/F6-U03o positive and negative proof and ON_ERROR_STOP on all PostgreSQL calls before new staged checks.",
+        "evidence": [
+          ".github/workflows/f6-u03p-real-lifecycle-proof.yml"
+        ]
       }
     ],
     "challenge": [
@@ -239,9 +246,37 @@
       },
       {
         "id": "CH-F6P-04",
-        "scenario": "Signed Supabase JWT or hosted API claims inferred from SET LOCAL synthetic GUC.",
-        "finding": "Scope overclaim.",
-        "resolution": "Explicit local synthetic claim only, releaseAuthorized false, hostedTouched false in evidence.",
+        "scenario": "A native SET LOCAL ROLE authenticated with synthetic GUC is reported as provider-issued Supabase JWT proof.",
+        "finding": "Signed-JWT provenance would be falsely elevated to release authority.",
+        "resolution": "Report providerSignedJWT=false and hostedTouched=false, and maintain separate provider acceptance.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-F6P-05",
+        "scenario": "Role revocation causes B owner zero rows, and no valid actor's positive read is captured.",
+        "finding": "An all-deny failure is indistinguishable from correct RLS.",
+        "resolution": "Bind A owner real customer row positive within each deny-only scenario and reject any missing control.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-F6P-06",
+        "scenario": "Only office_threads denies a private row while office_messages/tasks continue leaking content.",
+        "finding": "Thread guard alone is insufficient.",
+        "resolution": "Capture unfiltered thread ID lists independently from all three source tables and compare exact expected identities.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-F6P-07",
+        "scenario": "SQL lifecycle update persists and changes subsequent evidence.",
+        "finding": "Fixture tests are not independent and alter baseline.",
+        "resolution": "Run each reversible update in its own BEGIN/ROLLBACK, recheck clean positive source baseline and local identity guard, never COMMIT role transition.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-F6P-08",
+        "scenario": "A role viewer is confused with unrelated user, or support is granted private access because organization role has broad permissions.",
+        "finding": "Same-tenant differentiated-role coverage absent.",
+        "resolution": "Insert two distinct same-store active role bindings, require viewer zero and support customer positive with private negative and B owner full positive.",
         "status": "resolved"
       }
     ],
@@ -255,11 +290,8 @@
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
       "authority": [
-        "auth-access-authority",
-        "database-schema",
         "quality-knowledge-system",
-        "release-infrastructure",
-        "tenant-context-authority"
+        "release-infrastructure"
       ],
       "mustEdit": [
         ".github/workflows/f6-u03p-plan-capture.yml",
@@ -274,7 +306,10 @@
         "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts"
       ],
       "forbidden": [],
-      "proof": [],
+      "proof": [
+        "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts",
+        ".github/workflows/f6-u03p-real-lifecycle-proof.yml"
+      ],
       "unknown": [],
       "plannedDeletions": []
     },
@@ -816,7 +851,37 @@
         "decision": "PASS"
       }
     },
-    "executionAuthorized": true
+    "executionAuthorized": true,
+    "problemStatement": "Verified F6-U03o real PG17 source-authentic tenant and anonymous/helper tests do not prove post-revocation or same-tenant nonparticipant access to threads, independent messages and tasks. Stale role, expired entitlement, private participant leave or Pro-to-Alap change might leave unauthorized rows visible despite static predicates. Extend the bounded local authenticated native-role tests with positive/negative controls and reversible fixture transitions. No hosted JWT or DB write authority.",
+    "observableOutcomes": [
+      "Original immutable 78 Git migration sources, PG17 peer identity, canonical F6-U03n two-tenant and F6-U03o anonymous/helper proofs remain green before new tests.",
+      "Seed actual B-support and B-viewer authenticated users with valid B role bindings but no B private participant link; support reads real B customer threads/messages/tasks only, viewer sees none; B owner remains positive.",
+      "In reversible transactions test B participant leaving, B role revoked, B role expired, A customer entitlement expired and B Pro-to-Alap downgrade, checking exact Office thread/message/task IDs and same-session or same-fixture positive authorized tenant controls.",
+      "Record current_user authenticated, rolbypassrls=false and auth.uid equal to synthetic GUC for every query; fail if role missing, positive data absent or foreign/private row visible.",
+      "Adversarial unit checks reject any leak on one Office relation independently, denial-only no-data or forged role evidence.",
+      "Return local synthetic only with realSignedSupabaseJwtProven=false, managedDataApiProven=false, hostedTouched=false, releaseAuthorized=false.",
+      "Run independent Docker PG17 and full Quality/TypeScript/Build/Security, Completion Truth/Lifecycle exact-head before scoped closure."
+    ],
+    "unresolvedRisks": [
+      "Synthetic transaction-local auth.uid lacks cryptographic Supabase Auth signature, JWT revocation, refresh and provider transport semantics.",
+      "Only selected B support/viewer, role expiration, participant leave and A/B plan scenarios are included; other permissions/ownership and business workflows remain separate.",
+      "Supabase hosted exposed-schema Data API, Storage, provider-specific service_role/RPC and TLS migration provisioning not exercised.",
+      "Any discovered source security leak requires separate reviewed forward-only migration and PO release gate, not alteration of test expectations."
+    ],
+    "scope": {
+      "in": [
+        "Source-authentic disposable Docker PostgreSQL 17, original 78 SQL files, shared A/B fixture and role shim.",
+        "Actual authenticated non-BYPASSRLS row-selects over each of office_threads, office_messages, office_tasks with positive and negative controls.",
+        "Transaction-scoped (ROLLBACK) B support/viewer, membership leave, role revocation/expiry, customer entitlement expiry and downgrade simulations.",
+        "Additional tests, workflow, documentation and exact-head evidence."
+      ],
+      "out": [
+        "No modification to 78 original SQL files, schema, RLS policies or Auth providers.",
+        "No Supabase project creation, staging activation, production SQL/reset or hosted release.",
+        "No claim for signed JWT/Auth lifecycle, PostgREST Data API, Storage and complete tenant prod acceptance.",
+        "No Builder, Campaign Engine, template or business policy redesign."
+      ]
+    }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
