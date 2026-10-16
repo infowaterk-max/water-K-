@@ -24,8 +24,11 @@
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "auth-access-authority",
+    "database-schema",
     "quality-knowledge-system",
-    "release-infrastructure"
+    "release-infrastructure",
+    "tenant-context-authority"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -310,8 +313,11 @@
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
       "authority": [
+        "auth-access-authority",
+        "database-schema",
         "quality-knowledge-system",
-        "release-infrastructure"
+        "release-infrastructure",
+        "tenant-context-authority"
       ],
       "mustEdit": [
         ".github/workflows/f6-u03q-plan-capture.yml",
@@ -972,5 +978,5 @@
       }
     ]
   },
-  "notes": "Critical plan captured from canonical guard run 38876190578 and scoped known failures; selected read-only SQL + adversarial validation. Original provider inspection is distinct from deployment/proof; not permission to write hosted database."
+  "notes": "Verified pre-code Plan Before Code PASS at SHA 2f6c1b6, run 38876910385. Implementation adds only planned source script, Vitest and docs; original SQL and hosted projects untouched."
 }

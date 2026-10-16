@@ -31,6 +31,8 @@ jobs:
             --risk critical \
             --source-ref "https://github.com/infowaterk-max/water-K-/issues/1228" \
             --write-plan --check
+      - name: Run adversarial managed Office catalog unit tests
+        run: npx vitest run tests/shoperation-f6-u03q-managed-preflight.test.ts
       - name: Review full active Known Failures and unmodified draft plan
         if: always()
         run: |
