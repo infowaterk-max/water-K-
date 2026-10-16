@@ -24,11 +24,8 @@
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "auth-access-authority",
-    "database-schema",
     "quality-knowledge-system",
-    "release-infrastructure",
-    "tenant-context-authority"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -214,7 +211,7 @@
         ]
       },
       {
-        "role": "Database",
+        "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
         "finding": "Existing Fresh Install contains old Office tables but no migration ledger; an automated SQL deployment could irreversibly corrupt actual state.",
@@ -313,11 +310,8 @@
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
       "authority": [
-        "auth-access-authority",
-        "database-schema",
         "quality-knowledge-system",
-        "release-infrastructure",
-        "tenant-context-authority"
+        "release-infrastructure"
       ],
       "mustEdit": [
         ".github/workflows/f6-u03q-plan-capture.yml",
@@ -838,13 +832,13 @@
       "Timestamped catalog snapshots are stale after hosted changes, and caller-supplied evidence is not cryptographically provider-attested."
     ],
     "scope": {
-      "included": [
+      "in": [
         "read-only bounded managed catalog SQL emission",
         "machine-enforced claim/provenance boundaries",
         "adversarial unit proof and scored BLOCKED readiness",
         "document exact observed Fresh Install state"
       ],
-      "excluded": [
+      "out": [
         "managed schema writes or migration deployment",
         "tenant data or auth user reads",
         "service_role browser requests",
