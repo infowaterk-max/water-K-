@@ -42,7 +42,7 @@ describe('F6-U03s immutable original forward SQL versus managed Fresh Install re
   expect(report.decision).toBe('BLOCKED_RELEASE_PREREQUISITES');
  });
  it('drift of hosted schema/managed provider objects cannot become ready even if key custody true',()=>{
-  const x=input();x.ownerKeyCustodyConfirmed=true;x.observed.publicTables=174;
+  const x:any=input();x.ownerKeyCustodyConfirmed=true;x.observed.publicTables=174;
   x.observed.events=[];
   const z=assessManagedReadiness(x);
   expect(z.blockers).toContain('HOSTED_0046_DRIFT:publicTables');
