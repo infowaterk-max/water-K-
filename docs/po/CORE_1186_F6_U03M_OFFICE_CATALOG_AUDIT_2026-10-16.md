@@ -1,0 +1,25 @@
+# Core #1186 F6-U03m — native Office-wide PostgreSQL17 catalog, RLS/ACL/trigger review
+
+**2026-10-16 · [Draft PR #1361](https://github.com/infowaterk-max/water-K-/pull/1361) · Stacked on [#1358](https://github.com/infowaterk-max/water-K-/pull/1358) · Owner [#1228](https://github.com/infowaterk-max/water-K-/issues/1228)**
+
+## Context and bounded purpose
+
+F6-U03l verified exact original 59+19 SQL source identity, full genuine local PG17 COMMIT, and narrow exact-signature inbound v2/v3 grants. It intentionally did NOT establish all other Office functions, table rights, RLS or trigger security, and did not approve the reviewed-source candidate as a production migration. F6-U03m extends the **existing original 78-source local PostgreSQL17 authority** and the prior source-verification manifests; no parallel runtime security engine.
+
+The new script writes only a read-only `pg_catalog` query, then classifies the independently captured native JSON. One isolated Docker `postgres:17` service is authenticated by its actual container peer IP, local database/user/version and rejection of inherited libpq target selectors. After original unchanged preflight, 78 original source SQL files, postflight and COMMIT, the query captures **every public/private base/partitioned relation, function effective ACL for anon/authenticated/service_role/PUBLIC, policy roles normalized to names, policy USING/WITH CHECK expressions, and non-internal trigger enabled states**. Source integrity is independently reverified through canonical F6-U03l.
+
+The classifier retains the complete raw catalog artifact and a deterministic SHA-256 identity, then conservatively identifies Office-relevant relation/function/policy/trigger rows by names and function source references. It emits review *signals* for disabled Office RLS, browser table grants, browser/PUBLIC-executable SECURITY DEFINER functions, Office PUBLIC policies, missing explicit UPDATE WITH CHECK and disabled/replica-only triggers. These **are NOT confirmed vulnerabilities solely from metadata**: e.g., PostgreSQL may use a USING predicate as the UPDATE WITH CHECK fallback. Ownership/tenant policies and function body semantics need explicit specialist assessment.
+
+Native schema validation is fail-closed for empty/partial catalogs, missing known inbound v2/v3 ACL evidence, malformed role states or absent original source integrity. Existing original F6-U03b abort-before-DROP remains unchanged. The machine verdict on a complete scan is **`OFFICE_CATALOG_REVIEW_REQUIRED_NOT_RELEASE`**. A green CI means only complete local evidence and a candid risk queue. It does not attest to secure final semantic policy implementation.
+
+## Release blockers remain explicit
+
+Despite any local catalog result, these stay BLOCKED: true signed-in Alap/Pro JWT and RLS tenant-boundary journeys; complete Office RPC/policy/grant/trigger supersession classification with human acceptance; managed Supabase Auth/Storage; TLS target identity/backup/restore and versioned deployment SQL authorization. All original migration bytes and hosted SQL controls are immutable here; no staging activation, Supabase mutations, new project or merge.
+
+**Completion criteria:** exact-head canonical Development Guard, Plan Before Code, read-only all-objects native PG17 inventory, negative tests, reproducible evidence artifact, normal full CI Quality/TS/build/Security, Completion Truth and Lifecycle for diagnostic only. Existing #1186/#1228 remain OPEN.
+
+### Corrected native PostgreSQL schema exposure semantics
+After first genuine PG17 artifact #38852638579 showed 8 machine review signals (3 public Office table grants and 5 private SECURITY DEFINER RPC grant signals), we found a necessary distinction: `has_function_privilege` does NOT check whether a browser PostgreSQL role also has USAGE on the enclosing `private` schema. Versioned catalog audit now captures `has_schema_privilege(...,'USAGE')` for functions and relations. A direct-SQL-call high signal requires both function EXECUTE and schema USAGE for a browser role; a grant without schema usage remains a *review* signal, not a confirmed browser-exposable endpoint. Supabase Data API schema exposure is an independent managed-provider setting and **remains unproven**. Negative test asserts both classifications, no RLS/GRANT is changed.
+
+### Native trigger-return type and exposure classification
+Source-backed real catalog identifies `private.sync_customer_office_participant_v1()` as a trigger-function candidate. Native metadata now includes `pg_proc.prorettype = pg_catalog.trigger`. Even with `EXECUTE` and schema `USAGE`, trigger-returning routines are not normal directly callable RPC endpoints. The audit places their ACL under separate trigger-path review rather than HIGH direct-RPC exposure. This does **not** establish that the integrity trigger is safe; the attached `pg_trigger` and function body still require semantic review. Other ordinary SECURITY DEFINER functions with authenticated EXECUTE plus private-schema USAGE retain HIGH priority as native SQL-callable candidates, without claiming Supabase API schema exposure.
