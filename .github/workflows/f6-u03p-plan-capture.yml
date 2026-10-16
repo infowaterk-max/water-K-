@@ -1,0 +1,54 @@
+name: F6-U03p critical Office role-revocation RLS plan
+on:
+  push:
+    branches: [feature/core-1186-f6-u03p-role-revocation-rls]
+    paths:
+      - .github/workflows/f6-u03p-plan-capture.yml
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --no-audit --no-fund
+      - name: Enforce canonical Plan Before Code before implementation
+        run: node scripts/shoperation-plan-before-code.mjs --check
+      - name: Generate canonical guard for the bounded next Core test unit
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186 F6-U03p: genuine PG17 nonparticipant, leave and entitlement-revocation Office RLS regression" \
+            --files "scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs;tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts;.github/workflows/f6-u03p-real-lifecycle-proof.yml;.github/workflows/f6-u03p-plan-capture.yml;docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md;quality/development/active-plan.json" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/issues/1228" \
+            --write-plan --check
+      - name: Publish original guard and unmodified plan for review
+        if: always()
+        run: |
+          cat artifacts/shoperation-development-guard/development-guard.md || :
+          node --input-type=module <<'NODE'
+          import {readFileSync,existsSync} from 'node:fs';
+          if(existsSync('quality/development/active-plan.json')){
+            const s=readFileSync('quality/development/active-plan.json').toString('base64');
+            for(let i=0;i<s.length;i+=1200)console.log('F6U03P_PLAN='+s.slice(i,i+1200));
+          }
+          NODE
+      - name: Preserve canonical pre-code guard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03p-original-plan-${{ github.sha }}
+          path: |
+            quality/development/active-plan.json
+            artifacts/shoperation-development-guard/development-guard.md
+            artifacts/shoperation-development-guard/development-guard.json
+          retention-days: 7

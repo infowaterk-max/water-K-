@@ -1,0 +1,146 @@
+name: F6-U03p original source PG17 Office nonparticipant and revoked role RLS proof
+on:
+  push:
+    branches: [feature/core-1186-f6-u03p-role-revocation-rls]
+    paths:
+      - scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs
+      - tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts
+      - .github/workflows/f6-u03p-real-lifecycle-proof.yml
+      - quality/development/active-plan.json
+      - docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source-anon-foreign-denial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      pg17:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f6-u03n-local-only
+          POSTGRES_DB: f6_u03i_fresh
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d f6_u03i_fresh"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install original locked source dependencies and PostgreSQL client
+        run: |
+          npm ci --no-audit --no-fund
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+      - name: Verify source 78 Git blobs, emit SELECT-only fixture schema query and negative tests
+        run: |
+          node scripts/shoperation-f6-u03k-office-local-replay.mjs --emit-bundle artifacts/f6-u03k/local-77
+          node scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs --emit-discovery artifacts/f6-u03n/two-tenant-local
+          npx vitest run tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts
+          npx vitest run tests/shoperation-f6-u03o-office-denial-matrix.test.ts
+      - name: Verify actual local peer IP and reject inherited hosted SQL settings
+        env:
+          PGPASSWORD: f6-u03n-local-only
+          PG17_CONTAINER: ${{ job.services.pg17.id }}
+        shell: bash
+        run: |
+          for n in PGHOST PGHOSTADDR PGSERVICE PGSERVICEFILE PGDATABASE PGOPTIONS DATABASE_URL SUPABASE_DB_URL SHOPERATION_FRESH_INSTALL_DB_URL; do
+            if printenv "$n" >/dev/null 2>&1; then echo "F6U03N_FORBIDDEN_SELECTOR=$n" >&2; exit 1; fi
+          done
+          peer="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$PG17_CONTAINER")"
+          test -n "$peer"
+          actual="$(psql -XAt -v ON_ERROR_STOP=1 -h 127.0.0.1 -p 5432 -U postgres -d f6_u03i_fresh -c "select host(inet_server_addr())||'|'||current_database()||'|'||current_user||'|'||current_setting('server_version_num')")"
+          case "$actual" in "$peer|f6_u03i_fresh|postgres|17"????) echo 'Identity-checked disposable Docker PG17';; *) echo 'F6U03N_HOSTED_OR_WRONG_DOCKER_TARGET' >&2; exit 1;; esac
+      - name: Bootstrap only synthetic provider shim and execute 78 genuine historical sources
+        env:
+          PGPASSWORD: f6-u03n-local-only
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03k/local-77/bootstrap-fresh.sql >artifacts/f6-u03n/two-tenant-local/bootstrap.log
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03k/local-77/commit.sql >artifacts/f6-u03n/two-tenant-local/commit.log 2>artifacts/f6-u03n/two-tenant-local/commit.err
+          grep -F 'target-preflight-ok' artifacts/f6-u03n/two-tenant-local/commit.log
+          grep -F 'target-postflight-ok' artifacts/f6-u03n/two-tenant-local/commit.log
+          tail -1 artifacts/f6-u03n/two-tenant-local/commit.log | grep -Fx 'COMMIT'
+      - name: Collect original real SQL constraints and prove stub is incapable of positive RLS
+        env:
+          PGPASSWORD: f6-u03n-local-only
+        run: |
+          psql -XAt -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03n/two-tenant-local/read-only-fixture-schema.sql >artifacts/f6-u03n/two-tenant-local/native-fixture-schema.json
+          node scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs --assess-discovery artifacts/f6-u03n/two-tenant-local
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const x=JSON.parse(readFileSync('artifacts/f6-u03n/two-tenant-local/readiness.json','utf8'));
+          if(x.decision!=='LOCAL_SCHEMA_DISCOVERED_TENANT_RLS_NOT_PROVEN'||
+             x.localTenantPositiveNegativeProven!==false||
+             x.realSignedSupabaseJwtProven!==false||x.hostedTouched!==false||
+             x.releaseAuthorized!==false)
+            throw Error('F6U03N_FALSE_POSITIVE_OR_HOSTED_AUTHORIZATION');
+          console.log(JSON.stringify(x));
+          NODE
+      - name: Prove simulated current_user and auth.uid non-null vs anon null inside isolated role transactions
+        env:
+          PGPASSWORD: f6-u03n-local-only
+        run: |
+          node scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs --emit-role-smoke artifacts/f6-u03n/two-tenant-local
+          psql -XAt -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03n/two-tenant-local/role-smoke-local-only.sql >artifacts/f6-u03n/two-tenant-local/role-smoke.log
+          node scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs --assess-role-smoke artifacts/f6-u03n/two-tenant-local
+      - name: Seed two original-schema tenants and assert actual authenticated Office row allow/deny outcomes
+        env:
+          PGPASSWORD: f6-u03n-local-only
+        run: |
+          node scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs --emit-tenant-fixture artifacts/f6-u03n/two-tenant-local
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03n/two-tenant-local/two-tenant-fixture.sql >artifacts/f6-u03n/two-tenant-local/two-tenant-fixture.log 2>artifacts/f6-u03n/two-tenant-local/two-tenant-fixture.err
+          psql -XAt -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03n/two-tenant-local/tenant-role-select.sql >artifacts/f6-u03n/two-tenant-local/tenant-role-select.log 2>artifacts/f6-u03n/two-tenant-local/tenant-role-select.err
+          node scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs --assess-tenant-rows artifacts/f6-u03n/two-tenant-local
+      - name: Run real anonymous Office SELECT and authenticated own/foreign private helper calls
+        env:
+          PGPASSWORD: f6-u03n-local-only
+        run: |
+          node scripts/shoperation-f6-u03o-office-denial-matrix.mjs --emit-denial-query artifacts/f6-u03o/office-denials
+          psql -XAt -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03o/office-denials/role-denials.sql >artifacts/f6-u03o/office-denials/native-denial.log 2>&1
+          node scripts/shoperation-f6-u03o-office-denial-matrix.mjs --assess-denials artifacts/f6-u03o/office-denials
+      - name: Run source-real original PostgreSQL17 membership and lifecycle read matrix
+        env:
+          PGPASSWORD: f6-u03n-local-only
+        run: |
+          npx vitest run tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts
+          node scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs --emit-lifecycle-sql artifacts/f6-u03p/lifecycle-rls
+          psql -XAt -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03p/lifecycle-rls/role-lifecycle.sql >artifacts/f6-u03p/lifecycle-rls/native-lifecycle.log 2>&1
+          node scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs --assess-lifecycle artifacts/f6-u03p/lifecycle-rls
+      - name: Preserve exact native cross-tenant and anonymous negative role evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03p-original-source-role-lifecycle-${{ github.sha }}
+          path: |
+            artifacts/f6-u03n/two-tenant-local/candidate.json
+            artifacts/f6-u03n/two-tenant-local/read-only-fixture-schema.sql
+            artifacts/f6-u03n/two-tenant-local/native-fixture-schema.json
+            artifacts/f6-u03n/two-tenant-local/readiness.json
+            artifacts/f6-u03n/two-tenant-local/role-smoke-local-only.sql
+            artifacts/f6-u03n/two-tenant-local/role-smoke.log
+            artifacts/f6-u03n/two-tenant-local/role-smoke-evidence.json
+            artifacts/f6-u03n/two-tenant-local/two-tenant-fixture.sql
+            artifacts/f6-u03n/two-tenant-local/two-tenant-fixture.log
+            artifacts/f6-u03n/two-tenant-local/two-tenant-fixture.err
+            artifacts/f6-u03n/two-tenant-local/tenant-role-select.sql
+            artifacts/f6-u03n/two-tenant-local/tenant-role-select.log
+            artifacts/f6-u03n/two-tenant-local/tenant-role-select.err
+            artifacts/f6-u03n/two-tenant-local/tenant-role-evidence.json
+            artifacts/f6-u03n/two-tenant-local/commit.err
+            artifacts/f6-u03o/office-denials/role-denials.sql
+            artifacts/f6-u03o/office-denials/native-denial.log
+            artifacts/f6-u03o/office-denials/denial-proof.json
+            artifacts/f6-u03p/lifecycle-rls/role-lifecycle.sql
+            artifacts/f6-u03p/lifecycle-rls/native-lifecycle.log
+            artifacts/f6-u03p/lifecycle-rls/lifecycle-proof.json
+          retention-days: 14
+          if-no-files-found: warn
