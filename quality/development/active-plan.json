@@ -92,7 +92,7 @@
         "Original F6-U03n schema, role-smoke and two-tenant fixture plus original 3-case positive/negative RLS harness PASS in the same database before new checks.",
         "Anonymous role has current_user='anon', no BYPASSRLS, auth.uid() IS NULL and office_threads/messages/tasks all return zero with unfiltered queries.",
         "Authenticated helper calls use per-case BEGIN, SET LOCAL ROLE authenticated, SET LOCAL request.jwt.claim.sub and ROLLBACK; current_user and rolbypassrls captured.",
-        "True expected helper booleans: A owner A customer TRUE; B owner B customer and internal TRUE; A owner B or A internal FALSE; B owner A customer FALSE; unrelated user A/B FALSE.",
+        "Exact native source-role expected helper results: private.current_user_can_read_office_thread_v1 checks participation/current actor and MUST deny foreign A->B/B->A/nonmember, but it is not the plan gate for Alap internal; private.office_thread_plan_allowed_v2 and private.office_task_plan_allowed_v2 require A customer TRUE, B customer and B internal TRUE, A internal FALSE even with manual teamChat, and foreign/unknown FALSE.",
         "Missing source functions, role grants or one legitimate positive fails closed; any cross-store TRUE, anonymous row, local superuser probe or absent foreign negative fails.",
         "JSON report always syntheticJwt=true, realSignedJwtProven=false, providerManagedProven=false, releaseAuthorized=false, hostedTouched=false; success means only local row/helper behavior.",
         "Canonical Development Guard, Plan Before Code, Edit-Time, Incremental Replay, exact-head quality/typecheck/build/security/Truth/Lifecycle and dedicated Docker role tests PASS before marking unit closed."
@@ -155,7 +155,8 @@
         "Source helper `office_thread_plan_allowed_v2` ultimately calls `public.can_read_office_thread_v1` under SECURITY DEFINER and must observe current auth.uid claim.",
         "Alap internal_private denial despite a manual teamChat grant; Pro internal positive requires participant link.",
         "Anonymous service_role-only inbound v3 is out of scope and remains covered by F6-U03l.",
-        "Do not infer REST API exposure from PostgreSQL schema USAGE."
+        "Do not infer REST API exposure from PostgreSQL schema USAGE.",
+        "Anon direct SELECT may be rejected by relation/scheme ACL (SQLSTATE 42501) instead of returning zero rows. Execute actual SELECT under anon in a PLpgSQL exception-protected DO and capture deny vs zero; any visible row fails, unexpected SQLSTATE fails."
       ]
     },
     "alternatives": [
@@ -259,8 +260,8 @@
       {
         "id": "CH-F6O-06",
         "scenario": "Alap customer owner has stale manual teamChat entitlement but direct thread helper returns true for internal_private despite outer RLS blocking it.",
-        "finding": "A separate security-definer RPC entrypoint might bypass Pro-only plan enforcement.",
-        "resolution": "Require direct helper false for A internal_private and true for A customer; report contradiction even if table RLS passes.",
+        "finding": "The participation helper may report the Alap owner as an internal-thread participant, but the separate restrictive plan-scoped helpers must still deny the Pro-only internal chat; conflating the two helper layers creates false positive risk assertions.",
+        "resolution": "Assert participation helper is FALSE for foreign/unknown (and TRUE for allowed customer), while only plan-scoped thread/task helper is required FALSE for A internal and TRUE for A customer/B private. Keep full original relation RLS as separately proven.",
         "status": "resolved"
       },
       {
@@ -1002,5 +1003,5 @@
       }
     ]
   },
-  "notes": "F6-U03o is local-only additive negative-role proof using real #1364 tested original source data; not real provider JWT. CI scope truth restricted, no hosted DB SQL, DRAFT, no new business decisions."
+  "notes": "F6-U03o is local-only additive negative-role proof using real #1364 tested original source data; not real provider JWT. CI scope truth restricted, no hosted DB SQL, DRAFT, no new business decisions. F6-U03o plan clarified 2026-10-16: participant helper and restrictive plan helper have distinct semantics. Anon SELECT direct privilege-denial or zero-row RLS is accepted only with actual in-role SQL statement evidence; no silent 42501 swallow."
 }
