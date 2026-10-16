@@ -167,35 +167,37 @@ jobs:
           d="$RUNNER_TEMP/fresh-safe"
           cat > "$d/owner-public.crt" <<'RECIPIENT'
           -----BEGIN CERTIFICATE-----
-          MIIEszCCAxugAwIBAgIUEL6YXdAEYnCHb1Ux4+haP2eh0tMwDQYJKoZIhvcNAQEL
-          BQAwaTEyMDAGA1UEAwwpU2hvcGVyYXRpb24gRnJlc2ggSW5zdGFsbCBCYWNrdXAg
-          UmVjb3ZlcnkxHTAbBgNVBAsMFE93bmVyIGNvbnRyb2xsZWQga2V5MRQwEgYDVQQK
-          DAtTaG9wZXJhdGlvbjAeFw0yNjEwMTYxNDA1MzBaFw0zNjEwMTMxNDA1MzBaMGkx
-          MjAwBgNVBAMMKVNob3BlcmF0aW9uIEZyZXNoIEluc3RhbGwgQmFja3VwIFJlY292
-          ZXJ5MR0wGwYDVQQLDBRPd25lciBjb250cm9sbGVkIGtleTEUMBIGA1UECgwLU2hv
-          cGVyYXRpb24wggGiMA0GCSqGSIb3DQEBAQUAA4IBjwAwggGKAoIBgQC9/gX9/FgQ
-          yU6gAA3PbqeLlq3UEV6v/3FwFpSjuYA+DsMKRMh43XtjrIJUFrOWFTrRHPgxE5f5
-          9xNkb1lMkNfsRwTpmGIeGEfFG6kO1FsCPNpsy69Njlg+eEWzVu+eS982HSAm72Wu
-          +n+PHIIDIq8xQFX+9ypz24HjULEkSiPMT7E8a4XXhG23AjaPdAgbRwXtFTrLBDQX
-          H15faqjx5mPwLCnG7SOYqw8EZ6OHh4bTG5/dkoV/LCDhVS4Pm+BLHm7K4MdNbq99
-          J/FezIxhqQ0Czw9OJGdknJEU0qYwXE6TgWmzGDphk/eFdn7cpYpc8fOh4ol3Xbc8
-          vnZ6xyoUJl03A0nfyBEdNkEHVkFiWnalkyogwtkx01oo3Paup+r9GZgysq2RYJM
-          fzQ6gQLHOTfXY3i5tgAW4DNFsMVnt/PY3qUt9kTzbq99bMRRQ+rzuiwDjbEze1Mj
-          2mVpsWMzZe56C081ftTYMeJk/KMlI9b8wGvq/JWvTkyAFR9fX8fadSUCAwEAAaNT
-          MFEwHQYDVR0OBBYEFGkZkaNiOMY6bIuDZYcvw4riCCM9MB8GA1UdIwQYMBaAFGkZ
-          kaNiOMY6bIuDZYcvw4riCCM9MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEL
-          BQADggGBALDr9SxUPWcvsIZ+NHCqTUMf1RQ8Piy2St/YhK8boXbgk1G6WIm223Ry
-          C3cfQRb+n3bGF4uHlyeRuaVF4XPNYlFMSEmSe6/pZMDu8Hs86zWS6Gj+67tL1LaZ
-          7T0Bjdb89kDZg469lXlZiIT4ohChepb0/+96iDbKRzSvp98p8L0z6rKzEl51h9yr
-          Z/rvJwBQ+7aDbq9HxvpkpA4JwLKre4X/+i0jR0P6R90zYrgD1imTyx/X42NnM6mo
-          NyH+fBfXjG4B1zVhnvB9W7uP8plD/K2ISIOFW8oV17hUnPMZNgLyZ30V0qLoCAhO
-          Ix63kk2CX56k9OHWz0DTkDB2WDf5Cy8FhxKxRLBLZhuuByrgKJXFbmWHtLem75hP
-          D4KsY49pHwK4j92UCsahRssH1AFSvJsiJDfT1B0F+F2pFY04/BBTReRpuqI+t+71
-          WTxeAUmXLtbM48mgILCY9+JEyGT39jtPGUkX+a1M98jStPs8ZIUQHrGQZF3vlHGV
-          +U1wFpCm+g==
+          MIIEvzCCAyegAwIBAgIUazIEPUKQvT4pnwGfgiW8gHyk3KEwDQYJKoZIhvcNAQEL
+          BQAwbzEwMC4GA1UEAwwnU2hvcGVyYXRpb24gRnJlc2ggSW5zdGFsbCBSZWNvdmVy
+          eSAyMDI2MRQwEgYDVQQKDAtTaG9wZXJhdGlvbjElMCMGA1UECwwcRnJlc2ggSW5z
+          dGFsbCBPd25lciBSZWNvdmVyeTAeFw0yNjEwMTYxNTAxMzhaFw0yODEwMTUxNTAx
+          MzhaMG8xMDAuBgNVBAMMJ1Nob3BlcmF0aW9uIEZyZXNoIEluc3RhbGwgUmVjb3Zl
+          cnkgMjAyNjEUMBIGA1UECgwLU2hvcGVyYXRpb24xJTAjBgNVBAsMHEZyZXNoIElu
+          c3RhbGwgT3duZXIgUmVjb3ZlcnkwggGiMA0GCSqGSIb3DQEBAQUAA4IBjwAwggGK
+          AoIBgQCU/Z6veRR9jDjZ2aGruRsDFBlUCLt7sC8el4L0BYBiQIjF0aqWIv0klLeK
+          +ahUlghBjVRv8In59PDppEn7vs23W7bRZhbSNy3mrsujHOMHSNPt2pgFn4e9Si8W
+          k5zGqGZvMxwBGuDmnjEL1GN/Y1r5z4HqdOtfVNHPkWcPEPvsQDZ/9bOdYiI+vves
+          5pfCkK3ndGTQZuE92k+RHrUsspiKhqmbkSN3MqyrfYDcSxTSOJAX3EZKt1rU00Y6
+          werg+N6X9A8lts8hcFEX7zcqznsNKVvFM9/IIxQYdEh32Z86PwZskZeXSfvP6AGU
+          9kkg4wVAmojM+sEFUh3bXrY7j8zKWT1dNQtuacPjJHjoe1+wvMZJGoQX8tNfZvWF
+          KkCryr27R9fN/r2QeLuQcEwjevCwbLZ0ksZqPGO46VfO0eqYowhhJBX/JmxOGaet
+          yteStlp/fl5C1yDye2l447Ll7qqdGEelmUEjfENDHJu/JxG3wmX8z76B0Xs+62r6
+          ZpRCogECAwEAAaNTMFEwHQYDVR0OBBYEFH+F6B41Oz3K+kdyYv1KwvfPjXxFMB8G
+          A1UdIwQYMBaAFH+F6B41Oz3K+kdyYv1KwvfPjXxFMA8GA1UdEwEB/wQFMAMBAf8w
+          DQYJKoZIhvcNAQELBQADggGBAI01LXEYKU0jSoXgWMGUXlcUNQ+7VuD5JOKVoNuM
+          X9fVz5HBXcuLLYgDdpoKI8JlvlJNdM58n+uWRqnhXvkP4I104tgSt/oIoBCbEQWb
+          SaiAMzBzc7gtQSDCfDzwF3wn0YN7CgbMFoT1QjccyoSDQ0wWYnvtz7jfPonrO3/y
+          ziGUUp8MreopWYfi80t0bNiJcsFtBSROgY4LORbuyI4bdExKwDYFmbmYbj5gtIq0
+          rK+yJ1KUqT3w1EyKJSXDgoCXDPVRDtG9RltMaVgYDw2vxRSRhppJMPCv/V7YDMJJ
+          CHm0UubYRTIusYWXIyeoyYn2v63zSe6/kMwjKnN0syAPvPVY68QbZwtyMG6CGWtC
+          QMd4c4mz47nNyRuQhPy6m9GIdSIeWDWFGF6dzU57M0TOc3cUd8ly2ZBHjzjD35Vn
+          vkv7EuXILPq5IZo5Pqqn7Oia7o6EAIxJ+ilTBVPDaQhGFYWzR3sK1bJtkqbGB6h+
+          8m3VhcyIk8AgH1rE6Ebhz24zBg==
           -----END CERTIFICATE-----
           RECIPIENT
           openssl x509 -in "$d/owner-public.crt" -noout -checkend 86400 >/dev/null
+          cert_sha="$(openssl x509 -in "$d/owner-public.crt" -outform DER | sha256sum | awk '{print $1}')"
+          test "$cert_sha" = 'b83d0b51e49a8bc61f882b91da88069dfbd1c0987f6367cae114dc7f7a5742c7' || { echo 'F6_BACKUP_OWNER_CERTIFICATE_DRIFT'; exit 1; }
           tar -C "$d" -cf "$d/plain.tar" app-owned.dump
           openssl cms -encrypt -binary -aes-256-gcm -in "$d/plain.tar" -out "$d/fresh-backup.cms" -outform DER -recip "$d/owner-public.crt"
           openssl cms -cmsout -inform DER -in "$d/fresh-backup.cms" -print | grep -q 'aes-256-gcm'
