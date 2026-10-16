@@ -1,23 +1,21 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-90EB737A",
-  "task": "Core #1186 F6-U03m: genuine Docker PG17 Office-wide catalog RLS/ACL/trigger inventory with fail-closed release blockers",
+  "taskId": "DEV-074C4B63",
+  "task": "Core #1186 F6-U03n: 2-tenant Alap/Pro isolated PG17 JWT-role RLS rehearsal with fail-closed real-provider boundary",
   "status": "closed",
-  "guardDigest": "90eb737a",
-  "changeBaseSha": "82f039b0dfe7eb7b06196530ccc333519784bef9",
+  "guardDigest": "074c4b63",
+  "changeBaseSha": "1deb07c5cb38abd1a91887e0825181899c15187d",
   "plannedFilePatterns": [
-    "scripts/shoperation-f6-u03m-office-catalog-audit.mjs",
-    "tests/shoperation-f6-u03m-office-catalog-audit.test.ts",
-    ".github/workflows/f6-u03m-office-catalog-proof.yml",
-    ".github/workflows/f6-u03m-plan-capture.yml",
-    "docs/po/CORE_1186_F6_U03M_OFFICE_CATALOG_AUDIT_2026-10-16.md",
+    "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
+    "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
+    ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
+    ".github/workflows/f6-u03n-plan-capture.yml",
+    "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
     "quality-infrastructure",
-    "release-infrastructure",
-    "shared-storefront",
-    "storefront-ui"
+    "release-infrastructure"
   ],
   "expectedDomains": [
     "DOMAIN-QUALITY",
@@ -32,59 +30,28 @@
     "SQ-KF-014",
     "SQ-KF-022",
     "SQ-KF-025",
-    "SQ-KF-001",
-    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
-    "SQ-KF-005",
     "SQ-KF-006",
-    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
-    "SQ-KF-015",
-    "SQ-KF-016",
-    "SQ-KF-017",
     "SQ-KF-018",
-    "SQ-KF-019",
     "SQ-KF-020",
     "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-004",
     "TF-KF-005",
-    "TF-KF-006",
     "TF-KF-007",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
-    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "TF-KF-015"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
-    "SQ-NK-004",
     "SQ-NK-005",
-    "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012",
     "SQ-NK-016",
@@ -104,7 +71,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical read-only native PG17 catalog-wide inventory, with real SQL source identity. Separate machine observations from expert interpretation; unresolved findings block release, and no SQL or production authority is modified.",
+      "rationale": "Critical local PG17 role-session test; original fixture auth.uid() is always NULL, requires explicit isolated provider stub replacement and two-tenant seed proof before any RLS claim. No hosted real JWT authority.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -121,31 +88,29 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Unchanged source-verified 59+19 original SQL and original target-preflight, target-postflight and COMMIT reproduced on identity-verified disposable Docker PG17.",
-        "Read-only native query covers every public/private application base/partitioned table, every catalog policy and its role names/USING/WITH CHECK, all public/private functions and effective anon/authenticated/service_role/PUBLIC EXECUTE, and non-internal triggers with enablement.",
-        "Catalog is machine JSON, has stable object inventory hash, minimum observed constraints 190 public tables, 379 public functions, 129 public policies from F6-U03l and includes exact v2/v3 results with required deny/allow.",
-        "Audit emits every conservative Office-relevant object, actionable finding details and evidence; never auto-confirms arbitrary RLS/SECURITY DEFINER semantics as secure.",
-        "Negative tests show absent/garbled catalog, missing mandated v2/v3 function, malformed role grant, disabled RLS, exposed SECURITY DEFINER and missing source identity fail/flag correctly.",
-        "Always release BLOCKED pending full semantic Office policy/ACL/RPC supersession review, signed-in tenant JWT Alap/Pro, managed provider Auth/Storage and approved migration package, even with zero findings.",
-        "Exact-head source proof, quality, TS/build, Security Audit, Completion Truth and Lifecycle pass for inventory diagnostic only.",
-        "Every related catalog relation/function reports native anon/authenticated schema USAGE, and exposed privileged-function high signal requires both matching role function EXECUTE and schema USAGE; ACL-only cases get review severity.",
-        "Native pg_proc catalog identifies trigger-returning functions, and negative test differentiates trigger helper ACL review from genuinely callable SECURITY DEFINER with authenticated schema USAGE."
+        "Run exact current `main` Git-blob-pinned 59+19 SQL via F6-U03k with original pre/postflight and COMMIT on one verified Docker postgres:17 container, refusing all external SQL selectors.",
+        "Before seeding inspect native catalog for required organization/webshop/roles/users/Office/entitlement relations, columns and constraints and record their origin without altering base schema.",
+        "Never use the original `auth.uid()=NULL` fixture as positive proof; assert current auth.uid() stub returns NULL then explicitly override it **only in Docker** to read `request.jwt.claim.sub` with a transaction-scoped role and independently assert current session uid.",
+        "Test fixture creates exactly two distinct instances with subscription_plan Alap vs Pro and nontrivial active role and Office customer/internal rows, using native constraints; fixture cleanup is automatic disposable DB, no external fixture data.",
+        "For each role/user + tenant query assert expected exact row IDs or precise counts, positive Alap support and Pro participant visibility and strict foreign-tenant, unentitled, nonparticipant and anon denial; no all-zero false green.",
+        "Keep `releaseAuthorized=false`, `hostedTouched=false`, `realSupabaseJwtProven=false`, `realProviderDataApiProven=false`, `authFixtureOverridden=true`, `sourceCount=78`; report results with labels distinguishing simulation.",
+        "Normal exact-head Quality/TS/Build/Security/Completion Truth/Lifecycle plus dedicated actual PG17 role RLS proof PASS only after true row-level positive/negative scenarios."
       ],
       "invariants": [
-        "All 78 historical Git-pinned source bytes untouched; native SELECT-only catalog executes after real original PostgreSQL17 COMMIT.",
-        "No app-owned SQL writes through audit; only original F6-U03k fixture executed locally.",
-        "PG peer IP/DB/user/version must prove local actual Docker service; reject all inherited external libpq selectors.",
-        "Database role privilege from superuser is not a substitute for browser/service_role privilege, and PUBLIC default grants must be visible.",
-        "No auth/tenant provider or hosted release gate can be marked proven from catalog inventory.",
-        "Any incomplete schema or missing expected object counts fails exact diagnostic instead of underreporting possible risk."
+        "All original Git-pinned 78 SQL bytes and 59-source abort-before-DROP remain intact, no source path overwritten.",
+        "Provider auth shim override is confined to disposable Docker and emitted evidence states the limitation; never copied to hosted migrations.",
+        "Fixture seed does not use superuser identity for probes; PostgreSQL authenticated role and different claims must be proven per query.",
+        "Authenticated positive and denial scenarios must both be observed, not inferred from SQL text or empty relation.",
+        "Alap support remains allowed for customer threads; internal private/team chat remains Pro and participation scoped even with stale entitlement.",
+        "No client-facing service_role key or accidental role privileges granted."
       ],
       "forbiddenStates": [
-        "Any catalog snapshot silently excludes public/private Office tables or policies while claiming complete source coverage.",
-        "An exposed SECURITY DEFINER candidate to PUBLIC/anon/authenticated is automatically marked safe on basis of naming alone.",
-        "An RLS-disabled Office-related relation is hidden, or update policy without explicit WITH CHECK is reported a confirmed defect without interpretation.",
-        "A read-only query runs on a hosted database or takes credentials/project selectors from environment.",
-        "Generated report claims `releaseAuthorized=true` or that signed-in Alap/Pro/managed Auth/Storage are proven.",
-        "The original 78 SQL or hosted abort-before-DROP is edited to pass the audit."
+        "All zero rows passes local role test without positive controls.",
+        "Test uses `postgres`/`BYPASSRLS` to execute permitted/denied assertions.",
+        "A locally overridden auth.uid function or fake JWT is described as a real signed-in Supabase Auth session.",
+        "A tenant B Office row appears in tenant A SELECT or internal Pro-only row visible to Alap.",
+        "A hosted Fresh Install or platform/staging project is altered or SQL guard before DROP disabled.",
+        "A seeded synthetic user claims another user solely by arbitrary client request context in production; fake claims remain local-only."
       ]
     },
     "model": {
@@ -177,41 +142,41 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "New function or table introduced by one original source falls outside narrow office_ pattern but references Office tables via procedure SQL.",
-        "Catalog query filters policies by role OIDs and misreports Supabase role names because Docker OIDs differ.",
-        "Default PUBLIC EXECUTE on a SECURITY DEFINER may bypass absence of explicit anon GRANT.",
-        "A changed trigger enablement is overlooked if test only counts trigger names.",
-        "Missing UPDATE WITH CHECK is misclassified as unconditional authorization bypass when PostgreSQL uses USING fallback.",
-        "Postflight fails but catalog query still executes against old snapshot.",
-        "Read-only SQL errors are swallowed by shell and generated JSON report is empty but green."
+        "Legacy local auth.uid always returns NULL and all tested rows invisibly disappear, giving false denial green.",
+        "Provider auth role stub ignores SET LOCAL role or uses service_role, bypassing RLS.",
+        "Fixture row inserts fail due to missing required columns/references and CI silently skips positive cases.",
+        "Two tenants share organization or role grants and cross-tenant fixtures falsely appear authorized.",
+        "Setting stale manual/trial entitlement may unlock internal chat for Alap against strict Pro plan check.",
+        "A supposed JWT sub maps to arbitrary user without user-store role; positive case fails, incorrectly blamed on core SQL.",
+        "Session state leaks between test cases if not reset transaction locally."
       ],
       "edgeCases": [
-        "pg_get_functiondef for C/extension routines cannot be treated as SQL text; use language/source search only as conservative relevance hint.",
-        "Both partitioned relation relkind p and ordinary r count as tables; avoid treating indexes as tables.",
-        "policy `polwithcheck` nullable and pg_get_expr nullable: preserve null rather than infer TRUE.",
-        "Role list includes OID zero for PUBLIC; render role names deterministically rather than raw OID.",
-        "Trigger tgenabled values O/D/R/A have different semantics; report D as disabled, R as replica-only not always-on.",
-        "Object lists may be long: capture catalog JSON artifact with deterministic sorting, fail on missing mandatory object counts."
+        "PostgreSQL policy reads under SECURITY DEFINER may bypass RLS inside helper by design, so outer SELECT must still be authenticated and verify id rows.",
+        "PostgreSQL `auth.uid()` stub override body must read `current_setting('request.jwt.claim.sub', true)` and safely parse empty strings without error.",
+        "Separate role `anon` and authenticated, owner/grantee and `SET LOCAL` scopes; invalid claimed UUID should deny.",
+        "Office unlinked tasks have NULL thread_id and require customer-support capability only, not Pro internal chat.",
+        "Support capability evaluator needs topic/mailbox keys and privacy members for internal chats; make fixture deterministic and diagnostic.",
+        "Actual Supabase `auth.jwt()` can expose stale claims, but this local simulation cannot prove token signature, refresh or revocation."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-U03M-FULL_CATALOG",
-        "summary": "Real identity-verified Docker PG17 entire public/private native catalog read-only inventory with conservative Office risk triage.",
+        "id": "ALT-F6N-LOCAL_ROLE_RUNTIME",
+        "summary": "Native Docker PostgreSQL17 two-tenant role + simulated JWT sub fixture, with exact positive/negative assertions and release blocked.",
         "disposition": "selected",
-        "reason": "Proves objective ACL/RLS/triggers and exposes review blockers without inventing release safety."
+        "reason": "Extends native RLS proof without touching hosted auth and exposes data dependencies."
       },
       {
-        "id": "ALT-U03M-SQL_REGEX_ONLY",
-        "summary": "Scrape 78 original SQL source strings for CREATE POLICY and GRANT and declare role safety.",
+        "id": "ALT-F6N-CATALOG_ONLY",
+        "summary": "Repeat policy-definition regex and declare two-tenant safety.",
         "disposition": "rejected",
-        "reason": "Ignores superseded SQL, inherited role rights, default PUBLIC grants and actual catalog."
+        "reason": "Metadata cannot establish row-level outcomes."
       },
       {
-        "id": "ALT-U03M-HOSTED_RESET",
-        "summary": "Apply full 78 SQL to Fresh Install directly to inspect actual hosted ACL.",
+        "id": "ALT-F6N-HOSTED_APP_TOKENS",
+        "summary": "Create production signed-in users/tenants in hosted Supabase Fresh Install now.",
         "disposition": "rejected",
-        "reason": "Requires forbidden production scheme reset, TLS/identity and independent safety authority not obtained."
+        "reason": "Hosted target reset/restore/provider/auth authority not approved and two active project billing cap."
       }
     ],
     "specialistReviews": [
@@ -219,122 +184,108 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A mechanically green catalog scanner cannot prove all policy predicate semantics or real signed-in tenant identity.",
-        "resolution": "Label findings as review indications and always block release until explicit manual+tenant/provider proofs; include raw RLS expressions for later review.",
+        "finding": "Fake JWT or PostgreSQL claims are not signed Supabase sessions; a local green might be misrepresented as hosted readiness.",
+        "resolution": "Label simulated-only, verify SET ROLE authenticated and never mark real JWT/managed Data API proven.",
         "evidence": [
-          "scripts/shoperation-f6-u03m-office-catalog-audit.mjs",
-          ".github/workflows/f6-u03m-office-catalog-proof.yml"
+          "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Policies may be attached to partitioned relations; only `pg_policy` joined to simple tables can be incomplete.",
-        "resolution": "Include pg_class relkind r,p and all pg_policy public/private objects, policy role normalization and trigger enablement.",
+        "finding": "Seeded fixtures must honor original FK/trigger and entitlement lifecycle, not ad hoc fake Office tables.",
+        "resolution": "Run exact original source and native schema-introspection, insert into real original relations only; fail if missing.",
         "evidence": [
-          "tests/shoperation-f6-u03m-office-catalog-audit.test.ts"
-        ]
-      },
-      {
-        "role": "Release",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Local source replay plus audit may be mistaken for approved 78-source hosted migration package.",
-        "resolution": "Source review candidate only; releaseAuthorized false and blocked known acceptance fields mandatory.",
-        "evidence": [
-          "docs/po/CORE_1186_F6_U03M_OFFICE_CATALOG_AUDIT_2026-10-16.md"
+          ".github/workflows/f6-u03n-local-tenant-rls-proof.yml"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Duplicated catalog compiler would create parallel authority.",
-        "resolution": "Reuse existing original F6-U03k SQL composer, candidate F6-U03l source and separate read-only audit query only, no change to original hosted guard.",
+        "finding": "Prior F6-U03k SQL compilation had dollar quoting bugs; duplicating bundle loses authority.",
+        "resolution": "Use canonical existing F6-U03k script, never duplicate original SQL or source verifiers.",
         "evidence": [
           "scripts/shoperation-f6-u03k-office-local-replay.mjs"
+        ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "RLS local proof could be approved as complete Shoperation Core or hosted release.",
+        "resolution": "Explicitly maintain releaseAuthorized false; #1228/#1186 open and draft PR, require real provider signed-in sessions later.",
+        "evidence": [
+          "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U03M-01",
-        "scenario": "A public SECURITY DEFINER RPC has default PUBLIC EXECUTE but source SQL contains no explicit anon grant.",
-        "finding": "Static grep reports no privilege while effective native Postgres permissions permit browser calls.",
-        "resolution": "Query `has_function_privilege` for actual anon/authenticated/service_role and proacl PUBLIC on every app function; flag exposed relevant definer for review.",
+        "id": "CH-F6N-01",
+        "scenario": "The local auth.uid shim returns NULL for all requests and every query returns zero.",
+        "finding": "All-denied falsely passes without proving any legitimate user works.",
+        "resolution": "Assert stub identity, override only local with verified current_setting() and require positive and negative row results.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03M-02",
-        "scenario": "A public/private Office table has rowsecurity disabled yet a policy of the same name exists elsewhere.",
-        "finding": "Policy count does not prove RLS enabled on actual Office relation.",
-        "resolution": "Pair pg_class.relrowsecurity/relforcerowsecurity with exact relation OID, report table and effective role SELECT/INSERT/UPDATE/DELETE.",
+        "id": "CH-F6N-02",
+        "scenario": "During the actual two-tenant PG17 row-access matrix, a test query for tenant A is executed after seeding while the PostgreSQL session remains connected as the postgres owner or a BYPASSRLS-capable service role instead of SET LOCAL ROLE authenticated, so the select can see tenant B rows even if the final captured result is incorrectly filtered in application code.",
+        "finding": "The evidence is an invalid proxy for authenticated RLS enforcement: table ownership and BYPASSRLS bypass row-level policies, and a query returning the expected rows under postgres does not establish the effective browser role permission boundary.",
+        "resolution": "Within every test transaction assert session_user=postgres but current_user=authenticated (or anon for anonymous) and that pg_roles.rolbypassrls is false for current_user; issue SELECT against the source relation without an application-side filter, verify exact tenant IDs and row counts, and reject queries from any owner/service identity.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03M-03",
-        "scenario": "RLS UPDATE policy omits explicit WITH CHECK; naive checker calls a confirmed cross-tenant write.",
-        "finding": "PostgreSQL may use USING fallback; diagnosing exploit from null polwithcheck is false certainty.",
-        "resolution": "Emit review finding with null withCheck, explicit classification and no automatic exploit proof.",
+        "id": "CH-F6N-03",
+        "scenario": "Two tenant instance ids are different but share underlying organization and store-member grants.",
+        "finding": "Cross-tenant isolation test may accidentally create intentionally shared access.",
+        "resolution": "Seed separate organizations and role bindings; query instance/org consistency before running role cases.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03M-04",
-        "scenario": "A trigger exists but is disabled or replica-only, invalidating Office integrity hook behavior.",
-        "finding": "Trigger-name counts look green while write-time audit/tenant boundary may not execute.",
-        "resolution": "Query actual pg_trigger.tgenabled and flag D and R for Office-relevant tables.",
+        "id": "CH-F6N-04",
+        "scenario": "Migrations reassign Office column constraints and fixture silently skips failed inserts.",
+        "finding": "Fake green despite not testing actual Office rows.",
+        "resolution": "Postflight schema introspection, on-error-stop, mandatory 2 tenants and source rows with exact verified IDs.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03M-05",
-        "scenario": "Some Office function uses a generic helper name but references office_ tables in PLpgSQL source.",
-        "finding": "Simple office_ prefix audit omits helper and its effective EXECUTE exposure.",
-        "resolution": "Conservatively include function source text relevance marker for office/team/communication patterns and retain full catalog objects and counts for manual review.",
+        "id": "CH-F6N-05",
+        "scenario": "Role session state persists across cases and leaks authenticated current_user or JWT sub.",
+        "finding": "Cross-case contamination misstates allowed access.",
+        "resolution": "Use independent BEGIN/SET LOCAL/ROLLBACK per case, verify current_user and auth.uid every time.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03M-06",
-        "scenario": "Missing SQL or failed COMMIT causes catalog JSON of 0 objects to pass because the checker only validates shape.",
-        "finding": "False-green lifecycle could approve uninstalled Office schema.",
-        "resolution": "Enforce psql ON_ERROR_STOP=1, original postflight and COMMIT, independent source 78 identities and minimum previously observed catalog counts; fail-closed on empty/incomplete JSON.",
+        "id": "CH-F6N-06",
+        "scenario": "A tenant with a real Alap subscription is seeded with a stale manual or platform teamChat feature entitlement, and the test accidentally checks only a customer Office thread rather than an internal_private conversation with a real participant, letting an advanced feature unlock from entitlement priority alone.",
+        "finding": "An internal Office team chat that should remain Pro-only may be erroneously visible under Alap if the SQL authorization predicate trusts a manually overridden feature entitlement rather than the current webshop_instances.subscription_plan='pro' authority.",
+        "resolution": "Seed distinct customer and internal_private threads in the same Alap tenant with relevant participant and stale teamChat entitlement rows; assert positive customer support select and strictly zero internal private select in the authenticated role, while a second Pro tenant with a participant and enabled teamChat is a positive internal control.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03M-07",
-        "scenario": "One role name in policy is serialized as a different OID in managed Supabase than local fixture.",
-        "finding": "Comparing raw role OIDs produces misleading drift and possibly invalid release classification.",
-        "resolution": "Resolve policy roles through pg_roles to readable role names and explicitly preserve PUBLIC role 0; native catalog counts valid only locally.",
+        "id": "CH-F6N-07",
+        "scenario": "GitHub Actions sets request.jwt.claim.sub in the disposable PG17 server with set_config and runs SET LOCAL ROLE authenticated, but then a green result is included in the Completion Truth as if the user authenticated through hosted Supabase Auth with a cryptographically signed and refreshed JWT.",
+        "finding": "A PostgreSQL setting is a user-controllable local test stub, not a verified Supabase JWT or PostgREST request; it does not validate token signature, expiration, app_metadata, session_id, revocation, exposed schema settings or Storage authorizations.",
+        "resolution": "Assert the fixture manifest `syntheticJwt=true`, original auth.uid NULL provenance and `realSupabaseJwtProven=false`; use explicit LOCAL_SIMULATED_ROLE_RLS_NOT_SUPABASE_JWT result string, require independent hosted signed-in A/B tenant and managed provider tests before any release approval.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03M-08",
-        "scenario": "A green local audit report is used as proof of actual authenticated Alap/Pro JWT tenant isolation and managed Auth/Storage.",
-        "finding": "A real provider claim without signed-in tenant request evidence violates source-scoped Truth contract.",
-        "resolution": "Machine verdict release_BLOCKED, providerManagedProven=false, signedInAlapProRlsProven=false, hostedTouched=false, and document next authority.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-U03M-09",
-        "scenario": "A private-schema SECURITY DEFINER has effective EXECUTE for anon but no USAGE on its private namespace, and is classified as directly browser-exposable.",
-        "finding": "Function EXECUTE alone is not a callable API: PostgreSQL requires schema USAGE, and provider Data API schema exposure is another independent gate. An unconditional HIGH finding is a false positive.",
-        "resolution": "Query has_schema_privilege for each table/function namespace, classify high direct exposure only when schema USAGE and role EXECUTE are both true; retain ACL-only as REVIEW_REQUIRED and provider exposure separate.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-U03M-10",
-        "scenario": "A native PostgreSQL trigger-returning helper (prorettype trigger) has EXECUTE to PUBLIC/authenticated with private schema USAGE and is marked as directly callable SECURITY DEFINER RPC.",
-        "finding": "PostgreSQL trigger functions can only run as triggers; routine-level EXECUTE metadata is not sufficient to classify direct SQL invocation as a browser RPC entrypoint.",
-        "resolution": "Collect function return type from pg_proc, classify `RETURNS trigger` function as trigger-only ACL review and never as direct-browser SQL RPC even with schema USAGE; separately review the enabled trigger and source integrity.",
+        "id": "CH-F6N-08",
+        "scenario": "Fixture requires replacing RLS policies to pass.",
+        "finding": "Test no longer checks original 78 source behavior.",
+        "resolution": "Never change original policies, helper predicates or table privilege grants; only local auth provider stub and synthetic fixture rows allowed.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run canonical exact-scope Development Guard, read all 45 active Known Failures and risk/authority challenges; critical Plan Before Code PASS before audit implementation.",
-      "Execute original F6-U03k 78-file true Docker PG17 source SQL with existing preflight/postflight; do not change old SQL.",
-      "Run native read-only public/private catalog SELECT for all tables, policy normalized role names/expressions, functions effective execute rights, triggers and enabled states; preserve full raw JSON.",
-      "Adversarial negative Vitest against absent object, default PUBLIC grant, RLS-disabled table, disabled trigger and misclassified UPDATE check.",
-      "Evidence reports scoped local catalog and release BLOCKED even if all specific findings reviewed, exact-head CI/Truth/Lifecycle."
+      "Read exact Development Guard known failures and pass critical Plan Before Code before first change.",
+      "Run current F6-U03k original 78-source local PG17 true transaction; inspect actual table columns/constraints for safe fixtures.",
+      "Emit minimal local-only auth.uid/auth.jwt role-claim SQL overlay, assert original fixture NULL then new role scoping.",
+      "Seed two tenant instances/users/entitlement/support/Office rows in original relations, query normal positive/negative matrix as real PostgreSQL authenticated/anon role.",
+      "Adversarial test missing positive, invalid identity, cross-tenant leak, Alap internal leak, no role isolation and hosted execution flags.",
+      "Exact-head guarded code/CI/Truth/Lifecycle plus dedicated Docker17 evidence, keep real JWT provider blocked."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
@@ -343,20 +294,20 @@
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03m-plan-capture.yml"
+        ".github/workflows/f6-u03n-plan-capture.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        ".github/workflows/f6-u03m-office-catalog-proof.yml",
-        "docs/po/CORE_1186_F6_U03M_OFFICE_CATALOG_AUDIT_2026-10-16.md",
-        "scripts/shoperation-f6-u03m-office-catalog-audit.mjs",
-        "tests/shoperation-f6-u03m-office-catalog-audit.test.ts"
+        ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
+        "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
+        "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
+        "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-f6-u03m-office-catalog-audit.test.ts",
-        ".github/workflows/f6-u03m-office-catalog-proof.yml"
+        "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
+        ".github/workflows/f6-u03n-local-tenant-rls-proof.yml"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -367,16 +318,16 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          ".github/workflows/f6-u03m-plan-capture.yml",
+          ".github/workflows/f6-u03n-plan-capture.yml",
           "quality/development/active-plan.json"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          ".github/workflows/f6-u03m-office-catalog-proof.yml",
-          "docs/po/CORE_1186_F6_U03M_OFFICE_CATALOG_AUDIT_2026-10-16.md",
-          "scripts/shoperation-f6-u03m-office-catalog-audit.mjs",
-          "tests/shoperation-f6-u03m-office-catalog-audit.test.ts"
+          ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
+          "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
+          "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
+          "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -409,19 +360,19 @@
         ],
         "files": [
           {
-            "file": ".github/workflows/f6-u03m-office-catalog-proof.yml",
+            "file": ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": ".github/workflows/f6-u03m-plan-capture.yml",
+            "file": ".github/workflows/f6-u03n-plan-capture.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "docs/po/CORE_1186_F6_U03M_OFFICE_CATALOG_AUDIT_2026-10-16.md",
+            "file": "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -433,13 +384,13 @@
             "points": 0
           },
           {
-            "file": "scripts/shoperation-f6-u03m-office-catalog-audit.mjs",
+            "file": "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/shoperation-f6-u03m-office-catalog-audit.test.ts",
+            "file": "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -472,19 +423,19 @@
           ],
           "files": [
             {
-              "file": ".github/workflows/f6-u03m-office-catalog-proof.yml",
+              "file": ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": ".github/workflows/f6-u03m-plan-capture.yml",
+              "file": ".github/workflows/f6-u03n-plan-capture.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "docs/po/CORE_1186_F6_U03M_OFFICE_CATALOG_AUDIT_2026-10-16.md",
+              "file": "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -496,13 +447,13 @@
               "points": 0
             },
             {
-              "file": "scripts/shoperation-f6-u03m-office-catalog-audit.mjs",
+              "file": "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/shoperation-f6-u03m-office-catalog-audit.test.ts",
+              "file": "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -517,7 +468,7 @@
           {
             "id": 0,
             "files": [
-              ".github/workflows/f6-u03m-office-catalog-proof.yml"
+              ".github/workflows/f6-u03n-local-tenant-rls-proof.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -534,7 +485,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03m-office-catalog-proof.yml",
+                  "file": ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -547,7 +498,7 @@
           {
             "id": 1,
             "files": [
-              ".github/workflows/f6-u03m-plan-capture.yml"
+              ".github/workflows/f6-u03n-plan-capture.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -564,7 +515,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03m-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03n-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -577,7 +528,7 @@
           {
             "id": 2,
             "files": [
-              "docs/po/CORE_1186_F6_U03M_OFFICE_CATALOG_AUDIT_2026-10-16.md"
+              "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -588,7 +539,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/po/CORE_1186_F6_U03M_OFFICE_CATALOG_AUDIT_2026-10-16.md",
+                  "file": "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -625,7 +576,7 @@
           {
             "id": 4,
             "files": [
-              "scripts/shoperation-f6-u03m-office-catalog-audit.mjs"
+              "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -642,7 +593,7 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-f6-u03m-office-catalog-audit.mjs",
+                  "file": "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -655,7 +606,7 @@
           {
             "id": 5,
             "files": [
-              "tests/shoperation-f6-u03m-office-catalog-audit.test.ts"
+              "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -666,7 +617,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-f6-u03m-office-catalog-audit.test.ts",
+                  "file": "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -684,39 +635,39 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-              "developmentBaseSha": "82f039b0dfe7eb7b06196530ccc333519784bef9"
+              "developmentBaseSha": "1deb07c5cb38abd1a91887e0825181899c15187d"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "82f039b0dfe7eb7b06196530ccc333519784bef9",
+            "targetBaseSha": "1deb07c5cb38abd1a91887e0825181899c15187d",
             "lease": {
-              "expectedBaseSha": "82f039b0dfe7eb7b06196530ccc333519784bef9",
+              "expectedBaseSha": "1deb07c5cb38abd1a91887e0825181899c15187d",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              ".github/workflows/f6-u03m-office-catalog-proof.yml",
-              ".github/workflows/f6-u03m-plan-capture.yml",
-              "docs/po/CORE_1186_F6_U03M_OFFICE_CATALOG_AUDIT_2026-10-16.md",
+              ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
+              ".github/workflows/f6-u03n-plan-capture.yml",
+              "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
               "quality/development/active-plan.json",
-              "scripts/shoperation-f6-u03m-office-catalog-audit.mjs",
-              "tests/shoperation-f6-u03m-office-catalog-audit.test.ts"
+              "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
+              "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts"
             ],
             "operations": [
               {
                 "operation": "create",
-                "file": ".github/workflows/f6-u03m-office-catalog-proof.yml",
+                "file": ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
                 "generated": null
               },
               {
                 "operation": "modify",
-                "file": ".github/workflows/f6-u03m-plan-capture.yml",
+                "file": ".github/workflows/f6-u03n-plan-capture.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "docs/po/CORE_1186_F6_U03M_OFFICE_CATALOG_AUDIT_2026-10-16.md",
+                "file": "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
                 "generated": null
               },
               {
@@ -726,12 +677,12 @@
               },
               {
                 "operation": "create",
-                "file": "scripts/shoperation-f6-u03m-office-catalog-audit.mjs",
+                "file": "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/shoperation-f6-u03m-office-catalog-audit.test.ts",
+                "file": "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
                 "generated": null
               }
             ],
@@ -764,19 +715,19 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03m-office-catalog-proof.yml",
+                  "file": ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": ".github/workflows/f6-u03m-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03n-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "docs/po/CORE_1186_F6_U03M_OFFICE_CATALOG_AUDIT_2026-10-16.md",
+                  "file": "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -788,13 +739,13 @@
                   "points": 0
                 },
                 {
-                  "file": "scripts/shoperation-f6-u03m-office-catalog-audit.mjs",
+                  "file": "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/shoperation-f6-u03m-office-catalog-audit.test.ts",
+                  "file": "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -827,7 +778,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-f6-u03m-office-catalog-audit.test.ts"
+                "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts"
               ],
               "externalGateIds": []
             },
@@ -838,12 +789,12 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                ".github/workflows/f6-u03m-office-catalog-proof.yml",
-                ".github/workflows/f6-u03m-plan-capture.yml",
-                "docs/po/CORE_1186_F6_U03M_OFFICE_CATALOG_AUDIT_2026-10-16.md",
+                ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
+                ".github/workflows/f6-u03n-plan-capture.yml",
+                "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
                 "quality/development/active-plan.json",
-                "scripts/shoperation-f6-u03m-office-catalog-audit.mjs",
-                "tests/shoperation-f6-u03m-office-catalog-audit.test.ts"
+                "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
+                "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts"
               ],
               "filesAbsent": []
             },
@@ -858,7 +809,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "ce5a885a",
+            "manifestDigest": "5134d438",
             "decision": "PASS"
           }
         ],
@@ -900,38 +851,35 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "F6-U03l locally source-pinned all 78 SQL sources and proved exact legacy inbound v2/v3 ACL after true PostgreSQL17 COMMIT. The 78-file local candidate has no full Office-wide RLS/ACL/trigger/supersession inventory; a narrow two-function ACL check cannot prove other Office functions and policies safe. Need complete machine-readable native catalog evidence for all app relations, policies, public/private function effective privileges and triggers, a conservative Office relevance classifier, risk findings and independently reviewed release blockers. No provider or tenant authentication acceptance follows.",
+    "problemStatement": "F6-U03m verified original 78 SQL catalog and source policy/privilege metadata only. Next step needs actual row-level allow/deny under PostgreSQL authenticated role for two synthetic tenants, Alap customer-support vs Pro internal chat, plus cross-tenant denials. Original isolated fixture sets auth.uid()=NULL and auth.jwt()={}, so any unmodified fixture would falsely prove zero visibility. Build an explicitly local-only fixture contract, independently verify PG17 schema/constraints and auth bootstrap, then use bounded two-tenant synthetic role-session test without modifying original migration or production resources. Real hosted signed-in Supabase JWT/RLS remains separate BLOCKED.",
     "observableOutcomes": [
-      "After exact source-authentic F6-U03k 78-file PostgreSQL17 COMMIT + original preflight/postflight, issue read-only pg_catalog SQL returning structured data for *all* public/private relations, pg_policy definitions and role names, function signatures/SECURITY DEFINER/effective execute grants, and triggers/enablement.",
-      "Produce deterministic Office-scope audit from actual catalog and explicit policy/grant/relevance evidence, retain full object counts and stable SHA256. No synthetic Office relations or modifying SQL in proof.",
-      "Emit machine findings for RLS-disabled Office relations, SECURITY DEFINER reachable by browser/PUBLIC or elevated role, suspicious broad table grants, disabled Office triggers and missing explicit UPDATE WITH CHECK; classify uncertain patterns as REVIEW_REQUIRED, not automatically proven vulnerability.",
-      "Fail closed on absent, malformed, incomplete, forged or contradictory native PG17 evidence; raw JSON evidence stored with final machine findings and source candidate version.",
-      "Preserve explicit releaseAuthorized=false, hostedTouched=false, jwtTenantRlsProven=false, providerManagedProven=false even if diagnostic CI is SUCCESS.",
-      "Exact-head independent Docker17 proof, negative Vitest, source provenance, normal CI, Truth and Lifecycle pass for scoped diagnostic only.",
-      "Distinguish effective object/function EXECUTE grants from schema USAGE for anon/authenticated, and do not label private SECURITY DEFINER high-risk direct browser exposure without namespace USAGE.",
-      "Function catalog must include native PostgreSQL trigger-return signature flag; high direct-RPC exposure excludes trigger functions (which cannot be invoked directly)."
+      "Produce exact Git-sourced 78 SQL local replay and all required local schema/constraint metadata for a safe two-tenant fixture; abort if source identity or expected Office tables/helpers differ.",
+      "Emit a strictly local role/JWT-claim simulation SQL that explicitly replaces the synthetic auth.uid/auth.jwt bootstrap routines only on the isolated Docker database and reports this divergence, never on hosted projects.",
+      "Insert uniquely named two synthetic tenant instances (Alap and Pro), two or more synthetic users plus support/non-member, entitlements and Office rows using exact live catalog constraints and safe bounded identities.",
+      "Execute PostgreSQL `SET LOCAL ROLE authenticated` and anon negative row-level SELECT checks under multiple distinct synthetic sub-claims, verify positive same-tenant Alap customer support and Pro internal thread visibility and negative cross-tenant/Alap internal/nonparticipant/anon/expired entitlements.",
+      "Fail closed on missing positive-control fixture or unexpected any denied row; never treat all-zero visibility as RLS verification, require positive and negative assertions.",
+      "Preserve evidence `LOCAL_SIMULATED_ROLE_RLS_NOT_SUPABASE_JWT`, `releaseAuthorized=false`, separate blockers for genuine Supabase Auth/App Data API, real signed-in A/B tenant JWT and storage.",
+      "Exact-head CI, source plan, targeted Docker17 proof, Truth/Lifecycle verify scoped local-only test; no claim that hosted role sessions were tested."
     ],
     "unresolvedRisks": [
-      "Native Docker roles are fixture roles, not real Supabase JWT sessions; authenticated/Alap/Pro row-boundary tests remain blocked.",
-      "Function code and RLS policy semantics cannot be proven secure by regex, row counts or static SQL metadata; human/semantic review remains mandatory.",
-      "All public/private data schema includes objects unrelated to Office; audit must retain full counts while Office relevance is conservative and explicit.",
-      "A policy UPDATE without explicit WITH CHECK can inherit USING semantics under PostgreSQL; report review signal not automatic exploitable vulnerability.",
-      "Historical Supabase security definer function code may call role-dependent helpers and provider Auth/Storage; local successful schema install cannot cover managed behavior.",
-      "PostgreSQL schema USAGE alone does not confirm Supabase Data API exposure; hosted schema exposure settings must be reviewed separately."
+      "GitHub Action has authentic source 78 SQL but synthetic provider bootstrap; replaced auth.uid/auth.jwt does not verify signed real JWT or refresh/revocation.",
+      "Original Office feature entitlement/grant, role_bindings and capability evaluation may require complex seed associations; first catalog query must expose required columns/FKs to avoid mocking application tables.",
+      "A positive under a superuser role or function owner bypasses RLS; all row probes must run under `SET ROLE authenticated`, no superuser after fixture writes.",
+      "Two synthetic tenants and users do not verify managed Supabase storage, identity API or exposed-schema/HTTPS routing.",
+      "Synthetically generated feature entitlements and support roles must not weaken production policy or ALTER SECURITY DEFINER functions other than explicitly fixture auth bootstrap."
     ],
     "scope": {
       "in": [
-        "Versioned read-only full public/private PostgreSQL17 catalog snapshot after original 78-source transaction, with Office-scope findings and triage status.",
-        "Adversarial schema/ACL/trigger/policy state validation and artifact provenance on real isolated Docker17.",
-        "Document source policy supersession review blockers and require next guarded owner step before release."
+        "Source-identical original 59+19 PostgreSQL17 local Docker replay and introspected fixture dependency contract.",
+        "Synthetic auth.uid/current JWT claim adapter strictly on validated isolated PG17 DB, PostgreSQL authenticated role SELECT matrix with two generated tenant instances and positive/negative cases.",
+        "Fail-closed code and CI artifacts documenting role, claim, table rows, expected allowed/denied counts, RLS policy hash and no-hosted authority."
       ],
       "out": [
-        "No migration SQL edits, no hosted database queries or writes, no schema reset, no staging project activation.",
-        "No production release package approval, JWT Alap/Pro acceptance, or unsupported SQL-policy exploit assertion.",
-        "No additional parallel security engine; reuse canonical F6-U03k and F6-U03l authority and existing #1228."
+        "No hosted Supabase project reads/writes for tests, no mutation of staging/platform/Fresh Install, no production auth migration or user creation.",
+        "No claim that synthetic Postgres request JWT settings are true Supabase signed-in tokens or Data API/Storage enforcement.",
+        "No source SQL rewrites, no schema/RLS loosening or tenant-plan business-rule redecision."
       ]
-    },
-    "notes": "First real native catalog had 192 relations, 447 functions, 129 policies, 123 triggers; 20/108/10/23 relevant and 8 provisional findings (3 browser-granted public tables, 5 private SECURITY DEFINER). Must add schema USAGE to avoid incorrectly assigning HIGH to private function ACL-only signals."
+    }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
@@ -954,45 +902,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-U03M-CATALOG",
-        "requirement": "True local PG17 catalog-wide app table/RLS/function ACL/trigger snapshot after 78 original source-authentic COMMIT, with deterministic Object SHA.",
+        "id": "REQ-F6N-REAL-PG-ROLE",
+        "requirement": "Genuine two-tenant native PG17 authenticated and anon role RLS row checks using original source SQL with local synthetic JWT; positive and negative proofs, not false green.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "real-pg17-public-private-catalog",
-          "strength": 2,
-          "dimensions": [
-            "tests",
-            "scope",
-            "regression"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-U03M-INCOMPLETE",
-            "statement": "Catalog metadata is absent/incomplete yet accepted as complete Office inventory.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-U03M-FINDINGS",
-        "requirement": "Conservative Office-relevant security review findings for actual native RLS, effective grants, SECURITY DEFINER RPC and trigger states; no false security proof.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "office-risks-review-only",
+          "breadth": "local-two-tenant-rls-simulation",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -1013,8 +927,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U03M-SAFE",
-            "statement": "Legacy browser-executable SECURITY DEFINER or disabled RLS is reported safe without evidence.",
+            "id": "NEG-F6N-NO-POSITIVE",
+            "statement": "All-zero row access despite no same-tenant positive passes.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1022,16 +936,16 @@
         ]
       },
       {
-        "id": "REQ-U03M-NOHOST",
-        "requirement": "No hosted SQL, altered original migration, new deployment approval or signed-in tenant JWT claim; release remains blocked.",
+        "id": "REQ-F6N-LOCAL-ONLY",
+        "requirement": "Local auth stub override and all fixture writes restricted to identity-checked Docker PG17; original sources and hosted targets unchanged.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "diagnostic-only",
+          "breadth": "source-preserving-local-role-simulation",
           "strength": 2,
           "dimensions": [
             "scope",
             "plan",
-            "forbidden-state"
+            "tests"
           ]
         },
         "requiredCapabilities": [
@@ -1047,8 +961,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U03M-HOST",
-            "statement": "A local schema catalog scanner authorizes hosted Fresh Install SQL reset.",
+            "id": "NEG-F6N-HOSTED",
+            "statement": "Synthetic JWT simulated role tests count as hosted signed-in Supabase completion.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1057,12 +971,12 @@
       }
     ]
   },
-  "notes": "Critical local catalog audit; manual reviewer signatures absent, semantic auth not proven; do not claim closed product Core; all findings are review inventory not vulnerabilities unless objectively demonstrable. Source files only quality/release authority despite run-time reading DB. Use native catalog, no new parallel Control Plane. Real #38852638579 native first inventory 192/447/129/123 (20/108/10/23 Office relevant, 8 provisional). Qualified risk classification requires schema USAGE in addition to object EXECUTE for direct callable SQL; managed API exposure remains unknown. Real #38852933819 native audit after schema USAGE: 8 findings, 4 private SECURITY DEFINER with authenticated EXECUTE+private USAGE, and 1 private sync_customer_office_participant_v1() is a trigger-only routine (its default PUBLIC ACL must not be mislabeled direct RPC); return type classification now mandatory.",
+  "notes": "F6-U03n unit scoped to native local role-session testing. The SQL schema inventory is a prerequisite, not completion. Any first run with no true original-source seeded row proofs must report BLOCKED, never VERIFIED_DONE for local tenant RLS. Keep PR draft and issue OPEN.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "b76691490c94d924d89db74deaa8b734e3595b25",
-    "closedAt": "2026-10-16T05:02:38.119Z",
+    "verifiedImplementationHead": "cfcfd9afeab5b52c969d303ffd2392914ddf4afd",
+    "closedAt": "2026-10-16T05:52:10.817Z",
     "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
     "learning": {
