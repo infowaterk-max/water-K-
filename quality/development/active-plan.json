@@ -1,19 +1,21 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-074C4B63",
-  "task": "Core #1186 F6-U03p: genuine PG17 nonparticipant, leave and entitlement-revocation Office RLS regression",
-  "status": "closed",
-  "guardDigest": "074c4b63",
-  "changeBaseSha": "cb401f57cb94d1aa55bdc9482bf246edfbe11b01",
+  "taskId": "DEV-725C57A6",
+  "task": "Core #1186 F6-U03q read-only managed Supabase Office Auth/Data API readiness and honest proof provenance",
+  "status": "ready-for-implementation",
+  "guardDigest": "725c57a6",
+  "changeBaseSha": "2c387c8618f8b09edd6c2c1c76785da77aee22cb",
   "plannedFilePatterns": [
-    "scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs",
-    "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts",
-    ".github/workflows/f6-u03p-real-lifecycle-proof.yml",
-    ".github/workflows/f6-u03p-plan-capture.yml",
-    "docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md",
+    "scripts/shoperation-f6-u03q-managed-preflight.mjs",
+    "tests/shoperation-f6-u03q-managed-preflight.test.ts",
+    ".github/workflows/f6-u03q-plan-capture.yml",
+    "docs/po/CORE_1186_F6_U03Q_MANAGED_PREFLIGHT_2026-10-16.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
+    "auth-access-authority",
+    "customer-account",
+    "database-schema",
     "quality-infrastructure",
     "release-infrastructure"
   ],
@@ -22,38 +24,54 @@
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "auth-access-authority",
+    "database-schema",
     "quality-knowledge-system",
-    "release-infrastructure"
+    "release-infrastructure",
+    "tenant-context-authority"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-022",
     "SQ-KF-025",
+    "SQ-KF-001",
+    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-006",
+    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
+    "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-017",
     "SQ-KF-018",
     "SQ-KF-020",
+    "SQ-KF-023",
     "TF-KF-001",
+    "TF-KF-002",
     "TF-KF-005",
     "TF-KF-007",
+    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
+    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015"
+    "TF-KF-015",
+    "TF-KF-020"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-005",
+    "SQ-NK-006",
     "SQ-NK-010",
     "SQ-NK-012",
+    "SQ-NK-014",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -71,7 +89,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Bounded PG17 local RLS regression over immutable original 78 SQL sources; no hosted provider Auth proof or migration/SQL DDL changes; positive/negative thread-message-task cases and rollback per test transaction.",
+      "rationale": "Critical 4/5 security and release-evidence boundary. No managed DB mutation: prove actual SQL catalog state through independently supplied read-only snapshot and do not imply signed JWT/Data API positive authorization from catalog-only evidence.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -88,29 +106,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Immutable F6-U03k 78 original Git SQL replay and F6-U03n role/two-tenant positive fixture pass before the new unit.",
-        "Same-store support member not participating in private Pro thread can read customer thread, message and task, but not private thread, message or task; B owner can read both.",
-        "Same-store viewer cannot read either Office thread type while B owner is a positive control.",
-        "After private participant leaves, current B owner retains B customer communication but immediately loses B private thread, message and task until rollback.",
-        "After role revoked or expired, authenticated browser gets zero B Office threads/messages/tasks, with authorized A owner rows visible in a separate control transaction.",
-        "Expired Alap officeCommunication feature denies A customer Office rows, without hiding B Pro control rows.",
-        "Pro-to-Alap downgrade retains B customer Office and denies internal chat, even with manual override, with A Alap support positive preserved.",
-        "All browser reads use actual non-BYPASSRLS SET LOCAL ROLE authenticated with synthetic transaction-local claim, unfiltered selects of threads, messages, tasks, and explicit positive and negative identifiers.",
-        "Fail closed on empty positive fixtures, unexpected rows, malformed/missing cases or psql errors; no hosted changes, not signed Supabase JWT, no provider release claim."
+        "Read-only SQL has single SELECT statement, no writes and only catalog introspection; output contains 3 original Office tables, policies, helper signatures and role SELECT grants.",
+        "Real Fresh Install evidence from existing Supabase project stays BLOCKED due to legacy policy, absent helper and no authenticated SELECT, irrespective of real signed JWT not tested.",
+        "Validator independently identifies missing modern helpers, participant relation, migrations/lineage unknown, and missing grants with explicit per-surface blockers.",
+        "Every category has adversarial tests for malformed catalog, forged pass status, RLS disabled, legacy store-all, no positive evidence, signed-JWT false elevation.",
+        "No modification of existing 78 source SQL files or hosted projects; auth/provider proof remains false.",
+        "Full exact-head guard/CI and truth/lifecycle conditional on completion."
       ],
       "invariants": [
-        "Only additive scripts, Vitest, workflow and documentation; original SQL source, JWT shim, migrations, RLS policies and grants untouched.",
-        "No service_role/postgres browser-query evidence, no role bypass and no synthetic JWT claim represented as provider-issued.",
-        "Every regression case has a real positive data control and at least one negative row outcome.",
-        "Temporary role/entitlement/member changes are confined to ROLLBACK transactions in disposable local PG17.",
-        "Alap customer communication preserved outside specific, intentionally expired entitlement case."
+        "Catalog evidence alone cannot satisfy Auth JWT/PostgREST/Storage acceptance.",
+        "Always require positive presence and explicit safe RLS for all three Office data tables before even candidate status.",
+        "Ignore caller-supplied ready/providerAuthenticated flags: they cannot override derived blockers.",
+        "Only read pg_catalog and information_schema, never inspect auth.users or tenant rows.",
+        "No change to production/staging/Fresh Install data."
       ],
       "forbiddenStates": [
-        "Entire Office reads return no rows but validator marks successful positive cases.",
-        "Nonparticipant, viewer or deauthorized user sees seeded private/customer Office rows while case passes.",
-        "Participant exit, revoked or expired role, entitlement expiry, or downgrade leaves a prohibited thread/message/task accessible.",
-        "A test changes one of 78 SQL source migrations, enables staging or writes hosted database data.",
-        "An implementation says signed Supabase JWT or managed Data API/Storage are proven by local claim GUC."
+        "Legacy office_threads_store_all or missing modern privacy helper reported provider ready.",
+        "Any of three Office tables missing but validator PASS.",
+        "RLS disabled or helper mismatch becomes a successful provider gate.",
+        "A synthetic JWT or privileged postgres SELECT is reported as real browser access.",
+        "Migration ledger missing but release authorized.",
+        "A hosted mutation, staging resume, new paid project or automatic merge."
       ]
     },
     "model": {
@@ -142,42 +158,48 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "SQL trigger side effect unexpectedly replaces fixture roles or entitlements during downgrade.",
-        "A support member is wrongly granted private access by support role, bypassing participant membership.",
-        "Revoked or expired role is accepted by cache, token or helper despite RLS session re-evaluation.",
-        "Messages or tasks have weaker rules than threads, leaking private content after thread hidden.",
-        "Transient mutation does not roll back, contaminating subsequent cases.",
-        "Role probe accidentally runs as postgres or role not recorded, creating a false positive.",
-        "All reads return zero and the harness incorrectly reports security PASS."
+        "Managed catalog has baseline Office but not modern participant isolation.",
+        "RLS enabled with legacy store-all policy.",
+        "Direct SQL table grant missing; Data API effective endpoint unknown.",
+        "Caller forges sign-in success in provided JSON.",
+        "Schema projection same but migration provenance absent.",
+        "Provider timestamp/context stale, project mismatch.",
+        "No positive schema object presence but deny-only signal looks safe."
       ],
       "edgeCases": [
-        "Viewer must be a valid same-store viewer, distinct from unbound stranger.",
-        "Different permission models for customer and private internal threads; participant exit must not block customer support.",
-        "Manual Alap teamChat entitlement remains seeded and must not override actual plan.",
-        "Revoked_at and valid_until are separately checked, not conflated.",
-        "Pro-to-Alap downgrade may trigger entitlement sync; actual observable customer support must remain.",
-        "Each row probe has unfiltered per-table thread-ID evidence, not count-only.",
-        "Authenticated role must be non-BYPASSRLS, uid must match transaction-local synthetic claim."
+        "Some Office relations present and others absent.",
+        "Table RLS flag is null/false or duplicated relation in evidence.",
+        "Security-definer functions with same names in wrong schema.",
+        "Role grants differ between authenticated and anon.",
+        "Multiple policies with legacy names alongside new private policies.",
+        "Empty or partially populated managed migrations ledger.",
+        "Managed API may be intentionally disabled for server-only architecture."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F6P-LOCAL_TXN",
-        "summary": "Add rollback-scoped original-source PG17 role/membership/entitlement transitions and exact row evidence.",
+        "id": "ALT-Q-CATALOG",
+        "summary": "Add bounded SELECT-only actual managed Supabase catalog readiness gate with explicit hosted JWT/Data API acceptance blockers.",
         "disposition": "selected",
-        "reason": "Extends already green source/authenticated role fixture without hosted state changes."
+        "reason": "Current Fresh Install is not schema-ready and writes are unauthorized; honest, reusable provider preflight prevents unsafe release."
       },
       {
-        "id": "ALT-F6P-STATIC",
-        "summary": "Assert SQL textual predicates alone.",
+        "id": "ALT-Q-FORCE-MIGRATE",
+        "summary": "Deploy 78 source SQL files directly to existing managed Fresh Install now.",
         "disposition": "rejected",
-        "reason": "Cannot establish actual PostgreSQL row outcomes after revocation and downgrade."
+        "reason": "Issue #1228 disallows target mutation without reconciled provenance, restore/rollback and separate authorization."
       },
       {
-        "id": "ALT-F6P-HOSTED",
-        "summary": "Activate managed Fresh Install and mint signed JWT now.",
+        "id": "ALT-Q-LOCAL",
+        "summary": "Repeat synthetic Docker PG17 role GUC suite as managed evidence.",
         "disposition": "rejected",
-        "reason": "Requires separately approved hosted project authority and Auth/Data API acceptance."
+        "reason": "Does not exercise Supabase-issued signed JWT, managed PostgREST or hosted configuration."
+      },
+      {
+        "id": "ALT-Q-FAKE",
+        "summary": "Treat no direct SELECT and no users as proof that provider security is fully finished.",
+        "disposition": "rejected",
+        "reason": "A deny-only fixture cannot prove legitimate Pro/Alap customer workflows."
       }
     ],
     "specialistReviews": [
@@ -185,129 +207,132 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Postgres fixture mutations can be mistaken for browser permissions, while data with zero-row fixtures appears secure.",
-        "resolution": "Mutations only under superuser on disposable fixture; actual SELECT under authenticated non-BYPASSRLS and positive existing identifiers in every case.",
+        "finding": "A catalog-only probe cannot demonstrate the actual bearer JWT's claims, managed PostgREST configured exposure or Auth token expiry; counting missing grants as secure creates false ready.",
+        "resolution": "Emit explicit provider-unproven flags; conditional readiness not release PASS; verify real HTTP/JWT separately before acceptance.",
         "evidence": [
-          "scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs"
+          "scripts/shoperation-f6-u03q-managed-preflight.mjs"
         ]
       },
       {
-        "role": "Data Integrity",
+        "role": "Database",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Lifecycle testing can permanently change fixture or trigger sensitive side-effects.",
-        "resolution": "Transaction-local fixture mutations roll back; prior source-proven two-tenant row evidence is required before each post-transition suite.",
+        "finding": "Existing Fresh Install contains old Office tables but no migration ledger; an automated SQL deployment could irreversibly corrupt actual state.",
+        "resolution": "Read-only metadata only, no DDL/DML and mandatory migration provenance before any separately approved execution.",
         "evidence": [
-          ".github/workflows/f6-u03p-real-lifecycle-proof.yml"
+          "docs/po/CORE_1186_F6_U03Q_MANAGED_PREFLIGHT_2026-10-16.md"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Local simulation is not Auth JWT revocation or provider PostgREST proof.",
-        "resolution": "Machine verdict and docs mark provider-issued JWT, Data API, Storage, hosted release strictly unproven.",
+        "finding": "Managed provider context or historic snapshots could be promoted as exact-head production runtime proof.",
+        "resolution": "Capture project reference/date/schema footprint separately from Git SHA; no scope promotion or automatic release.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md"
+          "tests/shoperation-f6-u03q-managed-preflight.test.ts"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A target unit could silently shadow original source bootstrap or suppress browser SELECT failures.",
-        "resolution": "Preserve same 78 checked Git blobs, run original F6-U03n/F6-U03o positive and negative proof and ON_ERROR_STOP on all PostgreSQL calls before new staged checks.",
+        "finding": "A source guard that checks string markers or false-zero grant outcomes may pass against a stale/partial schema.",
+        "resolution": "Assert every required table, RLS, exact policy/helper schema and alternative negative/positive states independently; no marker-only SQL proof.",
         "evidence": [
-          ".github/workflows/f6-u03p-real-lifecycle-proof.yml"
+          "tests/shoperation-f6-u03q-managed-preflight.test.ts"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-F6P-01",
-        "scenario": "A same-store member without private-thread participant is incorrectly allowed via tenant owner/support status.",
-        "finding": "Tenant membership must not replace private participation.",
-        "resolution": "Require support user's B customer row positive and B private negative for all Office tables; B participant owner positive.",
+        "id": "CH-Q-01",
+        "scenario": "Managed Fresh Install has office_threads_store_all but RLS=true.",
+        "finding": "RLS enabled is insufficient to prove participant privacy.",
+        "resolution": "Explicitly flag legacy store-all policy and required modern helper signatures before candidate status.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6P-02",
-        "scenario": "Role/entitlement expiry suppresses all Office data and validator reports PASS.",
-        "finding": "Deny-only oracle is unsafe.",
-        "resolution": "Assert baseline and side-by-side authorized tenant row positive evidence and exact expected per-table IDs in all cases.",
+        "id": "CH-Q-02",
+        "scenario": "All authenticated grants absent, tests see no customer messages.",
+        "finding": "All-deny response is not a positive authorization proof.",
+        "resolution": "No positive managed verdict; require eventual logged-in Pro and Alap row-visible control.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6P-03",
-        "scenario": "One of three Office relations leaks data after membership leaves.",
-        "finding": "Thread-only validation misses message/task leak.",
-        "resolution": "Independent unfiltered identifiers from threads, messages and tasks compared to exact expected IDs.",
+        "id": "CH-Q-03",
+        "scenario": "Only 2 of 3 Office tables installed.",
+        "finding": "Partial installation may be misread as safety.",
+        "resolution": "Strict required 3-table schema inventory; missing relation BLOCKED.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6P-04",
-        "scenario": "A native SET LOCAL ROLE authenticated with synthetic GUC is reported as provider-issued Supabase JWT proof.",
-        "finding": "Signed-JWT provenance would be falsely elevated to release authority.",
-        "resolution": "Report providerSignedJWT=false and hostedTouched=false, and maintain separate provider acceptance.",
+        "id": "CH-Q-04",
+        "scenario": "Caller marks providerSignedJwtProven true in evidence.",
+        "finding": "SQL catalog cannot authenticate this claim.",
+        "resolution": "Ignore external success metadata; invariant output always signedJwtProven:false.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6P-05",
-        "scenario": "Role revocation causes B owner zero rows, and no valid actor's positive read is captured.",
-        "finding": "An all-deny failure is indistinguishable from correct RLS.",
-        "resolution": "Bind A owner real customer row positive within each deny-only scenario and reject any missing control.",
+        "id": "CH-Q-05",
+        "scenario": "Migration history API has zero entries but schema exists.",
+        "finding": "No trustworthy source chain for hosted upgrade.",
+        "resolution": "Require independently reconciled source identity, never infer 78 migration replay from existence.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6P-06",
-        "scenario": "Only office_threads denies a private row while office_messages/tasks continue leaking content.",
-        "finding": "Thread guard alone is insufficient.",
-        "resolution": "Capture unfiltered thread ID lists independently from all three source tables and compare exact expected identities.",
+        "id": "CH-Q-06",
+        "scenario": "Security-definer helper appears in wrong schema.",
+        "finding": "Name-only match could accept unsafe exposed function.",
+        "resolution": "Exact schema-qualified signature comparison.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6P-07",
-        "scenario": "SQL lifecycle update persists and changes subsequent evidence.",
-        "finding": "Fixture tests are not independent and alter baseline.",
-        "resolution": "Run each reversible update in its own BEGIN/ROLLBACK, recheck clean positive source baseline and local identity guard, never COMMIT role transition.",
+        "id": "CH-Q-07",
+        "scenario": "Schema object is safe but Data API disabled or exposes other schema.",
+        "finding": "Database presence does not prove HTTP endpoint.",
+        "resolution": "Managed PostgREST exposure and real bearer HTTP proof remain external acceptance.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6P-08",
-        "scenario": "A role viewer is confused with unrelated user, or support is granted private access because organization role has broad permissions.",
-        "finding": "Same-tenant differentiated-role coverage absent.",
-        "resolution": "Insert two distinct same-store active role bindings, require viewer zero and support customer positive with private negative and B owner full positive.",
+        "id": "CH-Q-08",
+        "scenario": "Live snapshot from another Supabase project or old time is reused.",
+        "finding": "Provenance confused with current Fresh Install.",
+        "resolution": "Project id and observation timestamp required; still treated as attested outside code, never automatic release.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Read original canonical guard/known failures and pass exact task Plan Before Code before first implementation edit.",
-      "Re-run 78 untouched original SQL Git sources under identity-verified disposable PG17, validate F6-U03n schema/role/tenant positives.",
-      "Add only transaction-local lifecycle probes and exact negative/positive row IDs for Office threads/messages/tasks.",
-      "Run adversarial unit validators, role and expired entitlement negative tests and real Docker17 SQL using psql ON_ERROR_STOP.",
-      "After edit-time/preflight/replay and full Quality/TypeScript/Build/Security, require exact-head Truth/Lifecycle and CI-emitted closed-plan identity; no automatic merge."
+      "Canonical Development Guard from original repo and 31 scoped Known Failures recorded before first implementation code edit.",
+      "Critical Plan Before Code PASS at the exact pre-code branch HEAD.",
+      "Emit a narrowly scoped SELECT-only catalog snapshot, compare against the directly observed managed Fresh Install catalog (project id/time); no user content.",
+      "Run adversarial Vitest for table, policy, grants, helper, mixed-state, forged-JWT/ready, missing migration, and null evidence.",
+      "Run Edit-Time Guard, Reference Sync, Knowledge Preflight, Incremental Replay and full Security/Quality/TypeScript/Build.",
+      "Exact-head Completion Truth/Lifecycle; keep #1186/#1228 OPEN, stacked draft PR, no merge, no hosted writes."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
       "authority": [
+        "auth-access-authority",
+        "database-schema",
         "quality-knowledge-system",
-        "release-infrastructure"
+        "release-infrastructure",
+        "tenant-context-authority"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03p-plan-capture.yml"
+        ".github/workflows/f6-u03q-plan-capture.yml",
+        "quality/development/active-plan.json"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        ".github/workflows/f6-u03p-real-lifecycle-proof.yml",
-        "docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md",
-        "scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs",
-        "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts"
+        "docs/po/CORE_1186_F6_U03Q_MANAGED_PREFLIGHT_2026-10-16.md",
+        "scripts/shoperation-f6-u03q-managed-preflight.mjs",
+        "tests/shoperation-f6-u03q-managed-preflight.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts",
-        ".github/workflows/f6-u03p-real-lifecycle-proof.yml"
+        "tests/shoperation-f6-u03q-managed-preflight.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -318,16 +343,15 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          ".github/workflows/f6-u03p-plan-capture.yml",
+          ".github/workflows/f6-u03q-plan-capture.yml",
           "quality/development/active-plan.json"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          ".github/workflows/f6-u03p-real-lifecycle-proof.yml",
-          "docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md",
-          "scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs",
-          "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts"
+          "docs/po/CORE_1186_F6_U03Q_MANAGED_PREFLIGHT_2026-10-16.md",
+          "scripts/shoperation-f6-u03q-managed-preflight.mjs",
+          "tests/shoperation-f6-u03q-managed-preflight.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -360,19 +384,13 @@
         ],
         "files": [
           {
-            "file": ".github/workflows/f6-u03p-plan-capture.yml",
+            "file": ".github/workflows/f6-u03q-plan-capture.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": ".github/workflows/f6-u03p-real-lifecycle-proof.yml",
-            "subsystem": "release-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "file": "docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md",
+            "file": "docs/po/CORE_1186_F6_U03Q_MANAGED_PREFLIGHT_2026-10-16.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -384,13 +402,13 @@
             "points": 0
           },
           {
-            "file": "scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs",
+            "file": "scripts/shoperation-f6-u03q-managed-preflight.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts",
+            "file": "tests/shoperation-f6-u03q-managed-preflight.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -423,19 +441,13 @@
           ],
           "files": [
             {
-              "file": ".github/workflows/f6-u03p-plan-capture.yml",
+              "file": ".github/workflows/f6-u03q-plan-capture.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": ".github/workflows/f6-u03p-real-lifecycle-proof.yml",
-              "subsystem": "release-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "file": "docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md",
+              "file": "docs/po/CORE_1186_F6_U03Q_MANAGED_PREFLIGHT_2026-10-16.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -447,13 +459,13 @@
               "points": 0
             },
             {
-              "file": "scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs",
+              "file": "scripts/shoperation-f6-u03q-managed-preflight.mjs",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts",
+              "file": "tests/shoperation-f6-u03q-managed-preflight.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -468,7 +480,7 @@
           {
             "id": 0,
             "files": [
-              ".github/workflows/f6-u03p-plan-capture.yml"
+              ".github/workflows/f6-u03q-plan-capture.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -485,7 +497,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03p-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03q-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -498,37 +510,7 @@
           {
             "id": 1,
             "files": [
-              ".github/workflows/f6-u03p-real-lifecycle-proof.yml"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "files": [
-                {
-                  "file": ".github/workflows/f6-u03p-real-lifecycle-proof.yml",
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 2,
-            "files": [
-              "docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md"
+              "docs/po/CORE_1186_F6_U03Q_MANAGED_PREFLIGHT_2026-10-16.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -539,7 +521,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md",
+                  "file": "docs/po/CORE_1186_F6_U03Q_MANAGED_PREFLIGHT_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -550,7 +532,7 @@
             }
           },
           {
-            "id": 3,
+            "id": 2,
             "files": [
               "quality/development/active-plan.json"
             ],
@@ -574,9 +556,9 @@
             }
           },
           {
-            "id": 4,
+            "id": 3,
             "files": [
-              "scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs"
+              "scripts/shoperation-f6-u03q-managed-preflight.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -593,7 +575,7 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs",
+                  "file": "scripts/shoperation-f6-u03q-managed-preflight.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -604,9 +586,9 @@
             }
           },
           {
-            "id": 5,
+            "id": 4,
             "files": [
-              "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts"
+              "tests/shoperation-f6-u03q-managed-preflight.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -617,7 +599,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts",
+                  "file": "tests/shoperation-f6-u03q-managed-preflight.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -635,39 +617,33 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-              "developmentBaseSha": "d0cbcfe57cf3bf0a16d2f8cc046b57022974a648"
+              "developmentBaseSha": "44d9f328187440e2ebff5448326571e573560ef5"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "d0cbcfe57cf3bf0a16d2f8cc046b57022974a648",
+            "targetBaseSha": "44d9f328187440e2ebff5448326571e573560ef5",
             "lease": {
-              "expectedBaseSha": "d0cbcfe57cf3bf0a16d2f8cc046b57022974a648",
+              "expectedBaseSha": "44d9f328187440e2ebff5448326571e573560ef5",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              ".github/workflows/f6-u03p-plan-capture.yml",
-              ".github/workflows/f6-u03p-real-lifecycle-proof.yml",
-              "docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md",
+              ".github/workflows/f6-u03q-plan-capture.yml",
+              "docs/po/CORE_1186_F6_U03Q_MANAGED_PREFLIGHT_2026-10-16.md",
               "quality/development/active-plan.json",
-              "scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs",
-              "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts"
+              "scripts/shoperation-f6-u03q-managed-preflight.mjs",
+              "tests/shoperation-f6-u03q-managed-preflight.test.ts"
             ],
             "operations": [
               {
                 "operation": "modify",
-                "file": ".github/workflows/f6-u03p-plan-capture.yml",
+                "file": ".github/workflows/f6-u03q-plan-capture.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": ".github/workflows/f6-u03p-real-lifecycle-proof.yml",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md",
+                "file": "docs/po/CORE_1186_F6_U03Q_MANAGED_PREFLIGHT_2026-10-16.md",
                 "generated": null
               },
               {
@@ -677,12 +653,12 @@
               },
               {
                 "operation": "create",
-                "file": "scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs",
+                "file": "scripts/shoperation-f6-u03q-managed-preflight.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts",
+                "file": "tests/shoperation-f6-u03q-managed-preflight.test.ts",
                 "generated": null
               }
             ],
@@ -715,19 +691,13 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03p-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03q-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": ".github/workflows/f6-u03p-real-lifecycle-proof.yml",
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "file": "docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md",
+                  "file": "docs/po/CORE_1186_F6_U03Q_MANAGED_PREFLIGHT_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -739,13 +709,13 @@
                   "points": 0
                 },
                 {
-                  "file": "scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs",
+                  "file": "scripts/shoperation-f6-u03q-managed-preflight.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts",
+                  "file": "tests/shoperation-f6-u03q-managed-preflight.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -778,7 +748,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts"
+                "tests/shoperation-f6-u03q-managed-preflight.test.ts"
               ],
               "externalGateIds": []
             },
@@ -789,12 +759,11 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                ".github/workflows/f6-u03p-plan-capture.yml",
-                ".github/workflows/f6-u03p-real-lifecycle-proof.yml",
-                "docs/po/CORE_1186_F6_U03P_ROLE_REVOCATION_2026-10-16.md",
+                ".github/workflows/f6-u03q-plan-capture.yml",
+                "docs/po/CORE_1186_F6_U03Q_MANAGED_PREFLIGHT_2026-10-16.md",
                 "quality/development/active-plan.json",
-                "scripts/shoperation-f6-u03p-office-lifecycle-rls.mjs",
-                "tests/shoperation-f6-u03p-office-lifecycle-rls.test.ts"
+                "scripts/shoperation-f6-u03q-managed-preflight.mjs",
+                "tests/shoperation-f6-u03q-managed-preflight.test.ts"
               ],
               "filesAbsent": []
             },
@@ -809,7 +778,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "35b8942c",
+            "manifestDigest": "2ffbc8d5",
             "decision": "PASS"
           }
         ],
@@ -851,34 +820,37 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Verified F6-U03o real PG17 source-authentic tenant and anonymous/helper tests do not prove post-revocation or same-tenant nonparticipant access to threads, independent messages and tasks. Stale role, expired entitlement, private participant leave or Pro-to-Alap change might leave unauthorized rows visible despite static predicates. Extend the bounded local authenticated native-role tests with positive/negative controls and reversible fixture transitions. No hosted JWT or DB write authority.",
+    "problemStatement": "Current managed Fresh Install PG17 has legacy office_*_store_all RLS, no modern Office privacy helper signatures and no direct browser SELECT grants; existing local 78-source role-RLS proof cannot establish a real Auth-issued JWT/Data API journey. Machine-gate the real provider readiness from sanitized SELECT-only catalog, preventing false-ready claims or unapproved hosted migrations.",
     "observableOutcomes": [
-      "Original immutable 78 Git migration sources, PG17 peer identity, canonical F6-U03n two-tenant and F6-U03o anonymous/helper proofs remain green before new tests.",
-      "Seed actual B-support and B-viewer authenticated users with valid B role bindings but no B private participant link; support reads real B customer threads/messages/tasks only, viewer sees none; B owner remains positive.",
-      "In reversible transactions test B participant leaving, B role revoked, B role expired, A customer entitlement expired and B Pro-to-Alap downgrade, checking exact Office thread/message/task IDs and same-session or same-fixture positive authorized tenant controls.",
-      "Record current_user authenticated, rolbypassrls=false and auth.uid equal to synthetic GUC for every query; fail if role missing, positive data absent or foreign/private row visible.",
-      "Adversarial unit checks reject any leak on one Office relation independently, denial-only no-data or forged role evidence.",
-      "Return local synthetic only with realSignedSupabaseJwtProven=false, managedDataApiProven=false, hostedTouched=false, releaseAuthorized=false.",
-      "Run independent Docker PG17 and full Quality/TypeScript/Build/Security, Completion Truth/Lifecycle exact-head before scoped closure."
+      "Generate a SELECT-only pg_catalog Office readiness snapshot, without inspecting tenant rows, auth users, secrets, or mutating hosted schema.",
+      "Validate independently obtained Supabase Fresh Install catalog: legacy Office policies, missing participant and privacy helpers, browser SELECT denied, and no usable migration ledger proof remain a BLOCKED verdict.",
+      "Produce categorized machine-readable blockers for outdated RLS, missing objects, grants, unknown Data API exposure, migration provenance and absent provider-signed JWT acceptance.",
+      "Require all three Office tables as positive catalog fixtures, retain native RLS observations and explicit exact table and policy names; reject missing/malformed/forged metadata and allow-only hallucinations.",
+      "Never turn an SQL/catalog readiness result into real signed JWT, actual PostgREST route, Data API/Storage, auth revocation, tenant-positive journey or release proof.",
+      "Preserve 78 original migration SQL files, original role-RLS test units, package authority and all live data; do not resume staging or create project.",
+      "Full critical Plan Before Code, adversarial Vitest and Quality/TS/Build/Truth/Lifecycle exact-head before claiming scoped code complete."
     ],
     "unresolvedRisks": [
-      "Synthetic transaction-local auth.uid lacks cryptographic Supabase Auth signature, JWT revocation, refresh and provider transport semantics.",
-      "Only selected B support/viewer, role expiration, participant leave and A/B plan scenarios are included; other permissions/ownership and business workflows remain separate.",
-      "Supabase hosted exposed-schema Data API, Storage, provider-specific service_role/RPC and TLS migration provisioning not exercised.",
-      "Any discovered source security leak requires separate reviewed forward-only migration and PO release gate, not alteration of test expectations."
+      "Managed PostgREST exposed schema configuration is not reliably inferable from a separate SQL catalog session; external verified HTTP routing stays BLOCKED.",
+      "Supabase migration list currently empty although schema exists: explicit provenance reconciliation is mandatory before applying any release candidate.",
+      "Actual signed Auth JWT issue/expiry/revocation and positive cross-tenant access require securely provisioned synthetic users and reviewed rollout; no hosted data changes authorized.",
+      "Managed Auth, Storage and RPC configuration may differ from local provider shim; do not extrapolate PG17-only proof.",
+      "Timestamped catalog snapshots are stale after hosted changes, and caller-supplied evidence is not cryptographically provider-attested."
     ],
     "scope": {
-      "in": [
-        "Source-authentic disposable Docker PostgreSQL 17, original 78 SQL files, shared A/B fixture and role shim.",
-        "Actual authenticated non-BYPASSRLS row-selects over each of office_threads, office_messages, office_tasks with positive and negative controls.",
-        "Transaction-scoped (ROLLBACK) B support/viewer, membership leave, role revocation/expiry, customer entitlement expiry and downgrade simulations.",
-        "Additional tests, workflow, documentation and exact-head evidence."
+      "included": [
+        "read-only bounded managed catalog SQL emission",
+        "machine-enforced claim/provenance boundaries",
+        "adversarial unit proof and scored BLOCKED readiness",
+        "document exact observed Fresh Install state"
       ],
-      "out": [
-        "No modification to 78 original SQL files, schema, RLS policies or Auth providers.",
-        "No Supabase project creation, staging activation, production SQL/reset or hosted release.",
-        "No claim for signed JWT/Auth lifecycle, PostgREST Data API, Storage and complete tenant prod acceptance.",
-        "No Builder, Campaign Engine, template or business policy redesign."
+      "excluded": [
+        "managed schema writes or migration deployment",
+        "tenant data or auth user reads",
+        "service_role browser requests",
+        "signing or minting hosted JWT",
+        "production release or merge",
+        "new project, staging resume, cost increase"
       ]
     }
   },
@@ -903,83 +875,15 @@
     },
     "requirements": [
       {
-        "id": "REQ-F6P-MEMBERSHIP",
-        "requirement": "Same-store support nonparticipant and viewer cannot read private Office rows, while support customer and B participant owner positive reads remain valid.",
+        "id": "REQ-Q-READONLY",
+        "requirement": "SELECT-only positive 3-relation Office catalog and migration provenance requirements, no managed mutations.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "local-PG17-membership-role-office",
+          "breadth": "managed-Supabase-read-only-preflight",
           "strength": 2,
           "dimensions": [
             "tests",
             "scope",
-            "forbidden-state"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-F6P-NONPARTICIPANT",
-            "statement": "Nonparticipant/viewer leak or missing positive control.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-F6P-REVOCATION",
-        "requirement": "Role revoked/expired, participant left, entitlement expired and Pro-to-Alap transition yield exact allowed and forbidden thread/message/task outcomes in transactional PG17.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "local-PG17-lifecycle-office",
-          "strength": 2,
-          "dimensions": [
-            "tests",
-            "scope",
-            "forbidden-state"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-QUALITY-TESTS"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-F6P-REVOKED",
-            "statement": "Private message or task remains visible after effective permission removed.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-F6P-SCOPE",
-        "requirement": "Unchanged 78 original SQL, real non-BYPASSRLS PostgreSQL role, synthetic claims only; provider JWT/Data API/Storage remain unproven, hosted release blocked.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "local-test-not-provider",
-          "strength": 2,
-          "dimensions": [
-            "scope",
-            "plan",
             "forbidden-state"
           ]
         },
@@ -996,8 +900,76 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6P-HOSTED",
-            "statement": "Local GUC treated as signed hosted JWT or database write performed.",
+            "id": "NEG-REQ-Q-READONLY",
+            "statement": "No false managed Auth or API release proof from catalog-only readiness.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-Q-BLOCKED",
+        "requirement": "Legacy Office RLS, missing privacy helpers and direct grants correctly block managed provider-ready claims.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "managed-Supabase-office-readiness",
+          "strength": 2,
+          "dimensions": [
+            "tests",
+            "scope",
+            "forbidden-state"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-REQ-Q-BLOCKED",
+            "statement": "No false managed Auth or API release proof from catalog-only readiness.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-Q-NO-FALSE-JWT",
+        "requirement": "Catalog observation never asserts issued JWT, real PostgREST, Storage, revocation or release, and requires separate protected acceptance.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "provider-auth-api-excluded",
+          "strength": 2,
+          "dimensions": [
+            "tests",
+            "scope",
+            "forbidden-state"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-PLAN-BEFORE-CODE"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-REQ-Q-NO-FALSE-JWT",
+            "statement": "No false managed Auth or API release proof from catalog-only readiness.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1006,18 +978,5 @@
       }
     ]
   },
-  "notes": "F6-U03p source-authentic PG17 additive role, nonparticipant, exit, revoked/expired role and entitlement/downgrade evidence. 78 original SQL files and F6-U03n/F6-U03o provenance unchanged. Scope only synthetic transaction-local JWT; PR stacked on #1367; release blocked. Implementation Sync: the canonical critical plan capture workflow and the active plan were created/edited during the prior PROVE_PLAN phase, before changeBaseSha. Both are plan metadata, not implementation work required after Plan Before Code PASS; MUST_EDIT empty reflects no remaining execution edits to these two pre-code artifacts. All four planned proof files are new actual implementation changes, while plan remains fully guard-checked. Correcting transaction scope identity: the plan's actual implementation lineage starts at verified parent F6-U03o cb401f5, not the already-written bootstrap plan-workflow commit d0cbcf. The required canonical plan workflow is an actual changed file relative to this stable ancestry; active-plan.json remains control metadata rather than asserted implementation evidence.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "c03b4f0a09e5bae29e16955f0d4c592c98b09b61",
-    "closedAt": "2026-10-16T08:24:52.014Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Critical plan captured from canonical guard run 38876190578 and scoped known failures; selected read-only SQL + adversarial validation. Original provider inspection is distinct from deployment/proof; not permission to write hosted database."
 }
