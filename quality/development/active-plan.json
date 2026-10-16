@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-074C4B63",
   "task": "Core #1186 F6-U03r: prove forward-only occupied 0046 to 0058 Office upgrade with 78 immutable original sources and preserved tenant rows in disposable PostgreSQL17",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "074c4b63",
   "changeBaseSha": "f476b088cf4f594b560091b201ffbe4fc241a2be",
   "plannedFilePatterns": [
@@ -1015,5 +1015,18 @@
       }
     ]
   },
-  "notes": "Pre-code Plan Before Code PASS run 38884459816 at 95337b06cc4f055171f17df9084e835602cc16d3. Proof uses 78 original Git blob-authenticated SQL files unchanged. Docker PG17 only."
+  "notes": "Pre-code Plan Before Code PASS run 38884459816 at 95337b06cc4f055171f17df9084e835602cc16d3. Proof uses 78 original Git blob-authenticated SQL files unchanged. Docker PG17 only.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "57ce55516c22b146e8d67be5c5f6cac0b2c663d8",
+    "closedAt": "2026-10-16T10:17:26.040Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
