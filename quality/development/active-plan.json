@@ -231,9 +231,9 @@
       },
       {
         "id": "CH-F6N-02",
-        "scenario": "Fixture tests SELECT as postgres or service_role bypassing RLS.",
-        "finding": "False positive allowances/denials.",
-        "resolution": "Run every read inside SET LOCAL ROLE authenticated or anon with current_user/current_setting role evidence, and verify non-bypass role.",
+        "scenario": "During the actual two-tenant PG17 row-access matrix, a test query for tenant A is executed after seeding while the PostgreSQL session remains connected as the postgres owner or a BYPASSRLS-capable service role instead of SET LOCAL ROLE authenticated, so the select can see tenant B rows even if the final captured result is incorrectly filtered in application code.",
+        "finding": "The evidence is an invalid proxy for authenticated RLS enforcement: table ownership and BYPASSRLS bypass row-level policies, and a query returning the expected rows under postgres does not establish the effective browser role permission boundary.",
+        "resolution": "Within every test transaction assert session_user=postgres but current_user=authenticated (or anon for anonymous) and that pg_roles.rolbypassrls is false for current_user; issue SELECT against the source relation without an application-side filter, verify exact tenant IDs and row counts, and reject queries from any owner/service identity.",
         "status": "resolved"
       },
       {
@@ -259,16 +259,16 @@
       },
       {
         "id": "CH-F6N-06",
-        "scenario": "Alap gets internal chat via manual/trial stale Pro entitlement despite actual Alap subscription.",
-        "finding": "License boundary bypass.",
-        "resolution": "Explicit negative Alap internal and positive Pro participant cases; pass only with row checks under actual unchanged policies.",
+        "scenario": "A tenant with a real Alap subscription is seeded with a stale manual or platform teamChat feature entitlement, and the test accidentally checks only a customer Office thread rather than an internal_private conversation with a real participant, letting an advanced feature unlock from entitlement priority alone.",
+        "finding": "An internal Office team chat that should remain Pro-only may be erroneously visible under Alap if the SQL authorization predicate trusts a manually overridden feature entitlement rather than the current webshop_instances.subscription_plan='pro' authority.",
+        "resolution": "Seed distinct customer and internal_private threads in the same Alap tenant with relevant participant and stale teamChat entitlement rows; assert positive customer support select and strictly zero internal private select in the authenticated role, while a second Pro tenant with a participant and enabled teamChat is a positive internal control.",
         "status": "resolved"
       },
       {
         "id": "CH-F6N-07",
-        "scenario": "Local custom request.jwt settings equated to actual Supabase-signed JWT/API.",
-        "finding": "Scope overclaim.",
-        "resolution": "Provenance flag `syntheticJwt=true`; final provider proof blocked.",
+        "scenario": "GitHub Actions sets request.jwt.claim.sub in the disposable PG17 server with set_config and runs SET LOCAL ROLE authenticated, but then a green result is included in the Completion Truth as if the user authenticated through hosted Supabase Auth with a cryptographically signed and refreshed JWT.",
+        "finding": "A PostgreSQL setting is a user-controllable local test stub, not a verified Supabase JWT or PostgREST request; it does not validate token signature, expiration, app_metadata, session_id, revocation, exposed schema settings or Storage authorizations.",
+        "resolution": "Assert the fixture manifest `syntheticJwt=true`, original auth.uid NULL provenance and `realSupabaseJwtProven=false`; use explicit LOCAL_SIMULATED_ROLE_RLS_NOT_SUPABASE_JWT result string, require independent hosted signed-in A/B tenant and managed provider tests before any release approval.",
         "status": "resolved"
       },
       {
