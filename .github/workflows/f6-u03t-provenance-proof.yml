@@ -1,0 +1,43 @@
+name: F6-U03t managed legacy catalogue provenance guard
+on:
+  push:
+    branches: [feature/core-1186-f6-u03t-provenance-gate]
+    paths:
+      - .github/workflows/f6-u03t-provenance-proof.yml
+      - scripts/shoperation-f6-u03t-provenance-gate.mjs
+      - tests/shoperation-f6-u03t-provenance-gate.test.ts
+      - docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-readonly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 24}
+      - run: npm ci --no-audit --no-fund
+      - name: Critical Development Guard
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186 F6-U03t: source-anchored, read-only managed 0046 catalogue digest and empty migration-ledger provenance gate; block Office release and never claim signed provider JWT/PostgREST." \
+            --files ".github/workflows/f6-u03t-provenance-proof.yml;scripts/shoperation-f6-u03t-provenance-gate.mjs;tests/shoperation-f6-u03t-provenance-gate.test.ts;docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md;quality/development/active-plan.json" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/issues/1228" \
+            --check
+      - name: Critical Plan Before Code
+        run: node scripts/shoperation-plan-before-code.mjs --check
+      - name: Source-only positive negative fault-injection tests
+        run: |
+          npx vitest run tests/shoperation-f6-u03t-provenance-gate.test.ts
+          node scripts/shoperation-f6-u03t-provenance-gate.mjs --emit artifacts/f6-u03t/provenance
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03t-source-catalogue
+          path: artifacts/f6-u03t/provenance/*
+          if-no-files-found: error
+          retention-days: 30
