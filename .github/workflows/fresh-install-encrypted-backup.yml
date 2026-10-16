@@ -125,7 +125,7 @@ jobs:
           END $g$;
           SQL
           docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh -v "$d:/audit:ro" postgres:17 psql -X -v ON_ERROR_STOP=1 -f /audit/clear-local.sql >/dev/null
-          docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh -v "$d:/backup:ro" postgres:17 pg_restore --data-only --single-transaction --exit-on-error --no-owner --no-privileges -d f6_u03i_fresh /backup/app-owned.dump >/dev/null
+          docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh -v "$d:/backup:ro" postgres:17 pg_restore --data-only --disable-triggers --single-transaction --exit-on-error --no-owner --no-privileges -d f6_u03i_fresh /backup/app-owned.dump >/dev/null
           cat > "$d/check-local.sql" <<'SQL'
           DO $g$ DECLARE n integer; BEGIN
           IF current_database()<>'f6_u03i_fresh'
@@ -136,6 +136,15 @@ jobs:
           (SELECT count(*) FROM public.addon_plan_compatibility)+(SELECT count(*) FROM public.entitlement_capabilities)+
           (SELECT count(*) FROM public.entitlement_source_precedence)+(SELECT count(*) FROM public.plan_capability_grants)+
           (SELECT count(*) FROM public.subscription_plan_catalog) INTO n;
+          -- During data-only replay pg_restore may load child tables before parents.
+          -- Restore with local-only FK triggers disabled, then explicitly recheck all six catalog FK links.
+          IF EXISTS (SELECT 1 FROM public.addon_capability_grants g WHERE NOT EXISTS (SELECT 1 FROM public.addon_entitlement_catalog p WHERE p.addon_code=g.addon_code))
+          OR EXISTS (SELECT 1 FROM public.addon_capability_grants g WHERE NOT EXISTS (SELECT 1 FROM public.entitlement_capabilities p WHERE p.capability_code=g.capability_code))
+          OR EXISTS (SELECT 1 FROM public.addon_plan_compatibility g WHERE NOT EXISTS (SELECT 1 FROM public.addon_entitlement_catalog p WHERE p.addon_code=g.addon_code))
+          OR EXISTS (SELECT 1 FROM public.addon_plan_compatibility g WHERE NOT EXISTS (SELECT 1 FROM public.subscription_plan_catalog p WHERE p.plan_code=g.plan_code))
+          OR EXISTS (SELECT 1 FROM public.plan_capability_grants g WHERE NOT EXISTS (SELECT 1 FROM public.entitlement_capabilities p WHERE p.capability_code=g.capability_code))
+          OR EXISTS (SELECT 1 FROM public.plan_capability_grants g WHERE NOT EXISTS (SELECT 1 FROM public.subscription_plan_catalog p WHERE p.plan_code=g.plan_code))
+          THEN RAISE EXCEPTION 'F6_BACKUP_RESTORE_FOREIGN_KEY_CORRUPTION'; END IF;
           IF n<>113 OR (SELECT count(*) FROM public.office_threads)<>0 OR (SELECT count(*) FROM public.webshop_instances)<>0
           THEN RAISE EXCEPTION 'F6_BACKUP_RESTORE_ROWS_INVALID: %',n; END IF;
           END $g$;
