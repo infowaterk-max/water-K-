@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-074C4B63",
   "task": "Core #1186 F6-U03n: 2-tenant Alap/Pro isolated PG17 JWT-role RLS rehearsal with fail-closed real-provider boundary",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "074c4b63",
   "changeBaseSha": "1deb07c5cb38abd1a91887e0825181899c15187d",
   "plannedFilePatterns": [
@@ -971,5 +971,18 @@
       }
     ]
   },
-  "notes": "F6-U03n unit scoped to native local role-session testing. The SQL schema inventory is a prerequisite, not completion. Any first run with no true original-source seeded row proofs must report BLOCKED, never VERIFIED_DONE for local tenant RLS. Keep PR draft and issue OPEN."
+  "notes": "F6-U03n unit scoped to native local role-session testing. The SQL schema inventory is a prerequisite, not completion. Any first run with no true original-source seeded row proofs must report BLOCKED, never VERIFIED_DONE for local tenant RLS. Keep PR draft and issue OPEN.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "cfcfd9afeab5b52c969d303ffd2392914ddf4afd",
+    "closedAt": "2026-10-16T05:52:10.817Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
