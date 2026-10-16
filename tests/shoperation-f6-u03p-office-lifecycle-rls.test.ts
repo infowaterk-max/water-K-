@@ -31,7 +31,7 @@ describe('F6-U03p original-source PG17 lifecycle and membership RLS oracle',()=>
  });
  it('fails closed on a same-store nonparticipant private-message leak',()=>{
   let data=fakeEvidence().split('\n');
-  const i=data.findIndex(x=>x.includes('"label":"support_customer_only"'));
+  const i=data.findIndex((x:string)=>x.includes('"label":"support_customer_only"'));
   const row=JSON.parse(data[i].slice('F6U03P_CASE='.length));
   row.messages.push('bbbbbbbb-0000-4000-8000-000000000011');
   data[i]='F6U03P_CASE='+JSON.stringify(row);
