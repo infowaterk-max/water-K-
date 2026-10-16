@@ -24,11 +24,8 @@
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "auth-access-authority",
-    "database-schema",
     "quality-knowledge-system",
-    "release-infrastructure",
-    "tenant-context-authority"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-013",
@@ -307,11 +304,8 @@
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
       "authority": [
-        "auth-access-authority",
-        "database-schema",
         "quality-knowledge-system",
-        "release-infrastructure",
-        "tenant-context-authority"
+        "release-infrastructure"
       ],
       "mustEdit": [
         ".github/workflows/f6-u03l-plan-capture.yml"
@@ -1023,5 +1017,5 @@
       }
     ]
   },
-  "notes": "F6-U03l source-only review candidate + real PG17 final ACL. Complete original SQL identities unchanged, existing #1228 owner, model specialist dissent not human approval, 31 known failures, must remain DRAFT until approved. No hosted writes or old blanket Pro/role grants accepted."
+  "notes": "F6-U03l source-only review candidate + real PG17 final ACL. Complete original SQL identities unchanged, existing #1228 owner, model specialist dissent not human approval, 31 known failures, must remain DRAFT until approved. No hosted writes or old blanket Pro/role grants accepted. Scope correction after exact Plan Before Code: planned projection covers only quality/release source and workflow files (no auth or tenant production code); don't falsely list auth-access, database-schema or tenant-context authority without implementation file scope. Security ACL is tested read-only inside Docker as evidence, not product auth feature modification."
 }
