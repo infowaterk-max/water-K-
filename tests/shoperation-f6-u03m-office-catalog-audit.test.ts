@@ -77,7 +77,7 @@ describe('F6-U03m real PostgreSQL catalog-wide Office audit',()=>{
   expect(report.counts.relations).toBe(190);
   expect(report.scope).toBe(SCOPE);
   expect(()=>reportCatalog(x,{...m,releaseAuthorized:true})).toThrow();
-  const y=fixture();y.relations[0].name='public.not_office';
+  const y=fixture();y.relations[0].name='public.unrelated_fixture';
   y.functions[0].body_touches_office=false;
   y.functions[1].body_touches_office=false;
   expect(()=>reportCatalog(y,m)).toThrow('F6U03M_NO_OFFICE_OBJECTS');
