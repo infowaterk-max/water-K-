@@ -18,7 +18,6 @@
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
@@ -329,7 +328,6 @@
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
       "authority": [
-        "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
@@ -762,7 +760,39 @@
         "decision": "PASS"
       }
     },
-    "executionAuthorized": true
+    "executionAuthorized": true,
+    "problemStatement": "The actual Free-plan Fresh Install contains 175 public and 2 private application tables, 113 neutral catalog rows, no customer users, and a legacy 0046 Office schema but no migration ledger or managed point-in-time backup. Applying the reviewed 31 forward Office SQL sources before a successful owner-recoverable dump would strand the owner without an independently accessible restoration artifact if a live post-commit defect occurred.",
+    "observableOutcomes": [
+      "Only the exact istjjkdcvsvilrycqecd target with verified TLS hostname, nonempty configured GitHub Actions secret and real PG17 can be backed up.",
+      "Native full custom pg_dump from public/private captures both schema and rows in one consistent snapshot without any hosted write.",
+      "Native pg_restore performs actual 113-neutral-row data replay against identical 0046 schema inside disposable PG17 and validates positive restore outcome.",
+      "Owner-only private key is not sent to GitHub; backup protected with X509 RSA3072 and CMS AES-256-GCM ciphertext.",
+      "CI upload permits only encrypted archive and non-sensitive validation manifest, never a raw dump or database credentials.",
+      "Backup evidence and key are independently downloaded and decrypted by the owner assistant before considering any subsequent hosted Office migration."
+    ],
+    "unresolvedRisks": [
+      "GitHub Actions secret may be unavailable or stale and fail to reach exact Fresh Install database; zero data writes permitted if so.",
+      "TLS peer/full endpoint authorization must be proven at live runner runtime despite current Supabase connector metadata.",
+      "A data-only restore on local source schema verifies app data restoration, not complete provider Auth, Storage, extensions or event-trigger restoration.",
+      "GitHub public Actions artifacts can expire; owner must retain encrypted archive and offline private key safely before production approval.",
+      "The native Supabase PostgreSQL backup could contain privileged internal data; plaintext always confined to ephemeral runner temp and cannot enter log or uploaded artifact.",
+      "Backup completion alone does not authorize managed hosted schema migration if target preflight or source drift differs at the later execution."
+    ],
+    "scope": {
+      "in": [
+        "Existing public/private application schema and data backup of Fresh Install, using existing GitHub Actions DB URL secret",
+        "Owner certificate recipient CMS encryption and private key offline",
+        "Native postgres17 restore/replay from generated archive and proof artifact",
+        "No-cost GitHub Actions bounded job"
+      ],
+      "out": [
+        "Any live Supabase DDL, Office migration 0047–0058 or reset",
+        "Modifying waterk-platform or resuming staging",
+        "Creating paid Supabase branch/project, Vercel deployment or exposing credentials",
+        "Supabase-managed Auth/Storage cluster state full restore or automatic post-commit recovery",
+        "Committing, uploading or logging decryption private key"
+      ]
+    }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
