@@ -212,7 +212,7 @@
         ]
       },
       {
-        "role": "Known Failure and Regression",
+        "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
         "finding": "A target unit could silently shadow original source bootstrap or suppress browser SELECT failures.",
