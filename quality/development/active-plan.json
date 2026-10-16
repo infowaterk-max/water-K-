@@ -1,16 +1,16 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-074C4B63",
-  "task": "Core #1186 F6-U03n: 2-tenant Alap/Pro isolated PG17 JWT-role RLS rehearsal with fail-closed real-provider boundary",
+  "task": "Core #1186 F6-U03o: isolated PG17 anonymous Office RLS and foreign-tenant SECURITY DEFINER helper denial proof",
   "status": "closed",
   "guardDigest": "074c4b63",
-  "changeBaseSha": "1deb07c5cb38abd1a91887e0825181899c15187d",
+  "changeBaseSha": "afdda91cfe97dc0046324c4ddf9718e79a4ec799",
   "plannedFilePatterns": [
-    "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
-    "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
-    ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
-    ".github/workflows/f6-u03n-plan-capture.yml",
-    "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
+    "scripts/shoperation-f6-u03o-office-denial-matrix.mjs",
+    "tests/shoperation-f6-u03o-office-denial-matrix.test.ts",
+    ".github/workflows/f6-u03o-real-denial-proof.yml",
+    ".github/workflows/f6-u03o-plan-capture.yml",
+    "docs/po/CORE_1186_F6_U03O_OFFICE_DENIAL_MATRIX_2026-10-16.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
@@ -71,7 +71,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical local PG17 role-session test; original fixture auth.uid() is always NULL, requires explicit isolated provider stub replacement and two-tenant seed proof before any RLS claim. No hosted real JWT authority.",
+      "rationale": "Critical local row-permission diagnostic only; reuse original source and two-tenant authenticated RLS fixtures. No hosted JWT/SQL, no real provider access, no source modifications, release always false.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -88,29 +88,28 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Run exact current `main` Git-blob-pinned 59+19 SQL via F6-U03k with original pre/postflight and COMMIT on one verified Docker postgres:17 container, refusing all external SQL selectors.",
-        "Before seeding inspect native catalog for required organization/webshop/roles/users/Office/entitlement relations, columns and constraints and record their origin without altering base schema.",
-        "Never use the original `auth.uid()=NULL` fixture as positive proof; assert current auth.uid() stub returns NULL then explicitly override it **only in Docker** to read `request.jwt.claim.sub` with a transaction-scoped role and independently assert current session uid.",
-        "Test fixture creates exactly two distinct instances with subscription_plan Alap vs Pro and nontrivial active role and Office customer/internal rows, using native constraints; fixture cleanup is automatic disposable DB, no external fixture data.",
-        "For each role/user + tenant query assert expected exact row IDs or precise counts, positive Alap support and Pro participant visibility and strict foreign-tenant, unentitled, nonparticipant and anon denial; no all-zero false green.",
-        "Keep `releaseAuthorized=false`, `hostedTouched=false`, `realSupabaseJwtProven=false`, `realProviderDataApiProven=false`, `authFixtureOverridden=true`, `sourceCount=78`; report results with labels distinguishing simulation.",
-        "Normal exact-head Quality/TS/Build/Security/Completion Truth/Lifecycle plus dedicated actual PG17 role RLS proof PASS only after true row-level positive/negative scenarios."
+        "Exact source-authentic 78-file original local SQL bootstraps in identity-verified disposable PG17 with original preflight/postflight/COMMIT.",
+        "Original F6-U03n schema, role-smoke and two-tenant fixture plus original 3-case positive/negative RLS harness PASS in the same database before new checks.",
+        "Anonymous role has current_user='anon', no BYPASSRLS, auth.uid() IS NULL and office_threads/messages/tasks all return zero with unfiltered queries.",
+        "Authenticated helper calls use per-case BEGIN, SET LOCAL ROLE authenticated, SET LOCAL request.jwt.claim.sub and ROLLBACK; current_user and rolbypassrls captured.",
+        "Exact native source-role expected helper results: private.current_user_can_read_office_thread_v1 checks participation/current actor and MUST deny foreign A->B/B->A/nonmember, but it is not the plan gate for Alap internal; private.office_thread_plan_allowed_v2 and private.office_task_plan_allowed_v2 require A customer TRUE, B customer and B internal TRUE, A internal FALSE even with manual teamChat, and foreign/unknown FALSE.",
+        "Missing source functions, role grants or one legitimate positive fails closed; any cross-store TRUE, anonymous row, local superuser probe or absent foreign negative fails.",
+        "JSON report always syntheticJwt=true, realSignedJwtProven=false, providerManagedProven=false, releaseAuthorized=false, hostedTouched=false; success means only local row/helper behavior.",
+        "Canonical Development Guard, Plan Before Code, Edit-Time, Incremental Replay, exact-head quality/typecheck/build/security/Truth/Lifecycle and dedicated Docker role tests PASS before marking unit closed."
       ],
       "invariants": [
-        "All original Git-pinned 78 SQL bytes and 59-source abort-before-DROP remain intact, no source path overwritten.",
-        "Provider auth shim override is confined to disposable Docker and emitted evidence states the limitation; never copied to hosted migrations.",
-        "Fixture seed does not use superuser identity for probes; PostgreSQL authenticated role and different claims must be proven per query.",
-        "Authenticated positive and denial scenarios must both be observed, not inferred from SQL text or empty relation.",
-        "Alap support remains allowed for customer threads; internal private/team chat remains Pro and participation scoped even with stale entitlement.",
-        "No client-facing service_role key or accidental role privileges granted."
+        "Original F6-U03k 78 source SQL and F6-U03n seed/role code remain immutable; new test is additive only.",
+        "No changes to baseline migrations, RLS policies, role grants or public RPC signatures.",
+        "No role probe runs under table owner, service_role or BYPASSRLS principal.",
+        "No data leaked through indirect helper calls with foreign instance/thread id.",
+        "No local synthetic role success is called real Supabase Auth JWT or hosted release proof."
       ],
       "forbiddenStates": [
-        "All zero rows passes local role test without positive controls.",
-        "Test uses `postgres`/`BYPASSRLS` to execute permitted/denied assertions.",
-        "A locally overridden auth.uid function or fake JWT is described as a real signed-in Supabase Auth session.",
-        "A tenant B Office row appears in tenant A SELECT or internal Pro-only row visible to Alap.",
-        "A hosted Fresh Install or platform/staging project is altered or SQL guard before DROP disabled.",
-        "A seeded synthetic user claims another user solely by arbitrary client request context in production; fake claims remain local-only."
+        "Anonymous source Office relation SELECT reveals any A/B row or anonymous auth.uid non-null.",
+        "Any owner helper returns true for foreign webshop thread or missing participant while marked pass.",
+        "Positive control absent but negatives all false and marked verified.",
+        "RLS source altered to make row tests pass, or test runs service_role/superuser and calls it authenticated.",
+        "An actual hosted Supabase project accessed, reset, staging unpaused or an approved release is inferred."
       ]
     },
     "model": {
@@ -142,41 +141,42 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Legacy local auth.uid always returns NULL and all tested rows invisibly disappear, giving false denial green.",
-        "Provider auth role stub ignores SET LOCAL role or uses service_role, bypassing RLS.",
-        "Fixture row inserts fail due to missing required columns/references and CI silently skips positive cases.",
-        "Two tenants share organization or role grants and cross-tenant fixtures falsely appear authorized.",
-        "Setting stale manual/trial entitlement may unlock internal chat for Alap against strict Pro plan check.",
-        "A supposed JWT sub maps to arbitrary user without user-store role; positive case fails, incorrectly blamed on core SQL.",
-        "Session state leaks between test cases if not reset transaction locally."
+        "Anonymous role inherits SELECT from PUBLIC and RLS policy includes broad anon visibility unexpectedly.",
+        "Foreign instance_id and target thread_id are mismatched but SECURITY DEFINER returns TRUE through global organization role.",
+        "Helper tests call old/overloaded signature rather than source-defined UUID UUID.",
+        "Testing only false cases misses broken positive legitimate Alap customer service.",
+        "Unscoped postgres connection sees seeded rows and is incorrectly counted as browser role.",
+        "Request-local auth.uid claim bleeds across ROLLBACK transactions.",
+        "An absent function errors mid-SQL but shell ignores because psql ON_ERROR_STOP missing."
       ],
       "edgeCases": [
-        "PostgreSQL policy reads under SECURITY DEFINER may bypass RLS inside helper by design, so outer SELECT must still be authenticated and verify id rows.",
-        "PostgreSQL `auth.uid()` stub override body must read `current_setting('request.jwt.claim.sub', true)` and safely parse empty strings without error.",
-        "Separate role `anon` and authenticated, owner/grantee and `SET LOCAL` scopes; invalid claimed UUID should deny.",
-        "Office unlinked tasks have NULL thread_id and require customer-support capability only, not Pro internal chat.",
-        "Support capability evaluator needs topic/mailbox keys and privacy members for internal chats; make fixture deterministic and diagnostic.",
-        "Actual Supabase `auth.jwt()` can expose stale claims, but this local simulation cannot prove token signature, refresh or revocation."
+        "Role anon may get SQL permission denied rather than a zero-row result: must distinguish expected deny from unexpected data leak, and positive permission must not be granted just for a test.",
+        "PostgreSQL `auth.uid()` function has a local synthetic override in F6-U03n; ensure new role checks explicitly record the shim evidence and no signed token.",
+        "Source helper `office_thread_plan_allowed_v2` ultimately calls `public.can_read_office_thread_v1` under SECURITY DEFINER and must observe current auth.uid claim.",
+        "Alap internal_private denial despite a manual teamChat grant; Pro internal positive requires participant link.",
+        "Anonymous service_role-only inbound v3 is out of scope and remains covered by F6-U03l.",
+        "Do not infer REST API exposure from PostgreSQL schema USAGE.",
+        "Anon direct SELECT may be rejected by relation/scheme ACL (SQLSTATE 42501) instead of returning zero rows. Execute actual SELECT under anon in a PLpgSQL exception-protected DO and capture deny vs zero; any visible row fails, unexpected SQLSTATE fails."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F6N-LOCAL_ROLE_RUNTIME",
-        "summary": "Native Docker PostgreSQL17 two-tenant role + simulated JWT sub fixture, with exact positive/negative assertions and release blocked.",
+        "id": "ALT-F6O-NATIVE_NEGATIVE_ROLE",
+        "summary": "Real original-source PG17 user role and direct helper negative/positive matrix on proven F6-U03n fixture.",
         "disposition": "selected",
-        "reason": "Extends native RLS proof without touching hosted auth and exposes data dependencies."
+        "reason": "Best bounded extension of already green local tenant RLS evidence without provider changes."
       },
       {
-        "id": "ALT-F6N-CATALOG_ONLY",
-        "summary": "Repeat policy-definition regex and declare two-tenant safety.",
+        "id": "ALT-F6O-STATIC_ONLY",
+        "summary": "Inspect SQL text for auth.uid predicates and assume no foreign reads.",
         "disposition": "rejected",
-        "reason": "Metadata cannot establish row-level outcomes."
+        "reason": "Text is insufficient to prove actual row-level SECURITY DEFINER runtime behavior."
       },
       {
-        "id": "ALT-F6N-HOSTED_APP_TOKENS",
-        "summary": "Create production signed-in users/tenants in hosted Supabase Fresh Install now.",
+        "id": "ALT-F6O-HOSTED_AUTH_SETUP",
+        "summary": "Provision signed auth.users and real JWTs in hosted Fresh Install now.",
         "disposition": "rejected",
-        "reason": "Hosted target reset/restore/provider/auth authority not approved and two active project billing cap."
+        "reason": "No approved hosted project/write/migration rollback authority or managed provider lifecycle gate."
       }
     ],
     "specialistReviews": [
@@ -184,108 +184,107 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Fake JWT or PostgreSQL claims are not signed Supabase sessions; a local green might be misrepresented as hosted readiness.",
-        "resolution": "Label simulated-only, verify SET ROLE authenticated and never mark real JWT/managed Data API proven.",
+        "finding": "Anonymous and helper local passes can be overclaimed as signed token/REST service security.",
+        "resolution": "Role/claim/session execution provenance and mandatory synthetic-only release blocked flags; real hosted JWT explicitly unresolved.",
         "evidence": [
-          "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs"
+          "scripts/shoperation-f6-u03o-office-denial-matrix.mjs"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Seeded fixtures must honor original FK/trigger and entitlement lifecycle, not ad hoc fake Office tables.",
-        "resolution": "Run exact original source and native schema-introspection, insert into real original relations only; fail if missing.",
+        "finding": "New hand-crafted user rows could violate original constraints and accidentally remove valid access.",
+        "resolution": "Reuse independently verified F6-U03n exact source fixture and do not rewrite SQL; all positive controls required.",
         "evidence": [
-          ".github/workflows/f6-u03n-local-tenant-rls-proof.yml"
+          ".github/workflows/f6-u03o-real-denial-proof.yml"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Prior F6-U03k SQL compilation had dollar quoting bugs; duplicating bundle loses authority.",
-        "resolution": "Use canonical existing F6-U03k script, never duplicate original SQL or source verifiers.",
+        "finding": "Duplicating SQL source manifest or JWT shim would fork source authority.",
+        "resolution": "Run original F6-U03k + F6-U03n scripts unmodified and only append read-only ACL/RLS tests.",
         "evidence": [
-          "scripts/shoperation-f6-u03k-office-local-replay.mjs"
+          "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "RLS local proof could be approved as complete Shoperation Core or hosted release.",
-        "resolution": "Explicitly maintain releaseAuthorized false; #1228/#1186 open and draft PR, require real provider signed-in sessions later.",
+        "finding": "Isolated local session tests cannot approve a hosted 78-source migration or tenant identity.",
+        "resolution": "Unit result never marks approved release, hostedTouched or provider JWT proven; #1228 open, DRAFT branch.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md"
+          "docs/po/CORE_1186_F6_U03O_OFFICE_DENIAL_MATRIX_2026-10-16.md"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-F6N-01",
-        "scenario": "The local auth.uid shim returns NULL for all requests and every query returns zero.",
-        "finding": "All-denied falsely passes without proving any legitimate user works.",
-        "resolution": "Assert stub identity, override only local with verified current_setting() and require positive and negative row results.",
+        "id": "CH-F6O-01",
+        "scenario": "Anon opens every Office relation in the real original PG17 schema but one permissive policy allows data without auth.uid, and the matrix falsely passes because it looks only at a filtered `WHERE instance_id = NULL` query.",
+        "finding": "Filtered empty rows do not prove anonymous isolation and can hide a policy leak.",
+        "resolution": "Use unfiltered COUNT(*) over all three real Office tables under current_user anon/rolbypassrls=false and auth.uid NULL; any visible row must fail.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6N-02",
-        "scenario": "During the actual two-tenant PG17 row-access matrix, a test query for tenant A is executed after seeding while the PostgreSQL session remains connected as the postgres owner or a BYPASSRLS-capable service role instead of SET LOCAL ROLE authenticated, so the select can see tenant B rows even if the final captured result is incorrectly filtered in application code.",
-        "finding": "The evidence is an invalid proxy for authenticated RLS enforcement: table ownership and BYPASSRLS bypass row-level policies, and a query returning the expected rows under postgres does not establish the effective browser role permission boundary.",
-        "resolution": "Within every test transaction assert session_user=postgres but current_user=authenticated (or anon for anonymous) and that pg_roles.rolbypassrls is false for current_user; issue SELECT against the source relation without an application-side filter, verify exact tenant IDs and row counts, and reject queries from any owner/service identity.",
+        "id": "CH-F6O-02",
+        "scenario": "A registered owner in tenant A invokes SECURITY DEFINER `private.office_thread_plan_allowed_v2` passing tenant B instance and B thread and the helper returns TRUE due to an actor independent shortcut.",
+        "finding": "Cross-tenant disclosure through direct helper despite a safe visible page list.",
+        "resolution": "Under A authenticated role and A current uid, directly call the exact two-UUID source helper for B instance+B thread and assert false; repeat B->A, and unknown user->both.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6N-03",
-        "scenario": "Two tenant instance ids are different but share underlying organization and store-member grants.",
-        "finding": "Cross-tenant isolation test may accidentally create intentionally shared access.",
-        "resolution": "Seed separate organizations and role bindings; query instance/org consistency before running role cases.",
+        "id": "CH-F6O-03",
+        "scenario": "All private helper invocations return FALSE because auth.uid local shim did not get set, and the test reports cross-tenant denial PASS.",
+        "finding": "No legitimate positive path established.",
+        "resolution": "For each real owner require a same-tenant customer positive, plus B internal participant positive, asserting role and uid; any missing true aborts.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6N-04",
-        "scenario": "Migrations reassign Office column constraints and fixture silently skips failed inserts.",
-        "finding": "Fake green despite not testing actual Office rows.",
-        "resolution": "Postflight schema introspection, on-error-stop, mandatory 2 tenants and source rows with exact verified IDs.",
+        "id": "CH-F6O-04",
+        "scenario": "Test runs SET ROLE service_role or postgres for helper results and sees TRUE from bypass privileges.",
+        "finding": "This is not browser role authorization.",
+        "resolution": "Test transactions use SET LOCAL ROLE authenticated with current_user and pg_roles.rolbypassrls captured and fail on mismatch.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6N-05",
-        "scenario": "Role session state persists across cases and leaks authenticated current_user or JWT sub.",
-        "finding": "Cross-case contamination misstates allowed access.",
-        "resolution": "Use independent BEGIN/SET LOCAL/ROLLBACK per case, verify current_user and auth.uid every time.",
+        "id": "CH-F6O-05",
+        "scenario": "Caller uses instance A and thread B across IDs but only tests a missing nonexistent thread that always returns false.",
+        "finding": "Bad matrix may never exercise legitimate foreign populated row.",
+        "resolution": "Use explicitly seeded B foreign thread ID and verify actual two-tenant fixture's positive row proof first, then test cross-pair.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6N-06",
-        "scenario": "A tenant with a real Alap subscription is seeded with a stale manual or platform teamChat feature entitlement, and the test accidentally checks only a customer Office thread rather than an internal_private conversation with a real participant, letting an advanced feature unlock from entitlement priority alone.",
-        "finding": "An internal Office team chat that should remain Pro-only may be erroneously visible under Alap if the SQL authorization predicate trusts a manually overridden feature entitlement rather than the current webshop_instances.subscription_plan='pro' authority.",
-        "resolution": "Seed distinct customer and internal_private threads in the same Alap tenant with relevant participant and stale teamChat entitlement rows; assert positive customer support select and strictly zero internal private select in the authenticated role, while a second Pro tenant with a participant and enabled teamChat is a positive internal control.",
+        "id": "CH-F6O-06",
+        "scenario": "Alap customer owner has stale manual teamChat entitlement but direct thread helper returns true for internal_private despite outer RLS blocking it.",
+        "finding": "The participation helper may report the Alap owner as an internal-thread participant, but the separate restrictive plan-scoped helpers must still deny the Pro-only internal chat; conflating the two helper layers creates false positive risk assertions.",
+        "resolution": "Assert participation helper is FALSE for foreign/unknown (and TRUE for allowed customer), while only plan-scoped thread/task helper is required FALSE for A internal and TRUE for A customer/B private. Keep full original relation RLS as separately proven.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6N-07",
-        "scenario": "GitHub Actions sets request.jwt.claim.sub in the disposable PG17 server with set_config and runs SET LOCAL ROLE authenticated, but then a green result is included in the Completion Truth as if the user authenticated through hosted Supabase Auth with a cryptographically signed and refreshed JWT.",
-        "finding": "A PostgreSQL setting is a user-controllable local test stub, not a verified Supabase JWT or PostgREST request; it does not validate token signature, expiration, app_metadata, session_id, revocation, exposed schema settings or Storage authorizations.",
-        "resolution": "Assert the fixture manifest `syntheticJwt=true`, original auth.uid NULL provenance and `realSupabaseJwtProven=false`; use explicit LOCAL_SIMULATED_ROLE_RLS_NOT_SUPABASE_JWT result string, require independent hosted signed-in A/B tenant and managed provider tests before any release approval.",
+        "id": "CH-F6O-07",
+        "scenario": "A test function call fails with permission denied or missing signature yet the psql shell swallows it and report claims denied because no true output.",
+        "finding": "An execution failure is not equivalent to evaluated FALSE.",
+        "resolution": "Use psql -v ON_ERROR_STOP=1; parse exact JSON case count and require boolean values, fail any missing or malformed output.",
         "status": "resolved"
       },
       {
-        "id": "CH-F6N-08",
-        "scenario": "Fixture requires replacing RLS policies to pass.",
-        "finding": "Test no longer checks original 78 source behavior.",
-        "resolution": "Never change original policies, helper predicates or table privilege grants; only local auth provider stub and synthetic fixture rows allowed.",
+        "id": "CH-F6O-08",
+        "scenario": "A local current_setting('request.jwt.claim.sub') claim is described as a Supabase Auth-signed token and the release gate approves hosted SQL based on the Docker run.",
+        "finding": "Trust boundary confused, managed JWT/session/Data API absent.",
+        "resolution": "Provenance explicit LOCAL_SYNTHETIC_JWT_ROLE_TEST; JSON flags signedSupabaseJwtProven=false, hostedTouched=false, releaseAuthorized=false regardless of pass.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Read exact Development Guard known failures and pass critical Plan Before Code before first change.",
-      "Run current F6-U03k original 78-source local PG17 true transaction; inspect actual table columns/constraints for safe fixtures.",
-      "Emit minimal local-only auth.uid/auth.jwt role-claim SQL overlay, assert original fixture NULL then new role scoping.",
-      "Seed two tenant instances/users/entitlement/support/Office rows in original relations, query normal positive/negative matrix as real PostgreSQL authenticated/anon role.",
-      "Adversarial test missing positive, invalid identity, cross-tenant leak, Alap internal leak, no role isolation and hosted execution flags.",
-      "Exact-head guarded code/CI/Truth/Lifecycle plus dedicated Docker17 evidence, keep real JWT provider blocked."
+      "Canonical Development Guard applicable Known Failures and critical Plan Before Code PASS prior to code edit.",
+      "Reuse immutable F6-U03k original-source replay and full F6-U03n fixture+local auth role smoke; verify original 3-case positive RLS proof first.",
+      "Run new unfiltered anon rows and authenticated direct private helper calls under real PG17 roles with explicit required allow+deny booleans.",
+      "Run adversarial malformed/forged/true foreign and missing positive Vitest; preserve per-case raw JSON evidence in CI artifact.",
+      "Pass exact-head CI/Truth/Lifecycle and dedicated Docker17 workflow, record only LOCAL_ROLE_NEGATIVES_VERIFIED release-blocked scope."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
@@ -294,20 +293,20 @@
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03n-plan-capture.yml"
+        ".github/workflows/f6-u03o-plan-capture.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
-        "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
-        "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
-        "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts"
+        ".github/workflows/f6-u03o-real-denial-proof.yml",
+        "docs/po/CORE_1186_F6_U03O_OFFICE_DENIAL_MATRIX_2026-10-16.md",
+        "scripts/shoperation-f6-u03o-office-denial-matrix.mjs",
+        "tests/shoperation-f6-u03o-office-denial-matrix.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
-        ".github/workflows/f6-u03n-local-tenant-rls-proof.yml"
+        "tests/shoperation-f6-u03o-office-denial-matrix.test.ts",
+        ".github/workflows/f6-u03o-real-denial-proof.yml"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -318,16 +317,16 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          ".github/workflows/f6-u03n-plan-capture.yml",
+          ".github/workflows/f6-u03o-plan-capture.yml",
           "quality/development/active-plan.json"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
-          "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
-          "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
-          "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts"
+          ".github/workflows/f6-u03o-real-denial-proof.yml",
+          "docs/po/CORE_1186_F6_U03O_OFFICE_DENIAL_MATRIX_2026-10-16.md",
+          "scripts/shoperation-f6-u03o-office-denial-matrix.mjs",
+          "tests/shoperation-f6-u03o-office-denial-matrix.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -360,19 +359,19 @@
         ],
         "files": [
           {
-            "file": ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
+            "file": ".github/workflows/f6-u03o-plan-capture.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": ".github/workflows/f6-u03n-plan-capture.yml",
+            "file": ".github/workflows/f6-u03o-real-denial-proof.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
+            "file": "docs/po/CORE_1186_F6_U03O_OFFICE_DENIAL_MATRIX_2026-10-16.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -384,13 +383,13 @@
             "points": 0
           },
           {
-            "file": "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
+            "file": "scripts/shoperation-f6-u03o-office-denial-matrix.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
+            "file": "tests/shoperation-f6-u03o-office-denial-matrix.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -423,19 +422,19 @@
           ],
           "files": [
             {
-              "file": ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
+              "file": ".github/workflows/f6-u03o-plan-capture.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": ".github/workflows/f6-u03n-plan-capture.yml",
+              "file": ".github/workflows/f6-u03o-real-denial-proof.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
+              "file": "docs/po/CORE_1186_F6_U03O_OFFICE_DENIAL_MATRIX_2026-10-16.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -447,13 +446,13 @@
               "points": 0
             },
             {
-              "file": "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
+              "file": "scripts/shoperation-f6-u03o-office-denial-matrix.mjs",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
+              "file": "tests/shoperation-f6-u03o-office-denial-matrix.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -468,7 +467,7 @@
           {
             "id": 0,
             "files": [
-              ".github/workflows/f6-u03n-local-tenant-rls-proof.yml"
+              ".github/workflows/f6-u03o-plan-capture.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -485,7 +484,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
+                  "file": ".github/workflows/f6-u03o-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -498,7 +497,7 @@
           {
             "id": 1,
             "files": [
-              ".github/workflows/f6-u03n-plan-capture.yml"
+              ".github/workflows/f6-u03o-real-denial-proof.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -515,7 +514,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03n-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03o-real-denial-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -528,7 +527,7 @@
           {
             "id": 2,
             "files": [
-              "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md"
+              "docs/po/CORE_1186_F6_U03O_OFFICE_DENIAL_MATRIX_2026-10-16.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -539,7 +538,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
+                  "file": "docs/po/CORE_1186_F6_U03O_OFFICE_DENIAL_MATRIX_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -576,7 +575,7 @@
           {
             "id": 4,
             "files": [
-              "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs"
+              "scripts/shoperation-f6-u03o-office-denial-matrix.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -593,7 +592,7 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
+                  "file": "scripts/shoperation-f6-u03o-office-denial-matrix.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -606,7 +605,7 @@
           {
             "id": 5,
             "files": [
-              "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts"
+              "tests/shoperation-f6-u03o-office-denial-matrix.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -617,7 +616,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
+                  "file": "tests/shoperation-f6-u03o-office-denial-matrix.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -635,39 +634,39 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-              "developmentBaseSha": "1deb07c5cb38abd1a91887e0825181899c15187d"
+              "developmentBaseSha": "afdda91cfe97dc0046324c4ddf9718e79a4ec799"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "1deb07c5cb38abd1a91887e0825181899c15187d",
+            "targetBaseSha": "afdda91cfe97dc0046324c4ddf9718e79a4ec799",
             "lease": {
-              "expectedBaseSha": "1deb07c5cb38abd1a91887e0825181899c15187d",
+              "expectedBaseSha": "afdda91cfe97dc0046324c4ddf9718e79a4ec799",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
-              ".github/workflows/f6-u03n-plan-capture.yml",
-              "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
+              ".github/workflows/f6-u03o-plan-capture.yml",
+              ".github/workflows/f6-u03o-real-denial-proof.yml",
+              "docs/po/CORE_1186_F6_U03O_OFFICE_DENIAL_MATRIX_2026-10-16.md",
               "quality/development/active-plan.json",
-              "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
-              "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts"
+              "scripts/shoperation-f6-u03o-office-denial-matrix.mjs",
+              "tests/shoperation-f6-u03o-office-denial-matrix.test.ts"
             ],
             "operations": [
               {
-                "operation": "create",
-                "file": ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
-                "generated": null
-              },
-              {
                 "operation": "modify",
-                "file": ".github/workflows/f6-u03n-plan-capture.yml",
+                "file": ".github/workflows/f6-u03o-plan-capture.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
+                "file": ".github/workflows/f6-u03o-real-denial-proof.yml",
+                "generated": null
+              },
+              {
+                "operation": "create",
+                "file": "docs/po/CORE_1186_F6_U03O_OFFICE_DENIAL_MATRIX_2026-10-16.md",
                 "generated": null
               },
               {
@@ -677,12 +676,12 @@
               },
               {
                 "operation": "create",
-                "file": "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
+                "file": "scripts/shoperation-f6-u03o-office-denial-matrix.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
+                "file": "tests/shoperation-f6-u03o-office-denial-matrix.test.ts",
                 "generated": null
               }
             ],
@@ -715,19 +714,19 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
+                  "file": ".github/workflows/f6-u03o-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": ".github/workflows/f6-u03n-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03o-real-denial-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
+                  "file": "docs/po/CORE_1186_F6_U03O_OFFICE_DENIAL_MATRIX_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -739,13 +738,13 @@
                   "points": 0
                 },
                 {
-                  "file": "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
+                  "file": "scripts/shoperation-f6-u03o-office-denial-matrix.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts",
+                  "file": "tests/shoperation-f6-u03o-office-denial-matrix.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -778,7 +777,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts"
+                "tests/shoperation-f6-u03o-office-denial-matrix.test.ts"
               ],
               "externalGateIds": []
             },
@@ -789,12 +788,12 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                ".github/workflows/f6-u03n-local-tenant-rls-proof.yml",
-                ".github/workflows/f6-u03n-plan-capture.yml",
-                "docs/po/CORE_1186_F6_U03N_LOCAL_TENANT_ROLE_REHEARSAL_2026-10-16.md",
+                ".github/workflows/f6-u03o-plan-capture.yml",
+                ".github/workflows/f6-u03o-real-denial-proof.yml",
+                "docs/po/CORE_1186_F6_U03O_OFFICE_DENIAL_MATRIX_2026-10-16.md",
                 "quality/development/active-plan.json",
-                "scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs",
-                "tests/shoperation-f6-u03n-tenant-role-rehearsal.test.ts"
+                "scripts/shoperation-f6-u03o-office-denial-matrix.mjs",
+                "tests/shoperation-f6-u03o-office-denial-matrix.test.ts"
               ],
               "filesAbsent": []
             },
@@ -809,7 +808,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "5134d438",
+            "manifestDigest": "44061035",
             "decision": "PASS"
           }
         ],
@@ -851,33 +850,32 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "F6-U03m verified original 78 SQL catalog and source policy/privilege metadata only. Next step needs actual row-level allow/deny under PostgreSQL authenticated role for two synthetic tenants, Alap customer-support vs Pro internal chat, plus cross-tenant denials. Original isolated fixture sets auth.uid()=NULL and auth.jwt()={}, so any unmodified fixture would falsely prove zero visibility. Build an explicitly local-only fixture contract, independently verify PG17 schema/constraints and auth bootstrap, then use bounded two-tenant synthetic role-session test without modifying original migration or production resources. Real hosted signed-in Supabase JWT/RLS remains separate BLOCKED.",
+    "problemStatement": "F6-U03n source-pinned 78 original SQL and true Docker PG17 two-tenant Alap/Pro authenticated role RLS positive/negative proof passed at #38858690953. It did not execute anonymous office relation reads or directly invoke private security-definer thread and plan helpers with foreign instance/thread identifiers. The tenant model remains incomplete against those attack paths. Add an isolated original-schema role-only negative test with positive helper controls and deny foreign/unknown/Alap-internal identities, without mistaking GUC synthetic JWT for signed Supabase JWT.",
     "observableOutcomes": [
-      "Produce exact Git-sourced 78 SQL local replay and all required local schema/constraint metadata for a safe two-tenant fixture; abort if source identity or expected Office tables/helpers differ.",
-      "Emit a strictly local role/JWT-claim simulation SQL that explicitly replaces the synthetic auth.uid/auth.jwt bootstrap routines only on the isolated Docker database and reports this divergence, never on hosted projects.",
-      "Insert uniquely named two synthetic tenant instances (Alap and Pro), two or more synthetic users plus support/non-member, entitlements and Office rows using exact live catalog constraints and safe bounded identities.",
-      "Execute PostgreSQL `SET LOCAL ROLE authenticated` and anon negative row-level SELECT checks under multiple distinct synthetic sub-claims, verify positive same-tenant Alap customer support and Pro internal thread visibility and negative cross-tenant/Alap internal/nonparticipant/anon/expired entitlements.",
-      "Fail closed on missing positive-control fixture or unexpected any denied row; never treat all-zero visibility as RLS verification, require positive and negative assertions.",
-      "Preserve evidence `LOCAL_SIMULATED_ROLE_RLS_NOT_SUPABASE_JWT`, `releaseAuthorized=false`, separate blockers for genuine Supabase Auth/App Data API, real signed-in A/B tenant JWT and storage.",
-      "Exact-head CI, source plan, targeted Docker17 proof, Truth/Lifecycle verify scoped local-only test; no claim that hosted role sessions were tested."
+      "Run unchanged original 78 historical Git-reviewed SQL through canonical F6-U03k true PostgreSQL17 bootstrap, preflight/postflight/COMMIT with exact local peer/PG17/DB/role selectors, and original F6-U03n schema/auth/tenant fixture.",
+      "Execute anonymous real office_threads, office_messages and office_tasks SELECT with zero rows, current_user anon, rolbypassrls=false and NULL auth.uid, independently from authenticated sessions.",
+      "Directly call exactly source-declared private.current_user_can_read_office_thread_v1(uuid,uuid), private.office_thread_plan_allowed_v2(uuid,uuid) and private.office_task_plan_allowed_v2(uuid,uuid) under authenticated synthetic A/B/user stranger claims.",
+      "Require legitimate same-tenant A customer and B customer/private true helper controls; require foreign instance/thread, unknown actor, and Alap internal_private false as negative controls.",
+      "Adversarial tests reject missing positive response, forged role, role bypass, anon rows, unknown function return or accidental cross-tenant truth; neither raw role output nor unit mock alone suffices.",
+      "Persist JSON exact-case evidence with LOCAL_PG17_ANON_FOREIGN_HELPER_DENIAL_NOT_SIGNED_JWT only, releaseAuthorized=false, managed provider Auth/Data API/Storage and real JWT remain blocked.",
+      "Get exact-head full CI Security/Quality/TS/build, Truth/Lifecycle and independent Docker PG17 proof; keep PR DRAFT and #1186/#1228 open."
     ],
     "unresolvedRisks": [
-      "GitHub Action has authentic source 78 SQL but synthetic provider bootstrap; replaced auth.uid/auth.jwt does not verify signed real JWT or refresh/revocation.",
-      "Original Office feature entitlement/grant, role_bindings and capability evaluation may require complex seed associations; first catalog query must expose required columns/FKs to avoid mocking application tables.",
-      "A positive under a superuser role or function owner bypasses RLS; all row probes must run under `SET ROLE authenticated`, no superuser after fixture writes.",
-      "Two synthetic tenants and users do not verify managed Supabase storage, identity API or exposed-schema/HTTPS routing.",
-      "Synthetically generated feature entitlements and support roles must not weaken production policy or ALTER SECURITY DEFINER functions other than explicitly fixture auth bootstrap."
+      "Local auth.uid is an explicit isolated claim emulator; it cannot verify signed Supabase JWT, expiration, Data API exposed-schema, revocation, storage or role security.",
+      "SECURITY DEFINER helper execution under local authenticated role proves only specified UUID combinations, not semantic safety for every input or full tenant domain.",
+      "The original role fixture seeds only 2 organizations and three users; real customer/support team identity matrix requires additional guarded evidence.",
+      "Private schema USAGE/EXECUTE grants in Docker may diverge from hosted managed-provider configuration; API schema routing separate."
     ],
     "scope": {
       "in": [
-        "Source-identical original 59+19 PostgreSQL17 local Docker replay and introspected fixture dependency contract.",
-        "Synthetic auth.uid/current JWT claim adapter strictly on validated isolated PG17 DB, PostgreSQL authenticated role SELECT matrix with two generated tenant instances and positive/negative cases.",
-        "Fail-closed code and CI artifacts documenting role, claim, table rows, expected allowed/denied counts, RLS policy hash and no-hosted authority."
+        "Strict reuse of original immutable 78 reviewed migration sources and canonical Docker PG17 two-tenant Alap/Pro fixture, with original F6-U03n prepared auth current-user shim.",
+        "Real native PG17 anon SELECT and per-case authenticated direct private Office helper boolean probes, explicit positive and cross-store negative counts.",
+        "Adversarial Vitest, source authority and machine-readable evidence document, exact-head governance."
       ],
       "out": [
-        "No hosted Supabase project reads/writes for tests, no mutation of staging/platform/Fresh Install, no production auth migration or user creation.",
-        "No claim that synthetic Postgres request JWT settings are true Supabase signed-in tokens or Data API/Storage enforcement.",
-        "No source SQL rewrites, no schema/RLS loosening or tenant-plan business-rule redecision."
+        "No Supabase project mutations, no changing baseline/auth/Office RLS or GUC behavior in production.",
+        "No real provider signed JWT claim, hosted release, or reopening accepted Alap/Pro business decisions.",
+        "No script that accepts external Postgres target selector, copies generated synthetic SQL to migrations, or alters source function grants."
       ]
     }
   },
@@ -902,11 +900,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-F6N-REAL-PG-ROLE",
-        "requirement": "Genuine two-tenant native PG17 authenticated and anon role RLS row checks using original source SQL with local synthetic JWT; positive and negative proofs, not false green.",
+        "id": "REQ-F6O-ANON-DENY",
+        "requirement": "Real native anon PostgreSQL role sees zero source Office threads/messages/tasks, verified with explicit identity, no role bypass, positive row fixture present.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "local-two-tenant-rls-simulation",
+          "breadth": "local-original-schema-anon-rsl",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -927,8 +925,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6N-NO-POSITIVE",
-            "statement": "All-zero row access despite no same-tenant positive passes.",
+            "id": "NEG-F6O-ANON-LEAK",
+            "statement": "Anonymous role sees any real seeded Office row while negative test passes.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -936,16 +934,50 @@
         ]
       },
       {
-        "id": "REQ-F6N-LOCAL-ONLY",
-        "requirement": "Local auth stub override and all fixture writes restricted to identity-checked Docker PG17; original sources and hosted targets unchanged.",
+        "id": "REQ-F6O-FOREIGN-HELPER",
+        "requirement": "Direct original SECURITY DEFINER current-user/plan helper calls under authenticated role must deny foreign or Alap internal but allow own Alap customer and B Pro internal.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "source-preserving-local-role-simulation",
+          "breadth": "local-original-schema-helper-role-denial",
+          "strength": 2,
+          "dimensions": [
+            "tests",
+            "scope",
+            "forbidden-state"
+          ]
+        },
+        "requiredCapabilities": [
+          "CAP-QUALITY"
+        ],
+        "evidence": {
+          "implementation": [
+            "GUARD-QUALITY-TESTS"
+          ],
+          "outcome": [
+            "GUARD-QUALITY-TESTS"
+          ]
+        },
+        "forbiddenRegressions": [
+          {
+            "id": "NEG-F6O-CROSS",
+            "statement": "Foreign instance/thread helper returns true or missing same-tenant positive control is ignored.",
+            "evidence": [
+              "GUARD-QUALITY-TESTS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "REQ-F6O-LOCAL-SCOPE",
+        "requirement": "No hosted writes or policy source modifications; strictly synthetic local role/JWT, not signed Supabase provider completion.",
+        "claimScope": {
+          "capability": "CAP-QUALITY",
+          "breadth": "disposable-only-diagnostic",
           "strength": 2,
           "dimensions": [
             "scope",
             "plan",
-            "tests"
+            "forbidden-state"
           ]
         },
         "requiredCapabilities": [
@@ -961,8 +993,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F6N-HOSTED",
-            "statement": "Synthetic JWT simulated role tests count as hosted signed-in Supabase completion.",
+            "id": "NEG-F6O-HOSTED",
+            "statement": "Local PostgreSQL GUC claim treated as hosted signed JWT or release authorization.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -971,12 +1003,12 @@
       }
     ]
   },
-  "notes": "F6-U03n unit scoped to native local role-session testing. The SQL schema inventory is a prerequisite, not completion. Any first run with no true original-source seeded row proofs must report BLOCKED, never VERIFIED_DONE for local tenant RLS. Keep PR draft and issue OPEN.",
+  "notes": "F6-U03o is local-only additive negative-role proof using real #1364 tested original source data; not real provider JWT. CI scope truth restricted, no hosted DB SQL, DRAFT, no new business decisions. F6-U03o plan clarified 2026-10-16: participant helper and restrictive plan helper have distinct semantics. Anon SELECT direct privilege-denial or zero-row RLS is accepted only with actual in-role SQL statement evidence; no silent 42501 swallow.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "cfcfd9afeab5b52c969d303ffd2392914ddf4afd",
-    "closedAt": "2026-10-16T05:52:10.817Z",
+    "verifiedImplementationHead": "ed8500159f5d0e5cef20d6d46441a2bad278a849",
+    "closedAt": "2026-10-16T07:11:16.377Z",
     "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
     "learning": {
