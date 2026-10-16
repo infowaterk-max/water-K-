@@ -85,6 +85,13 @@ jobs:
             throw Error('F6U03N_FALSE_POSITIVE_OR_HOSTED_AUTHORIZATION');
           console.log(JSON.stringify(x));
           NODE
+      - name: Prove simulated current_user and auth.uid non-null vs anon null inside isolated role transactions
+        env:
+          PGPASSWORD: f6-u03n-local-only
+        run: |
+          node scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs --emit-role-smoke artifacts/f6-u03n/two-tenant-local
+          psql -XAt -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d f6_u03i_fresh -f artifacts/f6-u03n/two-tenant-local/role-smoke-local-only.sql >artifacts/f6-u03n/two-tenant-local/role-smoke.log
+          node scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs --assess-role-smoke artifacts/f6-u03n/two-tenant-local
       - name: Preserve source-authentic fixture schema/constraint evidence with NO tenant RLS completion claim
         if: always()
         uses: actions/upload-artifact@v4
@@ -95,6 +102,9 @@ jobs:
             artifacts/f6-u03n/two-tenant-local/read-only-fixture-schema.sql
             artifacts/f6-u03n/two-tenant-local/native-fixture-schema.json
             artifacts/f6-u03n/two-tenant-local/readiness.json
+            artifacts/f6-u03n/two-tenant-local/role-smoke-local-only.sql
+            artifacts/f6-u03n/two-tenant-local/role-smoke.log
+            artifacts/f6-u03n/two-tenant-local/role-smoke-evidence.json
             artifacts/f6-u03n/two-tenant-local/commit.err
           retention-days: 14
           if-no-files-found: warn

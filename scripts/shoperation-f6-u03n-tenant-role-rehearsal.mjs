@@ -40,6 +40,40 @@ export function evaluateDiscovery(d,manifest){
   localAuthUidReturnsNull:true,syntheticJwt:false,realSignedSupabaseJwtProven:false,
   localTenantPositiveNegativeProven:false,hostedTouched:false,releaseAuthorized:false};
 }
+export function localRoleSmokeSql(){
+ return [
+  'BEGIN;',
+  "DO $f6n$ BEGIN IF current_database()<>'f6_u03i_fresh' OR current_user<>'postgres' OR current_setting('server_version_num')::integer/10000<>17 THEN RAISE EXCEPTION 'F6U03N_WRONG_LOCAL_ROLE_TARGET'; END IF; END $f6n$;",
+  "CREATE OR REPLACE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $f6uid$ SELECT NULLIF(current_setting('request.jwt.claim.sub',true),'')::uuid $f6uid$;",
+  "CREATE OR REPLACE FUNCTION auth.jwt() RETURNS jsonb LANGUAGE sql STABLE AS $f6jwt$ SELECT jsonb_build_object('sub',NULLIF(current_setting('request.jwt.claim.sub',true),''),'role',NULLIF(current_setting('request.jwt.claim.role',true),'')) $f6jwt$;",
+  'COMMIT;',
+  'BEGIN;',
+  'SET LOCAL ROLE authenticated;',
+  "SELECT set_config('request.jwt.claim.sub','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',true);",
+  "SELECT set_config('request.jwt.claim.role','authenticated',true);",
+  "SELECT 'F6U03N_ROLE='||jsonb_build_object('case','authenticated','role',current_user,'user',auth.uid(),'bypass',(SELECT rolbypassrls FROM pg_roles WHERE rolname=current_user),'jwt',auth.jwt()->>'sub')::text;",
+  'ROLLBACK;',
+  'BEGIN;',
+  'SET LOCAL ROLE anon;',
+  "SELECT 'F6U03N_ROLE='||jsonb_build_object('case','anon','role',current_user,'user',auth.uid(),'bypass',(SELECT rolbypassrls FROM pg_roles WHERE rolname=current_user))::text;",
+  'ROLLBACK;'
+ ].join('\n')+'\n';
+}
+export function validateRoleSmoke(log){
+ if(typeof log!=='string')throw Error('F6U03N_MISSING_LOCAL_ROLE_LOG');
+ const rows=log.split('\n').filter(x=>x.startsWith('F6U03N_ROLE='))
+  .map(x=>JSON.parse(x.slice('F6U03N_ROLE='.length)));
+ if(rows.length!==2)throw Error('F6U03N_POSITIVE_NEGATIVE_ROLE_SMOKE_MISSING');
+ const auth=rows.find(x=>x.case==='authenticated'),anon=rows.find(x=>x.case==='anon');
+ if(!auth||!anon||auth.role!=='authenticated'||auth.bypass!==false||
+    auth.user!=='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'||
+    auth.jwt!==auth.user||anon.role!=='anon'||anon.bypass!==false||anon.user!==null)
+  throw Error('F6U03N_LOCAL_AUTH_ROLE_STATE_MISMATCH');
+ return {decision:'LOCAL_PROVIDER_CLAIM_SHIM_PROVEN_NOT_TENANT_RLS',
+  localAuthProviderOverridden:true,syntheticJwt:true,providerSignedJwtProven:false,
+  positiveOfficeRowsProven:false,negativeCrossTenantRowsProven:false,
+  actualRoleCases:2,hostedTouched:false,releaseAuthorized:false};
+}
 function main(){
  const [mode,path]=process.argv.slice(2);
  if(process.argv.length!==4||resolve(path||'')!==resolve(TARGET))fail('F6U03N_LOCAL_ARTIFACT_ONLY');
@@ -48,6 +82,18 @@ function main(){
   const m=buildCandidateManifest();if(checkCandidateManifest(m)!==true)fail('F6U03N_ORIGINAL_SOURCE_UNVERIFIED');
   writeFileSync(join(resolve(TARGET),'read-only-fixture-schema.sql'),generateReadOnlySchemaSQL());
   writeFileSync(join(resolve(TARGET),'candidate.json'),JSON.stringify(m,null,2)+'\n');return;
+ }
+ if(mode==='--emit-role-smoke'){
+  const readiness=JSON.parse(readFileSync(join(resolve(TARGET),'readiness.json'),'utf8'));
+  if(readiness.decision!=='LOCAL_SCHEMA_DISCOVERED_TENANT_RLS_NOT_PROVEN'||readiness.localTenantPositiveNegativeProven!==false)
+   fail('F6U03N_SCHEMA_READINESS_REQUIRED');
+  writeFileSync(join(resolve(TARGET),'role-smoke-local-only.sql'),localRoleSmokeSql());return;
+ }
+ if(mode==='--assess-role-smoke'){
+  const log=readFileSync(join(resolve(TARGET),'role-smoke.log'),'utf8');
+  const result=validateRoleSmoke(log);
+  writeFileSync(join(resolve(TARGET),'role-smoke-evidence.json'),JSON.stringify(result,null,2)+'\n');
+  console.log(JSON.stringify(result));return;
  }
  if(mode==='--assess-discovery'){
   const d=JSON.parse(readFileSync(join(resolve(TARGET),'native-fixture-schema.json'),'utf8'));

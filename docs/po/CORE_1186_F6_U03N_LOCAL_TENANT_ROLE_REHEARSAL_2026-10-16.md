@@ -20,3 +20,6 @@ The **separate still-open real provider acceptance** requires genuine signed-in 
 ## Safety
 
 No edits to original SQL, source review manifest, RLS policies, paid project capacity or actual Supabase projects. No hosted DB selectors. Original abort-before-DROP still enforced. This PR stays **DRAFT**, #1186/#1228 open, while missing positive role fixture and real signed-in provider proof remain BLOCKED.
+
+### Incremental local role-smoke evidence (not the two-tenant RLS matrix)
+The next narrow proof uses native Docker17 transactions only. After the original current-user fixture definition has been recorded (NULL stub), the isolated disposable database alone temporarily replaces the synthetic `auth.uid()` and `auth.jwt()` to read transaction-local request claim settings, verifies `SET LOCAL ROLE authenticated` and `anon` with `rolbypassrls=false`, checks a non-null synthetic authenticated subject and a null anonymous subject, and rolls back each role session. This deliberately has **zero tenant row assertions** and outputs `LOCAL_PROVIDER_CLAIM_SHIM_PROVEN_NOT_TENANT_RLS`. It is not signed JWT, PostgREST, Auth or production-role acceptance. No originally reviewed migration or real Supabase project is changed.
