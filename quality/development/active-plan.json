@@ -863,7 +863,7 @@
         "id": "REQ-S-01",
         "requirement": "A valid managed 0046 read-only attestation must match 175+2 tables, 113 rows and provider dependencies.",
         "claimScope": {
-          "capability": "CAP-RELEASE",
+          "capability": "CAP-QUALITY",
           "breadth": "F6-U03s-source-managed-readiness-readonly",
           "strength": 2,
           "dimensions": [
@@ -873,7 +873,7 @@
           ]
         },
         "requiredCapabilities": [
-          "CAP-RELEASE"
+          "CAP-QUALITY"
         ],
         "evidence": {
           "implementation": [
@@ -897,7 +897,7 @@
         "id": "REQ-S-02",
         "requirement": "All 31 original Office forward sources are uniquely source- and order-authenticated without copy rewrite.",
         "claimScope": {
-          "capability": "CAP-RELEASE",
+          "capability": "CAP-QUALITY",
           "breadth": "F6-U03s-source-managed-readiness-readonly",
           "strength": 2,
           "dimensions": [
@@ -907,7 +907,7 @@
           ]
         },
         "requiredCapabilities": [
-          "CAP-RELEASE"
+          "CAP-QUALITY"
         ],
         "evidence": {
           "implementation": [
@@ -931,7 +931,7 @@
         "id": "REQ-S-03",
         "requirement": "Never release-authorize until owner key custody, provider-signed JWT and migration ledger provenance prove safe.",
         "claimScope": {
-          "capability": "CAP-RELEASE",
+          "capability": "CAP-QUALITY",
           "breadth": "F6-U03s-source-managed-readiness-readonly",
           "strength": 2,
           "dimensions": [
@@ -941,7 +941,7 @@
           ]
         },
         "requiredCapabilities": [
-          "CAP-RELEASE"
+          "CAP-QUALITY"
         ],
         "evidence": {
           "implementation": [
@@ -963,5 +963,5 @@
       }
     ]
   },
-  "notes": "F6-U03s implementation batch recorded: canonical 78-original source SHA f570cbaa2cc6dea53bb123b8192c59335855c6e6227e48d0f564c4c85261b81e; 31-forward suffix source audit, read-only live Fresh Install snapshot and adversarial tests. Exact-head CI gates remain required; no hosted SQL executed; owner off-platform key custody, provider JWT/API and ledger provenance remain separately blocked. Canonical edit-time implementation-sync excludes quality/development/active-plan.json from materialFiles as metadata; semantic mustEdit now covers only implementation source targets."
+  "notes": "F6-U03s implementation batch recorded: canonical 78-original source SHA f570cbaa2cc6dea53bb123b8192c59335855c6e6227e48d0f564c4c85261b81e; 31-forward suffix source audit, read-only live Fresh Install snapshot and adversarial tests. Exact-head CI gates remain required; no hosted SQL executed; owner off-platform key custody, provider JWT/API and ledger provenance remain separately blocked. Canonical edit-time implementation-sync excludes quality/development/active-plan.json from materialFiles as metadata; semantic mustEdit now covers only implementation source targets. Integrity correction: F6-U03s asserts quality-gate readiness only, not CAP-RELEASE execution authority. Completion evidence GUARD-PLAN-BEFORE-CODE and GUARD-QUALITY-TESTS are CAP-QUALITY producers; hosted release remains explicitly unauthorized."
 }
