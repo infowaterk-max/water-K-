@@ -81,10 +81,10 @@ jobs:
         run: |
           set -euo pipefail
           d="$RUNNER_TEMP/fresh-safe"
-          docker run --rm --network host -e PGDATABASE -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -X -v ON_ERROR_STOP=1 -f /audit/guard.sql' >/dev/null
-          h="$(docker run --rm --network host -e PGDATABASE -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /audit/catalog.sql')"
+          docker run --rm --network host -e PGDATABASE -v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -X -v ON_ERROR_STOP=1 -f /audit/guard.sql' >/dev/null
+          h="$(docker run --rm --network host -e PGDATABASE -v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /audit/catalog.sql')"
           test "$h" = '4621|e312b40ad91150ce937f4aa00db587f3'
-          docker run --rm --network host -e PGDATABASE -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/backup" postgres:17 sh -c 'exec pg_dump -d "$PGDATABASE" -Fc --no-owner --no-privileges --schema=public --schema=private -f /backup/app-owned.dump'
+          docker run --rm --network host -e PGDATABASE -v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/backup" postgres:17 sh -c 'exec pg_dump -d "$PGDATABASE" -Fc --no-owner --no-privileges --schema=public --schema=private -f /backup/app-owned.dump'
           test -s "$d/app-owned.dump"
           docker run --rm -v "$d:/backup:ro" postgres:17 pg_restore --list /backup/app-owned.dump > "$d/toc.txt"
           grep -q 'TABLE DATA public' "$d/toc.txt"
@@ -136,8 +136,8 @@ jobs:
         run: |
           set -euo pipefail
           d="$RUNNER_TEMP/fresh-safe"
-          docker run --rm --network host -e PGDATABASE -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -X -v ON_ERROR_STOP=1 -f /audit/guard.sql' >/dev/null
-          h="$(docker run --rm --network host -e PGDATABASE -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /audit/catalog.sql')"
+          docker run --rm --network host -e PGDATABASE -v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -X -v ON_ERROR_STOP=1 -f /audit/guard.sql' >/dev/null
+          h="$(docker run --rm --network host -e PGDATABASE -v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /audit/catalog.sql')"
           test "$h" = '4621|e312b40ad91150ce937f4aa00db587f3'
           echo 'F6_BACKUP_SOURCE_UNCHANGED'
       - name: Owner-only AES-256-GCM encryption; no private key inside CI
