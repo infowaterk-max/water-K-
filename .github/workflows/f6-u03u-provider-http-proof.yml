@@ -41,8 +41,9 @@ jobs:
           node --input-type=module <<'NODE'
           import {readFileSync} from 'node:fs';
           const flow=readFileSync('.github/workflows/f6-u03u-provider-http-proof.yml','utf8');
-          if(flow.includes('--live-readonly')||flow.includes('SHOPERATION_F6U03U_ALAP_TOKEN')||
-             flow.includes('SHOPERATION_F6U03U_PRO_TOKEN')||flow.includes('SHOPERATION_F6U03U_REVOKED_TOKEN'))
+          const earlierExecutableSteps=flow.slice(0,flow.indexOf('      - name: Prohibit actual credentials'));
+          if(earlierExecutableSteps.includes('--live-readonly')||earlierExecutableSteps.includes('SHOPERATION_F6U03U_ALAP_TOKEN')||
+             earlierExecutableSteps.includes('SHOPERATION_F6U03U_PRO_TOKEN')||earlierExecutableSteps.includes('SHOPERATION_F6U03U_REVOKED_TOKEN'))
             throw Error('F6U03U_CI_LIVE_CREDENTIALS_FORBIDDEN');
           console.log('F6U03U_OFFLINE_SOURCE_CI_ONLY_NO_LIVE_AUTH');
           NODE
