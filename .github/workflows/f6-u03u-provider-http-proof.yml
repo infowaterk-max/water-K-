@@ -1,0 +1,48 @@
+name: F6-U03u Auth/PostgREST provider HTTP readonly source proof
+on:
+  push:
+    branches: [feature/core-1186-f6-u03u-provider-http-proof]
+    paths:
+      - .github/workflows/f6-u03u-provider-http-proof.yml
+      - scripts/shoperation-f6-u03u-provider-http-proof.mjs
+      - tests/shoperation-f6-u03u-provider-http-proof.test.ts
+      - docs/po/CORE_1186_F6_U03U_PROVIDER_HTTP_PROOF_2026-10-16.md
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-source-and-threat-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 24}
+      - run: npm ci --no-audit --no-fund
+      - name: Critical Development Guard
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186 F6-U03u real Supabase Auth/PostgREST read-only two-plan tenant-denial proof; no hosted writes, simulation or fake JWT release." \
+            --files ".github/workflows/f6-u03u-provider-http-proof.yml;scripts/shoperation-f6-u03u-provider-http-proof.mjs;tests/shoperation-f6-u03u-provider-http-proof.test.ts;docs/po/CORE_1186_F6_U03U_PROVIDER_HTTP_PROOF_2026-10-16.md;quality/development/active-plan.json" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/issues/1186" \
+            --check
+      - name: Critical Plan Before Code
+        run: node scripts/shoperation-plan-before-code.mjs --check
+      - name: Source-only HTTP / claim / RLS fault injection
+        run: |
+          node --check scripts/shoperation-f6-u03u-provider-http-proof.mjs
+          npx vitest run tests/shoperation-f6-u03u-provider-http-proof.test.ts
+          node scripts/shoperation-f6-u03u-provider-http-proof.mjs --preflight
+      - name: Prohibit actual credentials and live HTTP proof in ordinary CI
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const flow=readFileSync('.github/workflows/f6-u03u-provider-http-proof.yml','utf8');
+          if(flow.includes('--live-readonly')||flow.includes('SHOPERATION_F6U03U_ALAP_TOKEN')||
+             flow.includes('SHOPERATION_F6U03U_PRO_TOKEN')||flow.includes('SHOPERATION_F6U03U_REVOKED_TOKEN'))
+            throw Error('F6U03U_CI_LIVE_CREDENTIALS_FORBIDDEN');
+          console.log('F6U03U_OFFLINE_SOURCE_CI_ONLY_NO_LIVE_AUTH');
+          NODE
