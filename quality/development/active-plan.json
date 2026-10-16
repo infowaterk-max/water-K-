@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-725C57A6",
   "task": "Core #1186 F6-U03u real Supabase Auth/PostgREST read-only two-plan tenant-denial proof; no hosted writes, simulation or fake JWT release.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "725c57a6",
   "changeBaseSha": "69dba425893a5854a074c956524b8135c983f7c7",
   "plannedFilePatterns": [
@@ -957,5 +957,18 @@
       }
     ]
   },
-  "notes": "Critical plan and source scope authorized before code. Parent #1404 exact HEAD 69dba425893a5854a074c956524b8135c983f7c7. Real signed provider JWT/managed test remains blocked due zero auth users; harness may be developed source-only. NEVER store HTTP tokens in GitHub. No hosted SQL writes. Corrected to F6-U03u actual critical guard digest 725c57a6, 31 active known failures, Auth/customer/database/quality/release subsystems and 16 negative rules from the first fail-closed source audit. No guard bypass or scope relaxation."
+  "notes": "Critical plan and source scope authorized before code. Parent #1404 exact HEAD 69dba425893a5854a074c956524b8135c983f7c7. Real signed provider JWT/managed test remains blocked due zero auth users; harness may be developed source-only. NEVER store HTTP tokens in GitHub. No hosted SQL writes. Corrected to F6-U03u actual critical guard digest 725c57a6, 31 active known failures, Auth/customer/database/quality/release subsystems and 16 negative rules from the first fail-closed source audit. No guard bypass or scope relaxation. Closing source-only implementation unit at exact verified implementation HEAD b7b04604f6c3b9ceb6c86c74cb4609ecb30412d5; Completion Truth VERIFIED_DONE (pass 9 stale 0 missing 0), 3824/3824 tests, TS/build/security PASS. Live provider proof NOT RUN; no hosted users, migration or release; provider acceptance/recovery are external blockers.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "b7b04604f6c3b9ceb6c86c74cb4609ecb30412d5",
+    "closedAt": "2026-10-16T20:21:45.507Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1186",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
