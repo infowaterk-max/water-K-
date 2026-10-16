@@ -12,7 +12,10 @@
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "release-infrastructure"
+    "database-schema",
+    "release-infrastructure",
+    "shared-storefront",
+    "storefront-ui"
   ],
   "expectedDomains": [
     "DOMAIN-RELEASE"
@@ -261,9 +264,9 @@
     "challenge": [
       {
         "id": "CH-B-01",
-        "scenario": "GitHub secret missing.",
-        "finding": "No usable source database authority.",
-        "resolution": "Fail without artifacts, never substitute other database.",
+        "scenario": "The existing GitHub Actions SHOPERATION_FRESH_INSTALL_DB_URL repository secret is unset, empty, points to a deleted project, or cannot authenticate as postgres to the bound Fresh Install, while the workflow could otherwise upload a success artifact.",
+        "finding": "A missing or stale secret must not be silently compensated by a fallback connector, a platform DB, an unauthenticated local fixture, or a manufactured backup manifest.",
+        "resolution": "At runtime require the exact target secret, parse its postgresql scheme and expected project-ref-qualified host and username, check live PG17 server identity and abort the full job without an upload on any mismatch or authentication failure.",
         "status": "resolved"
       },
       {
@@ -296,9 +299,9 @@
       },
       {
         "id": "CH-B-06",
-        "scenario": "A `pg_restore --list` check passes but data cannot be restored.",
-        "finding": "False-positive backup verification.",
-        "resolution": "Replay through PG17 local source schema and require exact neutral row counts.",
+        "scenario": "pg_restore --list reads the encrypted dump's plaintext precursor metadata successfully, but restoring the 113 canonical seeded entitlement catalog rows into the local original 0046 schema fails because table order, FK relationships, or table shape differ.",
+        "finding": "Archive parseability does not demonstrate a functional backup: relying on metadata listing alone could allow the owner to authorize migration with a restore-incompatible dump.",
+        "resolution": "Execute actual pg_restore --data-only --single-transaction against independently installed 47 original 0046 sources on a Docker PostgreSQL17 peer, after clearing only disposable local tables, and verify seven catalog row counts total exactly 113; suppress ciphertext artifact upload unless every native restore and result assertion passes.",
         "status": "resolved"
       },
       {
