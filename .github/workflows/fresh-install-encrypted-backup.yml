@@ -1,0 +1,209 @@
+name: Fresh Install owner-key encrypted PostgreSQL backup
+on:
+  push:
+    branches: [feature/core-1186-fresh-install-encrypted-backup]
+    paths: [.github/workflows/fresh-install-encrypted-backup.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-backup:
+    if: "${{ github.repository == 'infowaterk-max/water-K-' && github.ref == 'refs/heads/feature/core-1186-fresh-install-encrypted-backup' }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      SHOPERATION_FRESH_INSTALL_DB_URL: ${{ secrets.SHOPERATION_FRESH_INSTALL_DB_URL }}
+    services:
+      pg17:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f6_backup_disposable_local_only
+          POSTGRES_DB: f6_u03i_fresh
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d f6_u03i_fresh"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - name: Validate exact Fresh Install secret and enforce verified TLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import {appendFileSync} from 'node:fs';
+          const raw=process.env.SHOPERATION_FRESH_INSTALL_DB_URL;
+          if(!raw||/\s/.test(raw))throw Error('F6_BACKUP_MISSING_OR_MALFORMED_SECRET');
+          let u;try{u=new URL(raw)}catch{throw Error('F6_BACKUP_INVALID_URL')}
+          if(!['postgres:','postgresql:'].includes(u.protocol)||!u.password||u.hash||u.pathname!=='/postgres'||[...u.searchParams.keys()].some(x=>x!=='sslmode'))throw Error('F6_BACKUP_UNSAFE_DB_URL');
+          const ref='istjjkdcvsvilrycqecd';
+          const direct=u.hostname==='db.'+ref+'.supabase.co'&&u.username==='postgres'&&(!u.port||u.port==='5432');
+          const pooler=u.hostname==='aws-0-eu-central-1.pooler.supabase.com'&&u.username==='postgres.'+ref&&(!u.port||['5432','6543'].includes(u.port));
+          if(!direct&&!pooler)throw Error('F6_BACKUP_FOREIGN_TARGET');
+          u.searchParams.set('sslmode','verify-full');
+          appendFileSync(process.env.GITHUB_ENV,'PGDATABASE='+u.toString()+'\n');
+          console.log('F6_BACKUP_BOUND_TO_FRESH_INSTALL');
+          NODE
+      - name: Prepare read-only original exact-schema preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/fresh-safe" artifacts/f6-u03g/catalog-drift
+          chmod 700 "$RUNNER_TEMP/fresh-safe"
+          docker run --rm postgres:17 pg_dump --version | grep -E '^pg_dump \(PostgreSQL\) 17\.'
+          node scripts/shoperation-f6-u03g-catalog-drift.mjs --emit-sql artifacts/f6-u03g/catalog-drift
+          cp artifacts/f6-u03g/catalog-drift/original.sql "$RUNNER_TEMP/fresh-safe/catalog.sql"
+          cat > "$RUNNER_TEMP/fresh-safe/guard.sql" <<'SQL'
+          DO $g$ BEGIN
+          IF current_database()<>'postgres' OR current_user<>'postgres' OR current_setting('server_version_num')::integer/10000<>17
+          OR (SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN('r','p') AND NOT c.relispartition)<>175
+          OR (SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='private' AND c.relkind IN('r','p') AND NOT c.relispartition)<>2
+          OR (SELECT count(*) FROM auth.users)<>0
+          OR (SELECT count(*) FROM auth.identities)<>0
+          OR (SELECT count(*) FROM auth.sessions)<>0
+          OR (SELECT count(*) FROM storage.objects)<>0
+          OR (SELECT count(*) FROM supabase_migrations.schema_migrations)<>0
+          OR (SELECT count(*) FROM public.organizations)<>0
+          OR (SELECT count(*) FROM public.webshop_instances)<>0
+          OR (SELECT count(*) FROM public.office_threads)<>0
+          OR (SELECT count(*) FROM public.office_messages)<>0
+          OR (SELECT count(*) FROM public.office_tasks)<>0
+          OR to_regclass('public.office_thread_participants') IS NOT NULL
+          OR to_regprocedure('private.current_user_can_read_office_thread_v1(uuid,uuid)') IS NOT NULL
+          THEN RAISE EXCEPTION 'F6_BACKUP_HOSTED_SOURCE_DRIFT'; END IF;
+          END $g$;
+          SQL
+      - name: Prove hosted peer catalog, then read-only PG17 full custom archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          d="$RUNNER_TEMP/fresh-safe"
+          docker run --rm --network host -e PGDATABASE -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 psql -X -v ON_ERROR_STOP=1 -f /audit/guard.sql >/dev/null
+          h="$(docker run --rm --network host -e PGDATABASE -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 psql -XAt -v ON_ERROR_STOP=1 -f /audit/catalog.sql)"
+          test "$h" = '4621|e312b40ad91150ce937f4aa00db587f3'
+          docker run --rm --network host -e PGDATABASE -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/backup" postgres:17 pg_dump -Fc --no-owner --no-privileges --schema=public --schema=private -f /backup/app-owned.dump
+          test -s "$d/app-owned.dump"
+          docker run --rm -v "$d:/backup:ro" postgres:17 pg_restore --list /backup/app-owned.dump > "$d/toc.txt"
+          grep -q 'TABLE DATA public' "$d/toc.txt"
+          echo 'F6_BACKUP_MANAGED_APPLICATION_DUMP_READABLE'
+      - name: Create independent original-source PostgreSQL17 restoration database
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/shoperation-f6-u03r-occupied-upgrade.mjs --emit artifacts/f6-u03r/occupied-upgrade
+          f="$PWD/artifacts/f6-u03r/occupied-upgrade"
+          for name in bootstrap legacy; do
+            docker run --rm --network host -e PGHOST=127.0.0.1 -e PGPORT=5432 -e PGUSER=postgres -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh -v "$f:/fixture:ro" postgres:17 psql -X -v ON_ERROR_STOP=1 -f "/fixture/$name.sql" >/dev/null
+          done
+          echo 'F6_BACKUP_SOURCE_PINNED_RESTORE_SCHEMA_READY'
+      - name: Prove real native pg_restore and 113 neutral entitlement rows
+        shell: bash
+        run: |
+          set -euo pipefail
+          d="$RUNNER_TEMP/fresh-safe"
+          cat > "$d/clear-local.sql" <<'SQL'
+          DO $g$ DECLARE rel text; BEGIN
+          IF current_database()<>'f6_u03i_fresh' OR current_user<>'postgres' OR current_setting('server_version_num')::integer/10000<>17 THEN RAISE EXCEPTION 'NOT_DISPOSABLE'; END IF;
+          SELECT string_agg(format('%I.%I',n.nspname,c.relname),', ' ORDER BY n.nspname,c.relname) INTO rel
+          FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+          WHERE n.nspname IN ('public','private') AND c.relkind IN ('r','p') AND NOT c.relispartition;
+          EXECUTE 'TRUNCATE TABLE '||rel||' CASCADE';
+          END $g$;
+          SQL
+          docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh -v "$d:/audit:ro" postgres:17 psql -X -v ON_ERROR_STOP=1 -f /audit/clear-local.sql >/dev/null
+          docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh -v "$d:/backup:ro" postgres:17 pg_restore --data-only --single-transaction --exit-on-error --no-owner --no-privileges -d f6_u03i_fresh /backup/app-owned.dump >/dev/null
+          cat > "$d/check-local.sql" <<'SQL'
+          DO $g$ DECLARE n integer; BEGIN
+          IF current_database()<>'f6_u03i_fresh'
+          OR (SELECT count(*) FROM pg_class c JOIN pg_namespace s ON s.oid=c.relnamespace WHERE s.nspname='public' AND c.relkind IN ('r','p') AND NOT c.relispartition)<>175
+          OR (SELECT count(*) FROM pg_class c JOIN pg_namespace s ON s.oid=c.relnamespace WHERE s.nspname='private' AND c.relkind IN ('r','p') AND NOT c.relispartition)<>2
+          THEN RAISE EXCEPTION 'F6_BACKUP_RESTORED_SCHEMA_DRIFT'; END IF;
+          SELECT (SELECT count(*) FROM public.addon_capability_grants)+(SELECT count(*) FROM public.addon_entitlement_catalog)+
+          (SELECT count(*) FROM public.addon_plan_compatibility)+(SELECT count(*) FROM public.entitlement_capabilities)+
+          (SELECT count(*) FROM public.entitlement_source_precedence)+(SELECT count(*) FROM public.plan_capability_grants)+
+          (SELECT count(*) FROM public.subscription_plan_catalog) INTO n;
+          IF n<>113 OR (SELECT count(*) FROM public.office_threads)<>0 OR (SELECT count(*) FROM public.webshop_instances)<>0
+          THEN RAISE EXCEPTION 'F6_BACKUP_RESTORE_ROWS_INVALID: %',n; END IF;
+          END $g$;
+          SQL
+          docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh -v "$d:/audit:ro" postgres:17 psql -X -v ON_ERROR_STOP=1 -f /audit/check-local.sql >/dev/null
+          echo 'F6_BACKUP_NATIVE_PG17_RESTORE_113_ROWS_PASS'
+      - name: Confirm unchanged hosted source after dump before encryption
+        shell: bash
+        run: |
+          set -euo pipefail
+          d="$RUNNER_TEMP/fresh-safe"
+          docker run --rm --network host -e PGDATABASE -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 psql -X -v ON_ERROR_STOP=1 -f /audit/guard.sql >/dev/null
+          h="$(docker run --rm --network host -e PGDATABASE -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 psql -XAt -v ON_ERROR_STOP=1 -f /audit/catalog.sql)"
+          test "$h" = '4621|e312b40ad91150ce937f4aa00db587f3'
+          echo 'F6_BACKUP_SOURCE_UNCHANGED'
+      - name: Owner-only AES-256-GCM encryption; no private key inside CI
+        shell: bash
+        run: |
+          set -euo pipefail
+          d="$RUNNER_TEMP/fresh-safe"
+          cat > "$d/owner-public.crt" <<'RECIPIENT'
+          -----BEGIN CERTIFICATE-----
+          MIIEszCCAxugAwIBAgIUEL6YXdAEYnCHb1Ux4+haP2eh0tMwDQYJKoZIhvcNAQEL
+          BQAwaTEyMDAGA1UEAwwpU2hvcGVyYXRpb24gRnJlc2ggSW5zdGFsbCBCYWNrdXAg
+          UmVjb3ZlcnkxHTAbBgNVBAsMFE93bmVyIGNvbnRyb2xsZWQga2V5MRQwEgYDVQQK
+          DAtTaG9wZXJhdGlvbjAeFw0yNjEwMTYxNDA1MzBaFw0zNjEwMTMxNDA1MzBaMGkx
+          MjAwBgNVBAMMKVNob3BlcmF0aW9uIEZyZXNoIEluc3RhbGwgQmFja3VwIFJlY292
+          ZXJ5MR0wGwYDVQQLDBRPd25lciBjb250cm9sbGVkIGtleTEUMBIGA1UECgwLU2hv
+          cGVyYXRpb24wggGiMA0GCSqGSIb3DQEBAQUAA4IBjwAwggGKAoIBgQC9/gX9/FgQ
+          yU6gAA3PbqeLlq3UEV6v/3FwFpSjuYA+DsMKRMh43XtjrIJUFrOWFTrRHPgxE5f5
+          9xNkb1lMkNfsRwTpmGIeGEfFG6kO1FsCPNpsy69Njlg+eEWzVu+eS982HSAm72Wu
+          +n+PHIIDIq8xQFX+9ypz24HjULEkSiPMT7E8a4XXhG23AjaPdAgbRwXtFTrLBDQX
+          H15faqjx5mPwLCnG7SOYqw8EZ6OHh4bTG5/dkoV/LCDhVS4Pm+BLHm7K4MdNbq99
+          J/FezIxhqQ0Czw9OJGdknJEU0qYwXE6TgWmzGDphk/eFdn7cpYpc8fOh4ol3Xbc8
+          vnZ6xyoUJl03A0nfyBEdNkEHVkFiWnalkyogwtkx01oo3Paup+r9GZgysq2RYJM
+          fzQ6gQLHOTfXY3i5tgAW4DNFsMVnt/PY3qUt9kTzbq99bMRRQ+rzuiwDjbEze1Mj
+          2mVpsWMzZe56C081ftTYMeJk/KMlI9b8wGvq/JWvTkyAFR9fX8fadSUCAwEAAaNT
+          MFEwHQYDVR0OBBYEFGkZkaNiOMY6bIuDZYcvw4riCCM9MB8GA1UdIwQYMBaAFGkZ
+          kaNiOMY6bIuDZYcvw4riCCM9MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEL
+          BQADggGBALDr9SxUPWcvsIZ+NHCqTUMf1RQ8Piy2St/YhK8boXbgk1G6WIm223Ry
+          C3cfQRb+n3bGF4uHlyeRuaVF4XPNYlFMSEmSe6/pZMDu8Hs86zWS6Gj+67tL1LaZ
+          7T0Bjdb89kDZg469lXlZiIT4ohChepb0/+96iDbKRzSvp98p8L0z6rKzEl51h9yr
+          Z/rvJwBQ+7aDbq9HxvpkpA4JwLKre4X/+i0jR0P6R90zYrgD1imTyx/X42NnM6mo
+          NyH+fBfXjG4B1zVhnvB9W7uP8plD/K2ISIOFW8oV17hUnPMZNgLyZ30V0qLoCAhO
+          Ix63kk2CX56k9OHWz0DTkDB2WDf5Cy8FhxKxRLBLZhuuByrgKJXFbmWHtLem75hP
+          D4KsY49pHwK4j92UCsahRssH1AFSvJsiJDfT1B0F+F2pFY04/BBTReRpuqI+t+71
+          WTxeAUmXLtbM48mgILCY9+JEyGT39jtPGUkX+a1M98jStPs8ZIUQHrGQZF3vlHGV
+          +U1wFpCm+g==
+          -----END CERTIFICATE-----
+          RECIPIENT
+          openssl x509 -in "$d/owner-public.crt" -noout -checkend 86400 >/dev/null
+          tar -C "$d" -cf "$d/plain.tar" app-owned.dump
+          openssl cms -encrypt -binary -aes-256-gcm -in "$d/plain.tar" -out "$d/fresh-backup.cms" -outform DER -recip "$d/owner-public.crt"
+          openssl cms -cmsout -inform DER -in "$d/fresh-backup.cms" -print | grep -q 'aes-256-gcm'
+          sha256sum "$d/fresh-backup.cms" | awk '{print $1}' > "$d/cipher.sha256"
+          test -s "$d/fresh-backup.cms"
+          node --input-type=module <<'NODE'
+          import {readFileSync,writeFileSync,statSync} from 'node:fs';
+          const d=process.env.RUNNER_TEMP+'/fresh-safe';
+          const proof={contract:'shoperation.fresh-install.owner-key-backup.v1',
+            projectRef:'istjjkdcvsvilrycqecd',runId:process.env.GITHUB_RUN_ID,
+            sourceSha:process.env.GITHUB_SHA,appCatalogDefinitions:4621,
+            hostedSchemaMd5:'e312b40ad91150ce937f4aa00db587f3',
+            localPg17Restore:true,restoredCatalogRows:113,schemas:['public','private'],
+            providerManagedAuthStorageBackup:false,hostedMutation:false,
+            encryption:'CMS AES-256-GCM RSA-3072 owner-only private key',
+            ciphertextBytes:statSync(d+'/fresh-backup.cms').size,
+            ciphertextSha256:readFileSync(d+'/cipher.sha256','utf8').trim(),
+            releaseAuthorized:false};
+          writeFileSync(d+'/backup-proof.json',JSON.stringify(proof,null,2)+'\n');
+          NODE
+          echo 'F6_BACKUP_ENCRYPTED_SUCCESS'
+      - name: Upload only ciphertext and non-sensitive restore proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: fresh-install-owner-key-cipher-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/fresh-safe/fresh-backup.cms
+            ${{ runner.temp }}/fresh-safe/cipher.sha256
+            ${{ runner.temp }}/fresh-safe/backup-proof.json
+          if-no-files-found: error
+          retention-days: 14
