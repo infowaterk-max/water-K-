@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-074C4B63",
   "task": "Core #1186 F6-U03p: genuine PG17 nonparticipant, leave and entitlement-revocation Office RLS regression",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "074c4b63",
   "changeBaseSha": "cb401f57cb94d1aa55bdc9482bf246edfbe11b01",
   "plannedFilePatterns": [
@@ -1006,5 +1006,18 @@
       }
     ]
   },
-  "notes": "F6-U03p source-authentic PG17 additive role, nonparticipant, exit, revoked/expired role and entitlement/downgrade evidence. 78 original SQL files and F6-U03n/F6-U03o provenance unchanged. Scope only synthetic transaction-local JWT; PR stacked on #1367; release blocked. Implementation Sync: the canonical critical plan capture workflow and the active plan were created/edited during the prior PROVE_PLAN phase, before changeBaseSha. Both are plan metadata, not implementation work required after Plan Before Code PASS; MUST_EDIT empty reflects no remaining execution edits to these two pre-code artifacts. All four planned proof files are new actual implementation changes, while plan remains fully guard-checked. Correcting transaction scope identity: the plan's actual implementation lineage starts at verified parent F6-U03o cb401f5, not the already-written bootstrap plan-workflow commit d0cbcf. The required canonical plan workflow is an actual changed file relative to this stable ancestry; active-plan.json remains control metadata rather than asserted implementation evidence."
+  "notes": "F6-U03p source-authentic PG17 additive role, nonparticipant, exit, revoked/expired role and entitlement/downgrade evidence. 78 original SQL files and F6-U03n/F6-U03o provenance unchanged. Scope only synthetic transaction-local JWT; PR stacked on #1367; release blocked. Implementation Sync: the canonical critical plan capture workflow and the active plan were created/edited during the prior PROVE_PLAN phase, before changeBaseSha. Both are plan metadata, not implementation work required after Plan Before Code PASS; MUST_EDIT empty reflects no remaining execution edits to these two pre-code artifacts. All four planned proof files are new actual implementation changes, while plan remains fully guard-checked. Correcting transaction scope identity: the plan's actual implementation lineage starts at verified parent F6-U03o cb401f5, not the already-written bootstrap plan-workflow commit d0cbcf. The required canonical plan workflow is an actual changed file relative to this stable ancestry; active-plan.json remains control metadata rather than asserted implementation evidence.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "c03b4f0a09e5bae29e16955f0d4c592c98b09b61",
+    "closedAt": "2026-10-16T08:24:52.014Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
