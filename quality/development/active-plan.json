@@ -1,26 +1,30 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-67438174",
-  "task": "Core #1186: protect existing Fresh Install PostgreSQL17 owner-owned public/private schema and catalog rows with native pg_dump and owner-key encrypted GitHub artifact; prove archive decrypt/restore, never run hosted DDL or expose credentials",
+  "taskId": "DEV-725C57A6",
+  "task": "Core #1186 F6-U03s read-only managed Fresh Install pre-release attestation with immutable 31 Office migrations exact source and plan; no hosted SQL write, staging resume or release authorization",
   "status": "closed",
-  "guardDigest": "67438174",
-  "changeBaseSha": "86deae77577d38e8dc20ef0490d0af8661e11eb3",
+  "guardDigest": "725c57a6",
+  "changeBaseSha": "e2ac4703a116a06f159009bfefc03e3a0bd097cc",
   "plannedFilePatterns": [
-    ".github/workflows/fresh-install-backup-plan.yml",
-    ".github/workflows/fresh-install-encrypted-backup.yml",
-    "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
+    ".github/workflows/f6-u03s-plan-capture.yml",
+    "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+    "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
+    "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
+    "auth-access-authority",
+    "customer-account",
     "database-schema",
-    "release-infrastructure",
-    "shared-storefront",
-    "storefront-ui"
+    "quality-infrastructure",
+    "release-infrastructure"
   ],
   "expectedDomains": [
+    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
+    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
@@ -32,27 +36,21 @@
     "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
-    "SQ-KF-005",
     "SQ-KF-006",
     "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
     "SQ-KF-010",
     "SQ-KF-011",
-    "SQ-KF-012",
-    "SQ-KF-015",
-    "SQ-KF-016",
     "SQ-KF-017",
     "SQ-KF-018",
-    "SQ-KF-019",
     "SQ-KF-020",
     "SQ-KF-023",
     "TF-KF-001",
     "TF-KF-002",
-    "TF-KF-004",
     "TF-KF-005",
-    "TF-KF-006",
     "TF-KF-007",
+    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
@@ -60,28 +58,14 @@
     "TF-KF-013",
     "TF-KF-014",
     "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "TF-KF-020"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
-    "SQ-NK-004",
     "SQ-NK-005",
     "SQ-NK-006",
-    "SQ-NK-007",
-    "SQ-NK-008",
-    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012",
     "SQ-NK-014",
@@ -102,7 +86,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Database dump uses existing pinned Fresh Install repository secret only in isolated GitHub runner; never publish plaintext backup, password, encrypted archive without a private key or false hosted migration proof. Run pg_dump PG17 under TLS target-check and perform native pg_restore with original source schema before encrypted artifact upload; no managed DDL.",
+      "rationale": "Critical source-to-hosted release bridge with schema, privileges, tenant access and recovery dependencies. Keep immutable 31-source provenance, fail-closed exact managed 0046 catalogs and negative cases, but do not pretend to prove managed signed JWT or restore full Supabase platform from logical public/private dump. A read-only preflight cannot itself authorize destructive hosted writes.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -119,29 +103,27 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Fresh Install ref istjjkdcvsvilrycqecd, zero user/customer rows and known 175+2 legacy app tables confirmed read only immediately before dump; never operate on waterk-platform or staging.",
-        "Native PostgreSQL17 pg_dump reads all public/private application schema and rows using existing SHOPERATION_FRESH_INSTALL_DB_URL secret; validates explicit hostname/DB/username and TLS verify-full; zero external output of credentials.",
-        "One pg_dump -Fc custom archive is parsed by native pg_restore --list and its data is rehydrated into separately sourced local PG17 legacy 0046 schema; verify 113 original neutral catalog rows, supported core table counts and original schema class.",
-        "Encrypt archive with AES-256-GCM CMS and owner-held 3072-bit RSA public certificate; test encryption/decryption locally before exposure; no private key committed, uploaded or stored in GitHub.",
-        "Upload only encrypted backup (and manifest with non-sensitive counts/digests) as a retention-limited GitHub artifact; no plaintext backup artifact even if steps fail.",
-        "Never deploy reviewed 31 SQL migrations until backup archive, its decryption and restoration evidence are verified; do not modify Supabase schema or migration ledger in this unit."
+        "Canonical source compiler yields exactly 78 Git-pinned originals and a 31-migration suffix beginning at 0047 and ending at 0058, with byte-level ordering and digest evidence.",
+        "Read-only hosted Fresh Install attests 175 public/two private PG17 tables, 113 neutral rows, zero auth, zero storage objects, intact provider event triggers/buckets, absent 0048 participants and zero migration ledger; never modify data.",
+        "The readiness result explicitly records releaseAuthorized:false and provides deterministic blocked reason codes for missing ledger provenance, owner custody, provider signed JWT and API proof.",
+        "Tests adversarially reject forged source manifest, drifted managed project, missing backup, incorrect 31-source markers, and impossible hosted success claims.",
+        "Exact-head CI, Truth and Lifecycle complete on stacked DRAFT branch, main unaffected."
       ],
       "invariants": [
-        "Original application schema and customer data never mutated by backup job.",
-        "No GitHub Actions secret may be echoed, logged, uploaded, or written to repo.",
-        "Private key stays only in owner-controlled user-download artifact and never in GitHub/CI logs.",
-        "Stop on any wrong target URL, server peer, PgMajor, TLS check, user data drift, schema source drift or restore failure.",
-        "Never claim a backend-provider-auth/storage full cluster backup from pg_dump scoped public/private.",
-        "Never run hosted DB DDL, reset, staging resume, new Supabase project or Vercel deployment."
+        "Only istjjkdcvsvilrycqecd can be observed; fail closed on all other projects and unbound records.",
+        "Never run hosted DDL, GRANT, REVOKE, ALTER, DROP or reset as part of F6-U03s.",
+        "Never edit any 78 original SQL files; prefer canonical existing compiler and source hash authority.",
+        "No fallback to waterk-platform or resuming staging; no extra paid projects.",
+        "Do not count a local 0046->0058 rollback proof as provider JWT/API or real post-commit recovery.",
+        "Keep source and owner backup private key out of public CI logs."
       ],
       "forbiddenStates": [
-        "Plaintext dump in public repository or Actions artifacts.",
-        "Encrypted artifact uploaded even though native pg_restore fails or source ref differs.",
-        "Private key shared to GitHub Actions or committed to git.",
-        "PostgreSQL16 dumping PostgreSQL17 target.",
-        "A source-only or pg_restore list-only result described as completed restoration.",
-        "Rerun on any non-Fresh Install target or production DB.",
-        "Any of 31 customer baseline Office migrations applied before verified recovery."
+        "Missing real managed catalog promoted to passed preflight.",
+        "Empty Supabase migration history treated as proof that no old migrations ran or as provenance attestation.",
+        "Ready-to-migrate verdict despite unconfirmed owner-retained recovery key.",
+        "Mutation to hosted project by a read-only source-verification workflow.",
+        "Original SQL copied/reordered/rewritten to make provenance test pass.",
+        "Live application capability marked operational only from a read-only catalog."
       ]
     },
     "model": {
@@ -173,178 +155,171 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Existing GitHub Actions database URL secret is missing, stale or references non-Fresh-Install project.",
-        "TLS verification fails with pooler host/certificate mismatch or obsolete credentials.",
-        "GitHub runner uses unsupported pg_dump older than DB server major17.",
-        "A public Actions artifact contains an unencrypted `.dump` file.",
-        "An encrypted archive exists, but 0046 replay cannot restore its data or match row counts.",
-        "The public GitHub workflow accidentally logs the database URL or private key.",
-        "Backup captures app public/private but user assumes provider-managed auth/storage schemas are restored.",
-        "Source drift occurs between preflight and dump or after backup and before migration."
+        "An attacker fakes reported object counts or swaps project ref while retaining schema fingerprint.",
+        "Manifest omits one historical main Office prerequisite or duplicates a baseline 005x migration.",
+        "A local 0046 fixture is mistaken for live managed database despite provider-owned Auth/Storage dependencies.",
+        "A source digest remains stable but actual hosted Office schema drifts after backup.",
+        "Native 31-source forward-only SQL requires irreversible post-commit operations, but recovery key is unavailable.",
+        "A release preflight accidentally ships a DB-URL secret or raw private key in Actions logs.",
+        "A status falsely becomes READY even though signed-JWT tenant-denial proof and migration ledger are absent."
       ],
       "edgeCases": [
-        "URL direct host versus eu-central-1 pooler variant and query-string sslmode handling.",
-        "TLS root CA bundle inside postgres17 Docker image.",
-        "Connection URL punctuation and special characters must never be string-concatenated in printed commands.",
-        "Postgres managed extensions not installed in isolated restore fixture; native data replay required against 0046 source-created objects.",
-        "No customer/auth users and zero storage objects, but 113 neutral catalog rows require exact rehydration.",
-        "Failure before encryption must not publish plaintext tar or dump artifacts.",
-        "GitHub Actions artifact expires; owner must securely retain the encrypted artifact and the offline private key.",
-        "Recovering provider-owned auth/storage buckets needs separate recovery procedure."
+        "Migration ledger genuinely has zero rows while the 177-table 0046 schema already exists.",
+        "Auth user/office thread counts zero do not mean schema or provider event trigger isolation is unimportant.",
+        "Actual clean-source standalone SQL staged without running local-only fixture guard against hosted.",
+        "Past artifact valid but source SHA, branch or GitHub run context differs from current exact HEAD.",
+        "Backups exclude managed Auth, Storage, role catalog and provider event triggers.",
+        "Supavisor session port and TLS root require pinned verification and have distinct semantics from pooler transaction port.",
+        "One requested success could be conflated with a different project on the same Supabase organization."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-B-OWNER-KEY",
-        "summary": "Encrypt native pg_dump with owner-public certificate, native restore test, upload only ciphertext from Actions.",
+        "id": "ALT-S-PREFLIGHT",
+        "summary": "Bind immutable source order and native local proof to fresh read-only managed 0046 observation, return an honest blocked/ready gate without executing hosted SQL.",
         "disposition": "selected",
-        "reason": "Existing GH Actions secret can reach Fresh Install, and owner never discloses private key to repo or runner."
+        "reason": "Proves release prerequisites safely while preserving owner custody and provider certification gates."
       },
       {
-        "id": "ALT-B-PLAINTEXT",
-        "summary": "Upload raw pg_dump as public repository GitHub artifact.",
+        "id": "ALT-S-EXECUTE",
+        "summary": "Immediately apply 31 SQL sources over managed Fresh Install because source and backup are green.",
         "disposition": "rejected",
-        "reason": "Would expose internal schema and potentially user or billing data to repository readers."
+        "reason": "No acknowledged owner offline backup custody, empty migration history and no managed JWT/HTTP release proof."
       },
       {
-        "id": "ALT-B-SERVICE-PROVIDER",
-        "summary": "Assume Supabase Free tier has an automatable managed point-in-time restoration.",
+        "id": "ALT-S-RESET",
+        "summary": "Reapply all original 59 baseline files to existing managed Fresh Install.",
         "disposition": "rejected",
-        "reason": "No verified managed backup API or restore point is available on selected free plan."
-      },
-      {
-        "id": "ALT-B-SQL-COPY",
-        "summary": "Replace native dump and replay with a read-only table count or handwritten INSERT statements.",
-        "disposition": "rejected",
-        "reason": "It does not capture schema, access-control or data accurately enough to restore the database."
+        "reason": "Would replace/reinitialize provider-managed deployed database and violates no-reset guard."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Security",
+        "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Even a disposable GitHub Action could leak sensitive data through job output or uploaded raw archives.",
-        "resolution": "Keep the recipient private key offline, ensure only the owner-public X509 cert is committed, encrypt first, upload only ciphertext, and deny artifact path to raw data.",
+        "finding": "Local source proof and a decryptable application backup cannot establish server-managed provider state or safe post-commit recovery.",
+        "resolution": "Report full cluster recovery and signed provider acceptance UNKNOWN; never authorize hosted migration in this unit.",
         "evidence": [
-          ".github/workflows/fresh-install-encrypted-backup.yml"
+          "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md"
         ]
       },
       {
-        "role": "Data Integrity",
+        "role": "Security",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Successful `pg_dump` alone does not prove a restore is possible.",
-        "resolution": "Require native pg_restore rehydration to source-identical 0046 schema and actual row identity/count validation, not mere archive listing.",
+        "finding": "Tenant role and private Office isolation require positive and negative tests under real managed JWT.",
+        "resolution": "Retain local native role/RLS tests as partial only; require signed-JWT separate release proof.",
         "evidence": [
-          ".github/workflows/fresh-install-encrypted-backup.yml"
-        ]
-      },
-      {
-        "role": "Release",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Provider snapshot is unavailable; logical public/private application dump is not the complete managed Supabase stack.",
-        "resolution": "Explicitly scope app-owned schema, provider-managed auth/storage out of scope, and keep 31 hosted migrations blocked until owner backup key and encrypted artifact delivered.",
-        "evidence": [
-          "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md"
+          "scripts/shoperation-f6-u03q-managed-preflight.mjs"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A stale or spoofed SHOPERATION_FRESH_INSTALL_DB_URL risks accessing a different database or a TLS-unauthenticated endpoint.",
-        "resolution": "Parse exact ref host/user/database and use PGSSLMODE=verify-full with trusted root, no inherited PG selectors and explicit server major checking before pg_dump.",
+        "finding": "Marker-only source hash and empty ledger create false confidence.",
+        "resolution": "Use existing exact original compiler, source manifest and exact SHA provenance.",
         "evidence": [
-          ".github/workflows/fresh-install-encrypted-backup.yml"
+          "scripts/shoperation-f6-u03r-occupied-upgrade.mjs"
+        ]
+      },
+      {
+        "role": "Release",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "A developer may accidentally treat read-only successful managed target matching as approval to commit production SQL.",
+        "resolution": "No execute action is included; require separate explicit approval, trusted source manifest provenance, owner retained decryption key, provider signed-JWT managed authorization and release evidence before hosted writes.",
+        "evidence": [
+          "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-B-01",
-        "scenario": "The existing GitHub Actions SHOPERATION_FRESH_INSTALL_DB_URL repository secret is unset, empty, points to a deleted project, or cannot authenticate as postgres to the bound Fresh Install, while the workflow could otherwise upload a success artifact.",
-        "finding": "A missing or stale secret must not be silently compensated by a fallback connector, a platform DB, an unauthenticated local fixture, or a manufactured backup manifest.",
-        "resolution": "At runtime require the exact target secret, parse its postgresql scheme and expected project-ref-qualified host and username, check live PG17 server identity and abort the full job without an upload on any mismatch or authentication failure.",
+        "id": "CH-S-01",
+        "scenario": "Source suffix accidentally contains 30 or 32 originals while comments still mention 31.",
+        "finding": "Count assertion and path-marker check alone permit withheld SQL bytes.",
+        "resolution": "Byte-level source identity and count and canonical suffix must all match pinned baseline path order.",
         "status": "resolved"
       },
       {
-        "id": "CH-B-02",
-        "scenario": "Secret points to waterk-platform or staging.",
-        "finding": "Wrong tenant database target could be backed up or modified.",
-        "resolution": "Strong URL parser rejects any other host or user.",
+        "id": "CH-S-02",
+        "scenario": "Managed target is silently changed to waterk-platform but both use PostgreSQL17.",
+        "finding": "PG major alone is insufficient target attestation.",
+        "resolution": "Require literal Fresh project ref plus original 0046 schema and exact target identity.",
         "status": "resolved"
       },
       {
-        "id": "CH-B-03",
-        "scenario": "A malicious or expired certificate weakens confidentiality.",
-        "finding": "Archive vulnerable or unrecoverable.",
-        "resolution": "Only fixed RSA3072 owner-public X509 certificate, CMS AES256-GCM and self-check; owner retains key.",
+        "id": "CH-S-03",
+        "scenario": "The owner has a ciphertext artifact but has not retained the matching private key outside the assistant workspace.",
+        "finding": "No independent post-commit recovery guarantee.",
+        "resolution": "Keep blocked until explicit owner retention and a real decrypt/restore verification contract; never self-attest.",
         "status": "resolved"
       },
       {
-        "id": "CH-B-04",
-        "scenario": "Workflow uploads raw dump on error.",
-        "finding": "Catastrophic disclosure for public GitHub repo.",
-        "resolution": "Raw dump stays /tmp and upload step only accepts explicit ciphertext + safe metadata; no upload step uses if: always().",
+        "id": "CH-S-04",
+        "scenario": "CI green native local role simulation misread as deployed Supabase Auth JWT acceptance.",
+        "finding": "False positive on private Office permissions and cross-tenant access.",
+        "resolution": "Expose providerJwtProven=false, managedApiProven=false, releaseAuthorized=false in immutable output.",
         "status": "resolved"
       },
       {
-        "id": "CH-B-05",
-        "scenario": "Managed PostgreSQL17 meets pg_dump16.",
-        "finding": "Logical backup fails or is unreliable.",
-        "resolution": "Run pinned postgres:17 client container and assert pg_dump major 17.",
+        "id": "CH-S-05",
+        "scenario": "CI workflow uses a read-only catalog query but later introduces an execute_sql mutation.",
+        "finding": "Scope and potentially irreversible DB operations would escape review.",
+        "resolution": "No hosted SQL tool in production script; only source package validator and static catalog input.",
         "status": "resolved"
       },
       {
-        "id": "CH-B-06",
-        "scenario": "pg_restore --list reads the encrypted dump's plaintext precursor metadata successfully, but restoring the 113 canonical seeded entitlement catalog rows into the local original 0046 schema fails because table order, FK relationships, or table shape differ.",
-        "finding": "Archive parseability does not demonstrate a functional backup: relying on metadata listing alone could allow the owner to authorize migration with a restore-incompatible dump.",
-        "resolution": "Execute actual pg_restore --data-only --single-transaction against independently installed 47 original 0046 sources on a Docker PostgreSQL17 peer, after clearing only disposable local tables, and verify seven catalog row counts total exactly 113; suppress ciphertext artifact upload unless every native restore and result assertion passes.",
+        "id": "CH-S-06",
+        "scenario": "A post-backup schema change occurred after the original read-only catalog was gathered, even though the source original manifest remains pinned.",
+        "finding": "A stale managed observation must not release authorize a fresh target.",
+        "resolution": "Bind the observation to a read-only Supabase connection with recorded capture timestamp and exact 175+2 legacy fingerprint; a time/source mismatch invalidates the preflight and blocks any SQL release.",
         "status": "resolved"
       },
       {
-        "id": "CH-B-07",
-        "scenario": "Public/private archive lacks provider-managed auth session/Storage.",
-        "finding": "False full disaster-recovery claim.",
-        "resolution": "Explicit scope and validated zero auth users, 0 storage objects; separately note bucket/provider recovery limitations.",
+        "id": "CH-S-07",
+        "scenario": "A planned F6-U03s operator tries to infer full recovery from app-owned public/private pg_dump, leaving Auth, Storage buckets and provider trigger grants outside restore.",
+        "finding": "A logical application backup does not provide managed cluster point-in-time recovery or provider service parity.",
+        "resolution": "Keep separate provider-managed recovery blockers explicitly, and require owner private-key custody independent of GitHub artifacts.",
         "status": "resolved"
       },
       {
-        "id": "CH-B-08",
-        "scenario": "Backup is restored but GitHub artifacts expire before downloaded.",
-        "finding": "No usable recovery artifact at release.",
-        "resolution": "Short retention and require user download both encrypted archive and separate private key before hosted migrations.",
+        "id": "CH-S-08",
+        "scenario": "A local test suite claims to cover end-user Office visibility by testing helper functions only without actual provider-issued JWT or managed PostgREST HTTP.",
+        "finding": "Testing local role simulation alone permits account and tenant authorization regressions.",
+        "resolution": "Always report signedJwtProven=false and managedApiProven=false in this source-only unit and withhold release status until a separate real managed request proof.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run critical canonical Development Guard for bounded CI workflow and documentation; record exact guard digest and all 46 matching Known Failures.",
-      "Run Plan Before Code on committed fully risk-modeled plan before implementing backup workflow.",
-      "Verify encryption CMS AES256-GCM with offline private key, ship only owner-public X509 certificate and never commit private material.",
-      "Live workflow accepts only exact Fresh Install secret and TLS verified endpoint and authentic PostgreSQL17, with read-only preflight, native pg_dump and archive inspect.",
-      "Use isolated Docker PostgreSQL17 and existing source-pinned 0046 fixture bootstrap, restore original schema's data from backup and validate seven neutral catalogs.",
-      "Upload only cryptographically encrypted archive, download and decrypt offline, verify SHA and archives, and save report of actual restore evidence.",
-      "Run exact-head CI/Truth/Lifecycle, preserve issue #1186/#1228 OPEN and no hosted schema write/merge."
+      "Retain canonical Critical Plan Before Code passing with exact source path list and all known failure directives.",
+      "Use canonical `composeOriginalSourceDiagnostic` / F6-U03r manifest, prove original path order and fingerprint no source mutations.",
+      "Compile purely read-only `assessManagedForwardReadiness` from connector-bound managed catalog and backup source SHA evidence; negative tests reject wrong project, altered signatures and fabricated release.",
+      "Run dedicated vitest cases and no hosted execution paths; check TypeScript/build/knowledge/edit-time/incremental guards.",
+      "Commit only source validator, tests, approval-gate document and frozen plan; run exact-head Truth/Lifecycle on draft PR."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
       "authority": [
+        "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/fresh-install-backup-plan.yml"
+        ".github/workflows/f6-u03s-plan-capture.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        ".github/workflows/fresh-install-encrypted-backup.yml",
-        "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md"
+        "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
+        "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+        "tests/shoperation-f6-u03s-forward-release-readiness.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        ".github/workflows/fresh-install-encrypted-backup.yml"
+        "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
+        ".github/workflows/f6-u03s-plan-capture.yml"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -355,14 +330,15 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          ".github/workflows/fresh-install-backup-plan.yml",
+          ".github/workflows/f6-u03s-plan-capture.yml",
           "quality/development/active-plan.json"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          ".github/workflows/fresh-install-encrypted-backup.yml",
-          "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md"
+          "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
+          "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+          "tests/shoperation-f6-u03s-forward-release-readiness.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -377,38 +353,49 @@
       },
       "projectedReleaseRisk": {
         "contract": "shoporation.projected-release-risk.v1",
-        "score": 2,
+        "score": 4,
         "maxPoints": 5,
-        "subsystemCount": 1,
+        "subsystemCount": 2,
         "maxSubsystems": 3,
         "subsystems": [
           {
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
+          },
+          {
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
           }
         ],
         "files": [
           {
-            "file": ".github/workflows/fresh-install-backup-plan.yml",
+            "file": ".github/workflows/f6-u03s-plan-capture.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": ".github/workflows/fresh-install-encrypted-backup.yml",
-            "subsystem": "release-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "file": "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
+            "file": "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
           },
           {
             "file": "quality/development/active-plan.json",
+            "subsystem": "evidence-neutral",
+            "risk": "neutral",
+            "points": 0
+          },
+          {
+            "file": "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+            "subsystem": "quality-infrastructure",
+            "risk": "medium",
+            "points": 2
+          },
+          {
+            "file": "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -423,38 +410,49 @@
         "decompositionRequired": false,
         "originalRisk": {
           "contract": "shoporation.projected-release-risk.v1",
-          "score": 2,
+          "score": 4,
           "maxPoints": 5,
-          "subsystemCount": 1,
+          "subsystemCount": 2,
           "maxSubsystems": 3,
           "subsystems": [
             {
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
+            },
+            {
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
             }
           ],
           "files": [
             {
-              "file": ".github/workflows/fresh-install-backup-plan.yml",
+              "file": ".github/workflows/f6-u03s-plan-capture.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": ".github/workflows/fresh-install-encrypted-backup.yml",
-              "subsystem": "release-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "file": "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
+              "file": "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
             },
             {
               "file": "quality/development/active-plan.json",
+              "subsystem": "evidence-neutral",
+              "risk": "neutral",
+              "points": 0
+            },
+            {
+              "file": "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+              "subsystem": "quality-infrastructure",
+              "risk": "medium",
+              "points": 2
+            },
+            {
+              "file": "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -469,7 +467,7 @@
           {
             "id": 0,
             "files": [
-              ".github/workflows/fresh-install-backup-plan.yml"
+              ".github/workflows/f6-u03s-plan-capture.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -486,7 +484,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/fresh-install-backup-plan.yml",
+                  "file": ".github/workflows/f6-u03s-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -499,37 +497,7 @@
           {
             "id": 1,
             "files": [
-              ".github/workflows/fresh-install-encrypted-backup.yml"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "files": [
-                {
-                  "file": ".github/workflows/fresh-install-encrypted-backup.yml",
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 2,
-            "files": [
-              "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md"
+              "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -540,7 +508,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
+                  "file": "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -551,7 +519,7 @@
             }
           },
           {
-            "id": 3,
+            "id": 2,
             "files": [
               "quality/development/active-plan.json"
             ],
@@ -565,6 +533,60 @@
               "files": [
                 {
                   "file": "quality/development/active-plan.json",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 3,
+            "files": [
+              "scripts/shoperation-f6-u03s-forward-release-readiness.mjs"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 2,
+              "maxPoints": 5,
+              "subsystemCount": 1,
+              "maxSubsystems": 3,
+              "subsystems": [
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "files": [
+                {
+                  "file": "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                }
+              ],
+              "violations": [],
+              "decision": "PASS"
+            }
+          },
+          {
+            "id": 4,
+            "files": [
+              "tests/shoperation-f6-u03s-forward-release-readiness.test.ts"
+            ],
+            "risk": {
+              "contract": "shoporation.projected-release-risk.v1",
+              "score": 0,
+              "maxPoints": 5,
+              "subsystemCount": 0,
+              "maxSubsystems": 3,
+              "subsystems": [],
+              "files": [
+                {
+                  "file": "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -582,42 +604,48 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-              "developmentBaseSha": "3d5a432c0c3ddb8c41641257f381cdb69c1633b0"
+              "developmentBaseSha": "e2ac4703a116a06f159009bfefc03e3a0bd097cc"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "3d5a432c0c3ddb8c41641257f381cdb69c1633b0",
+            "targetBaseSha": "e2ac4703a116a06f159009bfefc03e3a0bd097cc",
             "lease": {
-              "expectedBaseSha": "3d5a432c0c3ddb8c41641257f381cdb69c1633b0",
+              "expectedBaseSha": "e2ac4703a116a06f159009bfefc03e3a0bd097cc",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              ".github/workflows/fresh-install-backup-plan.yml",
-              ".github/workflows/fresh-install-encrypted-backup.yml",
-              "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
-              "quality/development/active-plan.json"
+              ".github/workflows/f6-u03s-plan-capture.yml",
+              "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
+              "quality/development/active-plan.json",
+              "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+              "tests/shoperation-f6-u03s-forward-release-readiness.test.ts"
             ],
             "operations": [
               {
                 "operation": "modify",
-                "file": ".github/workflows/fresh-install-backup-plan.yml",
+                "file": ".github/workflows/f6-u03s-plan-capture.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": ".github/workflows/fresh-install-encrypted-backup.yml",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
+                "file": "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
                 "generated": null
               },
               {
                 "operation": "modify",
                 "file": "quality/development/active-plan.json",
+                "generated": null
+              },
+              {
+                "operation": "create",
+                "file": "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+                "generated": null
+              },
+              {
+                "operation": "create",
+                "file": "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
                 "generated": null
               }
             ],
@@ -627,42 +655,54 @@
               "release-infrastructure"
             ],
             "subsystems": [
-              "release-infrastructure"
+              "release-infrastructure",
+              "quality-infrastructure"
             ],
             "projectedRisk": {
               "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
+              "score": 4,
               "maxPoints": 5,
-              "subsystemCount": 1,
+              "subsystemCount": 2,
               "maxSubsystems": 3,
               "subsystems": [
                 {
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
+                },
+                {
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
                 }
               ],
               "files": [
                 {
-                  "file": ".github/workflows/fresh-install-backup-plan.yml",
+                  "file": ".github/workflows/f6-u03s-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": ".github/workflows/fresh-install-encrypted-backup.yml",
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "file": "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
+                  "file": "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
                 },
                 {
                   "file": "quality/development/active-plan.json",
+                  "subsystem": "evidence-neutral",
+                  "risk": "neutral",
+                  "points": 0
+                },
+                {
+                  "file": "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+                  "subsystem": "quality-infrastructure",
+                  "risk": "medium",
+                  "points": 2
+                },
+                {
+                  "file": "tests/shoperation-f6-u03s-forward-release-readiness.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -694,7 +734,9 @@
                 "GUARD-RELEASE-RISK",
                 "GUARD-TYPECHECK"
               ],
-              "proofFiles": [],
+              "proofFiles": [
+                "tests/shoperation-f6-u03s-forward-release-readiness.test.ts"
+              ],
               "externalGateIds": []
             },
             "forbiddenPaths": [],
@@ -704,10 +746,11 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                ".github/workflows/fresh-install-backup-plan.yml",
-                ".github/workflows/fresh-install-encrypted-backup.yml",
-                "docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md",
-                "quality/development/active-plan.json"
+                ".github/workflows/f6-u03s-plan-capture.yml",
+                "docs/po/CORE_1186_F6_U03S_MANAGED_FORWARD_READINESS_2026-10-16.md",
+                "quality/development/active-plan.json",
+                "scripts/shoperation-f6-u03s-forward-release-readiness.mjs",
+                "tests/shoperation-f6-u03s-forward-release-readiness.test.ts"
               ],
               "filesAbsent": []
             },
@@ -722,7 +765,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "945207d6",
+            "manifestDigest": "36f80763",
             "decision": "PASS"
           }
         ],
@@ -764,36 +807,35 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "The actual Free-plan Fresh Install contains 175 public and 2 private application tables, 113 neutral catalog rows, no customer users, and a legacy 0046 Office schema but no migration ledger or managed point-in-time backup. Applying the reviewed 31 forward Office SQL sources before a successful owner-recoverable dump would strand the owner without an independently accessible restoration artifact if a live post-commit defect occurred.",
+    "problemStatement": "A native local PG17 proof applied all original 31 Office forward migrations on an occupied 0046 fixture, and a separately recoverable owner-held encrypted backup of the managed Fresh Install application schemas now exists. However, Fresh Install is still on original 0046 with 175 public, two private tables and an empty migration ledger. No independently bound exact-source managed release candidate or irreversible hosted go/no-go record currently ties original 31 bytes, current managed identity, catalog, restore artifact and runtime proof; executing DDL now could compromise the source provenance or lose recovery.",
     "observableOutcomes": [
-      "Only the exact istjjkdcvsvilrycqecd target with verified TLS hostname, nonempty configured GitHub Actions secret and real PG17 can be backed up.",
-      "Native full custom pg_dump from public/private captures both schema and rows in one consistent snapshot without any hosted write.",
-      "Native pg_restore performs actual 113-neutral-row data replay against identical 0046 schema inside disposable PG17 and validates positive restore outcome.",
-      "Owner-only private key is not sent to GitHub; backup protected with X509 RSA3072 and CMS AES-256-GCM ciphertext.",
-      "CI upload permits only encrypted archive and non-sensitive validation manifest, never a raw dump or database credentials.",
-      "Backup evidence and key are independently downloaded and decrypted by the owner assistant before considering any subsequent hosted Office migration."
+      "An independently verified read-only snapshot identifies the exact Supabase Fresh Install project and 0046 schema, including existing auth/storage/provider-trigger invariants and 113 neutral catalog records.",
+      "All original 78 migration source paths and 31 forward files are bound in original pinned order, with byte hashes and no rewrite, omission or duplication.",
+      "A source-only release readiness report explicitly fails closed when no owner-confirmed durable recovery artifact exists, when managed migration ledger is missing/ambiguous, when live Auth/JWT Data API acceptance is absent, or when 0046 schema diff is detected.",
+      "The report records what is genuinely proven (read-only managed catalog, local PG17 occupied migration and encrypted application backup), without declaring production Office live or Core done.",
+      "No read-only workflow may apply migrations, change Supabase migrations ledger, perform DDL, start staging or touch platform project."
     ],
     "unresolvedRisks": [
-      "GitHub Actions secret may be unavailable or stale and fail to reach exact Fresh Install database; zero data writes permitted if so.",
-      "TLS peer/full endpoint authorization must be proven at live runner runtime despite current Supabase connector metadata.",
-      "A data-only restore on local source schema verifies app data restoration, not complete provider Auth, Storage, extensions or event-trigger restoration.",
-      "GitHub public Actions artifacts can expire; owner must retain encrypted archive and offline private key safely before production approval.",
-      "The native Supabase PostgreSQL backup could contain privileged internal data; plaintext always confined to ephemeral runner temp and cannot enter log or uploaded artifact.",
-      "Backup completion alone does not authorize managed hosted schema migration if target preflight or source drift differs at the later execution."
+      "Hosted 0046 to 0058 migration ledger is empty and cannot be inferred from prior source-only Git proof; an explicit provenance reconciliation is still required.",
+      "An independently decryptable application backup and separate private key exist in current conversation files, but owner offline-retention outside ChatGPT is not verifiable.",
+      "Native local PG17 passes do not prove Supabase-managed Auth-created JWT, PostgREST HTTP, Storage or provider event trigger behavior after deployment.",
+      "Auth users and tenant rows currently zero: absence of app customer data is not permission to downgrade RLS restrictions or skip signed-JWT negative journeys.",
+      "Any late hosted DDL/extension/provider-trigger drift after preflight invalidates proof and must fail closed."
     ],
     "scope": {
       "in": [
-        "Existing public/private application schema and data backup of Fresh Install, using existing GitHub Actions DB URL secret",
-        "Owner certificate recipient CMS encryption and private key offline",
-        "Native postgres17 restore/replay from generated archive and proof artifact",
-        "No-cost GitHub Actions bounded job"
+        "original 78 Git-pinned SQL sources, last 31 only read/verify",
+        "read-only actual Fresh Install catalog metadata and original 0046 snapshot comparison",
+        "bound owner-key backup metadata, isolated PG17 source native rollback proof references",
+        "explicit release risk decision and machine-readable blocked reasons",
+        "tests and exact-head CI/Truth/Lifecycle"
       ],
       "out": [
-        "Any live Supabase DDL, Office migration 0047–0058 or reset",
-        "Modifying waterk-platform or resuming staging",
-        "Creating paid Supabase branch/project, Vercel deployment or exposing credentials",
-        "Supabase-managed Auth/Storage cluster state full restore or automatic post-commit recovery",
-        "Committing, uploading or logging decryption private key"
+        "hosted schema DDL or forward migration execution",
+        "database reset or 59-source empty baseline replay",
+        "waterk-platform/staging changes or adding costs",
+        "automatic declaring Office, managed JWT, API, tenant or Storage readiness",
+        "implicit product owner authorization for irreversible migration"
       ]
     }
   },
@@ -818,11 +860,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-B-CIPHER",
-        "requirement": "Owner-key ciphertext only, exact target TLS source, native PostgreSQL17 dump.",
+        "id": "REQ-S-01",
+        "requirement": "A valid managed 0046 read-only attestation must match 175+2 tables, 113 rows and provider dependencies.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "fresh-install-owner-key-encrypted-app-schema-backup",
+          "breadth": "F6-U03s-source-managed-readiness-readonly",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -843,8 +885,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-B-CIPHER",
-            "statement": "No plaintext archive, wrong target, or hosted migration.",
+            "id": "NEG-REQ-S-01",
+            "statement": "Do not run hosted DDL or overclaim provider JWT and recovery.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -852,11 +894,11 @@
         ]
       },
       {
-        "id": "REQ-B-RESTORE",
-        "requirement": "Archive parse, isolated native rehydration of neutral data and source schema under PG17.",
+        "id": "REQ-S-02",
+        "requirement": "All 31 original Office forward sources are uniquely source- and order-authenticated without copy rewrite.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "fresh-install-owner-key-encrypted-app-schema-backup",
+          "breadth": "F6-U03s-source-managed-readiness-readonly",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -877,8 +919,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-B-RESTORE",
-            "statement": "No plaintext archive, wrong target, or hosted migration.",
+            "id": "NEG-REQ-S-02",
+            "statement": "Do not run hosted DDL or overclaim provider JWT and recovery.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -886,11 +928,11 @@
         ]
       },
       {
-        "id": "REQ-B-NONMUTATION",
-        "requirement": "No hosted SQL writes, no other project and no false provider backup/hosted release claims.",
+        "id": "REQ-S-03",
+        "requirement": "Never release-authorize until owner key custody, provider-signed JWT and migration ledger provenance prove safe.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "fresh-install-owner-key-encrypted-app-schema-backup",
+          "breadth": "F6-U03s-source-managed-readiness-readonly",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -911,8 +953,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-B-NONMUTATION",
-            "statement": "No plaintext archive, wrong target, or hosted migration.",
+            "id": "NEG-REQ-S-03",
+            "statement": "Do not run hosted DDL or overclaim provider JWT and recovery.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -921,12 +963,12 @@
       }
     ]
   },
-  "notes": "Complete the assurance ceiling, DEFINE/MODEL/PLAN/CHALLENGE evidence, specialist reviews and PO-derived Completion Contract. Only then set status to ready-for-implementation and executionAuthorized to true before running Plan Before Code.",
+  "notes": "F6-U03s implementation batch recorded: canonical 78-original source SHA f570cbaa2cc6dea53bb123b8192c59335855c6e6227e48d0f564c4c85261b81e; 31-forward suffix source audit, read-only live Fresh Install snapshot and adversarial tests. Exact-head CI gates remain required; no hosted SQL executed; owner off-platform key custody, provider JWT/API and ledger provenance remain separately blocked. Canonical edit-time implementation-sync excludes quality/development/active-plan.json from materialFiles as metadata; semantic mustEdit now covers only implementation source targets. Integrity correction: F6-U03s asserts quality-gate readiness only, not CAP-RELEASE execution authority. Completion evidence GUARD-PLAN-BEFORE-CODE and GUARD-QUALITY-TESTS are CAP-QUALITY producers; hosted release remains explicitly unauthorized.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "74ed602bd7b6048cd75fb95c996e5f9d4f5b3b0e",
-    "closedAt": "2026-10-16T17:51:45.457Z",
+    "verifiedImplementationHead": "2a27c75206ad2c0a0e109fed544209d8205c45d9",
+    "closedAt": "2026-10-16T18:54:15.734Z",
     "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
     "learning": {
