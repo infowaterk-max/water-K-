@@ -43,6 +43,8 @@ jobs:
           const direct=u.hostname==='db.'+ref+'.supabase.co'&&u.username==='postgres'&&(!u.port||u.port==='5432');
           const pooler=u.hostname==='aws-0-eu-central-1.pooler.supabase.com'&&u.username==='postgres.'+ref&&(!u.port||['5432','6543'].includes(u.port));
           if(!direct&&!pooler)throw Error('F6_BACKUP_FOREIGN_TARGET');
+          // Native pg_dump requires a session. The same verified Supavisor host supports session mode on port 5432.
+          if(pooler && u.port==='6543')u.port='5432';
           u.searchParams.set('sslmode','verify-full');
           appendFileSync(process.env.GITHUB_ENV,'PGDATABASE='+u.toString()+'\n');
           console.log('F6_BACKUP_BOUND_TO_FRESH_INSTALL');
@@ -53,6 +55,15 @@ jobs:
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/fresh-safe" artifacts/f6-u03g/catalog-drift
           chmod 700 "$RUNNER_TEMP/fresh-safe"
+          # Official public Supabase root, never a downloaded leaf or untrusted self-signed substitute.
+          curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 --retry 2 --max-time 25 \
+            https://supabase-downloads.s3-ap-southeast-1.amazonaws.com/prod/ssl/prod-ca-2021.crt \
+            --output "$RUNNER_TEMP/fresh-safe/supabase-ca.crt"
+          openssl x509 -in "$RUNNER_TEMP/fresh-safe/supabase-ca.crt" -noout -subject -dates | grep -F 'Supabase Root 2021 CA'
+          actual_ca="$(openssl x509 -in "$RUNNER_TEMP/fresh-safe/supabase-ca.crt" -outform DER | sha256sum | cut -d' ' -f1)"
+          test "$actual_ca" = '807025ad50d4ed219d2c9c7d299c004f824eb00cf7f65afef607d07b72e6cafa' \
+            || { echo F6_BACKUP_SUPABASE_ROOT_CA_PIN_MISMATCH >&2;exit 1; }
+          echo 'F6_BACKUP_PINNED_SUPABASE_ROOT_CA_OK'
           docker run --rm postgres:17 pg_dump --version | grep -E '^pg_dump \(PostgreSQL\) 17\.'
           node scripts/shoperation-f6-u03g-catalog-drift.mjs --emit-sql artifacts/f6-u03g/catalog-drift
           cp artifacts/f6-u03g/catalog-drift/original.sql "$RUNNER_TEMP/fresh-safe/catalog.sql"
@@ -81,10 +92,10 @@ jobs:
         run: |
           set -euo pipefail
           d="$RUNNER_TEMP/fresh-safe"
-          docker run --rm --network host -e PGDATABASE -v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -X -v ON_ERROR_STOP=1 -f /audit/guard.sql' >/dev/null
-          h="$(docker run --rm --network host -e PGDATABASE -v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /audit/catalog.sql')"
+          docker run --rm --network host -e PGDATABASE -v "$RUNNER_TEMP/fresh-safe/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -X -v ON_ERROR_STOP=1 -f /audit/guard.sql' >/dev/null
+          h="$(docker run --rm --network host -e PGDATABASE -v "$RUNNER_TEMP/fresh-safe/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /audit/catalog.sql')"
           test "$h" = '4621|e312b40ad91150ce937f4aa00db587f3'
-          docker run --rm --network host -e PGDATABASE -v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/backup" postgres:17 sh -c 'exec pg_dump -d "$PGDATABASE" -Fc --no-owner --no-privileges --schema=public --schema=private -f /backup/app-owned.dump'
+          docker run --rm --network host -e PGDATABASE -v "$RUNNER_TEMP/fresh-safe/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt -v "$d:/backup" postgres:17 sh -c 'exec pg_dump -d "$PGDATABASE" -Fc --no-owner --no-privileges --schema=public --schema=private -f /backup/app-owned.dump'
           test -s "$d/app-owned.dump"
           docker run --rm -v "$d:/backup:ro" postgres:17 pg_restore --list /backup/app-owned.dump > "$d/toc.txt"
           grep -q 'TABLE DATA public' "$d/toc.txt"
@@ -136,8 +147,8 @@ jobs:
         run: |
           set -euo pipefail
           d="$RUNNER_TEMP/fresh-safe"
-          docker run --rm --network host -e PGDATABASE -v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -X -v ON_ERROR_STOP=1 -f /audit/guard.sql' >/dev/null
-          h="$(docker run --rm --network host -e PGDATABASE -v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro -e PGSSLROOTCERT=/etc/ssl/certs/ca-certificates.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /audit/catalog.sql')"
+          docker run --rm --network host -e PGDATABASE -v "$RUNNER_TEMP/fresh-safe/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -X -v ON_ERROR_STOP=1 -f /audit/guard.sql' >/dev/null
+          h="$(docker run --rm --network host -e PGDATABASE -v "$RUNNER_TEMP/fresh-safe/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /audit/catalog.sql')"
           test "$h" = '4621|e312b40ad91150ce937f4aa00db587f3'
           echo 'F6_BACKUP_SOURCE_UNCHANGED'
       - name: Owner-only AES-256-GCM encryption; no private key inside CI
