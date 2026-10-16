@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-074C4B63",
   "task": "Core #1186 F6-U03o: isolated PG17 anonymous Office RLS and foreign-tenant SECURITY DEFINER helper denial proof",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "074c4b63",
   "changeBaseSha": "afdda91cfe97dc0046324c4ddf9718e79a4ec799",
   "plannedFilePatterns": [
@@ -1003,5 +1003,18 @@
       }
     ]
   },
-  "notes": "F6-U03o is local-only additive negative-role proof using real #1364 tested original source data; not real provider JWT. CI scope truth restricted, no hosted DB SQL, DRAFT, no new business decisions. F6-U03o plan clarified 2026-10-16: participant helper and restrictive plan helper have distinct semantics. Anon SELECT direct privilege-denial or zero-row RLS is accepted only with actual in-role SQL statement evidence; no silent 42501 swallow."
+  "notes": "F6-U03o is local-only additive negative-role proof using real #1364 tested original source data; not real provider JWT. CI scope truth restricted, no hosted DB SQL, DRAFT, no new business decisions. F6-U03o plan clarified 2026-10-16: participant helper and restrictive plan helper have distinct semantics. Anon SELECT direct privilege-denial or zero-row RLS is accepted only with actual in-role SQL statement evidence; no silent 42501 swallow.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "ed8500159f5d0e5cef20d6d46441a2bad278a849",
+    "closedAt": "2026-10-16T07:11:16.377Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
