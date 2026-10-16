@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-725C57A6",
   "task": "Core #1186 F6-U03q read-only managed Supabase Office Auth/Data API readiness and honest proof provenance",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "725c57a6",
   "changeBaseSha": "2c387c8618f8b09edd6c2c1c76785da77aee22cb",
   "plannedFilePatterns": [
@@ -971,5 +971,18 @@
       }
     ]
   },
-  "notes": "Plan Before Code pre-implementation PASS 38876910385. Canonical Implementation Sync excludes active-plan.json governance metadata from material source diff; workflow is actual MUST_EDIT. Provider query was SELECT-only on actual Fresh Install on 2026-10-16T09:01:58.471Z."
+  "notes": "Plan Before Code pre-implementation PASS 38876910385. Canonical Implementation Sync excludes active-plan.json governance metadata from material source diff; workflow is actual MUST_EDIT. Provider query was SELECT-only on actual Fresh Install on 2026-10-16T09:01:58.471Z.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "ec4cb85b10b27c5802ad2737ac77fd0571e351e2",
+    "closedAt": "2026-10-16T09:09:07.693Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
