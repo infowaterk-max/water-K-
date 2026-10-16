@@ -127,7 +127,8 @@
         "Audit emits every conservative Office-relevant object, actionable finding details and evidence; never auto-confirms arbitrary RLS/SECURITY DEFINER semantics as secure.",
         "Negative tests show absent/garbled catalog, missing mandated v2/v3 function, malformed role grant, disabled RLS, exposed SECURITY DEFINER and missing source identity fail/flag correctly.",
         "Always release BLOCKED pending full semantic Office policy/ACL/RPC supersession review, signed-in tenant JWT Alap/Pro, managed provider Auth/Storage and approved migration package, even with zero findings.",
-        "Exact-head source proof, quality, TS/build, Security Audit, Completion Truth and Lifecycle pass for inventory diagnostic only."
+        "Exact-head source proof, quality, TS/build, Security Audit, Completion Truth and Lifecycle pass for inventory diagnostic only.",
+        "Every related catalog relation/function reports native anon/authenticated schema USAGE, and exposed privileged-function high signal requires both matching role function EXECUTE and schema USAGE; ACL-only cases get review severity."
       ],
       "invariants": [
         "All 78 historical Git-pinned source bytes untouched; native SELECT-only catalog executes after real original PostgreSQL17 COMMIT.",
@@ -310,6 +311,13 @@
         "scenario": "A green local audit report is used as proof of actual authenticated Alap/Pro JWT tenant isolation and managed Auth/Storage.",
         "finding": "A real provider claim without signed-in tenant request evidence violates source-scoped Truth contract.",
         "resolution": "Machine verdict release_BLOCKED, providerManagedProven=false, signedInAlapProRlsProven=false, hostedTouched=false, and document next authority.",
+        "status": "resolved"
+      },
+      {
+        "id": "CH-U03M-09",
+        "scenario": "A private-schema SECURITY DEFINER has effective EXECUTE for anon but no USAGE on its private namespace, and is classified as directly browser-exposable.",
+        "finding": "Function EXECUTE alone is not a callable API: PostgreSQL requires schema USAGE, and provider Data API schema exposure is another independent gate. An unconditional HIGH finding is a false positive.",
+        "resolution": "Query has_schema_privilege for each table/function namespace, classify high direct exposure only when schema USAGE and role EXECUTE are both true; retain ACL-only as REVIEW_REQUIRED and provider exposure separate.",
         "status": "resolved"
       }
     ],
@@ -891,14 +899,16 @@
       "Emit machine findings for RLS-disabled Office relations, SECURITY DEFINER reachable by browser/PUBLIC or elevated role, suspicious broad table grants, disabled Office triggers and missing explicit UPDATE WITH CHECK; classify uncertain patterns as REVIEW_REQUIRED, not automatically proven vulnerability.",
       "Fail closed on absent, malformed, incomplete, forged or contradictory native PG17 evidence; raw JSON evidence stored with final machine findings and source candidate version.",
       "Preserve explicit releaseAuthorized=false, hostedTouched=false, jwtTenantRlsProven=false, providerManagedProven=false even if diagnostic CI is SUCCESS.",
-      "Exact-head independent Docker17 proof, negative Vitest, source provenance, normal CI, Truth and Lifecycle pass for scoped diagnostic only."
+      "Exact-head independent Docker17 proof, negative Vitest, source provenance, normal CI, Truth and Lifecycle pass for scoped diagnostic only.",
+      "Distinguish effective object/function EXECUTE grants from schema USAGE for anon/authenticated, and do not label private SECURITY DEFINER high-risk direct browser exposure without namespace USAGE."
     ],
     "unresolvedRisks": [
       "Native Docker roles are fixture roles, not real Supabase JWT sessions; authenticated/Alap/Pro row-boundary tests remain blocked.",
       "Function code and RLS policy semantics cannot be proven secure by regex, row counts or static SQL metadata; human/semantic review remains mandatory.",
       "All public/private data schema includes objects unrelated to Office; audit must retain full counts while Office relevance is conservative and explicit.",
       "A policy UPDATE without explicit WITH CHECK can inherit USING semantics under PostgreSQL; report review signal not automatic exploitable vulnerability.",
-      "Historical Supabase security definer function code may call role-dependent helpers and provider Auth/Storage; local successful schema install cannot cover managed behavior."
+      "Historical Supabase security definer function code may call role-dependent helpers and provider Auth/Storage; local successful schema install cannot cover managed behavior.",
+      "PostgreSQL schema USAGE alone does not confirm Supabase Data API exposure; hosted schema exposure settings must be reviewed separately."
     ],
     "scope": {
       "in": [
@@ -911,7 +921,8 @@
         "No production release package approval, JWT Alap/Pro acceptance, or unsupported SQL-policy exploit assertion.",
         "No additional parallel security engine; reuse canonical F6-U03k and F6-U03l authority and existing #1228."
       ]
-    }
+    },
+    "notes": "First real native catalog had 192 relations, 447 functions, 129 policies, 123 triggers; 20/108/10/23 relevant and 8 provisional findings (3 browser-granted public tables, 5 private SECURITY DEFINER). Must add schema USAGE to avoid incorrectly assigning HIGH to private function ACL-only signals."
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
@@ -1037,5 +1048,5 @@
       }
     ]
   },
-  "notes": "Critical local catalog audit; manual reviewer signatures absent, semantic auth not proven; do not claim closed product Core; all findings are review inventory not vulnerabilities unless objectively demonstrable. Source files only quality/release authority despite run-time reading DB. Use native catalog, no new parallel Control Plane."
+  "notes": "Critical local catalog audit; manual reviewer signatures absent, semantic auth not proven; do not claim closed product Core; all findings are review inventory not vulnerabilities unless objectively demonstrable. Source files only quality/release authority despite run-time reading DB. Use native catalog, no new parallel Control Plane. Real #38852638579 native first inventory 192/447/129/123 (20/108/10/23 Office relevant, 8 provisional). Qualified risk classification requires schema USAGE in addition to object EXECUTE for direct callable SQL; managed API exposure remains unknown."
 }
