@@ -31,6 +31,8 @@ jobs:
             --risk critical \
             --source-ref "https://github.com/infowaterk-max/water-K-/issues/1228" \
             --write-plan --check
+      - name: Run adversarial original occupied-upgrade unit tests
+        run: npx vitest run tests/shoperation-f6-u03r-occupied-upgrade.test.ts
       - name: Inspect original Known Failures and draft plan
         if: always()
         run: |
