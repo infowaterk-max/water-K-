@@ -1,7 +1,6 @@
 import {describe,it,expect,beforeAll} from 'vitest';
 // @ts-expect-error Source-only Node ESM QA helper is imported intentionally.
-import {PROJECT_REF,SCOPE,SOURCE_78_SHA256,buildBoundOriginalForwardSource,buildReadOnlyManagedSQL,
-assessManagedReadiness} from '../scripts/shoperation-f6-u03s-forward-release-readiness.mjs';
+import {PROJECT_REF,SCOPE,SOURCE_78_SHA256,buildBoundOriginalForwardSource,buildReadOnlyManagedSQL,assessManagedReadiness} from '../scripts/shoperation-f6-u03s-forward-release-readiness.mjs';
 let original:any;
 const backup={projectRef:PROJECT_REF,localPg17Restore:true,restoredCatalogRows:113,
 hostedMutation:false,releaseAuthorized:false,ciphertextSha256:'a'.repeat(64)};
