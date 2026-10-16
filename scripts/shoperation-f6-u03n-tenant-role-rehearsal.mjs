@@ -74,6 +74,117 @@ export function validateRoleSmoke(log){
   positiveOfficeRowsProven:false,negativeCrossTenantRowsProven:false,
   actualRoleCases:2,hostedTouched:false,releaseAuthorized:false};
 }
+export const TENANT_IDS=Object.freeze({
+ AOrg:'aaaaaaaa-0000-4000-8000-000000000001',
+ AStore:'aaaaaaaa-0000-4000-8000-000000000002',
+ AUser:'aaaaaaaa-0000-4000-8000-000000000003',
+ ACustomer:'aaaaaaaa-0000-4000-8000-000000000010',
+ AInternal:'aaaaaaaa-0000-4000-8000-000000000011',
+ BOrg:'bbbbbbbb-0000-4000-8000-000000000001',
+ BStore:'bbbbbbbb-0000-4000-8000-000000000002',
+ BUser:'bbbbbbbb-0000-4000-8000-000000000003',
+ BCustomer:'bbbbbbbb-0000-4000-8000-000000000010',
+ BInternal:'bbbbbbbb-0000-4000-8000-000000000011',
+ Stranger:'cccccccc-0000-4000-8000-000000000003'
+});
+export function twoTenantSeedSql(){
+ return String.raw`
+-- F6-U03n: SYNTHETIC LOCAL DOCKER PG17 ONLY; all source Office tables are real.
+BEGIN;
+DO $f6n$ BEGIN
+ IF current_database()<>'f6_u03i_fresh' OR current_user<>'postgres'
+   OR current_setting('server_version_num')::integer/10000<>17
+ THEN RAISE EXCEPTION 'F6U03N_NO_HOSTED_FIXTURE'; END IF;
+END $f6n$;
+INSERT INTO public.organizations(id,name,slug)
+VALUES ('aaaaaaaa-0000-4000-8000-000000000001','F6n A','f6n-local-a'),
+       ('bbbbbbbb-0000-4000-8000-000000000001','F6n B','f6n-local-b');
+INSERT INTO public.webshop_instances(id,organization_id,name,slug,status,subscription_plan)
+VALUES ('aaaaaaaa-0000-4000-8000-000000000002','aaaaaaaa-0000-4000-8000-000000000001','F6n Alap','f6n-local-a','active','alap'),
+       ('bbbbbbbb-0000-4000-8000-000000000002','bbbbbbbb-0000-4000-8000-000000000001','F6n Pro','f6n-local-b','active','pro');
+INSERT INTO auth.users(id,email) VALUES
+ ('aaaaaaaa-0000-4000-8000-000000000003','a-owner@f6n.invalid'),
+ ('bbbbbbbb-0000-4000-8000-000000000003','b-owner@f6n.invalid'),
+ ('cccccccc-0000-4000-8000-000000000003','stranger@f6n.invalid');
+INSERT INTO public.role_bindings(organization_id,instance_id,user_id,role_code) VALUES
+ ('aaaaaaaa-0000-4000-8000-000000000001','aaaaaaaa-0000-4000-8000-000000000002','aaaaaaaa-0000-4000-8000-000000000003','owner'),
+ ('bbbbbbbb-0000-4000-8000-000000000001','bbbbbbbb-0000-4000-8000-000000000002','bbbbbbbb-0000-4000-8000-000000000003','owner');
+INSERT INTO public.entitlement_capabilities(capability_code,capability_kind,release_state)
+VALUES ('officeCommunication','feature','released'),('teamChat','feature','released')
+ON CONFLICT (capability_code) DO NOTHING;
+INSERT INTO public.feature_entitlements(organization_id,instance_id,feature_code,source,enabled) VALUES
+ ('aaaaaaaa-0000-4000-8000-000000000001','aaaaaaaa-0000-4000-8000-000000000002','officeCommunication','plan',true),
+ ('aaaaaaaa-0000-4000-8000-000000000001','aaaaaaaa-0000-4000-8000-000000000002','teamChat','manual',true),
+ ('bbbbbbbb-0000-4000-8000-000000000001','bbbbbbbb-0000-4000-8000-000000000002','officeCommunication','plan',true),
+ ('bbbbbbbb-0000-4000-8000-000000000001','bbbbbbbb-0000-4000-8000-000000000002','teamChat','plan',true);
+INSERT INTO public.office_threads(id,instance_id,subject,conversation_type,created_by,assigned_to) VALUES
+ ('aaaaaaaa-0000-4000-8000-000000000010','aaaaaaaa-0000-4000-8000-000000000002','A customer','customer','aaaaaaaa-0000-4000-8000-000000000003','aaaaaaaa-0000-4000-8000-000000000003'),
+ ('aaaaaaaa-0000-4000-8000-000000000011','aaaaaaaa-0000-4000-8000-000000000002','A internal','internal_private','aaaaaaaa-0000-4000-8000-000000000003',null),
+ ('bbbbbbbb-0000-4000-8000-000000000010','bbbbbbbb-0000-4000-8000-000000000002','B customer','customer','bbbbbbbb-0000-4000-8000-000000000003','bbbbbbbb-0000-4000-8000-000000000003'),
+ ('bbbbbbbb-0000-4000-8000-000000000011','bbbbbbbb-0000-4000-8000-000000000002','B internal','internal_private','bbbbbbbb-0000-4000-8000-000000000003',null);
+INSERT INTO public.office_thread_participants(instance_id,thread_id,user_id,participant_role)
+VALUES ('aaaaaaaa-0000-4000-8000-000000000002','aaaaaaaa-0000-4000-8000-000000000011','aaaaaaaa-0000-4000-8000-000000000003','owner'),
+       ('bbbbbbbb-0000-4000-8000-000000000002','bbbbbbbb-0000-4000-8000-000000000011','bbbbbbbb-0000-4000-8000-000000000003','owner')
+ON CONFLICT (instance_id,thread_id,user_id) DO NOTHING;
+INSERT INTO public.office_messages(instance_id,thread_id,kind,body,author_id)
+SELECT instance_id,id,'note','F6N_SYNTHETIC_LOCAL_ONLY',created_by FROM public.office_threads
+WHERE id IN ('aaaaaaaa-0000-4000-8000-000000000010','aaaaaaaa-0000-4000-8000-000000000011','bbbbbbbb-0000-4000-8000-000000000010','bbbbbbbb-0000-4000-8000-000000000011');
+INSERT INTO public.office_tasks(instance_id,thread_id,title,created_by)
+SELECT instance_id,id,'F6N_SYNTHETIC_LOCAL_ONLY',created_by FROM public.office_threads
+WHERE id IN ('aaaaaaaa-0000-4000-8000-000000000010','aaaaaaaa-0000-4000-8000-000000000011','bbbbbbbb-0000-4000-8000-000000000010','bbbbbbbb-0000-4000-8000-000000000011');
+DO $f6n$ BEGIN
+ IF (SELECT count(*) FROM public.organizations WHERE slug LIKE 'f6n-local-%')<>2
+    OR (SELECT count(*) FROM public.office_threads WHERE subject LIKE 'A %' OR subject LIKE 'B %')<>4
+    OR (SELECT count(DISTINCT organization_id) FROM public.webshop_instances WHERE slug LIKE 'f6n-local-%')<>2
+ THEN RAISE EXCEPTION 'F6U03N_POSITIVE_TENANT_SEED_MISSING'; END IF;
+END $f6n$;
+COMMIT;
+`;
+}
+export function tenantRowProbeSql(){
+ const t=TENANT_IDS;
+ const items=[
+  ['A_owner','authenticated',t.AUser],
+  ['B_owner','authenticated',t.BUser],
+  ['stranger','authenticated',t.Stranger]
+ ];
+ const roleRows=items.map(([name,role,sub])=>[
+  'BEGIN;','SET LOCAL ROLE '+role+';',
+  "SELECT set_config('request.jwt.claim.sub','"+sub+"',true);",
+  "SELECT set_config('request.jwt.claim.role','"+role+"',true);",
+  "SELECT 'F6U03N_TENANT='||jsonb_build_object('case','"+name+"','role',current_user,'sub',auth.uid(),"+
+   "'bypass',(SELECT rolbypassrls FROM pg_roles WHERE rolname=current_user),"+
+   "'threads',(SELECT coalesce(jsonb_agg(id::text ORDER BY id),'[]'::jsonb) FROM public.office_threads),"+
+   "'messages',(SELECT count(*) FROM public.office_messages),"+
+   "'tasks',(SELECT count(*) FROM public.office_tasks))::text;",
+  'ROLLBACK;'
+ ].join('\n')).join('\n');
+ return roleRows+'\n';
+}
+export function validateTenantRowProbe(log){
+ if(typeof log!=='string')throw Error('F6U03N_MISSING_ROLE_ROW_OUTPUT');
+ const rows=log.split('\n').filter(x=>x.startsWith('F6U03N_TENANT='))
+  .map(x=>JSON.parse(x.slice('F6U03N_TENANT='.length)));
+ if(rows.length!==3||new Set(rows.map(x=>x.case)).size!==3)
+  throw Error('F6U03N_MISSING_POSITIVE_OR_NEGATIVE_TENANT_ROLE_CASE');
+ for(const r of rows)
+  if(r.role!=='authenticated'||r.bypass!==false||!Array.isArray(r.threads)||
+     !Number.isSafeInteger(r.messages)||!Number.isSafeInteger(r.tasks))
+   throw Error('F6U03N_NOT_NATIVE_AUTHENTICATED_ROW_EVIDENCE');
+ const a=rows.find(x=>x.case==='A_owner'),b=rows.find(x=>x.case==='B_owner'),stranger=rows.find(x=>x.case==='stranger');
+ if(!a||!b||!stranger||a.sub!==TENANT_IDS.AUser||b.sub!==TENANT_IDS.BUser||
+    stranger.sub!==TENANT_IDS.Stranger||
+    JSON.stringify(a.threads)!==JSON.stringify([TENANT_IDS.ACustomer])||
+    JSON.stringify(b.threads)!==JSON.stringify([TENANT_IDS.BCustomer,TENANT_IDS.BInternal].sort())||
+    stranger.threads.length!==0||
+    a.messages!==1||a.tasks!==1||b.messages!==2||b.tasks!==2||
+    stranger.messages!==0||stranger.tasks!==0)
+  throw Error('F6U03N_ACTUAL_ALAP_PRO_TENANT_RLS_ASSERTION_FAILED');
+ return {decision:'LOCAL_PG17_TWO_TENANT_SIMULATED_JWT_RLS_VERIFIED_NOT_HOSTED',
+   positiveTenantRoleCases:2,negativeRoleCases:1,crossTenantRowsVisible:0,
+   localTenantPositiveNegativeProven:true,syntheticJwt:true,
+   signedSupabaseJwtProven:false,hostedTouched:false,releaseAuthorized:false};
+}
 function main(){
  const [mode,path]=process.argv.slice(2);
  if(process.argv.length!==4||resolve(path||'')!==resolve(TARGET))fail('F6U03N_LOCAL_ARTIFACT_ONLY');
@@ -93,6 +204,17 @@ function main(){
   const log=readFileSync(join(resolve(TARGET),'role-smoke.log'),'utf8');
   const result=validateRoleSmoke(log);
   writeFileSync(join(resolve(TARGET),'role-smoke-evidence.json'),JSON.stringify(result,null,2)+'\n');
+  console.log(JSON.stringify(result));return;
+ }
+ if(mode==='--emit-tenant-fixture'){
+  const smoke=JSON.parse(readFileSync(join(resolve(TARGET),'role-smoke-evidence.json'),'utf8'));
+  if(smoke.actualRoleCases!==2||smoke.providerSignedJwtProven!==false)fail('F6U03N_ROLE_SMOKE_REQUIRED');
+  writeFileSync(join(resolve(TARGET),'two-tenant-fixture.sql'),twoTenantSeedSql());
+  writeFileSync(join(resolve(TARGET),'tenant-role-select.sql'),tenantRowProbeSql());return;
+ }
+ if(mode==='--assess-tenant-rows'){
+  const result=validateTenantRowProbe(readFileSync(join(resolve(TARGET),'tenant-role-select.log'),'utf8'));
+  writeFileSync(join(resolve(TARGET),'tenant-role-evidence.json'),JSON.stringify(result,null,2)+'\n');
   console.log(JSON.stringify(result));return;
  }
  if(mode==='--assess-discovery'){

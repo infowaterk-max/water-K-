@@ -1,6 +1,6 @@
 import {describe,it,expect} from 'vitest';
 // @ts-expect-error F6-U03n JS ESM local-only fixture discovery.
-import {CONTRACT,REQUIRES,generateReadOnlySchemaSQL,evaluateDiscovery,localRoleSmokeSql,validateRoleSmoke} from '../scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs';
+import {CONTRACT,REQUIRES,generateReadOnlySchemaSQL,evaluateDiscovery,localRoleSmokeSql,validateRoleSmoke,TENANT_IDS,twoTenantSeedSql,tenantRowProbeSql,validateTenantRowProbe} from '../scripts/shoperation-f6-u03n-tenant-role-rehearsal.mjs';
 // @ts-expect-error F6-U03l source candidate JS ESM.
 import {buildCandidateManifest} from '../scripts/shoperation-f6-u03l-release-candidate-acl.mjs';
 const good=()=>({contract:CONTRACT,database:'f6_u03i_fresh',pgMajor:17,
@@ -10,6 +10,29 @@ const good=()=>({contract:CONTRACT,database:'f6_u03i_fresh',pgMajor:17,
  authJwtDefinition:'CREATE FUNCTION auth.jwt() AS SELECT \'{}\'::jsonb;',
  anonBypass:false,authenticatedBypass:false});
 describe('F6-U03n original-source two-tenant fixture discovery fails closed',()=>{
+ it('hard-fails on real SQL row mismatches, all-zero fake positives and leaked foreign tenant IDs',()=>{
+  const fixture=twoTenantSeedSql(),roleSql=tenantRowProbeSql();
+  expect(fixture).toContain('F6U03N_POSITIVE_TENANT_SEED_MISSING');
+  expect(fixture).toContain("('bbbbbbbb-0000-4000-8000-000000000002'");
+  expect(fixture).toContain("'alap'");
+  expect(fixture).toContain("'pro'");
+  expect(fixture).toContain("'teamChat','manual',true");
+  expect(roleSql).toContain('SET LOCAL ROLE authenticated;');
+  const log=[
+   {case:'A_owner',role:'authenticated',sub:TENANT_IDS.AUser,bypass:false,threads:[TENANT_IDS.ACustomer],messages:1,tasks:1},
+   {case:'B_owner',role:'authenticated',sub:TENANT_IDS.BUser,bypass:false,threads:[TENANT_IDS.BCustomer,TENANT_IDS.BInternal].sort(),messages:2,tasks:2},
+   {case:'stranger',role:'authenticated',sub:TENANT_IDS.Stranger,bypass:false,threads:[],messages:0,tasks:0}
+  ].map(x=>'F6U03N_TENANT='+JSON.stringify(x)).join('\n');
+  const ok=validateTenantRowProbe(log);
+  expect(ok.localTenantPositiveNegativeProven).toBe(true);
+  expect(ok.signedSupabaseJwtProven).toBe(false);
+  expect(()=>validateTenantRowProbe(log.replace(TENANT_IDS.ACustomer,TENANT_IDS.BCustomer)))
+   .toThrow('F6U03N_ACTUAL_ALAP_PRO_TENANT_RLS_ASSERTION_FAILED');
+  expect(()=>validateTenantRowProbe(log.replace('"messages":1','"messages":0')))
+   .toThrow('F6U03N_ACTUAL_ALAP_PRO_TENANT_RLS_ASSERTION_FAILED');
+  expect(()=>validateTenantRowProbe(log.split('\n').slice(0,2).join('\n')))
+   .toThrow('F6U03N_MISSING_POSITIVE_OR_NEGATIVE_TENANT_ROLE_CASE');
+ });
  it('local-only role smoke rejects all-zero, forged user, bypass and missing anonymous negative',()=>{
   const sql=localRoleSmokeSql();
   expect(sql).toContain('SET LOCAL ROLE authenticated;');
