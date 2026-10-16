@@ -2,7 +2,7 @@
 2026-10-16 | draft stacked on F6-U03p #1384 | Issue #1228 remains OPEN
 
 ## Actual managed observation (NOT a local fixture)
-Using the connected Supabase project metadata and read-only SQL catalog for project `istjjkdcvsvilrycqecd` (Shoperation Fresh Install), 2026-10-16 UTC:
+Using the connected Supabase project metadata and read-only SQL catalog for project `istjjkdcvsvilrycqecd` (Shoperation Fresh Install), 2026-10-16T09:01:58.471Z UTC (database-provided timestamp):
 - Project ACTIVE_HEALTHY, PostgreSQL 17.6; waterk-platform also ACTIVE_HEALTHY; waterk-staging INACTIVE. Two projects remain active; none changed.
 - Existing `public.office_threads`, `public.office_messages`, `public.office_tasks`: RLS true; legacy `office_threads_store_all`, `office_messages_store_all`, `office_tasks_store_all` policies still applied.
 - `authenticated` and `anon` direct SELECT grants for the three Office relations: false; **this is NOT positive browser authorization**. It also does not itself prove an exploitable data leak.

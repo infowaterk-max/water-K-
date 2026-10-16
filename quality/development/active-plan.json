@@ -314,8 +314,7 @@
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03q-plan-capture.yml",
-        "quality/development/active-plan.json"
+        ".github/workflows/f6-u03q-plan-capture.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
@@ -972,5 +971,5 @@
       }
     ]
   },
-  "notes": "Verified pre-code Plan Before Code PASS at SHA 2f6c1b6, run 38876910385. Implementation adds only planned source script, Vitest and docs; original SQL and hosted projects untouched."
+  "notes": "Plan Before Code pre-implementation PASS 38876910385. Canonical Implementation Sync excludes active-plan.json governance metadata from material source diff; workflow is actual MUST_EDIT. Provider query was SELECT-only on actual Fresh Install on 2026-10-16T09:01:58.471Z."
 }
