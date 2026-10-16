@@ -21,6 +21,8 @@ jobs:
         with:
           node-version: 24
       - run: npm ci --no-audit --no-fund
+      - name: Enforce critical Plan Before Code prior to implementation
+        run: node scripts/shoperation-plan-before-code.mjs --check
       - name: Generate critical canonical guard and review known failures
         run: |
           node scripts/shoperation-development-guard.mjs \
