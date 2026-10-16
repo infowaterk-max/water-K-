@@ -1,21 +1,20 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-7FCFB011",
-  "task": "Core #1186 F6-U03k: source-pinned ordered Office predecessor replay on disposable Docker PG17, fail closed on next dependency",
+  "taskId": "DEV-1B26A62F",
+  "task": "Core #1186 F6-U03l: pin 78-source ordered release candidate manifest and prove legacy inbound v2/v3 final PostgreSQL17 EXECUTE privileges",
   "status": "closed",
-  "guardDigest": "7fcfb011",
-  "changeBaseSha": "b9f9feec2330819db8a7ca783df2751559be6289",
+  "guardDigest": "1b26a62f",
+  "changeBaseSha": "8cd1c47385272aaba0dd893d0d54d64ea86a53dd",
   "plannedFilePatterns": [
-    "scripts/shoperation-f6-u03k-office-local-replay.mjs",
-    "tests/shoperation-f6-u03k-office-local-replay.test.ts",
-    ".github/workflows/f6-u03k-local-source-replay.yml",
-    ".github/workflows/f6-u03k-plan-capture.yml",
-    "docs/po/CORE_1186_F6_U03K_LOCAL_SOURCE_REPLAY_2026-10-15.md",
+    "scripts/shoperation-f6-u03l-release-candidate-acl.mjs",
+    "tests/shoperation-f6-u03l-release-candidate-acl.test.ts",
+    ".github/workflows/f6-u03l-real-acl-proof.yml",
+    ".github/workflows/f6-u03l-plan-capture.yml",
+    "docs/po/CORE_1186_F6_U03L_SOURCE_CANDIDATE_ACL_2026-10-16.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
     "customer-account",
-    "dependency-contract",
     "payment-checkout-order-authority",
     "quality-infrastructure",
     "release-infrastructure"
@@ -87,7 +86,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical real Docker-only negative SQL proof. Extra original source files are candidate diagnostic inputs, NOT migration approval. No live server, SQL authoring, or security policy override.",
+      "rationale": "Critical read-only source-only review candidate and Docker PG17 final ACL proof. No production migration, provider integration, hosted replay or tenant approval. Source hashes and real runtime grants are independent authorities.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -104,32 +103,29 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Original frozen 59 filenames, bytes and source digest verified by validateReviewedBaseline; 18 main Git blobs verified by F6-U03j inspectOfficeGap without rewriting original SQL.",
-        "Single BEGIN and COMMIT envelopes entire original 59 SQL plus 17 original timestamped Office predecessor files BEFORE original 0055 and the 20260910070300 Communication Hub FK index follow-up AFTER original 0057, BEFORE 0058, plus authentic target preflight/auth-bootstrap/neutral seed/postflight.",
-        "Docker peer IP, name, postgres role and real PG17 verification and rejection of inherited PGHOST, PGHOSTADDR, PGDATABASE, DATABASE_URL and Supabase selectors enforced before any SQL.",
-        "Failure to execute any statement is recorded as LOCAL_SOURCE_BLOCKED with actual psql SQLSTATE/error line and no 59+18 COMMIT claim; verify no application schema persisted.",
-        "Only genuine postflight and committed schema can yield LOCAL_SOURCE_REPLAY_COMMITTED; even then an independent pre-COMMIT fault must prove rollback and release stays blocked.",
-        "Original 59-file F6-U03b hosted compiler abort-before-DROP and F6-U03f full strict guard unchanged, no hosted writes or managed provider acceptance.",
-        "Separate exact-head source workflow and normal CI/Truth/Lifecycle gates provide reproducible evidence.",
-        "The distinct authentic source 20260910070300 is placed between original immutable 0057 and 0058, not before 0055; 17 other source-pinned original Office SQL files precede 0055.",
-        "Exactly 59 approved original numbered migrations and 19 candidate original timestamped source files (18 predecessors before 0055, one 20260910070300 post-0057), including SHA-pinned 20260903180000 v2 function creator before its 20260908030000 v3 revocation."
+        "Canonical reviewed baseline verifies exact 59 Git blobs and companion source SQL; 19 Office main SQL blob IDs come from existing source identity guard, including unique v2 precursor; no tampering.",
+        "Emit one versioned review-candidate manifest with unique 78 ordinal source items, ordered preflight/59+19 original SQL/postflight and cryptographic digest of each original source and overall bundle, and releaseAuthorized=false.",
+        "Original customer-baseline 0055 must follow 18 prior Office source creators; Office FK follow-up must follow 0057 and precede 0058; no old file bodies changed.",
+        "Dedicated true Docker PostgreSQL17 checks real peer/container identity, fixed local db and roles before any SQL, then real source-original COMMIT + postflight. New final v2/v3 ACL query is run after COMMIT.",
+        "Runtime v2 EXECUTE denied to anon/authenticated/service_role (including any default PUBLIC grant); runtime v3 EXECUTE denied to anon/authenticated but granted to service_role. A v2 owner/superuser bypass does not count.",
+        "Unit negative tests simulate ACL contradictions, function absence, wrong file order/source drift and attempted production authorization; fail-closed throughout.",
+        "Original F6-U03b abort-before-DROP and F6-U03f strict guard remain unmodified; normal exact-head CI and Truth/Lifecycle verify only this candidate manifest/privilege diagnostic."
       ],
       "invariants": [
-        "Never edit or copy original 59 or 18 source SQL; treat main timestamped candidate files as diagnostic only, not release authority.",
-        "Source concatenator has no database connection, network or filesystem write outside artifacts/f6-u03k source bundle output.",
-        "Every DB connection in workflow uses -h 127.0.0.1 Docker published ports, pinned local database names only, no inherited external libpq selector.",
-        "Preserve original target-preflight/target-postflight/neutral seed in transaction and full source content, never weaken preflight or install synthetic office tables.",
-        "psql ON_ERROR_STOP=1 and actual nonzero exit required for SQL failure; classify blocked, never success as readiness.",
-        "Full hosted F6-U03b execution abort remains before schema DROP and no transaction guard production code changes.",
-        "Original v2 source may create legacy function only as temporary historical precedent inside isolated test; final SQL proof must not interpret that as authorization to expose v2 to client/service_role."
+        "All 78 original SQL source files are unchanged and pinned to their source Git blob authority, 59 customer-baseline and 19 historical main.",
+        "The candidate manifest must never be interpreted as production deployable. `releaseAuthorized` and `hostedTouched` always false.",
+        "Every SQL execution endpoint is an isolated, exact-identity checked Docker PG17 ephemeral database; no hosted PG selectors inherited.",
+        "Final read-only ACL statement checks exact v2/v3 function names, arg signatures and explicit PostgreSQL roles with effective grants; no SQL mutation after positive COMMIT.",
+        "Owner/superuser EXECUTE is not equivalent to safe service_role endpoint grants; deny browser and service_role on v2.",
+        "Successful offline candidate compile or source test alone cannot be called provider or tenant RLS completion."
       ],
       "forbiddenStates": [
-        "Any CI job connects to Supabase waterk-platform, waterk-staging, or Fresh Install.",
-        "Fake green source replay by swallowing psql error without recording blocked SQLSTATE/transaction aftermath.",
-        "Insertion of synthetic Office tables or material provider implementations not present in original sources.",
-        "Candidate timestamped SQL treated as approved release package or applied to active project.",
-        "Full provider/TLS/JWT/tenant authorization reported proven from local Docker.",
-        "Original F6-U03f security gate or 59-file source bytes rewritten for test success."
+        "An approved hosted release package or reset is inferred from passing local v2/v3 role grants.",
+        "Legacy sender-thread-only security-definer v2 function is executable by anon, authenticated, service_role or PUBLIC at end of migration.",
+        "Production v3 inbound entrypoint is callable by anon/authenticated or unavailable to service_role due to accidental privilege drift.",
+        "Any synthetic Office table or function is introduced into local fixture rather than original source SQL.",
+        "Source-only candidate manifest includes different number/order/bytes while still reporting source-verified.",
+        "Actual Supabase schema or staging/platform/Fresh Install project is modified."
       ]
     },
     "model": {
@@ -161,40 +157,40 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The 18-source prelude depends on an omitted older migration with an undefined private function or table, leading to a genuine PostgreSQL error before 0055.",
-        "An older Office source grants excessive role permissions or overrides later Pro-only policy; local SQL may run but is not production-appropriate.",
-        "Read-only aftermath misses public/private functions created outside the transaction by accidental autocommit.",
-        "psql exits zero despite SQL errors if ON_ERROR_STOP is dropped or a shell status is lost.",
-        "A duplicate 0026 original file is omitted in source translation and produces misleading count 59.",
-        "Injected failure is placed after COMMIT or uses the same committed database, not a distinct fixture."
+        "Legacy v2 function's service_role grant is not actually removed because future SQL restores it or mismatches the overloaded signature.",
+        "PUBLIC gets implicit EXECUTE on a newly defined function and one of the `REVOKE ALL` steps is missing; per-role checks might conceal PUBLIC entry if not checked.",
+        "Unpinned SQL creator bytes from main drift; new 78-source manifest incorrectly trusts filenames instead of Git blobs.",
+        "An old provider role's permission is inherited by authenticated even when direct grantee ACL is absent.",
+        "SQL fails but CI incorrectly runs ACL against an earlier schema or an empty provider fixture.",
+        "SQL source order places 20260910070300 FK follow-up before original 0055 and reports an unrelated missing-column failure."
       ],
       "edgeCases": [
-        "A source SQL text contains comments with BEGIN/COMMIT but no actual nested transaction; envelope identification uses explicit compiler markers.",
-        "An extra SQL source introduces function bodies containing the text 'COMMIT;' but no top-level transaction end.",
-        "A Source file contains a line with psql meta commands or COPY and changes execution semantics; classify and preserve instead of suppress.",
-        "Different original SQL migration files define the same function with CREATE OR REPLACE; local replay is diagnostic only, not release ownership.",
-        "A real 59+18 local run fails after preflight but prior to 0055, leaving no committed application objects.",
-        "Original target-postflight assumes only 59 migration RLS policy counts and may fail after additional candidate sources: report exact result rather than change it."
+        "Source SQL contains PostgreSQL dollar-quoted bodies with `$'` and `$$`; candidate compiler must use callback-safe literal concatenation and Git blobs.",
+        "Real function signature v3 is eleven arguments and text array/integer; exact oid equality required.",
+        "Membership/inherited role privileges may make has_function_privilege true despite direct ACL grantee checks being absent.",
+        "Postflight marker appears in a comment or earlier log even though COMMIT did not happen; require process exit zero and final COMMIT plus catalog.",
+        "Role `PUBLIC` has pseudograntee OID zero; avoid treating `public` schema/real role as equivalent.",
+        "Branch is stacked on draft #1355; no parallel changes or merging parent while evidence is gathered."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-U03K-LOCAL_DIAGNOSTIC",
-        "summary": "Execute unchanged 59+18 source candidates inside isolated Docker PG17 with fail-closed error reporting and negative post-transaction integrity.",
+        "id": "ALT-U03L-REVIEW_ONLY_MANIFEST_ACL",
+        "summary": "Versioned immutable source review-candidate plus real Docker PG17 effective ACL query and negative tests.",
         "disposition": "selected",
-        "reason": "Produces concrete next dependency information without assuming old SQL is approved for release."
+        "reason": "Limits risk, validates real final permissions and makes next source-authorized release stage auditable."
       },
       {
-        "id": "ALT-U03K-RESET_HOSTED",
-        "summary": "Run original 59-file hosted review by disabling abort-before-DROP and preloading missing tables.",
+        "id": "ALT-U03L-PRODUCTION_SQL",
+        "summary": "Immediately migrate the 78 original historical SQL sources to hosted Fresh Install or promote draft package to release.",
         "disposition": "rejected",
-        "reason": "Destructive, explicitly unauthorized and masks true source lineage defects."
+        "reason": "Would bypass managed provider/TLS/signed-in RLS, supersession reviews and explicit hosted abort-before-DROP."
       },
       {
-        "id": "ALT-U03K-MOCK_MAILBOX",
-        "summary": "Add public.office_mailboxes mock table in provider fixture to pass 0055 and ignore original creator RLS.",
+        "id": "ALT-U03L-STRING_ONLY",
+        "summary": "Check that text contains REVOKE but skip actual pg_proc and has_function_privilege runtime test.",
         "disposition": "rejected",
-        "reason": "Would create a false positive and bypass authentic Office source and security policy."
+        "reason": "Cannot detect inherited privileges, default PUBLIC grants or overloaded signature mistakes."
       }
     ],
     "specialistReviews": [
@@ -202,123 +198,108 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Older timestamped Office SQL may carry stale grants or blanket-Pro policies and cannot be approved for runtime from a successful local replay.",
-        "resolution": "Only Docker diagnostic; manifest release=false and explicit supersession/role/tenant gate separate.",
+        "finding": "Checking only text REVOKE is inadequate and a successful local ACL probe may be mistaken for provider-level authorization.",
+        "resolution": "Require post-commit real has_function_privilege and PUBLIC grantee checks for exact v2/v3 signatures, then explicitly keep signed-in tenant/managed provider blocked.",
         "evidence": [
-          "scripts/shoperation-f6-u03k-office-local-replay.mjs",
-          ".github/workflows/f6-u03k-local-source-replay.yml"
+          "scripts/shoperation-f6-u03l-release-candidate-acl.mjs",
+          ".github/workflows/f6-u03l-real-acl-proof.yml"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "An apparently successful append may hide incomplete source order and multi-transaction commits.",
-        "resolution": "One BEGIN/COMMIT with sources before 0055 and mandatory postflight/rollback or exact failure aftermath.",
+        "finding": "A manifest naming 78 files without cryptographic identities/order could silently permit modified SQL.",
+        "resolution": "Use canonical existing reviewed SHA authority for 59 and original main Git identities for 19; duplicate and sequence negative tests.",
         "evidence": [
-          "tests/shoperation-f6-u03k-office-local-replay.test.ts"
+          "tests/shoperation-f6-u03l-release-candidate-acl.test.ts"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A source file can be changed between DAG scan and execution.",
-        "resolution": "Pin 18 main Git blob bytes and 59 approved source hashes in every emitted manifest; run Git SHA checks before CLI output.",
+        "finding": "Existing historical source compiler had JS `$` replacement issues; new copy-paste would create parallel authority and drift.",
+        "resolution": "Reuse exact F6-U03k composer and source hash verification, not a duplicate migration compiler; derive ordered manifest from its verified output.",
         "evidence": [
-          "scripts/shoperation-f6-u03j-office-dependency-dag.mjs"
+          "scripts/shoperation-f6-u03k-office-local-replay.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Passing CI for blocked diagnostic can be incorrectly promoted to hosted deployment.",
-        "resolution": "Separate workflow gate name, machine result RELEASE_NOT_AUTHORIZED, unchanged hosted guard and #1228 open.",
+        "finding": "Real Docker roles and functions do not demonstrate authenticated Supabase JWT authorization or provider-managed infrastructure.",
+        "resolution": "Persist releaseAuthorized=false and providerAuthProven=false; new release package still demands human source supersession approval and independent tenant JWT tests.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03K_LOCAL_SOURCE_REPLAY_2026-10-15.md"
+          "docs/po/CORE_1186_F6_U03L_SOURCE_CANDIDATE_ACL_2026-10-16.md"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-U03K-01",
-        "scenario": "After original 0054, a candidate 20260908030000 adds required mailbox tables but another prior function dependency is missing, so the source replay fails inside the one transaction.",
-        "finding": "Treating a different SQL error as permission to skip the failing candidate would mask a release source gap and fabricate full 59+18 installation readiness.",
-        "resolution": "Capture actual nonzero psql error, source filename and line with transaction rollback, mark BLOCKED, and keep #1228 open until separately versioned source DAG correction.",
+        "id": "CH-U03L-01",
+        "scenario": "One 59 reviewed customer-baseline source or 19 historical Office source is changed without changing filename, and the proposed candidate still counts 78 files.",
+        "finding": "A versioned manifest could legitimize unreviewed SQL, break exact-head source authority and silently weaken a function's privileges.",
+        "resolution": "Invoke original 59 Git-blob source reviewer and canonical main 19 Git-blob verifier, include exact source sha per ordinal manifest item and fail before generating candidate if any bytes differ.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03K-02",
-        "scenario": "The candidate old Office inbound SQL contains a RLS policy that grants a legacy role access inconsistent with current Alap/Pro contract.",
-        "finding": "Even if all 77 source SQL files run successfully on a temporary database, that does not prove safe modern tenant authorization or final SQL package precedence.",
-        "resolution": "Do not mark release APPROVED; require independent policy and grants diff, supersession scan and authenticated Alap/Pro RLS proof before approval.",
+        "id": "CH-U03L-02",
+        "scenario": "All 78 SQL files execute but record_inbound_office_email_v2(text,text,text,text,text) retains effective EXECUTE for service_role due to a later GRANT or default PUBLIC grant.",
+        "finding": "The legacy sender-only security-definer email API could be called despite v3 intended replacement; contains a cross-topic/thread risk.",
+        "resolution": "After real COMMIT, use role-based has_function_privilege for anon, authenticated and service_role plus pg_proc PUBLIC acl item, fail closed on any true result for exact v2 signature.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03K-03",
-        "scenario": "A CI command accidentally points 127.0.0.1 to a non-Docker PostgreSQL instance or inherits PGHOSTADDR, DATABASE_URL or SUPABASE_DB_URL.",
-        "finding": "A destructive historical baseline execution could target an unauthorized hosted database if peer identity is not proved before connecting.",
-        "resolution": "Use two verified Docker PG17 container identities, fixed local DB/ports, exact server peer IP, role, major version and reject all inherited libpq selectors.",
+        "id": "CH-U03L-03",
+        "scenario": "v3 record_inbound_office_email_v3 has multiple overloads and test checks the wrong function or its synthetic wrapper.",
+        "finding": "A misleading green SQL test misses the current security-definer API's correct 11-argument signature and browser role exposure.",
+        "resolution": "Lookup pg_proc by to_regprocedure with full signature, assert exact OID, run effective privileges separately for each role and assert v3 service_role true/anon/authenticated false.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03K-04",
-        "scenario": "One of the 18 candidate source SQL blobs or original 59 reviewed migrations is modified while filenames and counts stay unchanged.",
-        "finding": "A 77-filename count is insufficient provenance and could silently conceal an edited security policy or SQL statement.",
-        "resolution": "Require both existing reviewed baseline Git-blob verifier and main authoritative blob SHA check of each 18 original Office file before emitting SQL.",
+        "id": "CH-U03L-04",
+        "scenario": "A CI libpq selector redirects psql to hosted Fresh Install or platform during historical SQL replay.",
+        "finding": "Even unchanged source SQL can overwrite production objects or violate explicit hosted authority.",
+        "resolution": "Verify real Docker peer IP, fixed local DB/role/PG17, reject PGHOST/PGHOSTADDR/PGOPTIONS/DATABASE_URL/SUPABASE_DB_URL and never accept hosted execution mode.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03K-05",
-        "scenario": "The candidate 20260910070300_communication_hub_2_0_fk_indexes_v1.sql is inserted before the 0055 foundation it depends on, rather than after 0057 when 0055–0057 have established its target columns.",
-        "finding": "Wrong placement of an original post-0057 FK index migration would introduce a synthetic release failure and misidentify the canonical source DAG even though the source itself is valid in its chronological slot.",
-        "resolution": "Split 18 immutable Office candidates by verified chronological role: 17 before 0055 and 20260910070300 after 0057 but before 0058; assert both placements and one BEGIN/COMMIT with negative tests.",
+        "id": "CH-U03L-05",
+        "scenario": "The candidate manifest inserts original Communication Hub FK index SQL before source 0055 and original Office grants fail due to missing target columns.",
+        "finding": "Incorrect order gives a fabricated SQL dependency error while an invalid package is marked versioned and reviewable.",
+        "resolution": "Build ordinals directly from existing proven F6-U03k diagnostic source markers and assert FK source after 0057 before 0058, 18 predecessors before 0055 and no duplicates.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03K-06",
-        "scenario": "A psql execution fails at 0055 but shell script ignores status and prints SUCCESS based only on raw output containing earlier preflight marker.",
-        "finding": "The SQL replay is falsely certified even though no valid COMMIT or postflight completed, potentially authorizing live schema reset.",
-        "resolution": "Use ON_ERROR_STOP=1, capture real exit status separately, inspect psql error and post-run actual DB object counts, and emit explicit BLOCKED result with no release authorization.",
+        "id": "CH-U03L-06",
+        "scenario": "An old Office function's public EXECUTE implicit default survives but direct privilege rows show no anon/authenticated grant.",
+        "finding": "Direct pg_proc proacl inspection alone can fail to detect inherited privileges; browser roles may effectively execute dangerous functions.",
+        "resolution": "Assert no effective EXECUTE via has_function_privilege for every role and a distinct PUBLIC pseudo-grantee acl item check; include negative unit tests for contradictions.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03K-07",
-        "scenario": "All original SQL and postflight pass in local fixture yet the failure injection runs after COMMIT or on the same database, proving no rollback.",
-        "finding": "Database atomicity cannot be claimed from a failure raised after commit or a count query against an already persisted schema.",
-        "resolution": "Use separate fresh Docker PG17 database and inject exception before only COMMIT; require nonzero exit and zero app-owned relations/functions/policies before accepting local rollback proof.",
+        "id": "CH-U03L-07",
+        "scenario": "Original SQL transaction fails or postflight does not run, but CI continues to ACL verification against provider bootstrap and calls it PASS.",
+        "finding": "Release manifest would be backed by a nonexistent installed schema and function privileges could be read from an incomplete database.",
+        "resolution": "Use psql -X -v ON_ERROR_STOP=1 and exit, original postflight marker, final COMMIT and post-commit check for both exact function OIDs and baseline schema objects; no swallow failure.",
         "status": "resolved"
       },
       {
-        "id": "CH-U03K-08",
-        "scenario": "The local 77-source replay succeeds using synthetic Auth/Storage provider roles, and the completion message claims full signed-in Alap/Pro RLS and hosted managed restore are done.",
-        "finding": "Local Postgres role mocks have no provider event semantics, TLS host proof, JWT boundary enforcement or customer Data API and cannot prove release readiness.",
-        "resolution": "Hardcode releaseAuthorized=false, hostedTouched=false, providerProven=false, authenticatedTenantRlsProven=false in every result and require later independent acceptance.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-U03K-09",
-        "scenario": "Historical v2 inbound function's creation is skipped and v3 foundation tries to REVOKE privileges from a nonexistent record_inbound_office_email_v2(text,text,text,text,text).",
-        "finding": "A genuine source dependency fails before mailbox base finishes, even though static table-only DAG identified 18 files; skipping the REVOKE to pass Docker would change security semantics.",
-        "resolution": "Pin unchanged original 20260903180000 Git blob and include it before v3 source, ensure genuine v3 REVOKE occurs after v2; do not alter or skip revoke or grant in either SQL.",
-        "status": "resolved"
-      },
-      {
-        "id": "CH-U03K-10",
-        "scenario": "An original v2 inbound function exposes sender-only thread selection while v3 replaces it with mailbox token threading; a successful local replay is declared acceptable without checking final v2 execute permissions.",
-        "finding": "A legacy security-definer email entrypoint could retain service_role execute access, reintroducing the cross-thread merge that modern v3 explicitly revokes.",
-        "resolution": "Keep all 19 original source bytes unchanged and require separate final service-role ACL proof and supersession review before a versioned production package can be approved; local Docker success is never authorization.",
+        "id": "CH-U03L-08",
+        "scenario": "The critical source candidate and native role ACL prove GREEN on Docker fixture, and output is mislabeled production release approved or signed-in Alap/Pro JWT tested.",
+        "finding": "Provider-managed Auth/Storage, HTTPS/TLS endpoint identity, signed-in tenant RLS, supersession and customer journey acceptance remain untested.",
+        "resolution": "Force manifest.releaseAuthorized=false, hostedTouched=false, providerManaged=false and tenantJwtRlsProven=false; require separately reviewed authority and real provider proof for any promotion.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Canonical Development Guard, challenge-specific critical Plan Before Code before any implementation file edits.",
-      "Source-only compose complete 59 unchanged reviewed SQL and 18 original source-verified candidate prelude before original 0055, preserve actual original preflight/postflight/seed.",
-      "Vitest adversarial cases on source hashes, source order, original abort-before-DROP and no hosted execution.",
-      "Run actual two-service Docker PG17 CI; capture original SQL error, classify blocked and actual rollback aftermath; if commit succeeds, execute independent forced rollback.",
-      "Quality/TS/Build/Security/Completion Truth/Lifecycle exact head proving only scoped diagnostic, not release approval.",
-      "Source-pin upstream 20260903180000 v2 function creator in canonical main and validate chronological successor v3 SQL REVOKE; add negative tamper and marker ordering tests."
+      "Run exact branch Development Guard, read applicable 31 Known Failures and critical Plan Before Code with resolved specialist/negative challenges before implementation.",
+      "Build source-only versioned release-candidate manifest from existing F6-U03k canonical 78-source compiler with source-order markers and Git provenance.",
+      "Adversarial unit tests on absent/duplicated/reordered source, unauthorized release flag, v2/v3 ACL contradictions, wrong function/role and postflight missing.",
+      "Use real independently identity-checked Docker PG17 with original existing bootstrap and exact canonical 78 SQL COMMIT plus source postflight; post-COMMIT SQL ACL probes on real roles.",
+      "Verify normal exact-head Shoperation CI Quality, TypeScript, production build, Security Audit, Completion Truth, Lifecycle and dedicated ACL proof, then close scoped unit only."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
@@ -327,20 +308,20 @@
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03k-plan-capture.yml"
+        ".github/workflows/f6-u03l-plan-capture.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        ".github/workflows/f6-u03k-local-source-replay.yml",
-        "docs/po/CORE_1186_F6_U03K_LOCAL_SOURCE_REPLAY_2026-10-15.md",
-        "scripts/shoperation-f6-u03k-office-local-replay.mjs",
-        "tests/shoperation-f6-u03k-office-local-replay.test.ts"
+        ".github/workflows/f6-u03l-real-acl-proof.yml",
+        "docs/po/CORE_1186_F6_U03L_SOURCE_CANDIDATE_ACL_2026-10-16.md",
+        "scripts/shoperation-f6-u03l-release-candidate-acl.mjs",
+        "tests/shoperation-f6-u03l-release-candidate-acl.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/shoperation-f6-u03k-office-local-replay.test.ts",
-        ".github/workflows/f6-u03k-local-source-replay.yml"
+        "tests/shoperation-f6-u03l-release-candidate-acl.test.ts",
+        ".github/workflows/f6-u03l-real-acl-proof.yml"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -351,16 +332,16 @@
       "implementationSkeleton": {
         "contract": "shoporation.implementation-skeleton.v1",
         "mustEdit": [
-          ".github/workflows/f6-u03k-plan-capture.yml",
+          ".github/workflows/f6-u03l-plan-capture.yml",
           "quality/development/active-plan.json"
         ],
         "mayEdit": [],
         "impactedReadOnly": [],
         "mustCreate": [
-          ".github/workflows/f6-u03k-local-source-replay.yml",
-          "docs/po/CORE_1186_F6_U03K_LOCAL_SOURCE_REPLAY_2026-10-15.md",
-          "scripts/shoperation-f6-u03k-office-local-replay.mjs",
-          "tests/shoperation-f6-u03k-office-local-replay.test.ts"
+          ".github/workflows/f6-u03l-real-acl-proof.yml",
+          "docs/po/CORE_1186_F6_U03L_SOURCE_CANDIDATE_ACL_2026-10-16.md",
+          "scripts/shoperation-f6-u03l-release-candidate-acl.mjs",
+          "tests/shoperation-f6-u03l-release-candidate-acl.test.ts"
         ],
         "forbidden": [],
         "proof": [],
@@ -393,19 +374,19 @@
         ],
         "files": [
           {
-            "file": ".github/workflows/f6-u03k-local-source-replay.yml",
+            "file": ".github/workflows/f6-u03l-plan-capture.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": ".github/workflows/f6-u03k-plan-capture.yml",
+            "file": ".github/workflows/f6-u03l-real-acl-proof.yml",
             "subsystem": "release-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "docs/po/CORE_1186_F6_U03K_LOCAL_SOURCE_REPLAY_2026-10-15.md",
+            "file": "docs/po/CORE_1186_F6_U03L_SOURCE_CANDIDATE_ACL_2026-10-16.md",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -417,13 +398,13 @@
             "points": 0
           },
           {
-            "file": "scripts/shoperation-f6-u03k-office-local-replay.mjs",
+            "file": "scripts/shoperation-f6-u03l-release-candidate-acl.mjs",
             "subsystem": "quality-infrastructure",
             "risk": "medium",
             "points": 2
           },
           {
-            "file": "tests/shoperation-f6-u03k-office-local-replay.test.ts",
+            "file": "tests/shoperation-f6-u03l-release-candidate-acl.test.ts",
             "subsystem": "evidence-neutral",
             "risk": "neutral",
             "points": 0
@@ -456,19 +437,19 @@
           ],
           "files": [
             {
-              "file": ".github/workflows/f6-u03k-local-source-replay.yml",
+              "file": ".github/workflows/f6-u03l-plan-capture.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": ".github/workflows/f6-u03k-plan-capture.yml",
+              "file": ".github/workflows/f6-u03l-real-acl-proof.yml",
               "subsystem": "release-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "docs/po/CORE_1186_F6_U03K_LOCAL_SOURCE_REPLAY_2026-10-15.md",
+              "file": "docs/po/CORE_1186_F6_U03L_SOURCE_CANDIDATE_ACL_2026-10-16.md",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -480,13 +461,13 @@
               "points": 0
             },
             {
-              "file": "scripts/shoperation-f6-u03k-office-local-replay.mjs",
+              "file": "scripts/shoperation-f6-u03l-release-candidate-acl.mjs",
               "subsystem": "quality-infrastructure",
               "risk": "medium",
               "points": 2
             },
             {
-              "file": "tests/shoperation-f6-u03k-office-local-replay.test.ts",
+              "file": "tests/shoperation-f6-u03l-release-candidate-acl.test.ts",
               "subsystem": "evidence-neutral",
               "risk": "neutral",
               "points": 0
@@ -501,7 +482,7 @@
           {
             "id": 0,
             "files": [
-              ".github/workflows/f6-u03k-local-source-replay.yml"
+              ".github/workflows/f6-u03l-plan-capture.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -518,7 +499,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03k-local-source-replay.yml",
+                  "file": ".github/workflows/f6-u03l-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -531,7 +512,7 @@
           {
             "id": 1,
             "files": [
-              ".github/workflows/f6-u03k-plan-capture.yml"
+              ".github/workflows/f6-u03l-real-acl-proof.yml"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -548,7 +529,7 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03k-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03l-real-acl-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -561,7 +542,7 @@
           {
             "id": 2,
             "files": [
-              "docs/po/CORE_1186_F6_U03K_LOCAL_SOURCE_REPLAY_2026-10-15.md"
+              "docs/po/CORE_1186_F6_U03L_SOURCE_CANDIDATE_ACL_2026-10-16.md"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -572,7 +553,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "docs/po/CORE_1186_F6_U03K_LOCAL_SOURCE_REPLAY_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03L_SOURCE_CANDIDATE_ACL_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -609,7 +590,7 @@
           {
             "id": 4,
             "files": [
-              "scripts/shoperation-f6-u03k-office-local-replay.mjs"
+              "scripts/shoperation-f6-u03l-release-candidate-acl.mjs"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -626,7 +607,7 @@
               ],
               "files": [
                 {
-                  "file": "scripts/shoperation-f6-u03k-office-local-replay.mjs",
+                  "file": "scripts/shoperation-f6-u03l-release-candidate-acl.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
@@ -639,7 +620,7 @@
           {
             "id": 5,
             "files": [
-              "tests/shoperation-f6-u03k-office-local-replay.test.ts"
+              "tests/shoperation-f6-u03l-release-candidate-acl.test.ts"
             ],
             "risk": {
               "contract": "shoporation.projected-release-risk.v1",
@@ -650,7 +631,7 @@
               "subsystems": [],
               "files": [
                 {
-                  "file": "tests/shoperation-f6-u03k-office-local-replay.test.ts",
+                  "file": "tests/shoperation-f6-u03l-release-candidate-acl.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -668,39 +649,39 @@
               "id": "DEVELOPMENT-GUARD",
               "parentTransactionId": "DEVELOPMENT-GUARD",
               "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-              "developmentBaseSha": "b9f9feec2330819db8a7ca783df2751559be6289"
+              "developmentBaseSha": "8cd1c47385272aaba0dd893d0d54d64ea86a53dd"
             },
             "releaseUnitId": "DEVELOPMENT-GUARD-U01",
             "order": 1,
-            "targetBaseSha": "b9f9feec2330819db8a7ca783df2751559be6289",
+            "targetBaseSha": "8cd1c47385272aaba0dd893d0d54d64ea86a53dd",
             "lease": {
-              "expectedBaseSha": "b9f9feec2330819db8a7ca783df2751559be6289",
+              "expectedBaseSha": "8cd1c47385272aaba0dd893d0d54d64ea86a53dd",
               "failOnDrift": true,
               "reconciled": true,
               "reconciledFromSha": null
             },
             "intendedFiles": [
-              ".github/workflows/f6-u03k-local-source-replay.yml",
-              ".github/workflows/f6-u03k-plan-capture.yml",
-              "docs/po/CORE_1186_F6_U03K_LOCAL_SOURCE_REPLAY_2026-10-15.md",
+              ".github/workflows/f6-u03l-plan-capture.yml",
+              ".github/workflows/f6-u03l-real-acl-proof.yml",
+              "docs/po/CORE_1186_F6_U03L_SOURCE_CANDIDATE_ACL_2026-10-16.md",
               "quality/development/active-plan.json",
-              "scripts/shoperation-f6-u03k-office-local-replay.mjs",
-              "tests/shoperation-f6-u03k-office-local-replay.test.ts"
+              "scripts/shoperation-f6-u03l-release-candidate-acl.mjs",
+              "tests/shoperation-f6-u03l-release-candidate-acl.test.ts"
             ],
             "operations": [
               {
-                "operation": "create",
-                "file": ".github/workflows/f6-u03k-local-source-replay.yml",
-                "generated": null
-              },
-              {
                 "operation": "modify",
-                "file": ".github/workflows/f6-u03k-plan-capture.yml",
+                "file": ".github/workflows/f6-u03l-plan-capture.yml",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "docs/po/CORE_1186_F6_U03K_LOCAL_SOURCE_REPLAY_2026-10-15.md",
+                "file": ".github/workflows/f6-u03l-real-acl-proof.yml",
+                "generated": null
+              },
+              {
+                "operation": "create",
+                "file": "docs/po/CORE_1186_F6_U03L_SOURCE_CANDIDATE_ACL_2026-10-16.md",
                 "generated": null
               },
               {
@@ -710,12 +691,12 @@
               },
               {
                 "operation": "create",
-                "file": "scripts/shoperation-f6-u03k-office-local-replay.mjs",
+                "file": "scripts/shoperation-f6-u03l-release-candidate-acl.mjs",
                 "generated": null
               },
               {
                 "operation": "create",
-                "file": "tests/shoperation-f6-u03k-office-local-replay.test.ts",
+                "file": "tests/shoperation-f6-u03l-release-candidate-acl.test.ts",
                 "generated": null
               }
             ],
@@ -748,19 +729,19 @@
               ],
               "files": [
                 {
-                  "file": ".github/workflows/f6-u03k-local-source-replay.yml",
+                  "file": ".github/workflows/f6-u03l-plan-capture.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": ".github/workflows/f6-u03k-plan-capture.yml",
+                  "file": ".github/workflows/f6-u03l-real-acl-proof.yml",
                   "subsystem": "release-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "docs/po/CORE_1186_F6_U03K_LOCAL_SOURCE_REPLAY_2026-10-15.md",
+                  "file": "docs/po/CORE_1186_F6_U03L_SOURCE_CANDIDATE_ACL_2026-10-16.md",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -772,13 +753,13 @@
                   "points": 0
                 },
                 {
-                  "file": "scripts/shoperation-f6-u03k-office-local-replay.mjs",
+                  "file": "scripts/shoperation-f6-u03l-release-candidate-acl.mjs",
                   "subsystem": "quality-infrastructure",
                   "risk": "medium",
                   "points": 2
                 },
                 {
-                  "file": "tests/shoperation-f6-u03k-office-local-replay.test.ts",
+                  "file": "tests/shoperation-f6-u03l-release-candidate-acl.test.ts",
                   "subsystem": "evidence-neutral",
                   "risk": "neutral",
                   "points": 0
@@ -811,7 +792,7 @@
                 "GUARD-TYPECHECK"
               ],
               "proofFiles": [
-                "tests/shoperation-f6-u03k-office-local-replay.test.ts"
+                "tests/shoperation-f6-u03l-release-candidate-acl.test.ts"
               ],
               "externalGateIds": []
             },
@@ -822,12 +803,12 @@
             "predecessorUnits": [],
             "expectedPostUnitState": {
               "filesPresent": [
-                ".github/workflows/f6-u03k-local-source-replay.yml",
-                ".github/workflows/f6-u03k-plan-capture.yml",
-                "docs/po/CORE_1186_F6_U03K_LOCAL_SOURCE_REPLAY_2026-10-15.md",
+                ".github/workflows/f6-u03l-plan-capture.yml",
+                ".github/workflows/f6-u03l-real-acl-proof.yml",
+                "docs/po/CORE_1186_F6_U03L_SOURCE_CANDIDATE_ACL_2026-10-16.md",
                 "quality/development/active-plan.json",
-                "scripts/shoperation-f6-u03k-office-local-replay.mjs",
-                "tests/shoperation-f6-u03k-office-local-replay.test.ts"
+                "scripts/shoperation-f6-u03l-release-candidate-acl.mjs",
+                "tests/shoperation-f6-u03l-release-candidate-acl.test.ts"
               ],
               "filesAbsent": []
             },
@@ -842,7 +823,7 @@
               "sourceCommit": null,
               "sealed": false
             },
-            "manifestDigest": "b7f9efa9",
+            "manifestDigest": "20f8a3bd",
             "decision": "PASS"
           }
         ],
@@ -884,34 +865,31 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Authentic frozen 59 SQL customer-baseline fails at original 0055 because public.office_mailboxes does not exist. Prior source-authentic F6-U03j verified 18 candidate original Office prerequisite/follow-up files and 23 table edges. Need independently execute original SQL in Docker 17 with candidates inserted before 0055 to reveal further missing SQL/provider dependencies, without claiming ready or weakening immutable source release package. Real PG17 original run #38807351988 completed isolated containers and failed in 20260908030000 when REVOKE on public.record_inbound_office_email_v2(text,text,text,text,text) found function absent. Main's original 20260903180000 source creates that legacy function; new diagnostic must include original Git-blob-pinned v2 source *before* the 20260908030000 predecessor, and still prove legacy grant is revoked by v3 before any final state claim.",
+    "problemStatement": "Genuine local Docker PG17 proof #38808912158 established 59 reviewed customer baseline SQL + 19 authentic original Office SQL in one transaction with original postflight, and atomic rollback. The sole successful concatenation is a diagnostic, not yet a source-authorized versioned release manifest. Historical security-definer inbound v2 temporarily receives EXECUTE service_role until later inbound v3 source explicitly REVOKEs it. Must certify final PostgreSQL17 role privileges and pin a versioned ordered 78-source candidate without copying/altering original SQL or promoting a local replay as an approved release.",
     "observableOutcomes": [
-      "Pin complete original 59 file source hash and all 18 Office candidate original main Git blobs and content, preserve exact byte strings, and compose a one-transaction diagnostic with these 18 sources before 0055.",
-      "Before any SQL, assert only real local Docker PG17 peer endpoint, database, role and server version and source-reviewed original preflight/auth-bootstrap/neutral-seed/postflight placement.",
-      "If authentic source SQL fails before COMMIT, preserve psql nonzero exit, exact SQL error (line and statement source marker), report LOCAL_SOURCE_BLOCKED with no positive claim and confirm transaction did not commit.",
-      "If SQL and postflight actually pass, check persisted schema and run a distinct fresh Docker PG17 injected pre-COMMIT error, verifying complete rollback.",
-      "Machine output reports ALWAYS RELEASE_NOT_AUTHORIZED; supersession, Auth/Storage, TLS and signed-in tenant Alap/Pro semantics remain BLOCKED.",
-      "Exact-head canonical Development Guard, Plan Before Code, Edit-Time, Quality/TypeScript/Build, Completion Truth/Lifecycle checks for this diagnostic only.",
-      "The 20260910070300 Communication Hub FK-index file runs only after original 0057 and before original 0058, not in the 17-file pre-0055 Office predecessor prelude.",
-      "Add original 20260903180000_inbound_office_email_atomic_v2.sql from pinned canonical main as the earliest extra source before original 0055, and verify v3 migration REVOKEs service_role from this v2 API; no legacy API is promoted to release."
+      "Emit deterministic, versioned machine-readable review-candidate manifest for all 78 original ordered sources with 59 unchanged Git-reviewed customer-baseline files and 19 Git-blob-pinned original Office source files; preserve exactly 18 pre-0055 and one post-0057 placement.",
+      "Expose immutable source path, SHA identity, ordinal and source-authority references per entry; refuse missing/duplicated/reordered original inputs and any attempted releaseApproved=true.",
+      "Run true Docker PostgreSQL17 original 78-file migration transaction, source target-preflight/postflight and one COMMIT, followed by read-only pg_proc ACL privileges for exact v2/v3 signature and real PostgreSQL roles anon/authenticated/service_role.",
+      "Ensure has_function_privilege for all 3 roles returns FALSE for legacy v2, and only service_role returns TRUE for v3, with no PUBLIC pseudo-role EXECUTE grant or elevated security-definer exposure.",
+      "Negative checks fail CI on any mistaken grant, missing function, changed source, wrong identity or query ambiguity; Docker truth is NOT an authenticated Alap/Pro tenant session proof.",
+      "All exact-head canonical Development Guard, Plan Before Code, dedicated runtime ACL tests, Quality/TS/Build/Security, Completion Truth/Lifecycle pass scoped diagnostic only."
     ],
     "unresolvedRisks": [
-      "18 candidate timestamped sources can contain superseded authorization, plan guards or unsafe grants; diagnostic isolated Docker execution is no authority for release.",
-      "Static source DAG counts only table dependencies; function signature, generated column, trigger and provider stubs may block at arbitrary SQL statement.",
-      "If failure occurs inside an open transaction psql normally ROLLBACKs on disconnect, but a real read-only aftermath query must confirm no app-owned relations/functions/policies were committed.",
-      "Release package ordering and forward-safe migration source/versioning remain unapproved; never copy this diagnostic bundle to hosted environments.",
-      "Manual local PG17 provider stubs do not prove managed Supabase semantics or JWT tenant RLS."
+      "A final PostgreSQL ACL probe cannot establish correct end-to-end JWT/RLS or provider-managed Auth/Storage semantics; actual signed-in Alap/Pro isolation remains blocked.",
+      "Old timestamped Office source may contain other stale policy grants or RPCs beyond v2; full privilege/supersession audit remains required for approval.",
+      "Existing frozen 59 source reviewer is immutable. This unit produces a non-executable release CANDIDATE only, not a new approved 78-file production migration package.",
+      "Historical Docker provider shell includes synthetic Auth role contracts that differ from real hosted Supabase; hosted TLS/target-postflight proof remains unauthorized."
     ],
     "scope": {
       "in": [
-        "Source-pinned disposable Docker PG17 execution of original 59 plus original 18 diagnostic Office source candidates before immutable 0055.",
-        "Explicit fail-closed SQL error capture and negative aftermath, optional positive postflight and separate injected rollback if genuine 59+18 source succeeds.",
-        "Canonical critical plan/quality/lifecycle proof of the diagnostic's scope only."
+        "Pure deterministic F6-U03l versioned 78-source review-candidate manifest derived from existing canonical F6-U03k original SQL and F6-U03j source Git authorities.",
+        "Real isolated Docker PostgreSQL17 runtime ACL proof after genuine source 78-file COMMIT: v2 denied anon/authenticated/service_role and v3 service_role only.",
+        "Positive and adversarial no-grant, public-grant, query failure and unauthorized scope test cases, artifacts, project governance."
       ],
       "out": [
-        "No new historical SQL migration, no source SHA rewrite or runtime security guard changes.",
-        "No successful release package claim, no hosted Supabase write, no project activation, no external connection or production credentials.",
-        "No Alap/Pro tenant or provider-managed Auth/Storage proof inferred from Docker shims."
+        "No new release SQL, no edits in supabase/customer-baseline or supabase/migrations, no changes to approved source hashes.",
+        "No hosted Supabase operations, new projects, project unpause, schema reset, credentials, signed-in customer sessions or permission to merge.",
+        "No claim that v2/v3 privilege probes close all Office RPCs, all tenant RLS or full managed provider release readiness."
       ]
     }
   },
@@ -936,11 +914,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-U03K-SOURCE",
-        "requirement": "Immutable 59 canonical SQL plus 18 authoritative Office candidate blob ids arranged before 0055 without changing actual original source bytes.",
+        "id": "REQ-U03L-MANIFEST",
+        "requirement": "A source-authentic ordered versioned 78-file release CANDIDATE manifest with exact original Git provenance, source sha and forbidden hosted authorization.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "local-original-sql-candidate-77-source",
+          "breadth": "read-only-78-source-review-candidate",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -961,8 +939,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U03K-CHANGED",
-            "statement": "A changed/missing historical SQL or wrongly ordered candidate is called source authentic.",
+            "id": "NEG-U03L-DRIFT",
+            "statement": "Different SQL bytes, missing creators or wrong file order are accepted as review-candidate manifest.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -970,11 +948,11 @@
         ]
       },
       {
-        "id": "REQ-U03K-REALPG",
-        "requirement": "Genuine Docker PG17 SQL replay evidence either names exact first source blocker with zero committed app state or proves full postflight then separate before-COMMIT injected rollback.",
+        "id": "REQ-U03L-ACL",
+        "requirement": "Exact-role real isolated PostgreSQL17 post-commit runtime effective grants deny legacy v2 for anon/authenticated/service_role, and permit v3 service_role only; no PUBLIC grant.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "docker-pg17-source-diagnostic",
+          "breadth": "local-effective-sql-function-acl",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -995,8 +973,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U03K-FAKE",
-            "statement": "A failing original SQL returns 0 and is labeled complete/release-ready.",
+            "id": "NEG-U03L-LEGACY",
+            "statement": "Sender-only legacy v2 is executable by browser or service_role after source installation.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1004,11 +982,11 @@
         ]
       },
       {
-        "id": "REQ-U03K-NOLIVE",
-        "requirement": "No original SQL, strict guard, active hosted Supabase project or authorization changed, all output explicitly says release blocked.",
+        "id": "REQ-U03L-NOLIVE",
+        "requirement": "Historical SQL source bytes, hosted review abort, active database and signed-in tenant RLS authority remain unchanged and release blocked.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "failclosed-no-hosted-write",
+          "breadth": "disposable-not-live-release",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -1029,8 +1007,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-U03K-HOSTED",
-            "statement": "Local source diagnosis becomes hosted 59-file migration authorization.",
+            "id": "NEG-U03L-HOSTED",
+            "statement": "A Docker-only review candidate is promoted to live Fresh Install reset authority.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -1039,12 +1017,12 @@
       }
     ]
   },
-  "notes": "F6-U03k critical Docker-only diagnostic of 17 source-authentic Office predecessors pre-0055 and one 20260910070300 follow-up post-0057; any local PASS is not release approval, no original source mutation, #1228 remains owner. Specialist challenge model-generated. Corrected source chronology before code commit: 17 predecessor SQL before 0055 and 20260910070300 FK index follow-up after 0057, before 0058. Not all 18 belong ahead of 0055. Incremental real PG17 evidence at #38807351988: SQL error function public.record_inbound_office_email_v2(text,text,text,text,text) does not exist, triggered by 20260908030000 v3 REVOKE; original main 20260903180000 creates it. Scope extends from 59+18 to 59+19 original sources (18 before 0055, one FK follow-up after 0057), still local-only, no legacy grant acceptance.",
+  "notes": "F6-U03l source-only review candidate + real PG17 final ACL. Complete original SQL identities unchanged, existing #1228 owner, model specialist dissent not human approval, 31 known failures, must remain DRAFT until approved. No hosted writes or old blanket Pro/role grants accepted. Scope correction after exact Plan Before Code: planned projection covers only quality/release source and workflow files (no auth or tenant production code); don't falsely list auth-access, database-schema or tenant-context authority without implementation file scope. Security ACL is tested read-only inside Docker as evidence, not product auth feature modification.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "0364fe926751759ad8f42f8882fbe65a57dcc3a5",
-    "closedAt": "2026-10-15T21:17:35.141Z",
+    "verifiedImplementationHead": "ccf069945278cc99d507092336cf6d1fe89c38e6",
+    "closedAt": "2026-10-16T03:26:06.455Z",
     "truthContract": "shoporation.completion-truth.v2",
     "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
     "learning": {
