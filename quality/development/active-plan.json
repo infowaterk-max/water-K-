@@ -77,10 +77,15 @@
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-001",
     "SQ-NK-002",
     "SQ-NK-003",
+    "SQ-NK-004",
     "SQ-NK-005",
     "SQ-NK-006",
+    "SQ-NK-007",
+    "SQ-NK-008",
+    "SQ-NK-009",
     "SQ-NK-010",
     "SQ-NK-012",
     "SQ-NK-014",
@@ -972,5 +977,5 @@
       }
     ]
   },
-  "notes": "F6-U03t critical plan before implementation: verified parent #1400 HEAD 33c557d3b7e74faeeba7b41c0b223cc03ba9704d. New unit is read-only provenance diagnostic, not managed release authority. Physical SQL writes, backward migrations, JWT impersonation and live tenant seeding are forbidden. Corrected to exact F6-U03t Development Guard observed 46-failure scope, 5 subsystem set, negative-knowledge applicability and c2c62999 digest (first CI fail-closed). Workflow is canonical MUST_EDIT material proof; existing source modules remain unchanged."
+  "notes": "F6-U03t critical plan before implementation: verified parent #1400 HEAD 33c557d3b7e74faeeba7b41c0b223cc03ba9704d. New unit is read-only provenance diagnostic, not managed release authority. Physical SQL writes, backward migrations, JWT impersonation and live tenant seeding are forbidden. Corrected to exact F6-U03t Development Guard observed 46-failure scope, 5 subsystem set, negative-knowledge applicability and c2c62999 digest (first CI fail-closed). Workflow is canonical MUST_EDIT material proof; existing source modules remain unchanged. F6-U03t canonical Plan Before Code projection includes 21 negative-knowledge constraints; include the full set, not only the older Development Guard listing."
 }
