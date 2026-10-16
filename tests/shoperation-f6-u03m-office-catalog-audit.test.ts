@@ -5,7 +5,7 @@ import {CONTRACT,SCOPE,nativeCatalogSQL,validateCatalog,findOfficeRisks,reportCa
 import {buildCandidateManifest} from '../scripts/shoperation-f6-u03l-release-candidate-acl.mjs';
 const b={rls_enabled:true,force_rls:false,anon_schema_usage:true,auth_schema_usage:true,anon_select:false,auth_select:false,
  anon_insert:false,auth_insert:false,anon_update:false,auth_update:false,anon_delete:false,auth_delete:false};
-const f={security_definer:false,body_touches_office:false,anon_schema_usage:true,auth_schema_usage:true,anon_execute:false,
+const f={security_definer:false,trigger_only:false,body_touches_office:false,anon_schema_usage:true,auth_schema_usage:true,anon_execute:false,
  auth_execute:false,service_execute:false,public_execute:false};
 function fixture(){
  const relations=Array.from({length:190},(_,i)=>({name:i===0?'public.office_mailboxes':'public.table_'+i,schema:'public',...b}));
@@ -65,6 +65,17 @@ describe('F6-U03m real PostgreSQL catalog-wide Office audit',()=>{
   x.functions[3].anon_schema_usage=true;
   f=findOfficeRisks(x).find((z:any)=>z.object==='private.office_internal_helper()');
   expect(f.priority).toBe('high');
+ });
+ it('classifies trigger-only security definer separately from direct browser callable RPC',()=>{
+  const x=fixture();
+  x.functions[4]={...x.functions[4],name:'private.sync_customer_office_participant_v1()',
+    security_definer:true,trigger_only:true,body_touches_office:true,
+    anon_execute:true,auth_execute:true,public_execute:true,
+    anon_schema_usage:false,auth_schema_usage:true};
+  const signal=findOfficeRisks(x).find((z:any)=>z.object==='private.sync_customer_office_participant_v1()');
+  expect(signal.rule).toBe('OFFICE_TRIGGER_FUNCTION_ACL_REVIEW');
+  expect(signal.priority).toBe('review');
+  expect(signal.reason).toContain('cannot be invoked as an RPC');
  });
  it('review-flags UPDATE without explicit WITH CHECK but does not assert exploitable bypass',()=>{
   const x=fixture();

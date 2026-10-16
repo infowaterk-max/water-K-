@@ -30,6 +30,7 @@ WITH rel AS (
  SELECT format('%I.%I',n.nspname,p.proname)||'('||
     pg_get_function_identity_arguments(p.oid)||')' AS name,n.nspname AS schema,
     p.prosecdef AS security_definer,
+    p.prorettype='pg_catalog.trigger'::regtype AS trigger_only,
     has_schema_privilege('anon',n.oid,'USAGE') AS anon_schema_usage,
     has_schema_privilege('authenticated',n.oid,'USAGE') AS auth_schema_usage,
     p.prosrc ~* '(office_|team_chat|team_|communication|support|thread|inbox|ticket)' AS body_touches_office,
@@ -81,7 +82,7 @@ export function validateCatalog(d){
    fail('F6U03M_INCOMPLETE_CATALOG');
  const rs=['rls_enabled','force_rls','anon_schema_usage','auth_schema_usage','anon_select','auth_select','anon_insert',
   'auth_insert','anon_update','auth_update','anon_delete','auth_delete'];
- const fs=['security_definer','body_touches_office','anon_schema_usage','auth_schema_usage','anon_execute','auth_execute','service_execute','public_execute'];
+ const fs=['security_definer','trigger_only','body_touches_office','anon_schema_usage','auth_schema_usage','anon_execute','auth_execute','service_execute','public_execute'];
  if(r.some(x=>typeof x.name!=='string'||rs.some(k=>typeof x[k]!=='boolean'))||
    f.some(x=>typeof x.name!=='string'||fs.some(k=>typeof x[k]!=='boolean'))||
    p.some(x=>!Array.isArray(x.roles)||!['r','a','w','d','*'].includes(x.command)||
@@ -114,9 +115,14 @@ export function findOfficeRisks(d){
  for(const x of d.functions||[]){
   if(office(x)&&x.security_definer&&(x.anon_execute||x.auth_execute||x.public_execute)){
    const direct=(x.anon_schema_usage&&x.anon_execute)||(x.auth_schema_usage&&x.auth_execute);
-   add('OFFICE_EXPOSED_SECURITY_DEFINER','function',x.name,
-    direct?'Privileged function is SQL-executable with browser role and schema USAGE; provider Data API exposure and tenant boundary require review':'Privileged function EXECUTE/PUBLIC grant exists but direct browser schema USAGE is not proven; review inherited rights and managed API exposure',
-    direct?'high':'review');
+   if(x.trigger_only){
+    add('OFFICE_TRIGGER_FUNCTION_ACL_REVIEW','function',x.name,
+     'Trigger-returning function has execute grant but cannot be invoked as an RPC; review actual trigger path and ACL','review');
+   }else{
+    add('OFFICE_EXPOSED_SECURITY_DEFINER','function',x.name,
+     direct?'Privileged function is SQL-executable with browser role and schema USAGE; provider Data API exposure and tenant boundary require review':'Privileged function EXECUTE/PUBLIC grant exists but direct browser schema USAGE is not proven; review inherited rights and managed API exposure',
+     direct?'high':'review');
+   }
   }
  }
  for(const x of d.policies||[]){
