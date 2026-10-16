@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-725C57A6",
   "task": "Core #1186 F6-U03s read-only managed Fresh Install pre-release attestation with immutable 31 Office migrations exact source and plan; no hosted SQL write, staging resume or release authorization",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "725c57a6",
   "changeBaseSha": "e2ac4703a116a06f159009bfefc03e3a0bd097cc",
   "plannedFilePatterns": [
@@ -963,5 +963,18 @@
       }
     ]
   },
-  "notes": "F6-U03s implementation batch recorded: canonical 78-original source SHA f570cbaa2cc6dea53bb123b8192c59335855c6e6227e48d0f564c4c85261b81e; 31-forward suffix source audit, read-only live Fresh Install snapshot and adversarial tests. Exact-head CI gates remain required; no hosted SQL executed; owner off-platform key custody, provider JWT/API and ledger provenance remain separately blocked. Canonical edit-time implementation-sync excludes quality/development/active-plan.json from materialFiles as metadata; semantic mustEdit now covers only implementation source targets. Integrity correction: F6-U03s asserts quality-gate readiness only, not CAP-RELEASE execution authority. Completion evidence GUARD-PLAN-BEFORE-CODE and GUARD-QUALITY-TESTS are CAP-QUALITY producers; hosted release remains explicitly unauthorized."
+  "notes": "F6-U03s implementation batch recorded: canonical 78-original source SHA f570cbaa2cc6dea53bb123b8192c59335855c6e6227e48d0f564c4c85261b81e; 31-forward suffix source audit, read-only live Fresh Install snapshot and adversarial tests. Exact-head CI gates remain required; no hosted SQL executed; owner off-platform key custody, provider JWT/API and ledger provenance remain separately blocked. Canonical edit-time implementation-sync excludes quality/development/active-plan.json from materialFiles as metadata; semantic mustEdit now covers only implementation source targets. Integrity correction: F6-U03s asserts quality-gate readiness only, not CAP-RELEASE execution authority. Completion evidence GUARD-PLAN-BEFORE-CODE and GUARD-QUALITY-TESTS are CAP-QUALITY producers; hosted release remains explicitly unauthorized.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "2a27c75206ad2c0a0e109fed544209d8205c45d9",
+    "closedAt": "2026-10-16T18:54:15.734Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
