@@ -22,7 +22,7 @@ export function buildManagedCatalogSQL(){
   '-- This SQL is a read-only catalog snapshot, never a signed JWT or PostgREST proof.',
   'SELECT jsonb_build_object(',
   " 'contract','shoporation.f6-u03q.readonly-office-catalog.v1',",
-  " 'capturedAt',to_char(clock_timestamp() AT TIME ZONE 'UTC','YYYY-MM-DD\\\"T\\\"HH24:MI:SS.MS\\\"Z\\\"'),",
+  ` 'capturedAt',to_char(clock_timestamp() AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),`,
   " 'database',current_database(),",
   " 'serverVersionNum',current_setting('server_version_num')::int,",
   " 'objects',(SELECT coalesce(jsonb_agg(jsonb_build_object('relation',c.relname,",

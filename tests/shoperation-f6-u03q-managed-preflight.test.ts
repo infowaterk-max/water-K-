@@ -2,7 +2,7 @@ import {describe,it,expect} from 'vitest';
 // @ts-expect-error Intentional direct source ESM helper import.
 import {SCOPE,CONTRACT,EXPECTED_FRESH_REF,OFFICE_TABLES,PRIVACY_HELPERS,buildManagedCatalogSQL,assessManagedCatalog} from '../scripts/shoperation-f6-u03q-managed-preflight.mjs';
 
-function legacySnapshot(){
+function legacySnapshot():any{
  return {
   projectRef:EXPECTED_FRESH_REF,
   source:'managed-supabase-catalog-readonly',
