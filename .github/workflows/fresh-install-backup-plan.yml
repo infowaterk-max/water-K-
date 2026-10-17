@@ -1,0 +1,41 @@
+name: Fresh Install owner-key encrypted PostgreSQL backup plan
+on:
+  push:
+    branches: [feature/core-1186-fresh-install-encrypted-backup]
+    paths:
+      - .github/workflows/fresh-install-backup-plan.yml
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  development-plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 24}
+      - run: npm ci --no-audit --no-fund
+      - name: Canonical critical backup authority guard
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186: protect existing Fresh Install PostgreSQL17 owner-owned public/private schema and catalog rows with native pg_dump and owner-key encrypted GitHub artifact; prove archive decrypt/restore, never run hosted DDL or expose credentials" \
+            --files ".github/workflows/fresh-install-backup-plan.yml;.github/workflows/fresh-install-encrypted-backup.yml;docs/po/CORE_1186_FRESH_BACKUP_2026-10-16.md;quality/development/active-plan.json" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/issues/1228" \
+            --check
+      - name: Critical Plan Before Code must PASS before backup implementation
+        run: node scripts/shoperation-plan-before-code.mjs --check
+      - name: Show draft plan and known failures only
+        if: always()
+        run: |
+          cat artifacts/shoperation-development-guard/development-guard.md || true
+          node --input-type=module <<'NODE'
+          import {readFileSync,existsSync} from 'node:fs';
+          if(existsSync('quality/development/active-plan.json')){
+            const x=readFileSync('quality/development/active-plan.json').toString('base64');
+            for(let i=0;i<x.length;i+=1200)console.log('BACKUP_PLAN='+x.slice(i,i+1200));
+          }
+          NODE
