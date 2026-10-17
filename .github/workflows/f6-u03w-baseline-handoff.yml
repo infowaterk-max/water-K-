@@ -1,0 +1,76 @@
+name: F6-U03w original 0046 receipt and baseline adoption handoff
+on:
+  push:
+    branches: [feature/core-1186-f6-u03w-baseline-handoff]
+    paths:
+      - .github/workflows/f6-u03w-baseline-handoff.yml
+      - scripts/shoperation-f6-u03w-baseline-handoff.mjs
+      - tests/shoperation-f6-u03w-baseline-handoff.test.ts
+      - docs/po/CORE_1186_F6_U03W_MANAGED_0046_ADOPTION_HANDOFF_2026-10-17.md
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verified-original-receipt-and-handoff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 24}
+      - run: npm ci --no-audit --no-fund
+      - name: Critical Development Guard
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186 F6-U03w 0046 historical verified receipt to isolated current-state baseline adoption operator handoff, no remote migration stamp, old-chain replay or hosted write." \
+            --files ".github/workflows/f6-u03w-baseline-handoff.yml;scripts/shoperation-f6-u03w-baseline-handoff.mjs;tests/shoperation-f6-u03w-baseline-handoff.test.ts;docs/po/CORE_1186_F6_U03W_MANAGED_0046_ADOPTION_HANDOFF_2026-10-17.md;quality/development/active-plan.json" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/issues/1228" \
+            --check
+      - name: Critical Plan Before Code
+        run: node scripts/shoperation-plan-before-code.mjs --check
+      - name: Unit tests for original 0046 receipt and no-write adoption contract
+        run: |
+          node --check scripts/shoperation-f6-u03w-baseline-handoff.mjs
+          npx vitest run tests/shoperation-f6-u03w-baseline-handoff.test.ts
+      - name: Fetch and hash original GitHub Fresh Install artifact, not DB secrets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/shoperation-f6-u03w
+          curl --fail --silent --show-error --location --retry 3 --max-time 90 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/infowaterk-max/water-K-/actions/artifacts/11613699688/zip" \
+            -o /tmp/shoperation-f6-u03w/original.zip
+          printf '%s  %s\n' "b7d97cafb6af3a315ca7dc21cd48bf1f07ca9e131f192e12d73383bc4864d170" \
+            "/tmp/shoperation-f6-u03w/original.zip" | sha256sum --check --status
+          unzip -p /tmp/shoperation-f6-u03w/original.zip proof.json > /tmp/shoperation-f6-u03w/proof.json
+          printf '%s  %s\n' "a5411b2dd5e61db3c79e2f604386b4fca60e6075edbe936ae107278fc5f7df45" \
+            "/tmp/shoperation-f6-u03w/proof.json" | sha256sum --check --status
+      - name: Emit original receipt review handoff without remote SQL or migration repair
+        run: |
+          node scripts/shoperation-f6-u03w-baseline-handoff.mjs --emit \
+            /tmp/shoperation-f6-u03w/proof.json artifacts/f6-u03w/managed-0046-handoff
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const p=JSON.parse(readFileSync('artifacts/f6-u03w/managed-0046-handoff/handoff.json','utf8'));
+          if(p.releaseAuthorized!==false||p.hostedTouched!==false||
+             p.migrationHistoryWritten!==false||p.historicalProjectBindingProven!==false||
+             p.forwardOriginalCount!==31||p.historicalApplyProof.originalFiles!==47)
+            throw Error('F6U03W_UNEXPECTED_RELEASE_OR_PROVENANCE');
+          console.log('F6U03W_ORIGINAL_0046_RECEIPT_VERIFIED_ADOPTION_REQUIRES_SEPARATE_APPROVAL');
+          NODE
+      - name: Upload only non-executable review metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03w-original-0046-receipt-review
+          path: |
+            artifacts/f6-u03w/managed-0046-handoff/handoff.json
+            artifacts/f6-u03w/managed-0046-handoff/operator-review.md
+          if-no-files-found: error
+          retention-days: 30
