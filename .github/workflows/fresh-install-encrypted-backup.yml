@@ -1,4 +1,5 @@
 name: Fresh Install owner-key encrypted PostgreSQL backup
+# Owner-local recovery proof 2026-10-17: rerun read-only backup using the already pinned, matching owner certificate.
 on:
   push:
     branches: [feature/core-1186-fresh-install-encrypted-backup]
