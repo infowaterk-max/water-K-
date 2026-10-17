@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-9901C962",
   "task": "Core #1186 F6-U03w 0046 historical verified receipt to isolated current-state baseline adoption operator handoff, no remote migration stamp, old-chain replay or hosted write.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "9901c962",
   "changeBaseSha": "8e5d6c08921d2c52e4cfa20fa83764854d2a9418",
   "plannedFilePatterns": [
@@ -944,5 +944,18 @@
       }
     ]
   },
-  "notes": "Critical PLAN FIRST; accepted #1407 HEAD 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Recovered artifact zip sha256:b7d97cafb6af3a315ca7dc21cd48bf1f07ca9e131f192e12d73383bc4864d170 and proof.json sha256:a5411b2dd5e61db3c79e2f604386b4fca60e6075edbe936ae107278fc5f7df45 with 47 original paths. Critical known failures and guard digest need exact recomputation at CI. No source SQL modification, no write. First F6-U03w Plan Before Code fail-closed: exact scope is 22 known failures, three subsystems, 14 negative-knowledge controls, digest 9901c962. Corrected plan without widening execution authority or writing SQL. Fixed Plan Before Code exact 15-item negative-knowledge projection (SQ-NK-014 newly implicated by baseline adoption) after second fail-closed run. Exact implementation head a5f81526cfb528489ee5032b83db3a6af27eafba verified by full CI 39027286023: 3836/3836 tests, TypeScript and build/security PASS, Completion Truth VERIFIED_DONE pass=9 stale=0 missing=0. Original 0046 artifact dedicated workflow 39027286016 PASS. LEARN closure metadata only, no hosted adoption, no migration history write. Final metadata-only exact-head CI 39027562477: timed-out 5-second default heavy source manifest test (1/3836) under full parallel regression; no security or application logic regression. Reopen critical plan BEFORE replacing that one test's timeout with explicit 30000ms, keep prior proof head a5f81526cfb528489ee5032b83db3a6af27eafba as historical not current."
+  "notes": "Critical PLAN FIRST; accepted #1407 HEAD 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Recovered artifact zip sha256:b7d97cafb6af3a315ca7dc21cd48bf1f07ca9e131f192e12d73383bc4864d170 and proof.json sha256:a5411b2dd5e61db3c79e2f604386b4fca60e6075edbe936ae107278fc5f7df45 with 47 original paths. Critical known failures and guard digest need exact recomputation at CI. No source SQL modification, no write. First F6-U03w Plan Before Code fail-closed: exact scope is 22 known failures, three subsystems, 14 negative-knowledge controls, digest 9901c962. Corrected plan without widening execution authority or writing SQL. Fixed Plan Before Code exact 15-item negative-knowledge projection (SQ-NK-014 newly implicated by baseline adoption) after second fail-closed run. Exact implementation head a5f81526cfb528489ee5032b83db3a6af27eafba verified by full CI 39027286023: 3836/3836 tests, TypeScript and build/security PASS, Completion Truth VERIFIED_DONE pass=9 stale=0 missing=0. Original 0046 artifact dedicated workflow 39027286016 PASS. LEARN closure metadata only, no hosted adoption, no migration history write. Final metadata-only exact-head CI 39027562477: timed-out 5-second default heavy source manifest test (1/3836) under full parallel regression; no security or application logic regression. Reopen critical plan BEFORE replacing that one test's timeout with explicit 30000ms, keep prior proof head a5f81526cfb528489ee5032b83db3a6af27eafba as historical not current. F6-U03w timeout-stabilized implementation exact head 1ce9747709a9df1977010aa1cb0379a7319677bd full CI 39027875996: 3836/3836 tests (470 files), TypeScript/build/security PASS, Completion Truth VERIFIED_DONE pass9 stale0 missing0, expected Lifecycle CLOSE_REQUIRED. Final metadata-only LEARN closure. Dedicated original GitHub receipt flow 39027876219 SUCCESS, no remote writes.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "1ce9747709a9df1977010aa1cb0379a7319677bd",
+    "closedAt": "2026-10-17T11:18:34.361Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
