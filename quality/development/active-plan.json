@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-C2C62999",
   "task": "Core #1186 F6-U03w: establish reviewed existing 0046 Fresh Install provenance adoption path from historical job evidence, current managed catalog and isolated new baseline; forbid replaying root legacy migrations or silently repairing ledger.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "c2c62999",
   "changeBaseSha": "8e5d6c08921d2c52e4cfa20fa83764854d2a9418",
   "plannedFilePatterns": [
@@ -978,5 +978,18 @@
       }
     ]
   },
-  "notes": "2026-10-17 F6-U03w plan before implementation. Exact parent #1407 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Independent original job #113806799257 had success while workflow had failure; target URL masked. Current Fresh Install 0046 full catalog equality; separate new baseline adoption not false historical repair. Scope inherited from prior 20-failure plan to be reconciled to actual guard. No hosted writes. Initial critical CI fail-closed on inherited bounded scope. Projected 0046 migration adoption actually touches 5 subsystem authorities, 46 known failure patterns and 21 negative knowledge constraints: digest c2c62999, risk 4/5. Recorded complete exact projection without changing guard implementation or loosening release authorization."
+  "notes": "2026-10-17 F6-U03w plan before implementation. Exact parent #1407 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Independent original job #113806799257 had success while workflow had failure; target URL masked. Current Fresh Install 0046 full catalog equality; separate new baseline adoption not false historical repair. Scope inherited from prior 20-failure plan to be reconciled to actual guard. No hosted writes. Initial critical CI fail-closed on inherited bounded scope. Projected 0046 migration adoption actually touches 5 subsystem authorities, 46 known failure patterns and 21 negative knowledge constraints: digest c2c62999, risk 4/5. Recorded complete exact projection without changing guard implementation or loosening release authorization. Exact source implementation head 8efe175304d41f4312616dc13a426b36d85c44f0 CI 3836/3836 PASS, TypeScript and Next build PASS, security audit PASS, Completion Truth VERIFIED_DONE pass=9 stale=0 missing=0; this metadata-only LEARN closure preserves historic managed endpoint connection, custody and new-baseline enrollment as separately blocked manual steps. No hosted actions.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "8efe175304d41f4312616dc13a426b36d85c44f0",
+    "closedAt": "2026-10-17T09:57:35.018Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
