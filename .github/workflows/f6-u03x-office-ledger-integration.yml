@@ -112,8 +112,13 @@ jobs:
           { echo 'BEGIN;'; cat "$b/ledger-before.sql";
             echo "UPDATE supabase_migrations.schema_migrations SET created_by='tampered';"
             cat "$b/ledger-after.sql"; echo 'COMMIT;'; } | expect_block
-          psql -X -v ON_ERROR_STOP=1 -q -c \
-            "SELECT CASE WHEN (SELECT count(*) FROM supabase_migrations.schema_migrations)=1 AND (SELECT created_by FROM supabase_migrations.schema_migrations) IS NULL THEN true ELSE 1/0=0 END" >/dev/null
+          psql -X -v ON_ERROR_STOP=1 -q <<'SQL'
+          DO $f6u03x_verify$ BEGIN
+            IF (SELECT count(*) FROM supabase_migrations.schema_migrations)<>1
+              OR EXISTS(SELECT 1 FROM supabase_migrations.schema_migrations WHERE created_by IS NOT NULL)
+            THEN RAISE EXCEPTION 'F6U03X_NEGATIVE_ROLLBACK_NOT_ATOMIC'; END IF;
+          END $f6u03x_verify$;
+          SQL
           echo F6U03X_PG17_POSITIVE_AND_4_NEGATIVE_LEDGER_SCENARIOS_PASS
       - name: Archive only non-secret manifests and evidence
         uses: actions/upload-artifact@v4
