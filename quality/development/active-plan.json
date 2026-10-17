@@ -1,9 +1,9 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-074C4B63",
+  "taskId": "DEV-9901C962",
   "task": "Core #1186 F6-U03w: generate actual source-exact transaction-wrapped 31-file Office forward migration release bundle and rollback proof, with no hosted execution, ledger fabrication or private key leak.",
   "status": "ready-for-implementation",
-  "guardDigest": "074c4b63",
+  "guardDigest": "9901c962",
   "changeBaseSha": "8e5d6c08921d2c52e4cfa20fa83764854d2a9418",
   "plannedFilePatterns": [
     ".github/workflows/f6-u03w-office-release-bundle.yml",
@@ -13,6 +13,7 @@
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
+    "database-schema",
     "quality-infrastructure",
     "release-infrastructure"
   ],
@@ -30,11 +31,13 @@
     "SQ-KF-006",
     "SQ-KF-008",
     "SQ-KF-009",
+    "SQ-KF-010",
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-018",
     "SQ-KF-020",
     "SQ-KF-022",
+    "SQ-KF-023",
     "SQ-KF-025",
     "TF-KF-001",
     "TF-KF-005",
@@ -941,5 +944,5 @@
       }
     ]
   },
-  "notes": "F6-U03w plan BEFORE implementation, parent #1407 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Development Guard projected knowledge may need exact corrected scope after first blocked CI; no bypass. No live host write and no approval to deploy. Builds executable release unit rather than another preflight."
+  "notes": "F6-U03w plan BEFORE implementation, parent #1407 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Development Guard projected knowledge may need exact corrected scope after first blocked CI; no bypass. No live host write and no approval to deploy. Builds executable release unit rather than another preflight. F6-U03w first exact CI fail-closed on inherited guard scope; corrected to 22 applicable known failures, database-schema/quality/release subsystem authority, 14 negative controls and digest 9901c962. No guard bypass."
 }
