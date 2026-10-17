@@ -20,7 +20,7 @@ const counts=['authUsers','alapStore','proStore','alapCustomerThread','alapInter
  'proInternalThread','alapActiveOwner','proActiveOwner','revokedFormerRole',
  'revokedActiveRoles','alapCustomerParticipant','proCustomerParticipant',
  'proInternalParticipant','alapCustomerEntitlement','proAdvancedEntitlement'];
-const valid=()=>({projectRef,source,now,fixture,observation:{
+const valid=()=>({projectRef,source,now,fixture:structuredClone(fixture),observation:{
  contract:CONTRACT,capturedAt:new Date(now).toISOString(),database:'postgres',
  role:'postgres',pgVersion:170006,fixtureSha256:fixtureBinding(fixture),
  ...Object.fromEntries(counts.map(c=>[c,c==='authUsers'?3:c==='revokedActiveRoles'?0:1]))
