@@ -1,9 +1,9 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-074C4B63",
+  "taskId": "DEV-9901C962",
   "task": "Core #1186 F6-U03w 0046 historical verified receipt to isolated current-state baseline adoption operator handoff, no remote migration stamp, old-chain replay or hosted write.",
   "status": "ready-for-implementation",
-  "guardDigest": "074c4b63",
+  "guardDigest": "9901c962",
   "changeBaseSha": "8e5d6c08921d2c52e4cfa20fa83764854d2a9418",
   "plannedFilePatterns": [
     ".github/workflows/f6-u03w-baseline-handoff.yml",
@@ -13,6 +13,7 @@
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
+    "database-schema",
     "quality-infrastructure",
     "release-infrastructure"
   ],
@@ -30,11 +31,13 @@
     "SQ-KF-006",
     "SQ-KF-008",
     "SQ-KF-009",
+    "SQ-KF-010",
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-018",
     "SQ-KF-020",
     "SQ-KF-022",
+    "SQ-KF-023",
     "SQ-KF-025",
     "TF-KF-001",
     "TF-KF-005",
@@ -940,5 +943,5 @@
       }
     ]
   },
-  "notes": "Critical PLAN FIRST; accepted #1407 HEAD 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Recovered artifact zip sha256:b7d97cafb6af3a315ca7dc21cd48bf1f07ca9e131f192e12d73383bc4864d170 and proof.json sha256:a5411b2dd5e61db3c79e2f604386b4fca60e6075edbe936ae107278fc5f7df45 with 47 original paths. Critical known failures and guard digest need exact recomputation at CI. No source SQL modification, no write."
+  "notes": "Critical PLAN FIRST; accepted #1407 HEAD 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Recovered artifact zip sha256:b7d97cafb6af3a315ca7dc21cd48bf1f07ca9e131f192e12d73383bc4864d170 and proof.json sha256:a5411b2dd5e61db3c79e2f604386b4fca60e6075edbe936ae107278fc5f7df45 with 47 original paths. Critical known failures and guard digest need exact recomputation at CI. No source SQL modification, no write. First F6-U03w Plan Before Code fail-closed: exact scope is 22 known failures, three subsystems, 14 negative-knowledge controls, digest 9901c962. Corrected plan without widening execution authority or writing SQL."
 }
