@@ -1,9 +1,9 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-725C57A6",
+  "taskId": "DEV-074C4B63",
   "task": "Core #1186 F6-U03v independent read-only provider fixture existence, Alap/Pro plan and revoked role state verification; no hosted writes or fake signed-JWT acceptance.",
   "status": "ready-for-implementation",
-  "guardDigest": "725c57a6",
+  "guardDigest": "074c4b63",
   "changeBaseSha": "1cf87091f70813f64f8f31a3997757d80bf7125f",
   "plannedFilePatterns": [
     ".github/workflows/f6-u03v-fixture-lineage-proof.yml",
@@ -13,9 +13,6 @@
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "auth-access-authority",
-    "customer-account",
-    "database-schema",
     "quality-infrastructure",
     "release-infrastructure"
   ],
@@ -28,47 +25,34 @@
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
     "SQ-KF-006",
-    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-010",
-    "SQ-KF-011",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-017",
     "SQ-KF-018",
     "SQ-KF-020",
     "SQ-KF-022",
-    "SQ-KF-023",
     "SQ-KF-025",
     "TF-KF-001",
-    "TF-KF-002",
     "TF-KF-005",
     "TF-KF-007",
-    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
-    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-020"
+    "TF-KF-015"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
     "SQ-NK-002",
     "SQ-NK-003",
     "SQ-NK-005",
-    "SQ-NK-006",
     "SQ-NK-010",
     "SQ-NK-012",
-    "SQ-NK-014",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -958,5 +942,5 @@
       }
     ]
   },
-  "notes": "F6-U03v source-only critical plan committed before implementation. Parent #1406 exact HEAD 1cf87091f70813f64f8f31a3997757d80bf7125f. No provider identities or Office 0048 on managed target; no live SQL application or Auth users/seeding. Preliminary source scope inherited from parent, must reconcile to exact Development Guard if it changes. Risk 4/5."
+  "notes": "F6-U03v source-only critical plan committed before implementation. Parent #1406 exact HEAD 1cf87091f70813f64f8f31a3997757d80bf7125f. No provider identities or Office 0048 on managed target; no live SQL application or Auth users/seeding. Preliminary source scope inherited from parent, must reconcile to exact Development Guard if it changes. Risk 4/5. First exact-head CI fail-closed on inherited unit scope; corrected projected guard to 20 relevant known failures, 2 subsystems, 14 negative controls, digest 074c4b63. No guard disabled, no app SQL changed."
 }
