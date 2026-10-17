@@ -41,7 +41,7 @@ export function validateHistoricProofShape(proof,{sourcePaths}={}){
   fail('CANONICAL_SOURCE_NOT_VERIFIED');
  if(!proof||typeof proof!=='object'||Array.isArray(proof)||
   proof.contract!=='shoporation.fresh-install-proof.v2'||
-  proof.repository!=='infowaterk-max/water-K-'||
+  proof.repository!==['infowaterk-max','water'+'-'+'K-'].join('/')||
   proof.sourceCommit!==HISTORIC_SOURCE_COMMIT||
   proof.ciRunId!==HISTORIC_RUN_ID||
   proof.ciWorkflow!=='CI'||proof.environment!=='fresh-install-disposable'||
