@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  issues: write
 jobs:
   native-backup:
     if: "${{ github.repository == 'infowaterk-max/water-K-' && github.ref == 'refs/heads/feature/core-1186-f6-u03y-encrypted-managed-schema-snapshot' }}"
@@ -161,6 +162,7 @@ jobs:
           test "$h" = '4621|e312b40ad91150ce937f4aa00db587f3'
           echo 'F6_BACKUP_SOURCE_UNCHANGED'
       - name: Capture read-only current-state schema with ACL and managed boundary inventory
+        id: schema-capture
         shell: bash
         run: |
           set -euo pipefail
@@ -220,6 +222,7 @@ jobs:
           test "$h" = '4621|e312b40ad91150ce937f4aa00db587f3'
           echo 'F6U03Y_HOSTED_SCHEMA_SNAPSHOT_CAPTURED_UNCHANGED'
       - name: Prove captured schema-only custom archive restores on disposable PostgreSQL 17
+        id: schema-import
         shell: bash
         run: |
           set -euo pipefail
@@ -310,6 +313,7 @@ jobs:
           NODE
           echo 'F6_BACKUP_ENCRYPTED_SUCCESS'
       - name: Upload only ciphertext and non-sensitive restore proof
+        id: ciphertext-upload
         uses: actions/upload-artifact@v4
         with:
           name: fresh-schema-owner-cipher-${{ github.sha }}
@@ -319,3 +323,25 @@ jobs:
             ${{ runner.temp }}/fresh-safe/backup-proof.json
           if-no-files-found: error
           retention-days: 14
+      - name: Report run and step outcomes to draft PR #1423 (no secrets)
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          SNAP_CAPTURE_OUTCOME: ${{ steps.schema-capture.outcome }}
+          SNAP_IMPORT_OUTCOME: ${{ steps.schema-import.outcome }}
+          CIPHERTEXT_UPLOAD_OUTCOME: ${{ steps.ciphertext-upload.outcome }}
+        with:
+          script: |
+            const report = [
+              '<!-- shoperation-f6-u03y-encrypted-schema-proof -->',
+              '### F6-U03y managed Fresh Install schema-only snapshot',
+              '- Workflow run: https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId,
+              '- Exact source SHA: `' + context.sha + '`',
+              '- Status before reporting: `' + '${{ job.status }}' + '`',
+              '- Native schema capture: `' + (process.env.SNAP_CAPTURE_OUTCOME || 'not-run') + '`',
+              '- Native PG17 schema import: `' + (process.env.SNAP_IMPORT_OUTCOME || 'not-run') + '`',
+              '- Encrypted-only artifact upload: `' + (process.env.CIPHERTEXT_UPLOAD_OUTCOME || 'not-run') + '`',
+              '- Hosted DDL/DML, migration ledger writes, Auth seeding and production touching: `none`',
+              '- Release authorized: `false`; provider-managed full disaster recovery not proven.'
+            ].join('\n');
+            await github.rest.issues.createComment({...context.repo,issue_number:1423,body:report});
