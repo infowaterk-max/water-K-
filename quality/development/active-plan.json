@@ -1,19 +1,26 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-9901C962",
-  "task": "Core #1186 F6-U03w 0046 historical verified receipt to isolated current-state baseline adoption operator handoff, no remote migration stamp, old-chain replay or hosted write.",
+  "taskId": "DEV-074C4B63",
+  "task": "Core #1186 F6-U03x integrate sibling #1411 #1412 #1414 original 0046 baseline adoption and 31 Office transaction, ensure exact single adopted ledger row stays immutable, source-only native PG17 proof; no hosted writes.",
   "status": "closed",
-  "guardDigest": "9901c962",
-  "changeBaseSha": "8e5d6c08921d2c52e4cfa20fa83764854d2a9418",
+  "guardDigest": "074c4b63",
+  "changeBaseSha": "7a6aa4307985d21581fd9969c28a425d17b08ee5",
   "plannedFilePatterns": [
-    ".github/workflows/f6-u03w-baseline-handoff.yml",
-    "scripts/shoperation-f6-u03w-baseline-handoff.mjs",
-    "tests/shoperation-f6-u03w-baseline-handoff.test.ts",
-    "docs/po/CORE_1186_F6_U03W_MANAGED_0046_ADOPTION_HANDOFF_2026-10-17.md",
+    ".github/workflows/f6-u03w-office-release-bundle.yml",
+    "docs/po/CORE_1186_F6_U03W_FORWARD_RELEASE_BUNDLE_2026-10-17.md",
+    "scripts/shoperation-f6-u03w-office-release-bundle.mjs",
+    "tests/shoperation-f6-u03w-office-release-bundle.test.ts",
+    ".github/workflows/f6-u03w-baseline-adoption-proof.yml",
+    "docs/po/CORE_1186_F6_U03W_EXISTING_BASELINE_ADOPTION_2026-10-17.md",
+    "scripts/shoperation-f6-u03w-baseline-adoption.mjs",
+    "tests/shoperation-f6-u03w-baseline-adoption.test.ts",
+    ".github/workflows/f6-u03x-office-ledger-integration.yml",
+    "scripts/shoperation-f6-u03x-office-ledger-integration.mjs",
+    "tests/shoperation-f6-u03x-office-ledger-integration.test.ts",
+    "docs/po/CORE_1186_F6_U03X_OFFICE_LEDGER_INTEGRATION_2026-10-17.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "database-schema",
     "quality-infrastructure",
     "release-infrastructure"
   ],
@@ -31,13 +38,11 @@
     "SQ-KF-006",
     "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-010",
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-018",
     "SQ-KF-020",
     "SQ-KF-022",
-    "SQ-KF-023",
     "SQ-KF-025",
     "TF-KF-001",
     "TF-KF-005",
@@ -56,7 +61,6 @@
     "SQ-NK-005",
     "SQ-NK-010",
     "SQ-NK-012",
-    "SQ-NK-014",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -70,11 +74,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1186",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical read-only/source-only operator handoff: bind recovered historical apply artifact identity, project-hosted 0046 catalogue parity and empty ledger into truthful status, generate isolated schema-only capture and manual review procedure without replaying original 47 sources, without mutating Supabase history and without leaking database URLs or credentials. Historical apply evidence and present hosted target project binding remain separate claims.",
+      "rationale": "Critical source-only integration of exact sibling Git blob files, an opt-in ledger-bound transaction generator with explicit approved baseline receipt identity SHA, local PG17 transactional 1-row positive/missing/foreign/extra/tampered-row guards and source-exact 31 Office SQL; no production or Fresh Install writes, no false owner approval, no fake migration history or actual provider acceptance.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -91,24 +95,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Validate recovered 0046 original GitHub Actions artifact metadata and all five PASS checks: run/attempt/job/artifact ID and digest, exact source commit, 47 ordered original SQL paths including 0026 duplicated ordinal, Auth bootstrap and neutral seed.",
-        "Read-only target evidence evaluator accepts only exact Fresh Install project ref, PG17 postgres catalog 4621 / known MD5, 175 public/two private tables, zero migration ledger, no modern Office 0048, and a fresh timestamp; any mismatch hard-blocks.",
-        "Generate an isolated operator adoption packet giving exact source and target hashes, safe schema-only capture procedure for public/private, isolated migration workspace with a single new baseline snapshot, never old 407 historical migrations, and verified *dry-run only* forward 31 original sources.",
-        "Never recommend applying historical 0001-0046 SQL a second time or stamping 47 per-file applied statuses; do not run db pull in an interactive mode that might auto-write migration history.",
-        "No hosted writes, Auth creation, staging activation, paid project, merge, source SQL duplication or service secret in CI; Completion Truth / Lifecycle only attest bounded source implementation."
+        "Integrate all 8 source-identical files from sibling #1411 and #1412 into a new DRAFT on verified #1414 without rewriting original evidence or silently overwriting shared development plan.",
+        "From #1411 hash-verified 31 Office sources, build a NEW ledger-bound release candidate that requires exactly one explicitly named versioned 0046 adopted current-state baseline row, preserving the F6-U03f original catalog, ACL, provider and 113 neutral row safeguards.",
+        "Lock remote ledger table transactionally, capture exact baseline row JSON fingerprint and verify unchanged after all forward SQL; fail closed on ledger=0, wrong version, name, additional rows, changed row and any unapproved host or source.",
+        "Run native PostgreSQL17 test with positive exact one-row ledger and deliberate invalid/mutated ledger cases; no managed DB writes or automatic history repair.",
+        "Treat source review and synthetic baseline receipt as NOT real managed adoption approval, NOT actual hosted Auth/JWT PostgREST and not a recovered owner private key; CI and Lifecycle claim source-only."
       ],
       "invariants": [
-        "The original Action receipt proves SQL applied to an anonymized connection in that workflow; until independent attestation of historical connection target, it cannot prove the URL belonged to present Fresh Install project.",
-        "A schema-only snapshot generated from current state would establish a new baseline; it cannot retroactively prove per-file historical migration execution provenance.",
-        "The managed Office 0047-0058 forward SQL order and SHA remain protected by existing F6-U03s source manifest; all future deployment requires separate owner approval and encrypted backup private-key custody.",
-        "GitHub Actions workflow runs only local source tests and output packet without remote credentials or SQL execution."
+        "Use original exact #1411 source byte hash and 31 source order, no SQL source rewrites.",
+        "The new baseline row is an independently owner-approved future adoption, not an invented past 0046 migration event.",
+        "Only a separately approved/reviewed exact schema snapshot can establish baseline version and hash; caller preview cannot authorize live execution.",
+        "Preserve selected trusted project `istjjkdcvsvilrycqecd`, never activate inactive staging, never touch waterk-platform.",
+        "Existing sibling source plan closures are preserved in parent PRs; new critical plan explicitly covers the integration."
       ],
       "forbiddenStates": [
-        "Fake 47 Supabase history stamps or historical SQL reapply.",
-        "Any remote baseline-adoption SQL, Supabase CLI migration repair or db push executed now.",
-        "Pretending project identity proof from past GitHub secret masking.",
-        "Schema snapshot mixed with mutable old `supabase/migrations` 407-source chain.",
-        "`releaseAuthorized=true` or Digital Office accepted without provider authorization and recovery."
+        "Replaying historical 47 SQL or stamping 47 false remote migration records.",
+        "Allowing Office 31 SQL after an unbound or tampered ledger row, or before actual baseline adoption.",
+        "Running hosted SQL with an unconfirmed backup decryption private key.",
+        "Treating model, synthetic fixture or native Postgres proof as real Supabase Auth/JWT or PITR recovery.",
+        "Code path invoking hosted DDL/DML, migration repair, db push, project restart or paid resource creation."
       ]
     },
     "model": {
@@ -286,25 +291,33 @@
       "Commit only source validator, tests, approval-gate document and frozen plan; run exact-head Truth/Lifecycle on draft PR."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
+      "request": "https://github.com/infowaterk-max/water-K-/issues/1186",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03w-baseline-handoff.yml"
+        ".github/workflows/f6-u03x-office-ledger-integration.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "scripts/shoperation-f6-u03w-baseline-handoff.mjs",
-        "tests/shoperation-f6-u03w-baseline-handoff.test.ts",
-        "docs/po/CORE_1186_F6_U03W_MANAGED_0046_ADOPTION_HANDOFF_2026-10-17.md"
+        ".github/workflows/f6-u03w-office-release-bundle.yml",
+        "docs/po/CORE_1186_F6_U03W_FORWARD_RELEASE_BUNDLE_2026-10-17.md",
+        "scripts/shoperation-f6-u03w-office-release-bundle.mjs",
+        "tests/shoperation-f6-u03w-office-release-bundle.test.ts",
+        ".github/workflows/f6-u03w-baseline-adoption-proof.yml",
+        "docs/po/CORE_1186_F6_U03W_EXISTING_BASELINE_ADOPTION_2026-10-17.md",
+        "scripts/shoperation-f6-u03w-baseline-adoption.mjs",
+        "tests/shoperation-f6-u03w-baseline-adoption.test.ts",
+        "scripts/shoperation-f6-u03x-office-ledger-integration.mjs",
+        "tests/shoperation-f6-u03x-office-ledger-integration.test.ts",
+        "docs/po/CORE_1186_F6_U03X_OFFICE_LEDGER_INTEGRATION_2026-10-17.md"
       ],
       "forbidden": [],
       "proof": [
-        ".github/workflows/f6-u03w-baseline-handoff.yml",
-        "tests/shoperation-f6-u03w-baseline-handoff.test.ts"
+        ".github/workflows/f6-u03x-office-ledger-integration.yml",
+        "tests/shoperation-f6-u03x-office-ledger-integration.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -792,16 +805,17 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Fresh Install application schema 0046 exists with zero remote Supabase migration tracking rows. Actual GitHub Actions original 0046 apply proof from 2026-10-09 run 37919705159, job 113806799257 and downloadable artifact 11613699688 is now recovered and inspected. Yet source run's secret-held database URL has no independently persisted target project-ref binding. Replaying 47 old SQL or retroactively certifying 47 repair stamps is unsafe; a separately captured current-state baseline with an isolated future migration workspace is necessary.",
+    "problemStatement": "Three independent F6-U03w PR siblings #1411 #1412 #1414 are individually source verified but cannot be composed: #1411 guard checks zero migration rows before and after, while a separately approved current-state 0046 baseline should register exactly one versioned remote row. Need source-preserving integration and native PG17 proof of 1-row immutable ledger semantics before any managed SQL.",
     "observableOutcomes": [
-      "Verifiable action artifact receipt anchored in immutable metadata and current 0046 legacy read-only state.",
-      "Isolated schema-only baseline adoption handoff (human approval) without misleading historical per-file stamps.",
-      "Source-only CI tests verify no data writes and explicit release blocked."
+      "Combined sibling 3 PR code in one new verified branch rather than parallel deploy choices.",
+      "Native PG17 exact approved-one-baseline immutable-ledger release candidate proof.",
+      "Fresh Install still no hosted migration and no releaseAuthorized assertion until recovery gates."
     ],
     "unresolvedRisks": [
-      "Historical GitHub Actions masked secret DB URL identity cannot be independently linked to today's specific project.",
-      "Backup private key durable owner custody and provider Auth/Storage/PITR recovery not confirmed.",
-      "Remote ledger remains empty and Office 0048 absent; hosted forward write stays blocked."
+      "Off-platform owner private key custody and full Auth/Storage/PITR recovery absent.",
+      "Current managed Fresh Install ledger empty, so ledger-bound SQL must fail until separately approved adoption.",
+      "No real signed Supabase Auth JWT/PostgREST tenant access evidence.",
+      "Unverified historical Oct 9 masked secret endpoint linkage."
     ],
     "scope": {
       "in": [
@@ -822,7 +836,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1186",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -841,11 +855,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-W-01",
-        "requirement": "Historical 0046 receipt exact digest and 47-source proof anchored without inventing project binding.",
+        "id": "REQ-X-01",
+        "requirement": "Integrate #1411 and #1412 source unchanged with #1414 historical receipt without corrupting critical plan.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03w-0046-operator-handoff-only",
+          "breadth": "F6-U03x-one-baseline-ledger-source-integration",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -866,8 +880,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-W-01",
-            "statement": "No hosted write, staged false migration history, mock/provider overclaim or automatic SQL rollout.",
+            "id": "NEG-REQ-X-01",
+            "statement": "No history fabrication, remote mutation, provider-jwt overclaim or bypassed immutable ledger safeguard.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -875,11 +889,11 @@
         ]
       },
       {
-        "id": "REQ-W-02",
-        "requirement": "New state baseline capture procedure is isolated, schema only, original forward source bound, remote mutation not executed.",
+        "id": "REQ-X-02",
+        "requirement": "Ledger pre/post exact one adopted baseline row protected transactionally and fault-injected in PG17.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03w-0046-operator-handoff-only",
+          "breadth": "F6-U03x-one-baseline-ledger-source-integration",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -900,8 +914,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-W-02",
-            "statement": "No hosted write, staged false migration history, mock/provider overclaim or automatic SQL rollout.",
+            "id": "NEG-REQ-X-02",
+            "statement": "No history fabrication, remote mutation, provider-jwt overclaim or bypassed immutable ledger safeguard.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -909,11 +923,11 @@
         ]
       },
       {
-        "id": "REQ-W-03",
-        "requirement": "Blocked state enforced in tests and workflow; preserves backup and Auth/Storage live release gates.",
+        "id": "REQ-X-03",
+        "requirement": "Preserve 31 exact Git original Office migration sources and zero hosted deployment/recovery overclaims.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03w-0046-operator-handoff-only",
+          "breadth": "F6-U03x-one-baseline-ledger-source-integration",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -934,8 +948,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-W-03",
-            "statement": "No hosted write, staged false migration history, mock/provider overclaim or automatic SQL rollout.",
+            "id": "NEG-REQ-X-03",
+            "statement": "No history fabrication, remote mutation, provider-jwt overclaim or bypassed immutable ledger safeguard.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -944,14 +958,14 @@
       }
     ]
   },
-  "notes": "Critical PLAN FIRST; accepted #1407 HEAD 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Recovered artifact zip sha256:b7d97cafb6af3a315ca7dc21cd48bf1f07ca9e131f192e12d73383bc4864d170 and proof.json sha256:a5411b2dd5e61db3c79e2f604386b4fca60e6075edbe936ae107278fc5f7df45 with 47 original paths. Critical known failures and guard digest need exact recomputation at CI. No source SQL modification, no write. First F6-U03w Plan Before Code fail-closed: exact scope is 22 known failures, three subsystems, 14 negative-knowledge controls, digest 9901c962. Corrected plan without widening execution authority or writing SQL. Fixed Plan Before Code exact 15-item negative-knowledge projection (SQ-NK-014 newly implicated by baseline adoption) after second fail-closed run. Exact implementation head a5f81526cfb528489ee5032b83db3a6af27eafba verified by full CI 39027286023: 3836/3836 tests, TypeScript and build/security PASS, Completion Truth VERIFIED_DONE pass=9 stale=0 missing=0. Original 0046 artifact dedicated workflow 39027286016 PASS. LEARN closure metadata only, no hosted adoption, no migration history write. Final metadata-only exact-head CI 39027562477: timed-out 5-second default heavy source manifest test (1/3836) under full parallel regression; no security or application logic regression. Reopen critical plan BEFORE replacing that one test's timeout with explicit 30000ms, keep prior proof head a5f81526cfb528489ee5032b83db3a6af27eafba as historical not current. F6-U03w timeout-stabilized implementation exact head 1ce9747709a9df1977010aa1cb0379a7319677bd full CI 39027875996: 3836/3836 tests (470 files), TypeScript/build/security PASS, Completion Truth VERIFIED_DONE pass9 stale0 missing0, expected Lifecycle CLOSE_REQUIRED. Final metadata-only LEARN closure. Dedicated original GitHub receipt flow 39027876219 SUCCESS, no remote writes.",
+  "notes": "F6-U03x critical Plan FIRST from #1414 7a6aa4307985d21581fd9969c28a425d17b08ee5; sibling source revisions #1411 f8938a108204a1cb20f1a5b434b782c1e9d5b120, #1412 37ca430134803f815b5348ebce605c2117a0b7b8. No live SQL. Reconcile guard scope to exact CI projection. Owner keys unconfirmed. Initial exact HEAD Source CI failed closed only on inherited scope: actual guard DEV-074C4B63 20 known failures/14 negatives/2 subsystems; reconciled explicitly, no policy bypass. F6-U03x exact 2026-10-17 implementation HEAD cb284790ca057aae029632bbc3a9618225b027d9 validated in full CI 39056763902: 3854/3854 (473 files), TypeScript PASS, production build PASS, security audit PASS, Completion Truth VERIFIED_DONE pass=9 stale=0 missing=0. Native synthetic PG17 one-row, missing, extra, wrong-name, post-hash mutation tests PASS on dedicated workflow 39056763893. Lifecycle LEARN metadata-only closing commit; actual remote 0046 ledger still empty, no managed migration executed.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "1ce9747709a9df1977010aa1cb0379a7319677bd",
-    "closedAt": "2026-10-17T11:18:34.361Z",
+    "verifiedImplementationHead": "cb284790ca057aae029632bbc3a9618225b027d9",
+    "closedAt": "2026-10-17T18:13:25.910Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1186",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

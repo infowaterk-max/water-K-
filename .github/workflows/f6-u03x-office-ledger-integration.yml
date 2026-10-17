@@ -1,0 +1,131 @@
+name: F6-U03x original Office 31-source single baseline ledger PG17 integration
+on:
+  push:
+    branches: [feature/core-1186-f6-u03x-single-baseline-integration]
+    paths:
+      - .github/workflows/f6-u03x-office-ledger-integration.yml
+      - scripts/shoperation-f6-u03x-office-ledger-integration.mjs
+      - tests/shoperation-f6-u03x-office-ledger-integration.test.ts
+      - docs/po/CORE_1186_F6_U03X_OFFICE_LEDGER_INTEGRATION_2026-10-17.md
+      - scripts/shoperation-f6-u03w-office-release-bundle.mjs
+      - scripts/shoperation-f6-u03w-baseline-adoption.mjs
+      - scripts/shoperation-f6-u03w-baseline-handoff.mjs
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-native-pg17-baseline-ledger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    services:
+      pg17:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: local_only_f6u03x_pg17
+          POSTGRES_DB: ledger_only
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d ledger_only"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 12
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: local_only_f6u03x_pg17
+      PGDATABASE: ledger_only
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 24}
+      - run: npm ci --no-audit --no-fund
+      - name: Critical Development Guard
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186 F6-U03x integrate sibling #1411 #1412 #1414 original 0046 baseline adoption and 31 Office transaction, ensure exact single adopted ledger row stays immutable, source-only native PG17 proof; no hosted writes." \
+            --files ".github/workflows/f6-u03w-office-release-bundle.yml;docs/po/CORE_1186_F6_U03W_FORWARD_RELEASE_BUNDLE_2026-10-17.md;scripts/shoperation-f6-u03w-office-release-bundle.mjs;tests/shoperation-f6-u03w-office-release-bundle.test.ts;.github/workflows/f6-u03w-baseline-adoption-proof.yml;docs/po/CORE_1186_F6_U03W_EXISTING_BASELINE_ADOPTION_2026-10-17.md;scripts/shoperation-f6-u03w-baseline-adoption.mjs;tests/shoperation-f6-u03w-baseline-adoption.test.ts;.github/workflows/f6-u03x-office-ledger-integration.yml;scripts/shoperation-f6-u03x-office-ledger-integration.mjs;tests/shoperation-f6-u03x-office-ledger-integration.test.ts;docs/po/CORE_1186_F6_U03X_OFFICE_LEDGER_INTEGRATION_2026-10-17.md;quality/development/active-plan.json" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/issues/1186" \
+            --check
+      - name: Critical Plan Before Code
+        run: node scripts/shoperation-plan-before-code.mjs --check
+      - name: Source-only exact 31 SQL and baseline ledger positive/negative tests
+        run: |
+          node --check scripts/shoperation-f6-u03x-office-ledger-integration.mjs
+          npx vitest run tests/shoperation-f6-u03x-office-ledger-integration.test.ts
+      - name: Generate synthetic identity and unexecuted source-exact integration SQL
+        run: |
+          mkdir -p /tmp/f6u03x
+          node -e "const fs=require('node:fs');fs.writeFileSync('/tmp/f6u03x/identity.json',JSON.stringify({contract:'shoporation.f6-u03x.reviewed-0046-baseline-identity.v1',projectRef:'istjjkdcvsvilrycqecd',version:'20261017180000',name:'shoperation_managed_0046_current_state',snapshotSha256:'a'.repeat(64)}))"
+          node scripts/shoperation-f6-u03x-office-ledger-integration.mjs --emit \
+            /tmp/f6u03x/identity.json artifacts/f6-u03x/single-baseline-integration
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          import {createHash} from 'node:crypto';
+          const p='artifacts/f6-u03x/single-baseline-integration/';
+          const m=JSON.parse(readFileSync(p+'manifest.json','utf8'));
+          const sql=readFileSync(p+'office-31-single-baseline-transaction.sql','utf8');
+          if(m.exactForwardSources!==31||m.guardedLedgerRows!==1||
+             m.integratedBundleSha256!==createHash('sha256').update(sql).digest('hex')||
+             m.releaseAuthorized!==false||m.baselineRealRemoteRowVerified!==false)
+            throw Error('F6U03X_ARTIFACT_INTEGRITY_OR_PROOF_OVERCLAIM');
+          console.log('F6U03X_SOURCE_SQL_HASH_VALID_UNEXECUTED');
+          NODE
+      - name: Native PG17 verifies transaction-locked one-row ledger unchanged and negatives
+        shell: bash
+        run: |
+          set -euo pipefail
+          b='artifacts/f6-u03x/single-baseline-integration'
+          psql -X -v ON_ERROR_STOP=1 -q <<'SQL'
+          CREATE SCHEMA supabase_migrations;
+          CREATE TABLE supabase_migrations.schema_migrations(
+            version text PRIMARY KEY, statements text[], name text,
+            created_by text, idempotency_key text, rollback text[]
+          );
+          INSERT INTO supabase_migrations.schema_migrations(version,name)
+          VALUES ('20261017180000','shoperation_managed_0046_current_state');
+          SQL
+          { echo 'BEGIN;'; cat "$b/ledger-before.sql"; cat "$b/ledger-after.sql"; echo 'COMMIT;'; } |
+            psql -X -v ON_ERROR_STOP=1 -q >/dev/null
+          expect_block() {
+            if psql -X -v ON_ERROR_STOP=1 -q >/tmp/f6u03x/blocked.log 2>&1; then
+              echo F6U03X_UNSAFE_PG17_NEGATIVE_CASE_ACCEPTED >&2
+              exit 1
+            fi
+          }
+          psql -X -v ON_ERROR_STOP=1 -q -c 'TRUNCATE supabase_migrations.schema_migrations'
+          { echo 'BEGIN;'; cat "$b/ledger-before.sql"; echo 'COMMIT;'; } | expect_block
+          psql -X -v ON_ERROR_STOP=1 -q -c \
+            "INSERT INTO supabase_migrations.schema_migrations(version,name) VALUES ('20261017180000','shoperation_managed_0046_current_state'),('20261017180001','extra')"
+          { echo 'BEGIN;'; cat "$b/ledger-before.sql"; echo 'COMMIT;'; } | expect_block
+          psql -X -v ON_ERROR_STOP=1 -q -c "TRUNCATE supabase_migrations.schema_migrations"
+          psql -X -v ON_ERROR_STOP=1 -q -c \
+            "INSERT INTO supabase_migrations.schema_migrations(version,name) VALUES ('20261017180000','foreign')"
+          { echo 'BEGIN;'; cat "$b/ledger-before.sql"; echo 'COMMIT;'; } | expect_block
+          psql -X -v ON_ERROR_STOP=1 -q -c "TRUNCATE supabase_migrations.schema_migrations"
+          psql -X -v ON_ERROR_STOP=1 -q -c \
+            "INSERT INTO supabase_migrations.schema_migrations(version,name) VALUES ('20261017180000','shoperation_managed_0046_current_state')"
+          { echo 'BEGIN;'; cat "$b/ledger-before.sql";
+            echo "UPDATE supabase_migrations.schema_migrations SET created_by='tampered';"
+            cat "$b/ledger-after.sql"; echo 'COMMIT;'; } | expect_block
+          psql -X -v ON_ERROR_STOP=1 -q <<'SQL'
+          DO $f6u03x_verify$ BEGIN
+            IF (SELECT count(*) FROM supabase_migrations.schema_migrations)<>1
+              OR EXISTS(SELECT 1 FROM supabase_migrations.schema_migrations WHERE created_by IS NOT NULL)
+            THEN RAISE EXCEPTION 'F6U03X_NEGATIVE_ROLLBACK_NOT_ATOMIC'; END IF;
+          END $f6u03x_verify$;
+          SQL
+          echo F6U03X_PG17_POSITIVE_AND_4_NEGATIVE_LEDGER_SCENARIOS_PASS
+      - name: Archive only non-secret manifests and evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03x-native-pg17-single-baseline-ledger-proof
+          path: |
+            artifacts/f6-u03x/single-baseline-integration/manifest.json
+            artifacts/f6-u03x/single-baseline-integration/status.json
+          if-no-files-found: error
+          retention-days: 30
