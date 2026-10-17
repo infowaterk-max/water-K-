@@ -25,9 +25,19 @@ const fail=s=>{throw Error('F6U03W_'+s)};
 const exactKeys=(o,k)=>o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).sort().join(',')===k.slice().sort().join(',');
 const requiredChecks=['targetPreflight','orderedMigrations','authBootstrap','neutralSeed','targetPostflight'];
 
-export function validateHistoricProofShape(proof,{sourcePaths=buildCandidateManifest().sources.slice(0,47).map(x=>x.path)}={}){
- const src=buildCandidateManifest();
- if(checkCandidateManifest(src)!==true||src.sources.length!==78||sourcePaths.length!==47)
+let cachedCanonicalManifest=null;
+function canonicalManifest(){
+ if(!cachedCanonicalManifest){
+  const src=buildCandidateManifest();
+  if(checkCandidateManifest(src)!==true||src.sources.length!==78)fail('CANONICAL_SOURCE_NOT_VERIFIED');
+  cachedCanonicalManifest=src;
+ }
+ return cachedCanonicalManifest;
+}
+export function validateHistoricProofShape(proof,{sourcePaths}={}){
+ const src=canonicalManifest();
+ sourcePaths??=src.sources.slice(0,47).map(x=>x.path);
+ if(src.sources.length!==78||sourcePaths.length!==47)
   fail('CANONICAL_SOURCE_NOT_VERIFIED');
  if(!proof||typeof proof!=='object'||Array.isArray(proof)||
   proof.contract!=='shoporation.fresh-install-proof.v2'||
