@@ -1,15 +1,15 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-725C57A6",
-  "task": "Core #1186 F6-U03u real Supabase Auth/PostgREST read-only two-plan tenant-denial proof; no hosted writes, simulation or fake JWT release.",
-  "status": "closed",
+  "task": "Core #1186 F6-U03v independent read-only provider fixture existence, Alap/Pro plan and revoked role state verification; no hosted writes or fake signed-JWT acceptance.",
+  "status": "ready-for-implementation",
   "guardDigest": "725c57a6",
-  "changeBaseSha": "69dba425893a5854a074c956524b8135c983f7c7",
+  "changeBaseSha": "1cf87091f70813f64f8f31a3997757d80bf7125f",
   "plannedFilePatterns": [
-    ".github/workflows/f6-u03u-provider-http-proof.yml",
-    "scripts/shoperation-f6-u03u-provider-http-proof.mjs",
-    "tests/shoperation-f6-u03u-provider-http-proof.test.ts",
-    "docs/po/CORE_1186_F6_U03U_PROVIDER_HTTP_PROOF_2026-10-16.md",
+    ".github/workflows/f6-u03v-fixture-lineage-proof.yml",
+    "scripts/shoperation-f6-u03v-fixture-lineage.mjs",
+    "tests/shoperation-f6-u03v-fixture-lineage.test.ts",
+    "docs/po/CORE_1186_F6_U03V_READONLY_FIXTURE_STATE_2026-10-17.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
@@ -86,7 +86,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical source-only executable HTTP GET Auth user validation, strict PostgREST Office row grants/denials and unrelated token isolation, with offline mock/non-authority distinction. The current Fresh Install has no Auth users or modern Office 0048, so a live pass is impossible and release remains blocked.",
+      "rationale": "Critical source-only connector-bound, read-only SQL for exactly three existing users, two active Alap/Pro stores, four scoped Office threads, role revocation and entitlements; validates absence of unexpected actor privilege without reading PII; rejects missing 0048, stale/wrong project, forged snapshots and all mock/live overclaims. No hosted DML, sign-in or recovery mutation.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -103,25 +103,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Pin single Fresh Install HTTPS project and require real Auth /auth/v1/user identity from three distinct externally approved actors; do not accept locally parsed JWT as signature proof.",
-        "Run strict readonly PostgREST exact Office thread ID allow/deny matrix for Alap, Pro, revoked-role and anonymous, treating 403/404 and redirects as failures rather than denial proof.",
-        "Reject cross-tenant leakage, unknown fields, wrong issuer, user metadata authorization, reused tokens, stale/future expired tokens and missing preapproved fixture IDs.",
-        "Positive and fault-injection offline tests exercise matrix but always mark simulated responses as non-authority; production HTTP proof only from explicit approved live GET run.",
-        "Exact-head CI, Completion Truth, Lifecycle, stacked DRAFT; no real managed provider/live JWT proven until accounts and Office schema exist."
+        "Generate a single read-only SELECT-only PostgreSQL17 0048+ fixture probe bound to pre-existing externally approved distinct F6-U03u fixture UUIDs; no users/threads/roles added or mutated.",
+        "Capture and validate exact counts for 3 auth.users, 2 active plan-bound webshop_instances, 4 store-isolated office_threads, Alap/Pro active owner bindings and revoked former role with zero remaining active bindings.",
+        "Independently assert Alap customer and Pro advanced feature entitlement capability grants, 0048 private Pro participant membership; no false positive when thread or participant missing.",
+        "Reject missing schema and catalog columns, wrong Postgres/project, stale or forged source or counts and ledger nonzero/unverified; all successful bounded observations remain NOT signed-JWT/PostgREST proof and releaseAuthorized:false.",
+        "Positive, negative, expiry/revocation and cross-tenant fault injection tests; exact-head critical guard, quality CI, Completion Truth, Lifecycle on stacked draft."
       ],
       "invariants": [
-        "GET-only Auth /user and PostgREST; no hosted SQL, user seed, password sign-in, refresh, mutation, staging wake or paid project.",
-        "Never publish tokens, service keys, Auth payload or personally identifying response bodies; ensure sanitized proof only.",
-        "Provider signed JWT only claims confirmed by Auth /user request matching expected subject, not by decoding token.",
-        "Actual remote provider success separate from source-only test closure; no automatic hosted Office release.",
-        "Core roadmap priority maintained."
+        "Existing 0048 must already be present before fixture SQL may execute; current Fresh Install is blocked and no migration may be executed by this unit.",
+        "No hosted DDL/DML, migration ledger edit, Auth creation/password sign-in, RLS bypass grants or service role secrets persisted.",
+        "Use F6-U03u validateFixture for exact externally-owned actor and thread UUID authority; reject tenant mixing.",
+        "Evidence reports only aggregate counts, SHA256 fixture binding and blockers; no PII or raw rows in GitHub artifacts.",
+        "Never promote source-only or caller-supplied synthetic database observations to verified real Auth JWT or RLS gateway proof."
       ],
       "forbiddenStates": [
-        "Mocked fetch accepted as live signed Auth proof.",
-        "A 403 permission/404 missing schema accepted as genuine RLS row-denial.",
-        "JWT service_role or anonymous user accepted as tenant identity.",
-        "Redirect or other host treated as authentic project.",
-        "Automatic migration ledger writes or Auth account creation."
+        "Positive RLS denial from missing target row.",
+        "Revoked user still has any live role binding on tested instance.",
+        "Wrong-store thread counted as a valid fixture.",
+        "Signed Auth/JWT claim from SQL metadata or fixture existence alone.",
+        "0047-0058 office SQL or hosted migration ledger written during this unit."
       ]
     },
     "model": {
@@ -305,19 +305,19 @@
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03u-provider-http-proof.yml"
+        ".github/workflows/f6-u03v-fixture-lineage-proof.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "docs/po/CORE_1186_F6_U03U_PROVIDER_HTTP_PROOF_2026-10-16.md",
-        "scripts/shoperation-f6-u03u-provider-http-proof.mjs",
-        "tests/shoperation-f6-u03u-provider-http-proof.test.ts"
+        "scripts/shoperation-f6-u03v-fixture-lineage.mjs",
+        "tests/shoperation-f6-u03v-fixture-lineage.test.ts",
+        "docs/po/CORE_1186_F6_U03V_READONLY_FIXTURE_STATE_2026-10-17.md"
       ],
       "forbidden": [],
       "proof": [
-        ".github/workflows/f6-u03u-provider-http-proof.yml",
-        "tests/shoperation-f6-u03u-provider-http-proof.test.ts"
+        ".github/workflows/f6-u03v-fixture-lineage-proof.yml",
+        "tests/shoperation-f6-u03v-fixture-lineage.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -805,16 +805,17 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Actual provider-issued JWT and managed PostgREST Alap/Pro roles and cross-tenant denials were never proven; local PG17 synthetic JWT is not Auth provider evidence.",
+    "problemStatement": "Existing F6-U03u provider Auth/PostgREST GET matrix cannot establish that denial target Office rows exist or that revoked role bindings are truly disabled. Authentic signed HTTP observations therefore require separate bound and fresh privileged read-only database fixture state evidence.",
     "observableOutcomes": [
-      "Executable future owner-approved provider Auth+PostgREST GET proof.",
-      "No issuer/actor/RLS bypass accepted in positive/negative checks.",
-      "No hosted execution now, proper blocked verdict."
+      "F6-U03v safe 0048 fixture SQL and strict read-only evaluator with source-only tests.",
+      "Real Fresh Install preflight blocked due 0048 absence and zero users, without side effects.",
+      "Explicit runbook for independently obtained DB fixture counts used later alongside F6-U03u GET evidence."
     ],
     "unresolvedRisks": [
-      "Live Auth users 0 and Office 0048 table absent on Fresh Install; cannot assert provider proof.",
-      "Original 0046 hosted migration ledger empty.",
-      "Owner backup private key off-platform custody unconfirmed."
+      "Fresh Install zero users, absent Office 0048; live fixture verification currently structurally impossible.",
+      "No independently durable custodian-confirmed encrypted backup private key.",
+      "Empty managed migration ledger cannot prove historical Git migration provenance.",
+      "Source-only tests do not substantiate signed provider Auth/JWT and PostgREST grant/deny."
     ],
     "scope": {
       "in": [
@@ -854,11 +855,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-U-01",
-        "requirement": "Single target provider Auth /user and PostgREST READ only.",
+        "id": "REQ-V-01",
+        "requirement": "F6-U03v only emits read-only, 0048-gated, trusted 3-user/2-store/4-thread fixture observation with no hosted SQL writes.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03u-provider-http-get-harness",
+          "breadth": "F6-U03v-provider-fixture-readonly-source",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -879,8 +880,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-U-01",
-            "statement": "No hosted mutation, mock-issued JWT claim or automatic release.",
+            "id": "NEG-REQ-V-01",
+            "statement": "No hosted mutation, mock-as-provider proof or release authorization.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -888,11 +889,11 @@
         ]
       },
       {
-        "id": "REQ-U-02",
-        "requirement": "Alap, Pro, revoked and anon actor positive/negative strict proof matrix.",
+        "id": "REQ-V-02",
+        "requirement": "Strict Alap/Pro grants, thread scoping, former role revocation and Pro membership counts; fault injection fails closed.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03u-provider-http-get-harness",
+          "breadth": "F6-U03v-provider-fixture-readonly-source",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -913,8 +914,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-U-02",
-            "statement": "No hosted mutation, mock-issued JWT claim or automatic release.",
+            "id": "NEG-REQ-V-02",
+            "statement": "No hosted mutation, mock-as-provider proof or release authorization.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -922,11 +923,11 @@
         ]
       },
       {
-        "id": "REQ-U-03",
-        "requirement": "Mocked HTTP and missing hosted Auth prerequisites must never count as signed-JWT proof.",
+        "id": "REQ-V-03",
+        "requirement": "Source-only mock and actual absent Fresh Install remain blocked; no token/managed release claim or secret leak.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03u-provider-http-get-harness",
+          "breadth": "F6-U03v-provider-fixture-readonly-source",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -947,8 +948,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-U-03",
-            "statement": "No hosted mutation, mock-issued JWT claim or automatic release.",
+            "id": "NEG-REQ-V-03",
+            "statement": "No hosted mutation, mock-as-provider proof or release authorization.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -957,18 +958,5 @@
       }
     ]
   },
-  "notes": "Critical plan and source scope authorized before code. Parent #1404 exact HEAD 69dba425893a5854a074c956524b8135c983f7c7. Real signed provider JWT/managed test remains blocked due zero auth users; harness may be developed source-only. NEVER store HTTP tokens in GitHub. No hosted SQL writes. Corrected to F6-U03u actual critical guard digest 725c57a6, 31 active known failures, Auth/customer/database/quality/release subsystems and 16 negative rules from the first fail-closed source audit. No guard bypass or scope relaxation. Closing source-only implementation unit at exact verified implementation HEAD b7b04604f6c3b9ceb6c86c74cb4609ecb30412d5; Completion Truth VERIFIED_DONE (pass 9 stale 0 missing 0), 3824/3824 tests, TS/build/security PASS. Live provider proof NOT RUN; no hosted users, migration or release; provider acceptance/recovery are external blockers.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "b7b04604f6c3b9ceb6c86c74cb4609ecb30412d5",
-    "closedAt": "2026-10-16T20:21:45.507Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1186",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "F6-U03v source-only critical plan committed before implementation. Parent #1406 exact HEAD 1cf87091f70813f64f8f31a3997757d80bf7125f. No provider identities or Office 0048 on managed target; no live SQL application or Auth users/seeding. Preliminary source scope inherited from parent, must reconcile to exact Development Guard if it changes. Risk 4/5."
 }
