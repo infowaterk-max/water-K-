@@ -1,9 +1,9 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-9901C962",
+  "taskId": "DEV-074C4B63",
   "task": "Core #1186 F6-U03x integrate sibling #1411 #1412 #1414 original 0046 baseline adoption and 31 Office transaction, ensure exact single adopted ledger row stays immutable, source-only native PG17 proof; no hosted writes.",
   "status": "ready-for-implementation",
-  "guardDigest": "9901c962",
+  "guardDigest": "074c4b63",
   "changeBaseSha": "7a6aa4307985d21581fd9969c28a425d17b08ee5",
   "plannedFilePatterns": [
     ".github/workflows/f6-u03w-office-release-bundle.yml",
@@ -21,7 +21,6 @@
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "database-schema",
     "quality-infrastructure",
     "release-infrastructure"
   ],
@@ -39,13 +38,11 @@
     "SQ-KF-006",
     "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-010",
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-018",
     "SQ-KF-020",
     "SQ-KF-022",
-    "SQ-KF-023",
     "SQ-KF-025",
     "TF-KF-001",
     "TF-KF-005",
@@ -64,7 +61,6 @@
     "SQ-NK-005",
     "SQ-NK-010",
     "SQ-NK-012",
-    "SQ-NK-014",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -962,5 +958,5 @@
       }
     ]
   },
-  "notes": "F6-U03x critical Plan FIRST from #1414 7a6aa4307985d21581fd9969c28a425d17b08ee5; sibling source revisions #1411 f8938a108204a1cb20f1a5b434b782c1e9d5b120, #1412 37ca430134803f815b5348ebce605c2117a0b7b8. No live SQL. Reconcile guard scope to exact CI projection. Owner keys unconfirmed."
+  "notes": "F6-U03x critical Plan FIRST from #1414 7a6aa4307985d21581fd9969c28a425d17b08ee5; sibling source revisions #1411 f8938a108204a1cb20f1a5b434b782c1e9d5b120, #1412 37ca430134803f815b5348ebce605c2117a0b7b8. No live SQL. Reconcile guard scope to exact CI projection. Owner keys unconfirmed. Initial exact HEAD Source CI failed closed only on inherited scope: actual guard DEV-074C4B63 20 known failures/14 negatives/2 subsystems; reconciled explicitly, no policy bypass."
 }
