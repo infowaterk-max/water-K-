@@ -1,7 +1,6 @@
 import {beforeAll,describe,it,expect} from 'vitest';
 // @ts-expect-error Source-only JS integration file has no TS declarations.
-import {integratedOfficeBundle,assessIntegratedRelease,assessBaselineEnvelope,ledgerBeforeSql,ledgerAfterSql}
- from '../scripts/shoperation-f6-u03x-office-ledger-integration.mjs';
+import {integratedOfficeBundle,assessIntegratedRelease,assessBaselineEnvelope,ledgerBeforeSql,ledgerAfterSql} from '../scripts/shoperation-f6-u03x-office-ledger-integration.mjs';
 // @ts-expect-error Existing source-exact Office package is ESM.
 import {sourceBoundOfficeBundle} from '../scripts/shoperation-f6-u03w-office-release-bundle.mjs';
 // @ts-expect-error Original customer SQL manifest is ESM.
