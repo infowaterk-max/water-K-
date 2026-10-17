@@ -1,7 +1,6 @@
 import {describe,it,expect} from 'vitest';
 // @ts-expect-error Source-only ESM module has no TypeScript declaration.
-import {buildReadOnlyPrerequisiteSql,assessPrerequisites,buildReadOnlyFixtureSql,
-  assessFixtureObservation,fixtureBinding,CONTRACT} from '../scripts/shoperation-f6-u03v-fixture-lineage.mjs';
+import {buildReadOnlyPrerequisiteSql,assessPrerequisites,buildReadOnlyFixtureSql,assessFixtureObservation,fixtureBinding,CONTRACT} from '../scripts/shoperation-f6-u03v-fixture-lineage.mjs';
 const fixture:any={
  alap:{userId:'aaaaaaaa-0000-4000-8000-000000000003',storeId:'aaaaaaaa-0000-4000-8000-000000000002',
   customerThreadId:'aaaaaaaa-0000-4000-8000-000000000010',internalThreadId:'aaaaaaaa-0000-4000-8000-000000000011'},
@@ -20,7 +19,7 @@ const counts=['authUsers','alapStore','proStore','alapCustomerThread','alapInter
  'proInternalThread','alapActiveOwner','proActiveOwner','revokedFormerRole',
  'revokedActiveRoles','alapCustomerParticipant','proCustomerParticipant',
  'proInternalParticipant','alapCustomerEntitlement','proAdvancedEntitlement'];
-const valid=()=>({projectRef,source,now,fixture:structuredClone(fixture),observation:{
+const valid=():any=>({projectRef,source,now,fixture:structuredClone(fixture),observation:{
  contract:CONTRACT,capturedAt:new Date(now).toISOString(),database:'postgres',
  role:'postgres',pgVersion:170006,fixtureSha256:fixtureBinding(fixture),
  ...Object.fromEntries(counts.map(c=>[c,c==='authUsers'?3:c==='revokedActiveRoles'?0:1]))
