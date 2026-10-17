@@ -4,6 +4,7 @@ import {validateHistoricProofShape,verifyOriginalArtifactProof,assessTarget0046,
 // @ts-expect-error Original source manifest is intentionally Node ESM.
 import {buildCandidateManifest} from '../scripts/shoperation-f6-u03l-release-candidate-acl.mjs';
 
+const originalPaths=buildCandidateManifest().sources.slice(0,47).map((x:any)=>x.path);
 const checked=()=>({
  contract:'shoporation.fresh-install-proof.v2',repository:'infowaterk-max/water-K-',
  sourceCommit:'03a7f0f690f94fa955e1ad459e3d5eb1fe22cbf4',
@@ -11,7 +12,7 @@ const checked=()=>({
  generatedAt:'2026-10-09T11:59:29.398Z',baselineStatus:'snapshot-reviewed',
  freshInstallProofRequired:true,
  proofContractSha256:'a04b0990e7cf7a0a21591b9fd81fa44d5010ca8818b7edb7f00397c6b84807bb',
- migrationFiles:buildCandidateManifest().sources.slice(0,47).map((x:any)=>x.path),
+ migrationFiles:[...originalPaths],
  authBootstrapFile:'supabase/customer-baseline/auth-bootstrap.sql',
  seedFile:'supabase/customer-baseline/seed.sql',
  checks:{targetPreflight:'PASS',orderedMigrations:'PASS',authBootstrap:'PASS',
