@@ -45,7 +45,7 @@ describe('F6-U03v independent 0048 fixture existence and revoked role SQL source
   const sql=buildReadOnlyFixtureSql(fixture);
   expect(sql).toContain("id='"+fixture.alap.customerThreadId+"'::uuid");
   expect(sql).toContain("thread_id='"+fixture.pro.internalThreadId+"'::uuid");
-  expect(sql).toContain("user_id='"+fixture.revoked.userId+"'::uuid AND revoked_at IS NOT NULL");
+  expect(sql).toContain("user_id='"+fixture.revoked.userId+"'::uuid AND instance_id='"+fixture.pro.storeId+"'::uuid AND revoked_at IS NOT NULL");
   expect(sql).toContain("feature_code='officeCommunicationAdvanced'");
   expect(sql).toContain('left_at IS NULL');
   expect((sql.match(/;/g)||[]).length).toBe(1);
