@@ -98,7 +98,7 @@ export function buildReadOnlyFixtureSql(fixture){
  };
  if(Object.keys(values).sort().join(',')!==counts.slice().sort().join(','))fail('SQL_OBSERVATION_COVERAGE_DRIFT');
  return [
- '-- F6-U03v: read-only fixture state probe; run only if 0048 prerequisites pass.',
+ '-- F6-U03v: read-only fixture state probe. Run only if 0048 prerequisites pass.',
  '-- Contains test UUIDs. Never commit real fixture SQL or evidence.',
  'SELECT jsonb_build_object(',
  " 'contract',"+q(CONTRACT)+",",
