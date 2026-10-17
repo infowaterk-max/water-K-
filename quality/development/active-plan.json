@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-074C4B63",
   "task": "Core #1186 F6-U03v independent read-only provider fixture existence, Alap/Pro plan and revoked role state verification; no hosted writes or fake signed-JWT acceptance.",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "074c4b63",
   "changeBaseSha": "1cf87091f70813f64f8f31a3997757d80bf7125f",
   "plannedFilePatterns": [
@@ -942,5 +942,18 @@
       }
     ]
   },
-  "notes": "F6-U03v source-only critical plan committed before implementation. Parent #1406 exact HEAD 1cf87091f70813f64f8f31a3997757d80bf7125f. No provider identities or Office 0048 on managed target; no live SQL application or Auth users/seeding. Preliminary source scope inherited from parent, must reconcile to exact Development Guard if it changes. Risk 4/5. First exact-head CI fail-closed on inherited unit scope; corrected projected guard to 20 relevant known failures, 2 subsystems, 14 negative controls, digest 074c4b63. No guard disabled, no app SQL changed."
+  "notes": "F6-U03v source-only critical plan committed before implementation. Parent #1406 exact HEAD 1cf87091f70813f64f8f31a3997757d80bf7125f. No provider identities or Office 0048 on managed target; no live SQL application or Auth users/seeding. Preliminary source scope inherited from parent, must reconcile to exact Development Guard if it changes. Risk 4/5. First exact-head CI fail-closed on inherited unit scope; corrected projected guard to 20 relevant known failures, 2 subsystems, 14 negative controls, digest 074c4b63. No guard disabled, no app SQL changed. Exact-head 69b18c1486c47d4149084acfa02027d87eece710 verified: full 3830/3830, TypeScript, build, security-audit, Completion Truth VERIFIED_DONE (9 pass, 0 stale/missing); metadata-only lifecycle LEARN. Live fixture state still BLOCKED: missing Office 0048 and Auth users.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "69b18c1486c47d4149084acfa02027d87eece710",
+    "closedAt": "2026-10-17T07:58:36.850Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1186",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
