@@ -1,15 +1,15 @@
 {
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-074C4B63",
-  "task": "Core #1186 F6-U03v independent read-only provider fixture existence, Alap/Pro plan and revoked role state verification; no hosted writes or fake signed-JWT acceptance.",
-  "status": "closed",
+  "task": "Core #1186 F6-U03w: establish reviewed existing 0046 Fresh Install provenance adoption path from historical job evidence, current managed catalog and isolated new baseline; forbid replaying root legacy migrations or silently repairing ledger.",
+  "status": "ready-for-implementation",
   "guardDigest": "074c4b63",
-  "changeBaseSha": "1cf87091f70813f64f8f31a3997757d80bf7125f",
+  "changeBaseSha": "8e5d6c08921d2c52e4cfa20fa83764854d2a9418",
   "plannedFilePatterns": [
-    ".github/workflows/f6-u03v-fixture-lineage-proof.yml",
-    "scripts/shoperation-f6-u03v-fixture-lineage.mjs",
-    "tests/shoperation-f6-u03v-fixture-lineage.test.ts",
-    "docs/po/CORE_1186_F6_U03V_READONLY_FIXTURE_STATE_2026-10-17.md",
+    ".github/workflows/f6-u03w-baseline-adoption-proof.yml",
+    "scripts/shoperation-f6-u03w-baseline-adoption.mjs",
+    "tests/shoperation-f6-u03w-baseline-adoption.test.ts",
+    "docs/po/CORE_1186_F6_U03W_EXISTING_BASELINE_ADOPTION_2026-10-17.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
@@ -66,11 +66,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1186",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical source-only connector-bound, read-only SQL for exactly three existing users, two active Alap/Pro stores, four scoped Office threads, role revocation and entitlements; validates absence of unexpected actor privilege without reading PII; rejects missing 0048, stale/wrong project, forged snapshots and all mock/live overclaims. No hosted DML, sign-in or recovery mutation.",
+      "rationale": "Critical source-only genuine baseline adoption design, GitHub CI historical receipt + new managed catalog target evidence with explicit masked-target association gap, isolated CLI workspace and no-write schema capture plan. No remote Supabase repair or db pull noninteractive, no hosted SQL apply until separate owner authorization and recovery.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -87,25 +87,25 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Generate a single read-only SELECT-only PostgreSQL17 0048+ fixture probe bound to pre-existing externally approved distinct F6-U03u fixture UUIDs; no users/threads/roles added or mutated.",
-        "Capture and validate exact counts for 3 auth.users, 2 active plan-bound webshop_instances, 4 store-isolated office_threads, Alap/Pro active owner bindings and revoked former role with zero remaining active bindings.",
-        "Independently assert Alap customer and Pro advanced feature entitlement capability grants, 0048 private Pro participant membership; no false positive when thread or participant missing.",
-        "Reject missing schema and catalog columns, wrong Postgres/project, stale or forged source or counts and ledger nonzero/unverified; all successful bounded observations remain NOT signed-JWT/PostgREST proof and releaseAuthorized:false.",
-        "Positive, negative, expiry/revocation and cross-tenant fault injection tests; exact-head critical guard, quality CI, Completion Truth, Lifecycle on stacked draft."
+        "Verify historical 0046 job identity (run 37919705159 attempt 2, job 113806799257 PASS, source commit 03a7f0f690f94fa955e1ad459e3d5eb1fe22cbf4, known contract SHA) separately from overall failed workflow.",
+        "Anchor read-only Fresh Install 0046 observed 4621 catalog/MD5/0 ledger to exact project and stable Git source; explicitly flag masked original secret endpoint identity as not yet independently resolved.",
+        "Provide executable source-only isolated baseline enrollment contract avoiding the 407-file root supabase/migrations chain and avoiding stamping the historical 47 entries as applied. Capture schema-only using approved PG17 tool, review auth/storage customizations, control CLI db pull prompt.",
+        "Fault-injection tests for forged historical run, wrong project, changed catalog, nonempty ledger, fake ownership confirmation and premature rollout. No positive input can authorize hosted writes or claim JWT RLS acceptance.",
+        "Preserve exact-head critical plan-before-code and Completion Truth/Lifecycle. PR DRAFT stacked over #1407."
       ],
       "invariants": [
-        "Existing 0048 must already be present before fixture SQL may execute; current Fresh Install is blocked and no migration may be executed by this unit.",
-        "No hosted DDL/DML, migration ledger edit, Auth creation/password sign-in, RLS bypass grants or service role secrets persisted.",
-        "Use F6-U03u validateFixture for exact externally-owned actor and thread UUID authority; reject tenant mixing.",
-        "Evidence reports only aggregate counts, SHA256 fixture binding and blockers; no PII or raw rows in GitHub artifacts.",
-        "Never promote source-only or caller-supplied synthetic database observations to verified real Auth JWT or RLS gateway proof."
+        "No hosted DDL/DML, schema reset, ledger writes, migration repair, db pull against remote, auth users, secret logging or staging wake during this unit.",
+        "No automatic supabase db push from the repository root with 407 historical supabase/migrations files.",
+        "A new baseline may become an observed current-state checkpoint, not a claim that historical 0046 migration rows exist.",
+        "Historical job success is not proof of named current target while DB URL is masked. Owner must independently attest endpoint before adoption.",
+        "Backup key custody and provider-managed Auth/Storage recovery remain separate release blockers."
       ],
       "forbiddenStates": [
-        "Positive RLS denial from missing target row.",
-        "Revoked user still has any live role binding on tested instance.",
-        "Wrong-store thread counted as a valid fixture.",
-        "Signed Auth/JWT claim from SQL metadata or fixture existence alone.",
-        "0047-0058 office SQL or hosted migration ledger written during this unit."
+        "Record 47 historical source migrations as applied solely from schema MD5.",
+        "Run noninteractive db pull that silently mutates migration ledger.",
+        "Execute supabase db push from Shoperation root historical migration folder on empty ledger.",
+        "Equate parent workflow failure with job failure, or job success with signed remote endpoint identity.",
+        "Move to Builder/Template or host Office 0047-0058 before owner-controlled release gate."
       ]
     },
     "model": {
@@ -283,25 +283,25 @@
       "Commit only source validator, tests, approval-gate document and frozen plan; run exact-head Truth/Lifecycle on draft PR."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/issues/1186",
+      "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
       "authority": [
         "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03v-fixture-lineage-proof.yml"
+        ".github/workflows/f6-u03w-baseline-adoption-proof.yml"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "scripts/shoperation-f6-u03v-fixture-lineage.mjs",
-        "tests/shoperation-f6-u03v-fixture-lineage.test.ts",
-        "docs/po/CORE_1186_F6_U03V_READONLY_FIXTURE_STATE_2026-10-17.md"
+        "scripts/shoperation-f6-u03w-baseline-adoption.mjs",
+        "tests/shoperation-f6-u03w-baseline-adoption.test.ts",
+        "docs/po/CORE_1186_F6_U03W_EXISTING_BASELINE_ADOPTION_2026-10-17.md"
       ],
       "forbidden": [],
       "proof": [
-        ".github/workflows/f6-u03v-fixture-lineage-proof.yml",
-        "tests/shoperation-f6-u03v-fixture-lineage.test.ts"
+        ".github/workflows/f6-u03w-baseline-adoption-proof.yml",
+        "tests/shoperation-f6-u03w-baseline-adoption.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
@@ -789,17 +789,17 @@
       }
     },
     "executionAuthorized": true,
-    "problemStatement": "Existing F6-U03u provider Auth/PostgREST GET matrix cannot establish that denial target Office rows exist or that revoked role bindings are truly disabled. Authentic signed HTTP observations therefore require separate bound and fresh privileged read-only database fixture state evidence.",
+    "problemStatement": "Fresh Install has exact known 0046 catalog but zero official Supabase migration ledger rows. GitHub Actions proof job 113806799257 at run 37919705159 attempt 2 successfully applied original 0046 baseline yet its masked DB URL cannot independently bind it to target. Need safe adoption of a new current-state baseline, not retroactive false 47-row provenance or accidental root 407-migration replay.",
     "observableOutcomes": [
-      "F6-U03v safe 0048 fixture SQL and strict read-only evaluator with source-only tests.",
-      "Real Fresh Install preflight blocked due 0048 absence and zero users, without side effects.",
-      "Explicit runbook for independently obtained DB fixture counts used later alongside F6-U03u GET evidence."
+      "Machine-readable existing-state baseline adoption review with historical job and catalog evidence classified separately.",
+      "Isolated, reviewed next-stage baseline capture procedure with exact source pointers, safeguards against 407 historical migrations.",
+      "Specific owner signoff and snapshot proof dependencies, no hosted mutation."
     ],
     "unresolvedRisks": [
-      "Fresh Install zero users, absent Office 0048; live fixture verification currently structurally impossible.",
-      "No independently durable custodian-confirmed encrypted backup private key.",
-      "Empty managed migration ledger cannot prove historical Git migration provenance.",
-      "Source-only tests do not substantiate signed provider Auth/JWT and PostgREST grant/deny."
+      "Historic 0046 GH job DB URL is masked; independent exact project connection binding unproven.",
+      "Fresh Install ledger empty with 0046 schema; requires creation of new baseline record after separate authorized review.",
+      "Original off-platform matching recovery private key custody unconfirmed.",
+      "No signed provider JWT/Office 0048+ live proof or full Auth/Storage recovery."
     ],
     "scope": {
       "in": [
@@ -820,7 +820,7 @@
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1186",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -839,11 +839,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-V-01",
-        "requirement": "F6-U03v only emits read-only, 0048-gated, trusted 3-user/2-store/4-thread fixture observation with no hosted SQL writes.",
+        "id": "REQ-W-01",
+        "requirement": "Historical 0046 proof job provenance and current verified 0046 catalog are reconciled without creating fake migration history.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03v-provider-fixture-readonly-source",
+          "breadth": "F6-U03w-legacy-baseline-adoption-review-source-only",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -864,8 +864,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-V-01",
-            "statement": "No hosted mutation, mock-as-provider proof or release authorization.",
+            "id": "NEG-REQ-W-01",
+            "statement": "No hosted write, legacy stamp invention or release overclaim.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -873,11 +873,11 @@
         ]
       },
       {
-        "id": "REQ-V-02",
-        "requirement": "Strict Alap/Pro grants, thread scoping, former role revocation and Pro membership counts; fault injection fails closed.",
+        "id": "REQ-W-02",
+        "requirement": "A safe isolated new-current-state baseline adoption path does not expose credentials or root 407-file db push.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03v-provider-fixture-readonly-source",
+          "breadth": "F6-U03w-legacy-baseline-adoption-review-source-only",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -898,8 +898,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-V-02",
-            "statement": "No hosted mutation, mock-as-provider proof or release authorization.",
+            "id": "NEG-REQ-W-02",
+            "statement": "No hosted write, legacy stamp invention or release overclaim.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -907,11 +907,11 @@
         ]
       },
       {
-        "id": "REQ-V-03",
-        "requirement": "Source-only mock and actual absent Fresh Install remain blocked; no token/managed release claim or secret leak.",
+        "id": "REQ-W-03",
+        "requirement": "Release stays fail-closed pending exact project endpoint association, backup recovery, signed Auth JWT and separate owner approval.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03v-provider-fixture-readonly-source",
+          "breadth": "F6-U03w-legacy-baseline-adoption-review-source-only",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -932,8 +932,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-V-03",
-            "statement": "No hosted mutation, mock-as-provider proof or release authorization.",
+            "id": "NEG-REQ-W-03",
+            "statement": "No hosted write, legacy stamp invention or release overclaim.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -942,18 +942,5 @@
       }
     ]
   },
-  "notes": "F6-U03v source-only critical plan committed before implementation. Parent #1406 exact HEAD 1cf87091f70813f64f8f31a3997757d80bf7125f. No provider identities or Office 0048 on managed target; no live SQL application or Auth users/seeding. Preliminary source scope inherited from parent, must reconcile to exact Development Guard if it changes. Risk 4/5. First exact-head CI fail-closed on inherited unit scope; corrected projected guard to 20 relevant known failures, 2 subsystems, 14 negative controls, digest 074c4b63. No guard disabled, no app SQL changed. Exact-head 69b18c1486c47d4149084acfa02027d87eece710 verified: full 3830/3830, TypeScript, build, security-audit, Completion Truth VERIFIED_DONE (9 pass, 0 stale/missing); metadata-only lifecycle LEARN. Live fixture state still BLOCKED: missing Office 0048 and Auth users.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "69b18c1486c47d4149084acfa02027d87eece710",
-    "closedAt": "2026-10-17T07:58:36.850Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1186",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "2026-10-17 F6-U03w plan before implementation. Exact parent #1407 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Independent original job #113806799257 had success while workflow had failure; target URL masked. Current Fresh Install 0046 full catalog equality; separate new baseline adoption not false historical repair. Scope inherited from prior 20-failure plan to be reconciled to actual guard. No hosted writes."
 }
