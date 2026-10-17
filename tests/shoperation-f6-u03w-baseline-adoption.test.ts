@@ -44,7 +44,7 @@ describe('F6-U03w real 0046 Fresh Install baseline history adoption design',()=>
   expect(()=>assessAdoption(legacy)).toThrow('F6U03W_ROOT_MIGRATION_AUTHORITY_DRIFT');
  });
  it('fails closed on remote schema drift, surprise ledger, Auth users or modern 0048',()=>{
-  const x=input();x.current.catalogCount=4620;x.current.catalogMd5='f'.repeat(32);
+  const x:any=input();x.current.catalogCount=4620;x.current.catalogMd5='f'.repeat(32);
   x.current.migrationRows=1;x.current.authUsers=1;
   x.current.modernOfficeParticipants='office_thread_participants';
   const a=assessAdoption(x);
