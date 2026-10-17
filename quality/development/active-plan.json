@@ -56,6 +56,7 @@
     "SQ-NK-005",
     "SQ-NK-010",
     "SQ-NK-012",
+    "SQ-NK-014",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -944,5 +945,5 @@
       }
     ]
   },
-  "notes": "F6-U03w plan BEFORE implementation, parent #1407 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Development Guard projected knowledge may need exact corrected scope after first blocked CI; no bypass. No live host write and no approval to deploy. Builds executable release unit rather than another preflight. F6-U03w first exact CI fail-closed on inherited guard scope; corrected to 22 applicable known failures, database-schema/quality/release subsystem authority, 14 negative controls and digest 9901c962. No guard bypass. Included only applicable 14 negative-knowledge rules at exact 22-failure source route."
+  "notes": "F6-U03w plan BEFORE implementation, parent #1407 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Development Guard projected knowledge may need exact corrected scope after first blocked CI; no bypass. No live host write and no approval to deploy. Builds executable release unit rather than another preflight. F6-U03w first exact CI fail-closed on inherited guard scope; corrected to 22 applicable known failures, database-schema/quality/release subsystem authority, 14 negative controls and digest 9901c962. No guard bypass. Included only applicable 14 negative-knowledge rules at exact 22-failure source route. Corrected the 15th applicable negative rule SQ-NK-014 after exact projected Plan Before Code report; the previous 14-entry set was inherited from F6-U03v and was insufficient for F6-U03w database-schema impact."
 }
