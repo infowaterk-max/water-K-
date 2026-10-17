@@ -944,5 +944,5 @@
       }
     ]
   },
-  "notes": "F6-U03w plan BEFORE implementation, parent #1407 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Development Guard projected knowledge may need exact corrected scope after first blocked CI; no bypass. No live host write and no approval to deploy. Builds executable release unit rather than another preflight. F6-U03w first exact CI fail-closed on inherited guard scope; corrected to 22 applicable known failures, database-schema/quality/release subsystem authority, 14 negative controls and digest 9901c962. No guard bypass."
+  "notes": "F6-U03w plan BEFORE implementation, parent #1407 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Development Guard projected knowledge may need exact corrected scope after first blocked CI; no bypass. No live host write and no approval to deploy. Builds executable release unit rather than another preflight. F6-U03w first exact CI fail-closed on inherited guard scope; corrected to 22 applicable known failures, database-schema/quality/release subsystem authority, 14 negative controls and digest 9901c962. No guard bypass. Included only applicable 14 negative-knowledge rules at exact 22-failure source route."
 }
