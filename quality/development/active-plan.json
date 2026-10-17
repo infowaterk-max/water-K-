@@ -56,6 +56,7 @@
     "SQ-NK-005",
     "SQ-NK-010",
     "SQ-NK-012",
+    "SQ-NK-014",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -943,5 +944,5 @@
       }
     ]
   },
-  "notes": "Critical PLAN FIRST; accepted #1407 HEAD 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Recovered artifact zip sha256:b7d97cafb6af3a315ca7dc21cd48bf1f07ca9e131f192e12d73383bc4864d170 and proof.json sha256:a5411b2dd5e61db3c79e2f604386b4fca60e6075edbe936ae107278fc5f7df45 with 47 original paths. Critical known failures and guard digest need exact recomputation at CI. No source SQL modification, no write. First F6-U03w Plan Before Code fail-closed: exact scope is 22 known failures, three subsystems, 14 negative-knowledge controls, digest 9901c962. Corrected plan without widening execution authority or writing SQL."
+  "notes": "Critical PLAN FIRST; accepted #1407 HEAD 8e5d6c08921d2c52e4cfa20fa83764854d2a9418. Recovered artifact zip sha256:b7d97cafb6af3a315ca7dc21cd48bf1f07ca9e131f192e12d73383bc4864d170 and proof.json sha256:a5411b2dd5e61db3c79e2f604386b4fca60e6075edbe936ae107278fc5f7df45 with 47 original paths. Critical known failures and guard digest need exact recomputation at CI. No source SQL modification, no write. First F6-U03w Plan Before Code fail-closed: exact scope is 22 known failures, three subsystems, 14 negative-knowledge controls, digest 9901c962. Corrected plan without widening execution authority or writing SQL. Fixed Plan Before Code exact 15-item negative-knowledge projection (SQ-NK-014 newly implicated by baseline adoption) after second fail-closed run."
 }
