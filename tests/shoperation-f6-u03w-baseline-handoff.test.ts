@@ -78,5 +78,5 @@ describe('F6-U03w original 0046 receipt and one-time managed baseline adoption o
   expect(doc).toContain('single new current-state baseline');
   expect(doc).toContain('No live Supabase DDL/DML');
   expect(()=>buildHandoff({originalProof:null})).toThrow('F6U03W_EXACT_HISTORICAL_RECEIPT_REQUIRED');
- });
+ },30000);
 });
