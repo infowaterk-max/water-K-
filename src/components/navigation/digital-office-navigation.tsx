@@ -13,7 +13,7 @@ export function DigitalOfficeNavigation({officeEmail,supportEnabled,canChat,adva
     ...(officeEmail&&canSupport?[{href:'/admin/kommunikacio/iroda',label:'E-mail',match:'/admin/kommunikacio/iroda'}]:[]),
     ...(supportEnabled&&canSupport?[{href:'/admin/kommunikacio/ugyfelszolgalat',label:'Ügyfélszolgálat',match:'/admin/kommunikacio/ugyfelszolgalat'}]:[]),
     ...(canChat?[{href:'/admin/kommunikacio/chat',label:'Team Chat',match:'/admin/kommunikacio/chat'}]:[]),
-    ...(officeEmail&&canSupport?[{href:'/admin/kommunikacio#feladatok',label:'Feladatok'}]:[]),
+    ...(advancedEmail&&canSupport?[{href:'/admin/kommunikacio/feladatok',label:'Feladatok',match:'/admin/kommunikacio/feladatok'}]:[]),
     ...(advancedEmail&&canMarketing?[{href:'/admin/kommunikacio/felugyelet?status=approval',label:'Jóváhagyások'}]:[]),
     ...(advancedEmail&&canMarketing?[{href:'/admin/kommunikacio/felugyelet',label:'Küldési központ',match:'/admin/kommunikacio/felugyelet'}]:[]),
     ...(canMarketing?[{href:'/admin/email-sablonok',label:'E-mail sablonok',match:'/admin/email-sablonok'}]:[]),
