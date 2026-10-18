@@ -68,6 +68,19 @@ async function mutateOffice(db:ReturnType<typeof createAdminClient>,input:{insta
   return result;
 }
 
+async function mutateOfficeTask(db:ReturnType<typeof createAdminClient>,input:{instanceId:string;userId:string;action:'create_task'|'complete_task';payload:Record<string,unknown>}) {
+  const {data,error}=await db.rpc('admin_mutate_office_task_v1',{
+    p_instance_id:input.instanceId,
+    p_actor:input.userId,
+    p_action:input.action,
+    p_payload:input.payload,
+  });
+  if(error)throw new OfficeMutationError(errorReason(error));
+  const result=(data??{}) as {id?:string;taskId?:string;status?:string};
+  if(!result.id||!result.taskId)throw new Error('Az irodai feladat műveleti eredménye nem igazolható.');
+  return result;
+}
+
 async function mutateOfficePrivacy(db:ReturnType<typeof createAdminClient>,input:{instanceId:string;userId:string;action:string;payload:Record<string,unknown>}){
   const{data,error}=await db.rpc('admin_mutate_office_privacy_v1',{
     p_instance_id:input.instanceId,
@@ -232,6 +245,7 @@ export async function createTaskAction(form:FormData){
   const threadId=String(form.get('threadId')??'');
   const title=String(form.get('title')??'').trim().slice(0,240);
   const due=String(form.get('due')??'');
+  const assigneeUserId=String(form.get('assigneeUserId')??'').trim();
   if(!title)return;
   let dueAt:string|null=null;
   if(due){
@@ -239,14 +253,18 @@ export async function createTaskAction(form:FormData){
     if(Number.isNaN(parsed.getTime()))return;
     dueAt=parsed.toISOString();
   }
-  await mutateOffice(db,{instanceId,userId,action:'create_task',payload:{threadId:threadId||null,title,dueAt}});
+  await mutateOfficeTask(db,{instanceId,userId,action:'create_task',payload:{threadId:threadId||null,title,dueAt,assigneeUserId:assigneeUserId||userId}});
   revalidatePath('/admin/kommunikacio/iroda');
+  revalidatePath('/admin/kommunikacio/feladatok');
+  revalidatePath('/admin/kommunikacio');
 }
 
 export async function completeTaskAction(form:FormData){
   const{db,userId,instanceId}=await supportAccess();
   const id=String(form.get('id')??'');
   if(!id)return;
-  await mutateOffice(db,{instanceId,userId,action:'complete_task',payload:{id}});
+  await mutateOfficeTask(db,{instanceId,userId,action:'complete_task',payload:{id}});
   revalidatePath('/admin/kommunikacio/iroda');
+  revalidatePath('/admin/kommunikacio/feladatok');
+  revalidatePath('/admin/kommunikacio');
 }
