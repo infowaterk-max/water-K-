@@ -187,4 +187,83 @@ describe('Supabase server credential scoping', () => {
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('NEXT_PUBLIC_SITE_URL must not use a loopback host in production');
   });
+  // F6 Office Fresh acceptance is deliberately branch-specific and cannot relax normal preview/production.
+  const freshAcceptanceEnv = {
+    ...process.env,
+    NODE_ENV: 'test',
+    VERCEL: '1',
+    VERCEL_ENV: 'preview',
+    VERCEL_GIT_COMMIT_REF: 'feature/core-1186-f6-u03x-single-baseline-integration',
+    SHOPERATION_FRESH_ACCEPTANCE: 'true',
+    NEXT_PUBLIC_SUPABASE_URL: 'https://istjjkdcvsvilrycqecd.supabase.co',
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'fresh-publishable-fixture',
+    SUPABASE_STAGING_SECRET_KEY: 'fresh-secret-fixture',
+    SUPABASE_SECRET_KEY: '',
+    SUPABASE_SERVICE_ROLE_KEY: 'DISABLED_FRESH_ACCEPTANCE_NO_EXTERNAL_ACTIONS',
+    KH_MERCHANT_ID: 'DISABLED_FRESH_ACCEPTANCE_NO_EXTERNAL_ACTIONS',
+    KH_SECRET: 'DISABLED_FRESH_ACCEPTANCE_NO_EXTERNAL_ACTIONS',
+    KH_ENVIRONMENT: 'disabled',
+    FOXPOST_API_KEY: 'DISABLED_FRESH_ACCEPTANCE_NO_EXTERNAL_ACTIONS',
+    GLS_USERNAME: 'DISABLED_FRESH_ACCEPTANCE_NO_EXTERNAL_ACTIONS',
+    GLS_PASSWORD: 'DISABLED_FRESH_ACCEPTANCE_NO_EXTERNAL_ACTIONS',
+    MPL_API_KEY: 'DISABLED_FRESH_ACCEPTANCE_NO_EXTERNAL_ACTIONS',
+  };
+
+  function freshPreviewPreflight(overrides: Record<string, string> = {}) {
+    return spawnSync(
+      process.execPath,
+      [join(process.cwd(), 'scripts/validate-vercel-deploy-env.mjs')],
+      { encoding: 'utf8', env: { ...freshAcceptanceEnv, ...overrides } },
+    );
+  }
+
+  it('allows only the exact approved Fresh Install preview branch with disabled external-service credentials', () => {
+    const result = freshPreviewPreflight();
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('Vercel preview Supabase target: fresh-acceptance (istjjkdcvsvilrycqecd).');
+    expect(result.stdout).toContain('Vercel preview environment preflight OK.');
+  });
+
+  it('refuses Fresh Install on any other branch or without the explicit acceptance marker', () => {
+    const wrongBranch = freshPreviewPreflight({ VERCEL_GIT_COMMIT_REF: 'main' });
+    expect(wrongBranch.status).toBe(1);
+    expect(wrongBranch.stderr).toContain('exact approved Vercel preview Git branch');
+    const absentMarker = freshPreviewPreflight({ SHOPERATION_FRESH_ACCEPTANCE: '' });
+    expect(absentMarker.status).toBe(1);
+    expect(absentMarker.stderr).toContain('preview Supabase target must be rfuvzgumbardvbvqjxdq');
+  });
+
+  it('refuses Fresh acceptance when the target is not the exact Fresh Install project', () => {
+    const stagingFallback = freshPreviewPreflight({ NEXT_PUBLIC_SUPABASE_URL: stagingSupabaseUrl });
+    expect(stagingFallback.status).toBe(1);
+    expect(stagingFallback.stderr).toContain('preview Supabase target must be istjjkdcvsvilrycqecd');
+  });
+
+  it('refuses to inherit production/server or external-service credentials in Fresh acceptance', () => {
+    for (const override of [
+      { SUPABASE_SECRET_KEY: 'production-secret' },
+      { SUPABASE_SERVICE_ROLE_KEY: 'production-service-role' },
+      { SUPABASE_STAGING_SECRET_KEY: 'DISABLED_FRESH_ACCEPTANCE_NO_EXTERNAL_ACTIONS' },
+      { KH_SECRET: 'live-payment-secret' },
+      { KH_ENVIRONMENT: 'production' },
+    ]) {
+      const result = freshPreviewPreflight(override);
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('Fresh Install acceptance');
+    }
+  });
+
+  it('never permits Fresh acceptance marker to weaken a production deployment', () => {
+    const result = freshPreviewPreflight({
+      VERCEL_ENV: 'production',
+      NEXT_PUBLIC_SUPABASE_URL: 'https://istjjkdcvsvilrycqecd.supabase.co',
+      SUPABASE_SECRET_KEY: 'prod-server-key',
+      CRON_SECRET: validCronSecret,
+      NEXT_PUBLIC_SITE_URL: 'https://shop.example.hu',
+    });
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('production Supabase target must be ewdederyvnwmghlydbno');
+    expect(result.stderr).toContain('Fresh Install acceptance requires its exact approved Vercel preview Git branch');
+  });
+
 });
