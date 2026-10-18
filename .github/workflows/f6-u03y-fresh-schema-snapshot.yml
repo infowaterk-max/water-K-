@@ -250,7 +250,14 @@ jobs:
           local_hash="$(docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres \
             -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh \
             -v "$d:/snap:ro" postgres:17 psql -XAt -v ON_ERROR_STOP=1 -f /snap/catalog.sql)"
-          test "$local_hash" = '4621|e312b40ad91150ce937f4aa00db587f3'
+          # The prior exact-head run failed here without reporting whether count or definitions drifted.
+          # Log ONLY aggregate count and MD5: never disclose schema SQL, credentials or data.
+          if test "$local_hash" != '4621|e312b40ad91150ce937f4aa00db587f3'; then
+            echo "F6U03Y_NATIVE_PG17_SCHEMA_RESTORE_PARITY_BLOCKED"
+            echo "F6U03Y_LOCAL_CATALOG_COUNT_MD5=$local_hash"
+            echo "F6U03Y_EXPECTED_CATALOG_COUNT_MD5=4621|e312b40ad91150ce937f4aa00db587f3"
+            exit 1
+          fi
           echo 'F6U03Y_NATIVE_PG17_IMPORTED_SCHEMA_4621_HASH_MATCH'
       - name: Owner-only AES-256-GCM encryption; no private key inside CI
         shell: bash
@@ -325,6 +332,7 @@ jobs:
           retention-days: 14
       - name: Report run and step outcomes to draft PR #1423 (no secrets)
         if: always()
+        continue-on-error: true
         uses: actions/github-script@v7
         env:
           SNAP_CAPTURE_OUTCOME: ${{ steps.schema-capture.outcome }}
