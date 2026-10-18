@@ -1,35 +1,22 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-074C4B63",
-  "task": "Core #1186 F6-U03x integrate sibling #1411 #1412 #1414 original 0046 baseline adoption and 31 Office transaction, ensure exact single adopted ledger row stays immutable, source-only native PG17 proof; no hosted writes.",
-  "status": "closed",
-  "guardDigest": "074c4b63",
-  "changeBaseSha": "7a6aa4307985d21581fd9969c28a425d17b08ee5",
+  "taskId": "DEV-F6U03Y-20261018",
+  "task": "Core #1186 F6-U03y owner-encrypted 0046 snapshot evidence finalization and PR governance; no hosted SQL writes or merge.",
+  "status": "ready-for-implementation",
+  "guardDigest": "a70c93be",
+  "changeBaseSha": "b1195dfbf816aa4f7e25d967de4b95ac61ca6e20",
   "plannedFilePatterns": [
-    ".github/workflows/f6-u03w-office-release-bundle.yml",
-    "docs/po/CORE_1186_F6_U03W_FORWARD_RELEASE_BUNDLE_2026-10-17.md",
-    "scripts/shoperation-f6-u03w-office-release-bundle.mjs",
-    "tests/shoperation-f6-u03w-office-release-bundle.test.ts",
-    ".github/workflows/f6-u03w-baseline-adoption-proof.yml",
-    "docs/po/CORE_1186_F6_U03W_EXISTING_BASELINE_ADOPTION_2026-10-17.md",
-    "scripts/shoperation-f6-u03w-baseline-adoption.mjs",
-    "tests/shoperation-f6-u03w-baseline-adoption.test.ts",
-    ".github/workflows/f6-u03x-office-ledger-integration.yml",
-    "scripts/shoperation-f6-u03x-office-ledger-integration.mjs",
-    "tests/shoperation-f6-u03x-office-ledger-integration.test.ts",
-    "docs/po/CORE_1186_F6_U03X_OFFICE_LEDGER_INTEGRATION_2026-10-17.md",
+    ".github/workflows/f6-u03y-fresh-schema-snapshot.yml",
+    "docs/po/CORE_1186_F6_U03Y_ENCRYPTED_SCHEMA_SNAPSHOT_2026-10-17.md",
     "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY",
     "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system",
     "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
@@ -78,7 +65,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Critical source-only integration of exact sibling Git blob files, an opt-in ledger-bound transaction generator with explicit approved baseline receipt identity SHA, local PG17 transactional 1-row positive/missing/foreign/extra/tampered-row guards and source-exact 31 Office SQL; no production or Fresh Install writes, no false owner approval, no fake migration history or actual provider acceptance.",
+      "rationale": "This corrective critical change controls encrypted schema export evidence and sensitive provider metadata, so it retains independent source identity, isolated PostgreSQL 17 semantic schema restoration and a strict two-file scope. No owner-held private key is read, no hosted state is mutated, and the completion ceiling excludes managed Auth/Storage recovery and signed provider request acceptance.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -95,25 +82,22 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Integrate all 8 source-identical files from sibling #1411 and #1412 into a new DRAFT on verified #1414 without rewriting original evidence or silently overwriting shared development plan.",
-        "From #1411 hash-verified 31 Office sources, build a NEW ledger-bound release candidate that requires exactly one explicitly named versioned 0046 adopted current-state baseline row, preserving the F6-U03f original catalog, ACL, provider and 113 neutral row safeguards.",
-        "Lock remote ledger table transactionally, capture exact baseline row JSON fingerprint and verify unchanged after all forward SQL; fail closed on ledger=0, wrong version, name, additional rows, changed row and any unapproved host or source.",
-        "Run native PostgreSQL17 test with positive exact one-row ledger and deliberate invalid/mutated ledger cases; no managed DB writes or automatic history repair.",
-        "Treat source review and synthetic baseline receipt as NOT real managed adoption approval, NOT actual hosted Auth/JWT PostgREST and not a recovered owner private key; CI and Lifecycle claim source-only."
+        "Only the two existing U03y implementation files are within scope, plus active-plan transaction metadata.",
+        "The exact head's ordinary Plan Before Code gate accepts the new bounded plan without skipping or altering quality checks.",
+        "Previously completed native PostgreSQL 17 schema restore and encrypted-only artifact evidence remain independently available.",
+        "The Fresh Install migration ledger stays empty and no Office forward SQL or production build is deployed."
       ],
       "invariants": [
-        "Use original exact #1411 source byte hash and 31 source order, no SQL source rewrites.",
-        "The new baseline row is an independently owner-approved future adoption, not an invented past 0046 migration event.",
-        "Only a separately approved/reviewed exact schema snapshot can establish baseline version and hash; caller preview cannot authorize live execution.",
-        "Preserve selected trusted project `istjjkdcvsvilrycqecd`, never activate inactive staging, never touch waterk-platform.",
-        "Existing sibling source plan closures are preserved in parent PRs; new critical plan explicitly covers the integration."
+        "Keep Fresh Install istjjkdcvsvilrycqecd and owner-recipient encryption bound to the verified current state.",
+        "Preserve the prior closed U03x governance object in immutable Git history.",
+        "Require 4621 definitions and specific proven role-name and CHECK-parenthesis parity, never an unbounded drift exception.",
+        "Only a new, separately owner-approved current-state 0046 baseline ledger entry can be created in a future operation."
       ],
       "forbiddenStates": [
-        "Replaying historical 47 SQL or stamping 47 false remote migration records.",
-        "Allowing Office 31 SQL after an unbound or tampered ledger row, or before actual baseline adoption.",
-        "Running hosted SQL with an unconfirmed backup decryption private key.",
-        "Treating model, synthetic fixture or native Postgres proof as real Supabase Auth/JWT or PITR recovery.",
-        "Code path invoking hosted DDL/DML, migration repair, db push, project restart or paid resource creation."
+        "Fake or overwrite F6-U03x historical lifecycle closure.",
+        "Widen the source path list to unrelated Core or Builder code.",
+        "Publish raw schema dumps, private keys or credential-bearing connection URLs.",
+        "Declare baseline adoption, Digital Office migration or managed provider disaster recovery as completed."
       ]
     },
     "model": {
@@ -145,42 +129,36 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "An attacker fakes reported object counts or swaps project ref while retaining schema fingerprint.",
-        "Manifest omits one historical main Office prerequisite or duplicates a baseline 005x migration.",
-        "A local 0046 fixture is mistaken for live managed database despite provider-owned Auth/Storage dependencies.",
-        "A source digest remains stable but actual hosted Office schema drifts after backup.",
-        "Native 31-source forward-only SQL requires irreversible post-commit operations, but recovery key is unavailable.",
-        "A release preflight accidentally ships a DB-URL secret or raw private key in Actions logs.",
-        "A status falsely becomes READY even though signed-JWT tenant-denial proof and migration ledger are absent."
+        "Inherited closed development plan omits new U03y workflow paths.",
+        "Unbounded file globs allow unrelated changes to escape governance.",
+        "Unreviewed baseline metadata creates a false historic migration record.",
+        "An application-schema proof is presented as a complete managed provider recovery."
       ],
       "edgeCases": [
-        "Migration ledger genuinely has zero rows while the 177-table 0046 schema already exists.",
-        "Auth user/office thread counts zero do not mean schema or provider event trigger isolation is unimportant.",
-        "Actual clean-source standalone SQL staged without running local-only fixture guard against hosted.",
-        "Past artifact valid but source SHA, branch or GitHub run context differs from current exact HEAD.",
-        "Backups exclude managed Auth, Storage, role catalog and provider event triggers.",
-        "Supavisor session port and TLS root require pinned verification and have distinct semantics from pooler transaction port.",
-        "One requested success could be conflated with a different project on the same Supabase organization."
+        "The new governance plan postdates U03y source commits, so historical planning order must be disclosed.",
+        "Role OIDs differ by cluster even when all 126 RLS policies are definitionally equal by role name.",
+        "Three storage CHECK predicates are unchanged except one redundant parenthesis pair.",
+        "The encrypted U03y artifact is owner-downloaded but not yet locally decrypted with the owner key."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-S-PREFLIGHT",
-        "summary": "Bind immutable source order and native local proof to fresh read-only managed 0046 observation, return an honest blocked/ready gate without executing hosted SQL.",
+        "id": "U03Y-ALT-A",
+        "summary": "Create a new exact-file development plan for U03y inside the existing DRAFT branch, preserving old Git history.",
         "disposition": "selected",
-        "reason": "Proves release prerequisites safely while preserving owner custody and provider certification gates."
+        "reason": "A new transaction provides truthful CI authority without bypassing the checks or changing the old closed governance record."
       },
       {
-        "id": "ALT-S-EXECUTE",
-        "summary": "Immediately apply 31 SQL sources over managed Fresh Install because source and backup are green.",
+        "id": "U03Y-ALT-B",
+        "summary": "Reopen the old closed U03x plan and pretend its lifecycle always covered U03y artifacts.",
         "disposition": "rejected",
-        "reason": "No acknowledged owner offline backup custody, empty migration history and no managed JWT/HTTP release proof."
+        "reason": "This destroys planning chronology and would falsely attach successful previous lifecycle evidence to unplanned newer files."
       },
       {
-        "id": "ALT-S-RESET",
-        "summary": "Reapply all original 59 baseline files to existing managed Fresh Install.",
+        "id": "U03Y-ALT-C",
+        "summary": "Disable the standard Plan Before Code check because the native schema-only workflow already passed.",
         "disposition": "rejected",
-        "reason": "Would replace/reinitialize provider-managed deployed database and violates no-reset guard."
+        "reason": "A source-snapshot restoration test does not replace critical review of source scope, provenance or ordinary completion safeguards."
       }
     ],
     "specialistReviews": [
@@ -188,678 +166,166 @@
         "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Local source proof and a decryptable application backup cannot establish server-managed provider state or safe post-commit recovery.",
-        "resolution": "Report full cluster recovery and signed provider acceptance UNKNOWN; never authorize hosted migration in this unit.",
+        "finding": "The application-schema-only export does not prove hosted Auth and Storage provider disaster recovery.",
+        "resolution": "Retain isolated native PG17 scope and explicitly block broader provider recovery certification.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md"
+          "https://github.com/infowaterk-max/water-K-/actions/runs/39112423047"
         ]
       },
       {
         "role": "Security",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Tenant role and private Office isolation require positive and negative tests under real managed JWT.",
-        "resolution": "Retain local native role/RLS tests as partial only; require signed-JWT separate release proof.",
+        "finding": "A schema export may leak credential material if ciphertext-only artifact protection is bypassed.",
+        "resolution": "Retain owner-only AES-256-GCM ciphertext uploads without private key handling or exposed DDL.",
         "evidence": [
-          "scripts/shoperation-f6-u03q-managed-preflight.mjs"
+          ".github/workflows/f6-u03y-fresh-schema-snapshot.yml"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Marker-only source hash and empty ledger create false confidence.",
-        "resolution": "Use existing exact original compiler, source manifest and exact SHA provenance.",
+        "finding": "The previous CLOSED/LEARN F6-U03x plan cannot safely authorize a distinct source change.",
+        "resolution": "Use a new exact-file active governance transaction and preserve closed plan evidence in Git history.",
         "evidence": [
-          "scripts/shoperation-f6-u03r-occupied-upgrade.mjs"
+          "quality/development/active-plan.json"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A developer may accidentally treat read-only successful managed target matching as approval to commit production SQL.",
-        "resolution": "No execute action is included; require separate explicit approval, trusted source manifest provenance, owner retained decryption key, provider signed-JWT managed authorization and release evidence before hosted writes.",
+        "finding": "The hosted migration ledger remains empty despite the successful read-only capture proof.",
+        "resolution": "Keep ledger writes and forward Office SQL blocked until separately reviewed owner authorization.",
         "evidence": [
-          "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md"
+          "https://github.com/infowaterk-max/water-K-/pull/1417"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-S-01",
-        "scenario": "Source suffix accidentally contains 30 or 32 originals while comments still mention 31.",
-        "finding": "Count assertion and path-marker check alone permit withheld SQL bytes.",
-        "resolution": "Byte-level source identity and count and canonical suffix must all match pinned baseline path order.",
+        "id": "CH-U03Y-01",
+        "scenario": "An engineer merges the new snapshot because its dedicated backup Actions run is green.",
+        "finding": "Generic CI still rejects two unplanned source files that are not governed by the previous closed transaction.",
+        "resolution": "Require new exact-file governance before any stacked PR merge.",
         "status": "resolved"
       },
       {
-        "id": "CH-S-02",
-        "scenario": "Managed target is silently changed to waterk-platform but both use PostgreSQL17.",
-        "finding": "PG major alone is insufficient target attestation.",
-        "resolution": "Require literal Fresh project ref plus original 0046 schema and exact target identity.",
+        "id": "CH-U03Y-02",
+        "scenario": "The project scope expands to unrelated Builder and storefront files via a broad release glob.",
+        "finding": "Unreviewed files could pass inside an overly permissive risk envelope.",
+        "resolution": "Declare precisely the two U03y implementation paths and reject unrelated material changes.",
         "status": "resolved"
       },
       {
-        "id": "CH-S-03",
-        "scenario": "The owner has a ciphertext artifact but has not retained the matching private key outside the assistant workspace.",
-        "finding": "No independent post-commit recovery guarantee.",
-        "resolution": "Keep blocked until explicit owner retention and a real decrypt/restore verification contract; never self-attest.",
+        "id": "CH-U03Y-03",
+        "scenario": "The previously closed U03x development plan is edited as if it were never completed.",
+        "finding": "Historical lifecycle traceability would be corrupted even when the resulting CI turns green.",
+        "resolution": "Create a distinct new task identifier and keep the original plan in immutable Git history.",
         "status": "resolved"
       },
       {
-        "id": "CH-S-04",
-        "scenario": "CI green native local role simulation misread as deployed Supabase Auth JWT acceptance.",
-        "finding": "False positive on private Office permissions and cross-tenant access.",
-        "resolution": "Expose providerJwtProven=false, managedApiProven=false, releaseAuthorized=false in immutable output.",
+        "id": "CH-U03Y-04",
+        "scenario": "The schema-only archive is called a full hosted recovery backup.",
+        "finding": "Managed Auth identities, Storage internals and PITR are not included in this artifact.",
+        "resolution": "Report application-schema-only recovery and retain provider scope as a separate release blocker.",
         "status": "resolved"
       },
       {
-        "id": "CH-S-05",
-        "scenario": "CI workflow uses a read-only catalog query but later introduces an execute_sql mutation.",
-        "finding": "Scope and potentially irreversible DB operations would escape review.",
-        "resolution": "No hosted SQL tool in production script; only source package validator and static catalog input.",
+        "id": "CH-U03Y-05",
+        "scenario": "Internal Postgres role IDs change between original and disposable schema instances.",
+        "finding": "A raw schema MD5 changes despite the same 126 effective role-name RLS policies.",
+        "resolution": "Use exactly bounded per-policy role-name comparison and preserve all other definition checks.",
         "status": "resolved"
       },
       {
-        "id": "CH-S-06",
-        "scenario": "A post-backup schema change occurred after the original read-only catalog was gathered, even though the source original manifest remains pinned.",
-        "finding": "A stale managed observation must not release authorize a fresh target.",
-        "resolution": "Bind the observation to a read-only Supabase connection with recorded capture timestamp and exact 175+2 legacy fingerprint; a time/source mismatch invalidates the preflight and blocks any SQL release.",
+        "id": "CH-U03Y-06",
+        "scenario": "A CHECK expression changes its business predicate while the overall schema object count stays equal.",
+        "finding": "An overly permissive normalizer might accept a dangerous constraint change.",
+        "resolution": "Allow only one exact redundant parenthesis pair around the known three storage-path checks.",
         "status": "resolved"
       },
       {
-        "id": "CH-S-07",
-        "scenario": "A planned F6-U03t operator tries to infer full recovery from app-owned public/private pg_dump, leaving Auth, Storage buckets and provider trigger grants outside restore.",
-        "finding": "A logical application backup does not provide managed cluster point-in-time recovery or provider service parity.",
-        "resolution": "Keep separate provider-managed recovery blockers explicitly, and require owner private-key custody independent of GitHub artifacts.",
+        "id": "CH-U03Y-07",
+        "scenario": "A zero-row Supabase migration ledger is populated with 47 invented historical entries.",
+        "finding": "Historical ledger repair would claim migration events that did not happen on the target.",
+        "resolution": "Require a separate single new current-state baseline process and explicit owner approval.",
         "status": "resolved"
       },
       {
-        "id": "CH-S-08",
-        "scenario": "A local test suite claims to cover end-user Office visibility by testing helper functions only without actual provider-issued JWT or managed PostgREST HTTP.",
-        "finding": "Testing local role simulation alone permits account and tenant authorization regressions.",
-        "resolution": "Always report signedJwtProven=false and managedApiProven=false in this source-only unit and withhold release status until a separate real managed request proof.",
+        "id": "CH-U03Y-08",
+        "scenario": "A draft snapshot governance plan is mistaken for production Digital Office release authorization.",
+        "finding": "CI scope checks do not prove hosted signed-JWT tenant denial or forward SQL effects.",
+        "resolution": "Keep hosted execution and release authorization disabled until distinct acceptance proofs exist.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Retain canonical Critical Plan Before Code passing with exact source path list and all known failure directives.",
-      "Use canonical `composeOriginalSourceDiagnostic` / F6-U03r manifest, prove original path order and fingerprint no source mutations.",
-      "Compile purely read-only `assessManagedForwardReadiness` from connector-bound managed catalog and backup source SHA evidence; negative tests reject wrong project, altered signatures and fabricated release.",
-      "Run dedicated vitest cases and no hosted execution paths; check TypeScript/build/knowledge/edit-time/incremental guards.",
-      "Commit only source validator, tests, approval-gate document and frozen plan; run exact-head Truth/Lifecycle on draft PR."
+      "Verify the exact branch and newly scoped active-plan transaction against canonical Plan Before Code checks.",
+      "Retain source SHA and owner-recipient ciphertext checksum evidence from the completed independent native PG17 workflow.",
+      "Evaluate generic CI and completion gates honestly without claiming hosted migration or managed provider authorization."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/issues/1186",
       "authority": [
-        "quality-knowledge-system",
         "release-infrastructure"
       ],
       "mustEdit": [
-        ".github/workflows/f6-u03x-office-ledger-integration.yml"
+        ".github/workflows/f6-u03y-fresh-schema-snapshot.yml",
+        "docs/po/CORE_1186_F6_U03Y_ENCRYPTED_SCHEMA_SNAPSHOT_2026-10-17.md"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
-      "mustCreate": [
-        ".github/workflows/f6-u03w-office-release-bundle.yml",
-        "docs/po/CORE_1186_F6_U03W_FORWARD_RELEASE_BUNDLE_2026-10-17.md",
-        "scripts/shoperation-f6-u03w-office-release-bundle.mjs",
-        "tests/shoperation-f6-u03w-office-release-bundle.test.ts",
-        ".github/workflows/f6-u03w-baseline-adoption-proof.yml",
-        "docs/po/CORE_1186_F6_U03W_EXISTING_BASELINE_ADOPTION_2026-10-17.md",
-        "scripts/shoperation-f6-u03w-baseline-adoption.mjs",
-        "tests/shoperation-f6-u03w-baseline-adoption.test.ts",
-        "scripts/shoperation-f6-u03x-office-ledger-integration.mjs",
-        "tests/shoperation-f6-u03x-office-ledger-integration.test.ts",
-        "docs/po/CORE_1186_F6_U03X_OFFICE_LEDGER_INTEGRATION_2026-10-17.md"
-      ],
+      "mustCreate": [],
       "forbidden": [],
       "proof": [
-        ".github/workflows/f6-u03x-office-ledger-integration.yml",
-        "tests/shoperation-f6-u03x-office-ledger-integration.test.ts"
+        ".github/workflows/f6-u03y-fresh-schema-snapshot.yml"
       ],
       "unknown": [],
       "plannedDeletions": []
     },
-    "ecosystem": {
-      "contract": "shoporation.development-ecosystem.v1",
-      "phase": "PLAN",
-      "implementationSkeleton": {
-        "contract": "shoporation.implementation-skeleton.v1",
-        "mustEdit": [
-          ".github/workflows/f6-u03t-provenance-proof.yml",
-          "quality/development/active-plan.json"
-        ],
-        "mayEdit": [],
-        "impactedReadOnly": [],
-        "mustCreate": [
-          "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
-          "scripts/shoperation-f6-u03t-provenance-gate.mjs",
-          "tests/shoperation-f6-u03t-provenance-gate.test.ts"
-        ],
-        "forbidden": [],
-        "proof": [],
-        "authority": [
-          "auth-access-authority",
-          "database-schema",
-          "quality-knowledge-system",
-          "release-infrastructure",
-          "tenant-context-authority"
-        ],
-        "unknown": []
-      },
-      "projectedReleaseRisk": {
-        "contract": "shoporation.projected-release-risk.v1",
-        "score": 4,
-        "maxPoints": 5,
-        "subsystemCount": 2,
-        "maxSubsystems": 3,
-        "subsystems": [
-          {
-            "subsystem": "release-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
-          }
-        ],
-        "files": [
-          {
-            "file": ".github/workflows/f6-u03t-provenance-proof.yml",
-            "subsystem": "release-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "file": "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "quality/development/active-plan.json",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          },
-          {
-            "file": "scripts/shoperation-f6-u03t-provenance-gate.mjs",
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "file": "tests/shoperation-f6-u03t-provenance-gate.test.ts",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          }
-        ],
-        "violations": [],
-        "decision": "PASS"
-      },
-      "releaseDecomposition": {
-        "contract": "shoporation.release-decomposition.v1",
-        "decision": "PASS",
-        "decompositionRequired": false,
-        "originalRisk": {
-          "contract": "shoporation.projected-release-risk.v1",
-          "score": 4,
-          "maxPoints": 5,
-          "subsystemCount": 2,
-          "maxSubsystems": 3,
-          "subsystems": [
-            {
-              "subsystem": "release-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
-            }
-          ],
-          "files": [
-            {
-              "file": ".github/workflows/f6-u03t-provenance-proof.yml",
-              "subsystem": "release-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "file": "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
-            {
-              "file": "quality/development/active-plan.json",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            },
-            {
-              "file": "scripts/shoperation-f6-u03t-provenance-gate.mjs",
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "file": "tests/shoperation-f6-u03t-provenance-gate.test.ts",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            }
-          ],
-          "violations": [],
-          "decision": "PASS"
-        },
-        "maxFilesPerUnit": 12,
-        "repositoryEdges": [],
-        "atomicComponents": [
-          {
-            "id": 0,
-            "files": [
-              ".github/workflows/f6-u03t-provenance-proof.yml"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "files": [
-                {
-                  "file": ".github/workflows/f6-u03t-provenance-proof.yml",
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 1,
-            "files": [
-              "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 2,
-            "files": [
-              "quality/development/active-plan.json"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "quality/development/active-plan.json",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 3,
-            "files": [
-              "scripts/shoperation-f6-u03t-provenance-gate.mjs"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "files": [
-                {
-                  "file": "scripts/shoperation-f6-u03t-provenance-gate.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 4,
-            "files": [
-              "tests/shoperation-f6-u03t-provenance-gate.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "tests/shoperation-f6-u03t-provenance-gate.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          }
-        ],
-        "releaseUnits": [
-          {
-            "contract": "shoporation.release-unit-manifest.v1",
-            "transaction": {
-              "id": "DEVELOPMENT-GUARD",
-              "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-              "developmentBaseSha": "e2ac4703a116a06f159009bfefc03e3a0bd097cc"
-            },
-            "releaseUnitId": "DEVELOPMENT-GUARD-U01",
-            "order": 1,
-            "targetBaseSha": "e2ac4703a116a06f159009bfefc03e3a0bd097cc",
-            "lease": {
-              "expectedBaseSha": "e2ac4703a116a06f159009bfefc03e3a0bd097cc",
-              "failOnDrift": true,
-              "reconciled": true,
-              "reconciledFromSha": null
-            },
-            "intendedFiles": [
-              ".github/workflows/f6-u03t-provenance-proof.yml",
-              "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
-              "quality/development/active-plan.json",
-              "scripts/shoperation-f6-u03t-provenance-gate.mjs",
-              "tests/shoperation-f6-u03t-provenance-gate.test.ts"
-            ],
-            "operations": [
-              {
-                "operation": "modify",
-                "file": ".github/workflows/f6-u03t-provenance-proof.yml",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
-                "generated": null
-              },
-              {
-                "operation": "modify",
-                "file": "quality/development/active-plan.json",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "scripts/shoperation-f6-u03t-provenance-gate.mjs",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "tests/shoperation-f6-u03t-provenance-gate.test.ts",
-                "generated": null
-              }
-            ],
-            "requiredDependencyFiles": [],
-            "authorities": [
-              "quality-knowledge-system",
-              "release-infrastructure"
-            ],
-            "subsystems": [
-              "release-infrastructure",
-              "quality-infrastructure"
-            ],
-            "projectedRisk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 4,
-              "maxPoints": 5,
-              "subsystemCount": 2,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "files": [
-                {
-                  "file": ".github/workflows/f6-u03t-provenance-proof.yml",
-                  "subsystem": "release-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "file": "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "quality/development/active-plan.json",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                },
-                {
-                  "file": "scripts/shoperation-f6-u03t-provenance-gate.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "file": "tests/shoperation-f6-u03t-provenance-gate.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            },
-            "requiredGates": [
-              "GUARD-COMPLETION-TRUTH",
-              "GUARD-EDIT-TIME",
-              "GUARD-INCREMENTAL-REPLAY",
-              "GUARD-KNOWLEDGE-PREFLIGHT",
-              "GUARD-PLAN-BEFORE-CODE",
-              "GUARD-PRODUCTION-BUILD",
-              "GUARD-QUALITY-TESTS",
-              "GUARD-RELEASE-RISK",
-              "GUARD-TYPECHECK"
-            ],
-            "requiredEvidence": {
-              "gateIds": [
-                "GUARD-COMPLETION-TRUTH",
-                "GUARD-EDIT-TIME",
-                "GUARD-INCREMENTAL-REPLAY",
-                "GUARD-KNOWLEDGE-PREFLIGHT",
-                "GUARD-PLAN-BEFORE-CODE",
-                "GUARD-PRODUCTION-BUILD",
-                "GUARD-QUALITY-TESTS",
-                "GUARD-RELEASE-RISK",
-                "GUARD-TYPECHECK"
-              ],
-              "proofFiles": [
-                "tests/shoperation-f6-u03t-provenance-gate.test.ts"
-              ],
-              "externalGateIds": []
-            },
-            "forbiddenPaths": [],
-            "readOnlyPaths": [],
-            "generatedArtifactSemantics": [],
-            "prerequisites": [],
-            "predecessorUnits": [],
-            "expectedPostUnitState": {
-              "filesPresent": [
-                ".github/workflows/f6-u03t-provenance-proof.yml",
-                "docs/po/CORE_1186_F6_U03T_PROVENANCE_GATE_2026-10-16.md",
-                "quality/development/active-plan.json",
-                "scripts/shoperation-f6-u03t-provenance-gate.mjs",
-                "tests/shoperation-f6-u03t-provenance-gate.test.ts"
-              ],
-              "filesAbsent": []
-            },
-            "reconciliationPolicy": {
-              "mode": "merged-main-sequential",
-              "requireExactMainLease": true,
-              "requirePredecessorReceipts": false,
-              "requiresReconciliationAfterPredecessor": false,
-              "failOnUnrelatedMainDrift": true
-            },
-            "sourceIdentity": {
-              "sourceCommit": null,
-              "sealed": false
-            },
-            "manifestDigest": "36f80763",
-            "decision": "PASS"
-          }
-        ],
-        "ordering": {
-          "decision": "PASS",
-          "cycles": []
-        }
-      },
-      "gateChain": {
-        "contract": "shoporation.gate-chain.v1",
-        "phase": "PLAN",
-        "orderedGateIds": [
-          "GUARD-KNOWLEDGE-PREFLIGHT",
-          "GUARD-PLAN-BEFORE-CODE",
-          "GUARD-EDIT-TIME",
-          "GUARD-INCREMENTAL-REPLAY",
-          "GUARD-QUALITY-TESTS",
-          "GUARD-TYPECHECK",
-          "GUARD-PRODUCTION-BUILD",
-          "GUARD-COMPLETION-TRUTH",
-          "GUARD-RELEASE-RISK"
-        ],
-        "currentPhaseGateIds": [
-          "GUARD-KNOWLEDGE-PREFLIGHT",
-          "GUARD-PLAN-BEFORE-CODE",
-          "GUARD-RELEASE-RISK"
-        ],
-        "futureGateIds": [
-          "GUARD-EDIT-TIME",
-          "GUARD-INCREMENTAL-REPLAY",
-          "GUARD-QUALITY-TESTS",
-          "GUARD-TYPECHECK",
-          "GUARD-PRODUCTION-BUILD",
-          "GUARD-COMPLETION-TRUTH"
-        ],
-        "externalGateIds": [],
-        "issues": [],
-        "decision": "PASS"
-      }
-    },
     "executionAuthorized": true,
-    "problemStatement": "Three independent F6-U03w PR siblings #1411 #1412 #1414 are individually source verified but cannot be composed: #1411 guard checks zero migration rows before and after, while a separately approved current-state 0046 baseline should register exactly one versioned remote row. Need source-preserving integration and native PG17 proof of 1-row immutable ledger semantics before any managed SQL.",
+    "problemStatement": "The owner-encrypted F6-U03y customer schema snapshot has a successful native PostgreSQL 17 restoration receipt, but the general CI is blocked because its inherited F6-U03x development plan is already CLOSED and excludes two new changed files. The U03y PR must get an independent, bounded governance record without fabricating a prior plan-before-code chronology or authorizing hosted writes.",
     "observableOutcomes": [
-      "Combined sibling 3 PR code in one new verified branch rather than parallel deploy choices.",
-      "Native PG17 exact approved-one-baseline immutable-ledger release candidate proof.",
-      "Fresh Install still no hosted migration and no releaseAuthorized assertion until recovery gates."
+      "The two exact encrypted snapshot workflow and documentation paths have a new active-plan transaction with no extra implementation files.",
+      "Generic CI validates the actual U03y change scope without rewriting immutable F6-U03x CLOSED/LEARN history.",
+      "Run 39112423047 and artifact 12130972644 retain their 4621-object native PG17 proof, source digest and owner-only encryption evidence.",
+      "No 0046 hosted ledger entry, Office migration, signed managed authorization or production release is executed or inferred."
     ],
     "unresolvedRisks": [
-      "Off-platform owner private key custody and full Auth/Storage/PITR recovery absent.",
-      "Current managed Fresh Install ledger empty, so ledger-bound SQL must fail until separately approved adoption.",
-      "No real signed Supabase Auth JWT/PostgREST tenant access evidence.",
-      "Unverified historical Oct 9 masked secret endpoint linkage."
+      "The newly captured U03y ciphertext has not yet been independently decrypted with the owner's local private key.",
+      "The current application schema dump cannot demonstrate full managed Auth, Storage and point-in-time recovery.",
+      "An empty hosted migration ledger makes premature current-state baseline adoption an unauthorized write with misleading provenance.",
+      "An inherited closed plan or source-only CI success cannot certify real managed JWT tenant isolation."
     ],
     "scope": {
       "in": [
-        "original 78 Git-pinned SQL sources, last 31 only read/verify",
-        "read-only actual Fresh Install catalog metadata and original 0046 snapshot comparison",
-        "bound owner-key backup metadata, isolated PG17 source native rollback proof references",
-        "explicit release risk decision and machine-readable blocked reasons",
-        "tests and exact-head CI/Truth/Lifecycle"
+        "Introduce a distinct bounded active development-plan record for the two existing U03y source files, without new feature scope.",
+        "Bind successful encrypted-only snapshot and its native PG17 restore proof to source SHA and current documentation.",
+        "Require standard CI guard results to be evaluated independently before the stacked DRAFT PR is merged."
       ],
       "out": [
-        "hosted schema DDL or forward migration execution",
-        "database reset or 59-source empty baseline replay",
-        "waterk-platform/staging changes or adding costs",
-        "automatic declaring Office, managed JWT, API, tenant or Storage readiness",
-        "implicit product owner authorization for irreversible migration"
+        "No hosted database DDL, DML, migration ledger repair or Office forward SQL.",
+        "No provider Auth or Storage disaster-recovery certification, paid project, staging wake, main merge or deployment.",
+        "No retrospective claim that this U03y corrective plan existed before the earlier workflow commits."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
     "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1186",
-    "systemObligations": {
-      "derivation": "canonical-gate-chain",
-      "requiredGuards": [
-        "GUARD-KNOWLEDGE-PREFLIGHT",
-        "GUARD-PLAN-BEFORE-CODE",
-        "GUARD-EDIT-TIME",
-        "GUARD-INCREMENTAL-REPLAY",
-        "GUARD-QUALITY-TESTS",
-        "GUARD-TYPECHECK",
-        "GUARD-PRODUCTION-BUILD",
-        "GUARD-COMPLETION-TRUTH",
-        "GUARD-RELEASE-RISK"
-      ],
-      "externalGuards": [],
-      "phase": "PLAN"
-    },
+    "systemObligations": [
+      "Preserve source scope and prohibit undocumented hosted database operations.",
+      "Keep completion claims tied to actual CI and owner-retained recovery evidence."
+    ],
     "requirements": [
       {
-        "id": "REQ-X-01",
-        "requirement": "Integrate #1411 and #1412 source unchanged with #1414 historical receipt without corrupting critical plan.",
+        "id": "REQ-U03Y-01",
+        "requirement": "Only the two existing U03y source files are planned and verifiably governed by one new active transaction.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03x-one-baseline-ledger-source-integration",
+          "breadth": "F6-U03y-source-governance-only",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -880,20 +346,20 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-X-01",
-            "statement": "No history fabrication, remote mutation, provider-jwt overclaim or bypassed immutable ledger safeguard.",
+            "id": "NEG-U03Y-01",
+            "statement": "Do not overwrite old lifecycle history or permit unplanned source paths.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-PLAN-BEFORE-CODE"
             ]
           }
         ]
       },
       {
-        "id": "REQ-X-02",
-        "requirement": "Ledger pre/post exact one adopted baseline row protected transactionally and fault-injected in PG17.",
+        "id": "REQ-U03Y-02",
+        "requirement": "Preserve exact encrypted schema snapshot proof without any hosted ledger adoption, managed Office migration or release.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "F6-U03x-one-baseline-ledger-source-integration",
+          "breadth": "F6-U03y-source-governance-only",
           "strength": 2,
           "dimensions": [
             "tests",
@@ -914,62 +380,15 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-REQ-X-02",
-            "statement": "No history fabrication, remote mutation, provider-jwt overclaim or bypassed immutable ledger safeguard.",
+            "id": "NEG-U03Y-02",
+            "statement": "Do not leak raw DDL or fabricate managed provider Auth, migration or recovery success.",
             "evidence": [
-              "GUARD-QUALITY-TESTS"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "REQ-X-03",
-        "requirement": "Preserve 31 exact Git original Office migration sources and zero hosted deployment/recovery overclaims.",
-        "claimScope": {
-          "capability": "CAP-QUALITY",
-          "breadth": "F6-U03x-one-baseline-ledger-source-integration",
-          "strength": 2,
-          "dimensions": [
-            "tests",
-            "scope",
-            "forbidden-state"
-          ]
-        },
-        "requiredCapabilities": [
-          "CAP-QUALITY"
-        ],
-        "evidence": {
-          "implementation": [
-            "GUARD-PLAN-BEFORE-CODE"
-          ],
-          "outcome": [
-            "GUARD-QUALITY-TESTS"
-          ]
-        },
-        "forbiddenRegressions": [
-          {
-            "id": "NEG-REQ-X-03",
-            "statement": "No history fabrication, remote mutation, provider-jwt overclaim or bypassed immutable ledger safeguard.",
-            "evidence": [
-              "GUARD-QUALITY-TESTS"
+              "GUARD-PLAN-BEFORE-CODE"
             ]
           }
         ]
       }
     ]
   },
-  "notes": "F6-U03x critical Plan FIRST from #1414 7a6aa4307985d21581fd9969c28a425d17b08ee5; sibling source revisions #1411 f8938a108204a1cb20f1a5b434b782c1e9d5b120, #1412 37ca430134803f815b5348ebce605c2117a0b7b8. No live SQL. Reconcile guard scope to exact CI projection. Owner keys unconfirmed. Initial exact HEAD Source CI failed closed only on inherited scope: actual guard DEV-074C4B63 20 known failures/14 negatives/2 subsystems; reconciled explicitly, no policy bypass. F6-U03x exact 2026-10-17 implementation HEAD cb284790ca057aae029632bbc3a9618225b027d9 validated in full CI 39056763902: 3854/3854 (473 files), TypeScript PASS, production build PASS, security audit PASS, Completion Truth VERIFIED_DONE pass=9 stale=0 missing=0. Native synthetic PG17 one-row, missing, extra, wrong-name, post-hash mutation tests PASS on dedicated workflow 39056763893. Lifecycle LEARN metadata-only closing commit; actual remote 0046 ledger still empty, no managed migration executed.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "cb284790ca057aae029632bbc3a9618225b027d9",
-    "closedAt": "2026-10-17T18:13:25.910Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1186",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Corrective bounded U03y governance transaction AFTER U03y source implementation. Never claim historical plan-first chronology. Closed DEV-074C4B63 U03x plan remains in Git history. Native encrypted snapshot source SHA 4598b6eab2ede305c5011b7479e283006559ef16; run 39112423047 SUCCESS; artifact 12130972644; no hosted SQL writes, no new branches, releaseAuthorized=false."
 }
