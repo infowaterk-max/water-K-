@@ -241,8 +241,7 @@ begin
 
   raise exception 'OFFICE_TEAM_CHAT_ACTION_INVALID';
 end;
-$function$
-
+$function$;
 
 DO $office31_post$
 BEGIN
