@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
 import { resolveSupabaseServerKey } from '../src/lib/supabase/server-credentials';
 
 const validCronSecret='0123456789abcdef0123456789abcdef';
@@ -267,7 +268,7 @@ describe('Supabase server credential scoping', () => {
   });
 
   it('keeps every runtime schema probe except the unrelated Builder demo columns intact', () => {
-    const validator = require('node:fs').readFileSync(
+    const validator = readFileSync(
       join(process.cwd(), 'scripts/validate-vercel-deploy-env.mjs'), 'utf8',
     ) as string;
     expect(validator).toContain("freshAcceptanceAllowed && probe.table === 'content_pages' ? ['id'] : probe.columns");
