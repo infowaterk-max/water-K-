@@ -23,7 +23,7 @@ export default async function DigitalOfficeTasks({
   searchParams,
 }:{searchParams:Promise<{status?:string}>}){
   const access=await getDigitalOfficeAccess();
-  if(!access||!access.advancedEmail||!access.canSupport)redirect('/admin/hozzaferes-megtagadva');
+  if(!access||!access.advancedEmail||!access.canSupport||!access.scope.organizationId)redirect('/admin/hozzaferes-megtagadva');
   const {actor,scope}=access;
   const raw=(await searchParams).status;
   const view:View=raw==='done'||raw==='all'?raw:'open';
