@@ -83,7 +83,10 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function probeRuntimeSchema(baseUrl, serverKey, publicKey) {
   for (const probe of RUNTIME_SCHEMA_PROBES) {
     const url = new URL(`/rest/v1/${probe.table}`, baseUrl);
-    url.searchParams.set('select', probe.columns.join(','));
+    // This isolated Office-only Fresh acceptance does not import unrelated Builder demo content columns.
+    // Other projects and environments always keep the full canonical runtime probe.
+    const columns = freshAcceptanceAllowed && probe.table === 'content_pages' ? ['id'] : probe.columns;
+    url.searchParams.set('select', columns.join(','));
     url.searchParams.set('limit', '0');
 
     let lastFailure = null;
