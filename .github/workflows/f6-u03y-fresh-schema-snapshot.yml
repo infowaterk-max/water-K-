@@ -268,7 +268,7 @@ jobs:
             docker run --rm --network host -e PGDATABASE \
               -v "$d/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt \
               -v "$d:/snap:ro" postgres:17 \
-              psql -XAt -v ON_ERROR_STOP=1 -f /snap/object-digests.sql > "$d/hosted-object-digests.jsonl"
+              sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /snap/object-digests.sql' > "$d/hosted-object-digests.jsonl"
             docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres \
               -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh \
               -v "$d:/snap:ro" postgres:17 \
