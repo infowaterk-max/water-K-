@@ -8,6 +8,7 @@ import{hasStoreCapability}from'@/lib/auth/store-capabilities';
 import{hasStorePermission}from'@/lib/auth/store-rbac';
 import{hasCurrentPlanFeature,requirePlanFeature}from'@/lib/plans/access';
 import{createAdminClient}from'@/lib/supabase/admin';
+import {createClient as createOfficeUserClient} from '@/lib/supabase/server';
 import{requireCurrentStoreContext}from'@/lib/instances/scope';
 import{
   createPrivateThreadAction,
@@ -55,18 +56,20 @@ export default async function TeamChatPage({searchParams}:{searchParams:Promise<
   ]);
   const{q='',filter='all',thread:requestedThreadId='',to:requestedTo='',new:newMode='',panel=''}=await searchParams;
   const db=createAdminClient();
+  // Core Office rows require actual user RLS, not server bypass.
+  const scopedDb=await createOfficeUserClient();
   const{data:accessibleData,error:accessibleError}=await db.rpc('office_accessible_thread_ids_v1',{p_instance_id:scope.instanceId,p_user_id:actor.id});
   const accessibleIds=accessibleError?null:((accessibleData??[])as AccessibleThreadRow[]).map(row=>row.thread_id);
   if(accessibleIds===null)return <section className="adminMain"><div className="errorNotice"><strong>A Team Chat jogosultsági adatai most nem igazolhatók.</strong><p>Biztonsági okból egyetlen belső beszélgetést sem mutatunk.</p></div></section>;
 
   const empty=<T,>()=>Promise.resolve({data:[]as T[],error:null});
-  const threadResult=accessibleIds.length?await db.from('office_threads').select('id,subject,status,updated_at,archived_at,conversation_type').eq('instance_id',scope.instanceId).in('id',accessibleIds).in('conversation_type',['internal_private','internal_group']).order('updated_at',{ascending:false}).limit(250):{data:[]as Thread[],error:null};
+  const threadResult=accessibleIds.length?await scopedDb.from('office_threads').select('id,subject,status,updated_at,archived_at,conversation_type').eq('instance_id',scope.instanceId).in('id',accessibleIds).in('conversation_type',['internal_private','internal_group']).order('updated_at',{ascending:false}).limit(250):{data:[]as Thread[],error:null};
   const threads=(threadResult.data??[])as Thread[],threadIds=threads.map(t=>t.id);
   const[
     messageResult,participantResult,mentionResult,objectLinkResult,attachmentResult,bindingResult,
     orderResult,offerResult,returnResult,ticketResult,taskResult,
   ]=await Promise.all([
-    threadIds.length?db.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',threadIds).eq('kind','internal').order('created_at',{ascending:false}).limit(2000):empty<Message>(),
+    threadIds.length?scopedDb.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',threadIds).eq('kind','internal').order('created_at',{ascending:false}).limit(2000):empty<Message>(),
     threadIds.length?db.from('office_thread_participants').select('thread_id,user_id,participant_role,last_read_at').eq('instance_id',scope.instanceId).in('thread_id',threadIds).is('left_at',null):empty<Participant>(),
     threadIds.length?db.from('office_message_mentions').select('message_id,thread_id,mentioned_user_id,seen_at').eq('instance_id',scope.instanceId).in('thread_id',threadIds).order('created_at',{ascending:false}).limit(2000):empty<Mention>(),
     threadIds.length?db.from('office_message_object_links').select('id,message_id,thread_id,object_type,object_id').eq('instance_id',scope.instanceId).in('thread_id',threadIds).order('created_at',{ascending:false}).limit(2000):empty<ObjectLink>(),
@@ -76,7 +79,7 @@ export default async function TeamChatPage({searchParams}:{searchParams:Promise<
     canBusinessObjects?db.from('commercial_offers').select('id,status,total_net_huf').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(100):empty<Offer>(),
     canBusinessObjects?db.from('return_cases').select('id,order_id,status').eq('instance_id',scope.instanceId).order('requested_at',{ascending:false}).limit(100):empty<ReturnCase>(),
     canBusinessObjects?db.from('support_tickets').select('id,ticket_number,subject,status').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(100):empty<Ticket>(),
-    canBusinessObjects?db.from('office_tasks').select('id,title,status').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(100):empty<Task>(),
+    canBusinessObjects?scopedDb.from('office_tasks').select('id,title,status').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(100):empty<Task>(),
   ]);
 
   const messages=(messageResult.data??[])as Message[],participants=(participantResult.data??[])as Participant[],mentions=(mentionResult.data??[])as Mention[],links=(objectLinkResult.data??[])as ObjectLink[],attachments=(attachmentResult.data??[])as Attachment[];
