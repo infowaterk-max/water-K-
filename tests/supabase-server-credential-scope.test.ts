@@ -266,4 +266,14 @@ describe('Supabase server credential scoping', () => {
     expect(result.stderr).toContain('Fresh Install acceptance requires its exact approved Vercel preview Git branch');
   });
 
+  it('keeps every runtime schema probe except the unrelated Builder demo columns intact', () => {
+    const validator = require('node:fs').readFileSync(
+      join(process.cwd(), 'scripts/validate-vercel-deploy-env.mjs'), 'utf8',
+    ) as string;
+    expect(validator).toContain("freshAcceptanceAllowed && probe.table === 'content_pages' ? ['id'] : probe.columns");
+    expect(validator).toContain("table: 'customer_billing_profiles'");
+    expect(validator).toContain("table: 'b2b_quote_requests'");
+    expect(validator).toContain('await probeRuntimeSchema(');
+  });
+
 });
