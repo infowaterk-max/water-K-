@@ -256,15 +256,15 @@ jobs:
             # Compare salted-independent object keys and definition digests; never print raw DDL.
             # App-owned schema names are source-versioned, but no SQL body or row is logged.
             node --input-type=module <<'NODE'
-            import {readFileSync,writeFileSync} from 'node:fs';
-            const d=process.env.RUNNER_TEMP+'/fresh-safe';
-            const original=readFileSync(d+'/catalog.sql','utf8').trim();
-            const marker=String.raw`SELECT count(*),md5(string_agg(k||E'\t'||coalesce(v,'<NULL>'),E'\n' ORDER BY k,v)) FROM object_defs;`;
-            if(!original.endsWith(marker))throw Error('F6U03Y_CATALOG_DIAGNOSTIC_SOURCE_CHANGED');
-            const sql=original.slice(0,-marker.length)+
-             "SELECT jsonb_build_object('kind',split_part(k,':',1),'key',k,'digest',md5(coalesce(v,'<NULL>'))) FROM object_defs ORDER BY k,v;\n";
-            writeFileSync(d+'/object-digests.sql',sql,{mode:0o600});
-            NODE
+          import {readFileSync,writeFileSync} from 'node:fs';
+          const d=process.env.RUNNER_TEMP+'/fresh-safe';
+          const original=readFileSync(d+'/catalog.sql','utf8').trim();
+          const marker=String.raw`SELECT count(*),md5(string_agg(k||E'\t'||coalesce(v,'<NULL>'),E'\n' ORDER BY k,v)) FROM object_defs;`;
+          if(!original.endsWith(marker))throw Error('F6U03Y_CATALOG_DIAGNOSTIC_SOURCE_CHANGED');
+          const sql=original.slice(0,-marker.length)+
+           "SELECT jsonb_build_object('kind',split_part(k,':',1),'key',k,'digest',md5(coalesce(v,'<NULL>'))) FROM object_defs ORDER BY k,v;\n";
+          writeFileSync(d+'/object-digests.sql',sql,{mode:0o600});
+          NODE
             docker run --rm --network host -e PGDATABASE \
               -v "$d/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt \
               -v "$d:/snap:ro" postgres:17 \
@@ -274,36 +274,36 @@ jobs:
               -v "$d:/snap:ro" postgres:17 \
               psql -XAt -v ON_ERROR_STOP=1 -f /snap/object-digests.sql > "$d/local-object-digests.jsonl"
             node --input-type=module <<'NODE'
-            import {readFileSync} from 'node:fs';
-            const d=process.env.RUNNER_TEMP+'/fresh-safe';
-            function read(path){
-              const rows=readFileSync(path,'utf8').trim().split('\n').map(x=>JSON.parse(x));
-              const m=new Map();
-              for(const r of rows){
-                if(typeof r.key!=='string'||typeof r.digest!=='string'||m.has(r.key))
-                  throw Error('F6U03Y_OBJECT_DIAGNOSTIC_MALFORMED');
-                m.set(r.key,r);
-              }
-              return m;
+          import {readFileSync} from 'node:fs';
+          const d=process.env.RUNNER_TEMP+'/fresh-safe';
+          function read(path){
+            const rows=readFileSync(path,'utf8').trim().split('\n').map(x=>JSON.parse(x));
+            const m=new Map();
+            for(const r of rows){
+              if(typeof r.key!=='string'||typeof r.digest!=='string'||m.has(r.key))
+                throw Error('F6U03Y_OBJECT_DIAGNOSTIC_MALFORMED');
+              m.set(r.key,r);
             }
-            const hosted=read(d+'/hosted-object-digests.jsonl'),
-                  local=read(d+'/local-object-digests.jsonl');
-            const missing=[],extra=[],changed=[];
-            for(const [k,a] of hosted){
-              const b=local.get(k);
-              if(!b)missing.push(k);
-              else if(a.digest!==b.digest)changed.push(k);
-            }
-            for(const k of local.keys())if(!hosted.has(k))extra.push(k);
-            const grouped={};
-            for(const k of changed)grouped[k.split(':',1)[0]]=(grouped[k.split(':',1)[0]]||0)+1;
-            console.log('F6U03Y_SCHEMA_DIGEST_DIAGNOSTIC='+JSON.stringify({
-               hostedCount:hosted.size,localCount:local.size,
-               missingCount:missing.length,extraCount:extra.length,changedCount:changed.length,
-               differingObjectKinds:grouped,
-               changedObjectNamesSample:changed.slice(0,15),
-               missingNamesSample:missing.slice(0,5),extraNamesSample:extra.slice(0,5)}));
-            NODE
+            return m;
+          }
+          const hosted=read(d+'/hosted-object-digests.jsonl'),
+                local=read(d+'/local-object-digests.jsonl');
+          const missing=[],extra=[],changed=[];
+          for(const [k,a] of hosted){
+            const b=local.get(k);
+            if(!b)missing.push(k);
+            else if(a.digest!==b.digest)changed.push(k);
+          }
+          for(const k of local.keys())if(!hosted.has(k))extra.push(k);
+          const grouped={};
+          for(const k of changed)grouped[k.split(':',1)[0]]=(grouped[k.split(':',1)[0]]||0)+1;
+          console.log('F6U03Y_SCHEMA_DIGEST_DIAGNOSTIC='+JSON.stringify({
+             hostedCount:hosted.size,localCount:local.size,
+             missingCount:missing.length,extraCount:extra.length,changedCount:changed.length,
+             differingObjectKinds:grouped,
+             changedObjectNamesSample:changed.slice(0,15),
+             missingNamesSample:missing.slice(0,5),extraNamesSample:extra.slice(0,5)}));
+          NODE
             echo "F6U03Y_NATIVE_PG17_SCHEMA_RESTORE_PARITY_BLOCKED"
             echo "F6U03Y_LOCAL_CATALOG_COUNT_MD5=$local_hash"
             echo "F6U03Y_EXPECTED_CATALOG_COUNT_MD5=4621|e312b40ad91150ce937f4aa00db587f3"
