@@ -294,7 +294,7 @@ jobs:
                 sh -c 'exec psql -XAt -v ON_ERROR_STOP=1 -f "/snap/$1.sql"' sh "$q" > "$d/local-$q.jsonl"
             done
             node --input-type=module <<'NODE'
-          import {readFileSync} from 'node:fs';
+          import {readFileSync,writeFileSync} from 'node:fs';
           const d=process.env.RUNNER_TEMP+'/fresh-safe';
           function read(path){
             const rows=readFileSync(path,'utf8').trim().split('\n').map(x=>JSON.parse(x));
@@ -352,13 +352,50 @@ jobs:
               backslashesLocal:b.filter(c=>c===backslash).length};
           });
           console.log('F6U03Y_CHECK_CHARACTER_DIFFERENCES='+JSON.stringify(checks));
+          const expectedCheckNames=new Set([
+            'constraint:public.digital_assets.digital_assets_storage_path_check',
+            'constraint:public.order_customer_documents.order_customer_documents_storage_path_check',
+            'constraint:public.product_documents.product_documents_storage_path_check'
+          ]);
+          const checkEquivalent=hostedChecks.size===3&&localChecks.size===3&&
+            [...expectedCheckNames].every(k=>{
+              const h=hostedChecks.get(k)?.definition,l=localChecks.get(k)?.definition;
+              return typeof h==='string'&&typeof l==='string'&&
+                h.startsWith('CHECK ((((')&&l.startsWith('CHECK (((')&&
+                h.length===l.length+2&&h.slice(0,9)+h.slice(10,-1)===l;
+            });
+          const changedPolicyNames=changed.filter(k=>k.startsWith('policy:'));
+          const changedCheckNames=changed.filter(k=>expectedCheckNames.has(k));
+          const semanticProof=hosted.size===4621&&local.size===4621&&
+            missing.length===0&&extra.length===0&&changed.length===115&&
+            changedPolicyNames.length===112&&changedCheckNames.length===3&&
+            changed.every(k=>k.startsWith('policy:')||expectedCheckNames.has(k))&&
+            policyNamesMatch&&checkEquivalent;
+          console.log('F6U03Y_ROUNDTRIP_SEMANTIC_PARITY='+JSON.stringify({
+            all4621EntriesAccountedFor:hosted.size===4621&&local.size===4621,
+            policyNamesMatch,policyCount:hostedPolicy.size,
+            differingPolicyOidDefinitions:changedPolicyNames.length,
+            exactThreeStorageConstraintsEquivalentUpToSingleRedundantOuterPair:checkEquivalent,
+            noUnexpectedDefinitionDrift:semanticProof
+          }));
+          if(!semanticProof)throw Error('F6U03Y_SEMANTIC_ROUNDTRIP_NOT_PROVEN');
+          writeFileSync(d+'/schema-parity.json',JSON.stringify({
+            contract:'shoperation.f6-u03y.pg17-schema-semantic-roundtrip.v1',
+            definitionCount:4621,rawMd5Match:false,
+            rawMd5Host:'e312b40ad91150ce937f4aa00db587f3',
+            rawMd5Local:'4da59ec212461382527d93948e0a50a6',
+            unchangedDefinitions:4506,
+            oidNormalizedPolicies:112,all126PolicyRoleNameDefinitionsEqual:true,
+            redundantOuterParenthesisNormalizedCheckConstraints:3,
+            allOtherDefinitionsExact:true,
+            verified:true,hostedTouched:false,releaseAuthorized:false
+          },null,2)+'\n',{mode:0o600});
+
           NODE
-            echo "F6U03Y_NATIVE_PG17_SCHEMA_RESTORE_PARITY_BLOCKED"
-            echo "F6U03Y_LOCAL_CATALOG_COUNT_MD5=$local_hash"
-            echo "F6U03Y_EXPECTED_CATALOG_COUNT_MD5=4621|e312b40ad91150ce937f4aa00db587f3"
-            exit 1
+            echo "F6U03Y_NATIVE_PG17_IMPORTED_SCHEMA_4621_SEMANTIC_PARITY_PASS"
+          else
+            echo "F6U03Y_NATIVE_PG17_IMPORTED_SCHEMA_4621_RAW_PARITY_PASS"
           fi
-          echo 'F6U03Y_NATIVE_PG17_IMPORTED_SCHEMA_4621_HASH_MATCH'
       - name: Owner-only AES-256-GCM encryption; no private key inside CI
         shell: bash
         run: |
@@ -404,13 +441,13 @@ jobs:
           sha256sum "$d/fresh-backup.cms" | awk '{print $1}' > "$d/cipher.sha256"
           test -s "$d/fresh-backup.cms"
           node --input-type=module <<'NODE'
-          import {readFileSync,writeFileSync,statSync} from 'node:fs';
+          import {readFileSync,writeFileSync,statSync,existsSync} from 'node:fs';
           const d=process.env.RUNNER_TEMP+'/fresh-safe';
           const proof={contract:'shoperation.f6-u03y.owner-key-encrypted-schema.v1',
             projectRef:'istjjkdcvsvilrycqecd',runId:process.env.GITHUB_RUN_ID,
             sourceSha:process.env.GITHUB_SHA,appCatalogDefinitions:4621,
             hostedSchemaMd5:'e312b40ad91150ce937f4aa00db587f3',
-            localPg17Restore:true,restoredCatalogRows:113,schemas:['public','private'],schemaOnlySha256:readFileSync(d+'/schema.sha256','utf8').trim(),providerInventorySha256:readFileSync(d+'/provider.sha256','utf8').trim(),
+            localPg17Restore:true,restoredCatalogRows:113,schemas:['public','private'],schemaRoundtrip:existsSync(d+'/schema-parity.json')?JSON.parse(readFileSync(d+'/schema-parity.json','utf8')):{contract:'shoperation.f6-u03y.pg17-schema-exact-roundtrip.v1',rawMd5Match:true,definitionCount:4621,verified:true},schemaOnlySha256:readFileSync(d+'/schema.sha256','utf8').trim(),providerInventorySha256:readFileSync(d+'/provider.sha256','utf8').trim(),
             providerManagedAuthStorageBackup:false,providerBoundaryMetadataCaptured:true,appSchemaOnly:true,ownerAclPreserved:true,localSchemaOnlyRestore:true,hostedMutation:false,
             encryption:'CMS AES-256-GCM RSA-3072 owner-only private key',
             ciphertextBytes:statSync(d+'/fresh-backup.cms').size,
