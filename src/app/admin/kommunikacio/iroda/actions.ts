@@ -249,7 +249,8 @@ export async function createTaskAction(form:FormData){
   if(!title)return;
   let dueAt:string|null=null;
   if(due){
-    const parsed=new Date(due);
+    // Date-only deadlines are calendar days, not midnight in Vercel's UTC timezone.
+    const parsed=new Date(/^\d{4}-\d{2}-\d{2}$/.test(due)?`${due}T12:00:00.000Z`:due);
     if(Number.isNaN(parsed.getTime()))return;
     dueAt=parsed.toISOString();
   }
