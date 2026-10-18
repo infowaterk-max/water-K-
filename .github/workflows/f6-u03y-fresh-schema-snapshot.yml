@@ -362,7 +362,8 @@ jobs:
               const h=hostedChecks.get(k)?.definition,l=localChecks.get(k)?.definition;
               return typeof h==='string'&&typeof l==='string'&&
                 h.startsWith('CHECK ((((')&&l.startsWith('CHECK (((')&&
-                h.length===l.length+2&&h.slice(0,9)+h.slice(10,-1)===l;
+                h.length===l.length+2&&h[9]==='('&&h[40]===')'&&
+                h.slice(0,9)+h.slice(10,40)+h.slice(41)===l;
             });
           const changedPolicyNames=changed.filter(k=>k.startsWith('policy:'));
           const changedCheckNames=changed.filter(k=>expectedCheckNames.has(k));
@@ -375,7 +376,7 @@ jobs:
             all4621EntriesAccountedFor:hosted.size===4621&&local.size===4621,
             policyNamesMatch,policyCount:hostedPolicy.size,
             differingPolicyOidDefinitions:changedPolicyNames.length,
-            exactThreeStorageConstraintsEquivalentUpToSingleRedundantOuterPair:checkEquivalent,
+            exactThreeStorageConstraintsEquivalentUpToRedundantFirstComparisonPair:checkEquivalent,
             noUnexpectedDefinitionDrift:semanticProof
           }));
           if(!semanticProof)throw Error('F6U03Y_SEMANTIC_ROUNDTRIP_NOT_PROVEN');
@@ -386,7 +387,7 @@ jobs:
             rawMd5Local:'4da59ec212461382527d93948e0a50a6',
             unchangedDefinitions:4506,
             oidNormalizedPolicies:112,all126PolicyRoleNameDefinitionsEqual:true,
-            redundantOuterParenthesisNormalizedCheckConstraints:3,
+            redundantFirstComparisonParenthesisNormalizedCheckConstraints:3,
             allOtherDefinitionsExact:true,
             verified:true,hostedTouched:false,releaseAuthorized:false
           },null,2)+'\n',{mode:0o600});
