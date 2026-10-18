@@ -264,6 +264,15 @@ jobs:
           const sql=original.slice(0,-marker.length)+
            "SELECT jsonb_build_object('kind',split_part(k,':',1),'key',k,'digest',md5(coalesce(v,'<NULL>'))) FROM object_defs ORDER BY k,v;\n";
           writeFileSync(d+'/object-digests.sql',sql,{mode:0o600});
+          const exactRoleNamesSql=original.replace('p.polroles::text',
+            "(SELECT coalesce(string_agg(CASE WHEN u.oidval=0 THEN 'PUBLIC' ELSE pg_get_userbyid(u.oidval) END, ',' ORDER BY CASE WHEN u.oidval=0 THEN 'PUBLIC' ELSE pg_get_userbyid(u.oidval) END),'') FROM unnest(p.polroles) AS u(oidval))");
+          if(exactRoleNamesSql===original)throw Error('F6U03Y_POLICY_ROLE_PROJECTION_NOT_FOUND');
+          const policySql=exactRoleNamesSql.slice(0,-marker.length)+
+            "SELECT jsonb_build_object('key',k,'digest',md5(coalesce(v,'<NULL>'))) FROM object_defs WHERE k LIKE 'policy:%' ORDER BY k,v;\n";
+          writeFileSync(d+'/policy-role-names.sql',policySql,{mode:0o600});
+          const constraintSql=original.slice(0,-marker.length)+
+            "SELECT jsonb_build_object('key',k,'definition',v) FROM object_defs WHERE k IN ('constraint:public.digital_assets.digital_assets_storage_path_check','constraint:public.order_customer_documents.order_customer_documents_storage_path_check','constraint:public.product_documents.product_documents_storage_path_check') ORDER BY k,v;\n";
+          writeFileSync(d+'/check-definitions.sql',constraintSql,{mode:0o600});
           NODE
             docker run --rm --network host -e PGDATABASE \
               -v "$d/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt \
@@ -273,6 +282,17 @@ jobs:
               -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh \
               -v "$d:/snap:ro" postgres:17 \
               psql -XAt -v ON_ERROR_STOP=1 -f /snap/object-digests.sql > "$d/local-object-digests.jsonl"
+
+            for q in policy-role-names check-definitions; do
+              docker run --rm --network host -e PGDATABASE \
+                -v "$d/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt \
+                -v "$d:/snap:ro" postgres:17 \
+                sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f "/snap/$1.sql"' sh "$q" > "$d/hosted-$q.jsonl"
+              docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres \
+                -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh \
+                -v "$d:/snap:ro" postgres:17 \
+                sh -c 'exec psql -XAt -v ON_ERROR_STOP=1 -f "/snap/$1.sql"' sh "$q" > "$d/local-$q.jsonl"
+            done
             node --input-type=module <<'NODE'
           import {readFileSync} from 'node:fs';
           const d=process.env.RUNNER_TEMP+'/fresh-safe';
@@ -303,6 +323,35 @@ jobs:
              differingObjectKinds:grouped,
              changedObjectNamesSample:changed.slice(0,15),
              missingNamesSample:missing.slice(0,5),extraNamesSample:extra.slice(0,5)}));
+
+          function readObjectRows(filename){
+            return new Map(readFileSync(d+'/'+filename,'utf8').trim().split('\n').map(line=>{
+              const v=JSON.parse(line);return [v.key,v];
+            }));
+          }
+          const hostedPolicy=readObjectRows('hosted-policy-role-names.jsonl');
+          const localPolicy=readObjectRows('local-policy-role-names.jsonl');
+          const policyChanged=[...hostedPolicy.keys()].filter(k=>hostedPolicy.get(k)?.digest!==localPolicy.get(k)?.digest);
+          const policyNamesMatch=hostedPolicy.size===126&&localPolicy.size===126&&policyChanged.length===0;
+          console.log('F6U03Y_CANONICAL_POLICY_ROLE_NAMES='+JSON.stringify({
+            hostedPolicies:hostedPolicy.size,localPolicies:localPolicy.size,
+            equivalentPolicyDefinitions:policyNamesMatch,normalizedDifferences:policyChanged.length,
+            normalizedDifferenceSamples:policyChanged.slice(0,5)}));
+          const hostedChecks=readObjectRows('hosted-check-definitions.jsonl');
+          const localChecks=readObjectRows('local-check-definitions.jsonl');
+          const backslash=String.fromCharCode(92);
+          const checks=[...hostedChecks.keys()].map(k=>{
+            const h=hostedChecks.get(k).definition,l=localChecks.get(k)?.definition;
+            const a=[...h],b=[...String(l??'')];
+            let at=0;while(at<Math.min(a.length,b.length)&&a[at]===b[at])at++;
+            return {key:k,hostLength:a.length,localLength:b.length,
+              firstDiffOffset:at,
+              hostCodepoints:a.slice(Math.max(0,at-3),at+8).map(x=>x.codePointAt(0)),
+              localCodepoints:b.slice(Math.max(0,at-3),at+8).map(x=>x.codePointAt(0)),
+              backslashesHost:a.filter(c=>c===backslash).length,
+              backslashesLocal:b.filter(c=>c===backslash).length};
+          });
+          console.log('F6U03Y_CHECK_CHARACTER_DIFFERENCES='+JSON.stringify(checks));
           NODE
             echo "F6U03Y_NATIVE_PG17_SCHEMA_RESTORE_PARITY_BLOCKED"
             echo "F6U03Y_LOCAL_CATALOG_COUNT_MD5=$local_hash"
