@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {redirect} from 'next/navigation';
 import {getDigitalOfficeAccess} from '@/lib/digital-office/access';
 import {createAdminClient} from '@/lib/supabase/admin';
+import {createClient as createOfficeUserClient} from '@/lib/supabase/server';
 
 export const dynamic='force-dynamic';
 
@@ -37,11 +38,13 @@ export default async function DigitalOfficeHome(){
   const now=new Date();
   const today=dayKey(now);
   const db=createAdminClient();
+  // These core Office tables deliberately deny service_role reads; use the signed-in user's RLS scope.
+  const scopedDb=await createOfficeUserClient();
 
   const[profileResult,threadResult,taskResult,jobResult,accessibleResult]=await Promise.all([
     db.from('profiles').select('id,email,full_name').eq('id',actor.id).maybeSingle(),
-    officeEmail&&canSupport?db.from('office_threads').select('id,subject,customer_email,order_id,status,priority,assigned_to,last_read_at,updated_at,conversation_type').eq('instance_id',scope.instanceId).eq('conversation_type','customer').order('updated_at',{ascending:false}).limit(160):empty<CustomerThread>(),
-    officeEmail&&canSupport?db.from('office_tasks').select('id,thread_id,title,status,assigned_to,due_at,created_at,completed_at').eq('instance_id',scope.instanceId).eq('status','open').order('due_at',{ascending:true,nullsFirst:false}).limit(120):empty<OfficeTask>(),
+    officeEmail&&canSupport?scopedDb.from('office_threads').select('id,subject,customer_email,order_id,status,priority,assigned_to,last_read_at,updated_at,conversation_type').eq('instance_id',scope.instanceId).eq('conversation_type','customer').order('updated_at',{ascending:false}).limit(160):empty<CustomerThread>(),
+    officeEmail&&canSupport?scopedDb.from('office_tasks').select('id,thread_id,title,status,assigned_to,due_at,created_at,completed_at').eq('instance_id',scope.instanceId).eq('status','open').order('due_at',{ascending:true,nullsFirst:false}).limit(120):empty<OfficeTask>(),
     advancedEmail&&canMarketing?db.from('communication_jobs').select('id,recipient_email,template_key,status,scheduled_at,requires_approval,approved_at,last_error,created_at').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(220):empty<CommunicationJob>(),
     canChat?db.rpc('office_accessible_thread_ids_v1',{p_instance_id:scope.instanceId,p_user_id:actor.id}):empty<AccessibleThreadRow>(),
   ]);
@@ -54,9 +57,9 @@ export default async function DigitalOfficeHome(){
   const accessibleIds=accessibleResult.error?[]:((accessibleResult.data??[])as AccessibleThreadRow[]).map(row=>row.thread_id);
 
   const[messageResult,chatThreadResult,chatMessageResult,participantResult,mentionResult]=await Promise.all([
-    threadIds.length?db.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',threadIds).in('kind',['email_in','email_out']).order('created_at',{ascending:false}).limit(1200):empty<OfficeMessage>(),
-    accessibleIds.length?db.from('office_threads').select('id,subject,updated_at,conversation_type').eq('instance_id',scope.instanceId).in('id',accessibleIds).in('conversation_type',['internal_private','internal_group']).is('archived_at',null).order('updated_at',{ascending:false}).limit(120):empty<InternalThread>(),
-    accessibleIds.length?db.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('kind','internal').order('created_at',{ascending:false}).limit(800):empty<OfficeMessage>(),
+    threadIds.length?scopedDb.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',threadIds).in('kind',['email_in','email_out']).order('created_at',{ascending:false}).limit(1200):empty<OfficeMessage>(),
+    accessibleIds.length?scopedDb.from('office_threads').select('id,subject,updated_at,conversation_type').eq('instance_id',scope.instanceId).in('id',accessibleIds).in('conversation_type',['internal_private','internal_group']).is('archived_at',null).order('updated_at',{ascending:false}).limit(120):empty<InternalThread>(),
+    accessibleIds.length?scopedDb.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('kind','internal').order('created_at',{ascending:false}).limit(800):empty<OfficeMessage>(),
     accessibleIds.length?db.from('office_thread_participants').select('thread_id,user_id,last_read_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('user_id',actor.id).is('left_at',null):empty<Participant>(),
     accessibleIds.length?db.from('office_message_mentions').select('message_id,thread_id,mentioned_user_id,seen_at,created_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('mentioned_user_id',actor.id).is('seen_at',null).order('created_at',{ascending:false}).limit(80):empty<Mention>(),
   ]);
