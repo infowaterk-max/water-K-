@@ -7,6 +7,10 @@ if (!isVercelDeploy || !['preview', 'production'].includes(environment ?? '')) {
 
 const PRODUCTION_SUPABASE_REF = 'ewdederyvnwmghlydbno';
 const STAGING_SUPABASE_REF = 'rfuvzgumbardvbvqjxdq';
+// Owner-approved, isolated Digital Office Fresh Install acceptance. Never production or normal preview.
+const OFFICE_FRESH_ACCEPTANCE_REF = 'istjjkdcvsvilrycqecd';
+const OFFICE_FRESH_ACCEPTANCE_BRANCH = 'feature/core-1186-f6-u03x-single-baseline-integration';
+const ACCEPTANCE_DISABLED_SECRET = 'DISABLED_FRESH_ACCEPTANCE_NO_EXTERNAL_ACTIONS';
 const problems = [];
 
 const RUNTIME_SCHEMA_PROBES = Object.freeze([
@@ -79,7 +83,10 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function probeRuntimeSchema(baseUrl, serverKey, publicKey) {
   for (const probe of RUNTIME_SCHEMA_PROBES) {
     const url = new URL(`/rest/v1/${probe.table}`, baseUrl);
-    url.searchParams.set('select', probe.columns.join(','));
+    // This isolated Office-only Fresh acceptance does not import unrelated Builder demo content columns.
+    // Other projects and environments always keep the full canonical runtime probe.
+    const columns = freshAcceptanceAllowed && probe.table === 'content_pages' ? ['id'] : probe.columns;
+    url.searchParams.set('select', columns.join(','));
     url.searchParams.set('limit', '0');
 
     let lastFailure = null;
@@ -126,6 +133,13 @@ if (
 }
 
 const databaseProjectRef = supabaseProjectRef(process.env.NEXT_PUBLIC_SUPABASE_URL);
+const freshAcceptanceRequested = process.env.SHOPERATION_FRESH_ACCEPTANCE === 'true';
+const freshAcceptanceAllowed = freshAcceptanceRequested
+  && environment === 'preview'
+  && process.env.VERCEL_GIT_COMMIT_REF === OFFICE_FRESH_ACCEPTANCE_BRANCH;
+if (freshAcceptanceRequested && !freshAcceptanceAllowed) {
+  problems.push('Fresh Install acceptance requires its exact approved Vercel preview Git branch');
+}
 if (process.env.NEXT_PUBLIC_SUPABASE_URL && !databaseProjectRef) {
   problems.push('NEXT_PUBLIC_SUPABASE_URL must be a valid Supabase project URL');
 }
@@ -172,8 +186,25 @@ if (environment === 'production') {
     problems.push('SUPABASE_STAGING_SECRET_KEY|SUPABASE_SECRET_KEY|SUPABASE_SERVICE_ROLE_KEY');
   }
 
-  if (databaseProjectRef && databaseProjectRef !== STAGING_SUPABASE_REF) {
-    problems.push(`preview Supabase target must be ${STAGING_SUPABASE_REF}; got ${databaseProjectRef}`);
+  const expectedPreviewRef = freshAcceptanceAllowed ? OFFICE_FRESH_ACCEPTANCE_REF : STAGING_SUPABASE_REF;
+  if (databaseProjectRef && databaseProjectRef !== expectedPreviewRef) {
+    problems.push(`preview Supabase target must be ${expectedPreviewRef}; got ${databaseProjectRef}`);
+  }
+  if (freshAcceptanceAllowed) {
+    if (!process.env.SUPABASE_STAGING_SECRET_KEY || process.env.SUPABASE_STAGING_SECRET_KEY === ACCEPTANCE_DISABLED_SECRET) {
+      problems.push('Fresh Install acceptance requires its dedicated SUPABASE_STAGING_SECRET_KEY');
+    }
+    if (process.env.SUPABASE_SECRET_KEY) {
+      problems.push('Fresh Install acceptance must not inherit SUPABASE_SECRET_KEY');
+    }
+    for (const key of ['SUPABASE_SERVICE_ROLE_KEY', 'KH_MERCHANT_ID', 'KH_SECRET', 'FOXPOST_API_KEY', 'GLS_USERNAME', 'GLS_PASSWORD', 'MPL_API_KEY']) {
+      if (process.env[key] !== ACCEPTANCE_DISABLED_SECRET) {
+        problems.push(`Fresh Install acceptance must disable ${key}`);
+      }
+    }
+    if (process.env.KH_ENVIRONMENT !== 'disabled') {
+      problems.push('Fresh Install acceptance must disable KH_ENVIRONMENT');
+    }
   }
 }
 
@@ -182,7 +213,9 @@ if (databaseProjectRef) {
     ? 'production'
     : databaseProjectRef === STAGING_SUPABASE_REF
       ? 'staging'
-      : 'unknown';
+      : databaseProjectRef === OFFICE_FRESH_ACCEPTANCE_REF
+        ? 'fresh-acceptance'
+        : 'unknown';
   console.log(`Vercel ${environment} Supabase target: ${label} (${databaseProjectRef}).`);
 }
 

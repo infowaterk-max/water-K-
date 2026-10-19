@@ -1,0 +1,58 @@
+name: F6-U03w executable original Office 31-source transaction bundle
+on:
+  push:
+    branches: [feature/core-1186-f6-u03w-managed-office-release-bundle]
+    paths:
+      - .github/workflows/f6-u03w-office-release-bundle.yml
+      - scripts/shoperation-f6-u03w-office-release-bundle.mjs
+      - tests/shoperation-f6-u03w-office-release-bundle.test.ts
+      - docs/po/CORE_1186_F6_U03W_FORWARD_RELEASE_BUNDLE_2026-10-17.md
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-source-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 24}
+      - run: npm ci --no-audit --no-fund
+      - name: Critical Development Guard
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186 F6-U03w: generate actual source-exact transaction-wrapped 31-file Office forward migration release bundle and rollback proof, with no hosted execution, ledger fabrication or private key leak." \
+            --files ".github/workflows/f6-u03w-office-release-bundle.yml;scripts/shoperation-f6-u03w-office-release-bundle.mjs;tests/shoperation-f6-u03w-office-release-bundle.test.ts;docs/po/CORE_1186_F6_U03W_FORWARD_RELEASE_BUNDLE_2026-10-17.md;quality/development/active-plan.json" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/issues/1228" \
+            --check
+      - name: Critical Plan Before Code
+        run: node scripts/shoperation-plan-before-code.mjs --check
+      - name: Source exact transaction positive and fault tests
+        run: |
+          node --check scripts/shoperation-f6-u03w-office-release-bundle.mjs
+          npx vitest run tests/shoperation-f6-u03w-office-release-bundle.test.ts
+          node scripts/shoperation-f6-u03w-office-release-bundle.mjs --emit artifacts/f6-u03w/office-forward-candidate
+      - name: Verify execution never occurred in workflow
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          import {createHash} from 'node:crypto';
+          const p='artifacts/f6-u03w/office-forward-candidate/';
+          const sql=readFileSync(p+'office-forward-31-transaction.sql');
+          const manifest=JSON.parse(readFileSync(p+'original-source-manifest.json','utf8'));
+          const sha=createHash('sha256').update(sql).digest('hex');
+          if(manifest.executableBundleSha256!==sha||manifest.releaseAuthorized!==false||
+             manifest.hostedExecutionAuthorized!==false||manifest.sources.length!==31)
+            throw Error('F6U03W_EXECUTION_PACKAGE_MANIFEST_DRIFT');
+          console.log('F6U03W_31_ORIGINAL_SQL_FILES_PACKAGE_READY_UNEXECUTED');
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03w-unexecuted-sql-review-package
+          path: artifacts/f6-u03w/office-forward-candidate/*
+          if-no-files-found: error
+          retention-days: 14

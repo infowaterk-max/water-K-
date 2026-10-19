@@ -1,0 +1,45 @@
+name: F6-U03w existing managed 0046 baseline adoption review (source-only)
+on:
+  push:
+    branches: [feature/core-1186-f6-u03w-existing-baseline-adoption]
+    paths:
+      - .github/workflows/f6-u03w-baseline-adoption-proof.yml
+      - scripts/shoperation-f6-u03w-baseline-adoption.mjs
+      - tests/shoperation-f6-u03w-baseline-adoption.test.ts
+      - docs/po/CORE_1186_F6_U03W_EXISTING_BASELINE_ADOPTION_2026-10-17.md
+      - quality/development/active-plan.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 24}
+      - run: npm ci --no-audit --no-fund
+      - name: Critical Development Guard
+        run: |
+          node scripts/shoperation-development-guard.mjs \
+            --task "Core #1186 F6-U03w: establish reviewed existing 0046 Fresh Install provenance adoption path from historical job evidence, current managed catalog and isolated new baseline; forbid replaying root legacy migrations or silently repairing ledger." \
+            --files ".github/workflows/f6-u03w-baseline-adoption-proof.yml;scripts/shoperation-f6-u03w-baseline-adoption.mjs;tests/shoperation-f6-u03w-baseline-adoption.test.ts;docs/po/CORE_1186_F6_U03W_EXISTING_BASELINE_ADOPTION_2026-10-17.md;quality/development/active-plan.json" \
+            --risk critical \
+            --source-ref "https://github.com/infowaterk-max/water-K-/issues/1228" \
+            --check
+      - name: Critical Plan Before Code
+        run: node scripts/shoperation-plan-before-code.mjs --check
+      - name: Review historical job and isolated baseline source under adversarial tests
+        run: |
+          node --check scripts/shoperation-f6-u03w-baseline-adoption.mjs
+          npx vitest run tests/shoperation-f6-u03w-baseline-adoption.test.ts
+          node scripts/shoperation-f6-u03w-baseline-adoption.mjs --emit-review artifacts/f6-u03w/baseline-adoption
+      - name: Upload only non-secret metadata proof, no schema dump
+        uses: actions/upload-artifact@v4
+        with:
+          name: f6-u03w-source-review
+          path: artifacts/f6-u03w/baseline-adoption/source-authority.json
+          if-no-files-found: error
+          retention-days: 14

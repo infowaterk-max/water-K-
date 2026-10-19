@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {redirect} from 'next/navigation';
 import {getDigitalOfficeAccess} from '@/lib/digital-office/access';
 import {createAdminClient} from '@/lib/supabase/admin';
+import {createClient as createOfficeUserClient} from '@/lib/supabase/server';
 
 export const dynamic='force-dynamic';
 
@@ -37,11 +38,13 @@ export default async function DigitalOfficeHome(){
   const now=new Date();
   const today=dayKey(now);
   const db=createAdminClient();
+  // These core Office tables deliberately deny service_role reads; use the signed-in user's RLS scope.
+  const scopedDb=await createOfficeUserClient();
 
   const[profileResult,threadResult,taskResult,jobResult,accessibleResult]=await Promise.all([
     db.from('profiles').select('id,email,full_name').eq('id',actor.id).maybeSingle(),
-    officeEmail&&canSupport?db.from('office_threads').select('id,subject,customer_email,order_id,status,priority,assigned_to,last_read_at,updated_at,conversation_type').eq('instance_id',scope.instanceId).eq('conversation_type','customer').order('updated_at',{ascending:false}).limit(160):empty<CustomerThread>(),
-    officeEmail&&canSupport?db.from('office_tasks').select('id,thread_id,title,status,assigned_to,due_at,created_at,completed_at').eq('instance_id',scope.instanceId).eq('status','open').order('due_at',{ascending:true,nullsFirst:false}).limit(120):empty<OfficeTask>(),
+    officeEmail&&canSupport?scopedDb.from('office_threads').select('id,subject,customer_email,order_id,status,priority,assigned_to,last_read_at,updated_at,conversation_type').eq('instance_id',scope.instanceId).eq('conversation_type','customer').order('updated_at',{ascending:false}).limit(160):empty<CustomerThread>(),
+    officeEmail&&canSupport?scopedDb.from('office_tasks').select('id,thread_id,title,status,assigned_to,due_at,created_at,completed_at').eq('instance_id',scope.instanceId).eq('status','open').order('due_at',{ascending:true,nullsFirst:false}).limit(120):empty<OfficeTask>(),
     advancedEmail&&canMarketing?db.from('communication_jobs').select('id,recipient_email,template_key,status,scheduled_at,requires_approval,approved_at,last_error,created_at').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(220):empty<CommunicationJob>(),
     canChat?db.rpc('office_accessible_thread_ids_v1',{p_instance_id:scope.instanceId,p_user_id:actor.id}):empty<AccessibleThreadRow>(),
   ]);
@@ -54,9 +57,9 @@ export default async function DigitalOfficeHome(){
   const accessibleIds=accessibleResult.error?[]:((accessibleResult.data??[])as AccessibleThreadRow[]).map(row=>row.thread_id);
 
   const[messageResult,chatThreadResult,chatMessageResult,participantResult,mentionResult]=await Promise.all([
-    threadIds.length?db.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',threadIds).in('kind',['email_in','email_out']).order('created_at',{ascending:false}).limit(1200):empty<OfficeMessage>(),
-    accessibleIds.length?db.from('office_threads').select('id,subject,updated_at,conversation_type').eq('instance_id',scope.instanceId).in('id',accessibleIds).in('conversation_type',['internal_private','internal_group']).is('archived_at',null).order('updated_at',{ascending:false}).limit(120):empty<InternalThread>(),
-    accessibleIds.length?db.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('kind','internal').order('created_at',{ascending:false}).limit(800):empty<OfficeMessage>(),
+    threadIds.length?scopedDb.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',threadIds).in('kind',['email_in','email_out']).order('created_at',{ascending:false}).limit(1200):empty<OfficeMessage>(),
+    accessibleIds.length?scopedDb.from('office_threads').select('id,subject,updated_at,conversation_type').eq('instance_id',scope.instanceId).in('id',accessibleIds).in('conversation_type',['internal_private','internal_group']).is('archived_at',null).order('updated_at',{ascending:false}).limit(120):empty<InternalThread>(),
+    accessibleIds.length?scopedDb.from('office_messages').select('id,thread_id,author_id,kind,body,created_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('kind','internal').order('created_at',{ascending:false}).limit(800):empty<OfficeMessage>(),
     accessibleIds.length?db.from('office_thread_participants').select('thread_id,user_id,last_read_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('user_id',actor.id).is('left_at',null):empty<Participant>(),
     accessibleIds.length?db.from('office_message_mentions').select('message_id,thread_id,mentioned_user_id,seen_at,created_at').eq('instance_id',scope.instanceId).in('thread_id',accessibleIds).eq('mentioned_user_id',actor.id).is('seen_at',null).order('created_at',{ascending:false}).limit(80):empty<Mention>(),
   ]);
@@ -92,7 +95,7 @@ export default async function DigitalOfficeHome(){
   for(const thread of urgentUnreadThreads.slice(0,1))focus.push({label:`Sürgős ügyfélválasz · ${thread.subject}`,detail:`${thread.customer_email??'Ügyfél'} · ${thread.assigned_to===actor.id?'hozzád rendelve':'nyitott ügy'}`,href:`/admin/kommunikacio/iroda?thread=${thread.id}`,badge:'Sürgős',tone:'danger'});
   for(const job of awaitingApproval.slice(0,1))focus.push({label:'E-mail jóváhagyás szükséges',detail:`${job.recipient_email} · ${timeLabel(job.scheduled_at)}-ra ütemezve`,href:'/admin/kommunikacio/felugyelet?status=approval',badge:'Jóváhagyás',tone:'warn'});
   for(const mention of mentions.slice(0,1)){const thread=chatThreadMap.get(mention.thread_id);focus.push({label:`@említés${thread?` · ${thread.subject}`:''}`,detail:'Olvasatlan Team Chat említés',href:`/admin/kommunikacio/chat?thread=${mention.thread_id}`,badge:'Team Chat'});}
-  for(const task of todayTasks.slice(0,1))focus.push({label:task.title,detail:`Feladat${task.due_at?` · ma ${timeLabel(task.due_at)}`:''}`,href:task.thread_id?`/admin/kommunikacio/iroda?thread=${task.thread_id}`:'/admin/kommunikacio#feladatok',badge:'Feladat'});
+  for(const task of todayTasks.slice(0,1))focus.push({label:task.title,detail:`Feladat${task.due_at?` · ma ${timeLabel(task.due_at)}`:''}`,href:task.thread_id?`/admin/kommunikacio/iroda?thread=${task.thread_id}`:'/admin/kommunikacio/feladatok',badge:'Feladat'});
   for(const job of problemJobs.slice(0,1)){if(focus.length<4)focus.push({label:'Sikertelen vagy blokkolt e-mail küldés',detail:`${job.recipient_email} · ${job.last_error?short(job.last_error,58):job.status}`,href:'/admin/kommunikacio/felugyelet?status=problem',badge:'Küldési hiba',tone:'danger'});}
   while(focus.length<4){
     const fallback=unreadCustomerThreads[focus.length]??null;
@@ -101,7 +104,7 @@ export default async function DigitalOfficeHome(){
   }
 
   const deadlines:DeadlineItem[]=[
-    ...todayTasks.map(task=>({label:task.title,detail:task.thread_id?'Kapcsolt ügyfélfeladat':'Saját feladat',time:task.due_at?timeLabel(task.due_at):'Ma',href:task.thread_id?`/admin/kommunikacio/iroda?thread=${task.thread_id}`:'/admin/kommunikacio#feladatok',hot:Boolean(task.due_at&&Date.parse(task.due_at)<now.getTime()+60*60*1000)})),
+    ...todayTasks.map(task=>({label:task.title,detail:task.thread_id?'Kapcsolt ügyfélfeladat':'Saját feladat',time:task.due_at?timeLabel(task.due_at):'Ma',href:task.thread_id?`/admin/kommunikacio/iroda?thread=${task.thread_id}`:'/admin/kommunikacio/feladatok',hot:Boolean(task.due_at&&Date.parse(task.due_at)<now.getTime()+60*60*1000)})),
     ...jobs.filter(job=>job.status==='pending'&&dayKey(job.scheduled_at)===today).map(job=>({label:job.requires_approval&&!job.approved_at?'Jóváhagyásra váró e-mail':'Ütemezett e-mail',detail:job.recipient_email,time:timeLabel(job.scheduled_at),href:'/admin/kommunikacio/felugyelet',hot:job.requires_approval&&!job.approved_at})),
   ].sort((a,b)=>a.time.localeCompare(b.time,'hu')).slice(0,4);
 
@@ -143,7 +146,7 @@ export default async function DigitalOfficeHome(){
 
     <section className="digitalOfficeDashboardMetrics" aria-label="Mai állapot">
       <Link href="/admin/kommunikacio/iroda?filter=unread" className="digitalOfficeDashboardMetric"><span className="digitalOfficeDashboardIcon">✉</span><span><small>Olvasatlan ügyféllevelek</small><strong>{officeEmail&&canSupport?unreadCustomerThreads.length:'—'}</strong><em>{officeEmail&&canSupport?`${ownOpenThreads.length} saját ügy · ${urgentUnreadThreads.length} sürgős`:'Nincs hozzáférés'}</em></span></Link>
-      <a href="#feladatok" className="digitalOfficeDashboardMetric"><span className="digitalOfficeDashboardIcon">✓</span><span><small>Nyitott feladataim</small><strong>{officeEmail&&canSupport?myTasks.length:'—'}</strong><em>{officeEmail&&canSupport?`${todayTasks.length} ma esedékes${overdueTasks.length?` · ${overdueTasks.length} lejárt`:''}`:'Nincs hozzáférés'}</em></span></a>
+      <Link href="/admin/kommunikacio/feladatok" className="digitalOfficeDashboardMetric"><span className="digitalOfficeDashboardIcon">✓</span><span><small>Nyitott feladataim</small><strong>{officeEmail&&canSupport?myTasks.length:'—'}</strong><em>{officeEmail&&canSupport?`${todayTasks.length} ma esedékes${overdueTasks.length?` · ${overdueTasks.length} lejárt`:''}`:'Nincs hozzáférés'}</em></span></Link>
       <Link href="/admin/kommunikacio/chat?filter=unread" className="digitalOfficeDashboardMetric"><span className="digitalOfficeDashboardIcon">@</span><span><small>Team Chat figyelmeztetés</small><strong>{canChat?chatAttention:'—'}</strong><em>{canChat?`${unreadChatThreadIds.size} olvasatlan · ${mentions.length} említés`:'Nincs hozzáférés'}</em></span></Link>
       <Link href="/admin/kommunikacio/felugyelet?status=problem" className="digitalOfficeDashboardMetric"><span className="digitalOfficeDashboardIcon">!</span><span><small>Beavatkozást igényel</small><strong>{advancedEmail&&canMarketing?interventionCount:'—'}</strong><em>{advancedEmail&&canMarketing?`${awaitingApproval.length} jóváhagyás · ${problemJobs.length} küldési hiba`:'Nincs hozzáférés'}</em></span></Link>
     </section>
@@ -155,9 +158,9 @@ export default async function DigitalOfficeHome(){
       </article>
 
       <article className="digitalOfficeDashboardPanel" id="feladatok">
-        <header><div><small>Saját munka</small><h2>Feladataim</h2></div><Link href="/admin/kommunikacio/iroda">Ügyfélmunkák →</Link></header>
+        <header><div><small>Saját munka</small><h2>Feladataim</h2></div><Link href="/admin/kommunikacio/feladatok">Összes feladat →</Link></header>
         <div className="digitalOfficeTaskTabs"><span>Ma ({todayTasks.length})</span><span>Közelgő ({Math.max(0,myTasks.length-todayTasks.length-overdueTasks.length)})</span><span>Lejárt ({overdueTasks.length})</span></div>
-        {myTasks.slice(0,4).map(task=><Link href={task.thread_id?`/admin/kommunikacio/iroda?thread=${task.thread_id}`:'/admin/kommunikacio'} className="digitalOfficeTaskRow" key={task.id}><i/><span><strong>{task.title}</strong><small>{task.thread_id?threadMap.get(task.thread_id)?.subject??'Kapcsolt ügyfélthread':'Önálló feladat'}</small></span><em data-hot={Boolean(task.due_at&&Date.parse(task.due_at)<now.getTime())?'true':'false'}>{task.due_at?(dayKey(task.due_at)===today?timeLabel(task.due_at):new Intl.DateTimeFormat('hu-HU',{timeZone:'Europe/Budapest',month:'short',day:'numeric'}).format(new Date(task.due_at))):'Nincs határidő'}</em></Link>)}
+        {myTasks.slice(0,4).map(task=><Link href={task.thread_id?`/admin/kommunikacio/iroda?thread=${task.thread_id}`:'/admin/kommunikacio/feladatok'} className="digitalOfficeTaskRow" key={task.id}><i/><span><strong>{task.title}</strong><small>{task.thread_id?threadMap.get(task.thread_id)?.subject??'Kapcsolt ügyfélthread':'Önálló feladat'}</small></span><em data-hot={Boolean(task.due_at&&Date.parse(task.due_at)<now.getTime())?'true':'false'}>{task.due_at?(dayKey(task.due_at)===today?timeLabel(task.due_at):new Intl.DateTimeFormat('hu-HU',{timeZone:'Europe/Budapest',month:'short',day:'numeric'}).format(new Date(task.due_at))):'Nincs határidő'}</em></Link>)}
         {!myTasks.length&&<div className="digitalOfficeDashboardEmpty"><strong>Nincs nyitott saját feladat.</strong><span>A hozzád rendelt feladatok itt jelennek meg.</span></div>}
       </article>
 
@@ -176,7 +179,7 @@ export default async function DigitalOfficeHome(){
 
     <section className="digitalOfficeDashboardBottomGrid">
       <article className="digitalOfficeDashboardPanel digitalOfficeDashboardFiles"><header><div><small>Csatolmányok</small><h2>Legutóbbi fájlok</h2></div><Link href="/admin/kommunikacio/iroda">Levelezés →</Link></header><div className="digitalOfficeFileGrid">{attachments.slice(0,4).map(file=>{const ext=file.original_name.split('.').pop()?.toUpperCase().slice(0,3)||'FILE';const relatedThread=threadMap.get(file.thread_id??'')??chatThreadMap.get(file.thread_id??'');return <div className="digitalOfficeFileRow" key={file.id}><b>{ext}</b><span><strong>{file.original_name}</strong><small>{file.source==='internal_upload'?'Team Chat':'Ügyfél e-mail'}{relatedThread?` · ${relatedThread.subject}`:''}</small></span><em>{fileSize(file.byte_size)}</em></div>;})}</div>{!attachments.length&&<div className="digitalOfficeDashboardEmpty"><span>Még nincs megjeleníthető, ellenőrzött csatolmány.</span></div>}</article>
-      <article className="digitalOfficeDashboardPanel digitalOfficeDashboardQuick"><header><div><small>Műveletek</small><h2>Gyors műveletek</h2></div></header><div className="digitalOfficeQuickGrid"><Link href="/admin/kommunikacio/iroda"><b>✉</b><span>E-mail</span></Link><a href="#feladatok"><b>✓</b><span>Feladatok</span></a><Link href="/admin/kommunikacio/chat"><b>☵</b><span>Team Chat</span></Link><Link href="/admin/email-sablonok"><b>▦</b><span>Sablonok</span></Link></div></article>
+      <article className="digitalOfficeDashboardPanel digitalOfficeDashboardQuick"><header><div><small>Műveletek</small><h2>Gyors műveletek</h2></div></header><div className="digitalOfficeQuickGrid"><Link href="/admin/kommunikacio/iroda"><b>✉</b><span>E-mail</span></Link><Link href="/admin/kommunikacio/feladatok"><b>✓</b><span>Feladatok</span></Link><Link href="/admin/kommunikacio/chat"><b>☵</b><span>Team Chat</span></Link><Link href="/admin/email-sablonok"><b>▦</b><span>Sablonok</span></Link></div></article>
     </section>
   </main>;
 }

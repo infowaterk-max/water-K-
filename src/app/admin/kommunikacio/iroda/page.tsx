@@ -7,6 +7,7 @@ import {hasStoreCapability} from '@/lib/auth/store-capabilities';
 import {hasStorePermission} from '@/lib/auth/store-rbac';
 import {hasCurrentPlanFeature,requirePlanFeature} from '@/lib/plans/access';
 import {createAdminClient} from '@/lib/supabase/admin';
+import {createClient as createOfficeUserClient} from '@/lib/supabase/server';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 import {formatHuf} from '@/lib/catalog';
 import {completeTaskAction,createTaskAction,updateThreadAction} from './actions';
@@ -53,10 +54,12 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
   const normalizedRaw=rawFilter==='open'?'inbox':rawFilter;
   const filter=allowedFilters.has(normalizedRaw as InboxFilter)?normalizedRaw as InboxFilter:'inbox';
   const db=createAdminClient();
+  // These core Office tables deliberately deny service_role reads; use the signed-in user's RLS scope.
+  const scopedDb=await createOfficeUserClient();
 
   const[threadResult,taskResult,orderResult,jobResult,bindingResult,draftResult,mailboxResult]=await Promise.all([
-    db.from('office_threads').select('id,subject,customer_email,order_id,status,priority,assigned_to,last_read_at,mailbox_key,updated_at,conversation_type,customer_user_id,customer_ref,sales_owner_user_id').eq('instance_id',scope.instanceId).eq('conversation_type','customer').order('updated_at',{ascending:false}).limit(200),
-    db.from('office_tasks').select('id,thread_id,title,status,assigned_to,due_at,created_at').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(300),
+    scopedDb.from('office_threads').select('id,subject,customer_email,order_id,status,priority,assigned_to,last_read_at,mailbox_key,updated_at,conversation_type,customer_user_id,customer_ref,sales_owner_user_id').eq('instance_id',scope.instanceId).eq('conversation_type','customer').order('updated_at',{ascending:false}).limit(200),
+    scopedDb.from('office_tasks').select('id,thread_id,title,status,assigned_to,due_at,created_at').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(300),
     db.from('orders').select('id,order_number,billing_name,customer_email,status,total_gross_huf,shipping_method,payment_method,tracking_number').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(300),
     db.from('communication_jobs').select('id,status,last_error').eq('instance_id',scope.instanceId).order('created_at',{ascending:false}).limit(1500),
     scope.organizationId?db.from('role_bindings').select('user_id,role_code,instance_id,valid_until').eq('organization_id',scope.organizationId).is('revoked_at',null).lte('valid_from',new Date().toISOString()).or(`instance_id.eq.${scope.instanceId},instance_id.is.null`):Promise.resolve({data:[] as Binding[],error:null}),
@@ -68,7 +71,7 @@ export default async function CustomerEmailWorkspace({searchParams}:{searchParam
   const orders=(orderResult.data??[])as Order[];
   const mailboxes=(mailboxResult.data??[])as Mailbox[];
   const threadIds=threads.map(thread=>thread.id);
-  const messageResult=threadIds.length?await db.from('office_messages').select('id,thread_id,author_id,acting_for_user_id,kind,body,created_at,communication_job_id,subject,cc_emails,bcc_emails,attachment_count').eq('instance_id',scope.instanceId).in('thread_id',threadIds).in('kind',['email_in','email_out']).order('created_at',{ascending:false}).limit(1500):{data:[] as Message[],error:null};
+  const messageResult=threadIds.length?await scopedDb.from('office_messages').select('id,thread_id,author_id,acting_for_user_id,kind,body,created_at,communication_job_id,subject,cc_emails,bcc_emails,attachment_count').eq('instance_id',scope.instanceId).in('thread_id',threadIds).in('kind',['email_in','email_out']).order('created_at',{ascending:false}).limit(1500):{data:[] as Message[],error:null};
   const messages=(messageResult.data??[])as Message[];
   const messageIds=messages.map(message=>message.id);
   const[routeResult,attachmentResult,objectLinkResult]=await Promise.all([
