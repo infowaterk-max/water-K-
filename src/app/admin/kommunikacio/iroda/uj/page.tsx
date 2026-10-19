@@ -42,8 +42,8 @@ export default async function OfficeComposerPage(){
 
   const bindings=((bindingData??[])as BindingRow[]).filter(row=>active(row.valid_until));
   const isOwner=bindings.some(row=>row.role_code==='owner');
-  const hasComposeExtra=isOwner?true:await hasStoreCapability(scope.instanceId,actor.id,'office.email.compose');
-  const canCompose=isOwner||hasComposeExtra;
+  // Support role inherits compose; a shop-owner deny override still wins in the capability evaluator.
+  const canCompose=isOwner||await hasStoreCapability(scope.instanceId,actor.id,'office.email.compose');
   const drafts=(draftData??[])as DraftRow[];
   const mailboxes=(mailboxData??[])as MailboxRow[];
   const mailboxOptions=mailboxes.map(mailbox=>({mailboxKey:mailbox.mailbox_key,label:mailbox.label}));
@@ -66,7 +66,7 @@ export default async function OfficeComposerPage(){
     {!advancedEmail&&<div className="adminAuditNotice"><strong>Alap csomag</strong><p>Normál 1:1 ügyfél-e-mail és saját piszkozat használható. CC/BCC és több küldő postafiók a Pro csomag része.</p></div>}
 
     {foundationError&&<div className="errorNotice" role="alert"><strong>A Composer foundation még nem érhető el teljesen ebben a környezetben.</strong><p>Biztonsági okból hiányos foundation mellett sem piszkozatot, sem e-mailt nem tekintünk mentettnek vagy elküldöttnek.</p></div>}
-    {!canCompose&&!foundationError&&<div className="adminAuditNotice"><strong>Új e-mail írása nincs engedélyezve.</strong><p>Ehhez a munkatárshoz az „Új ügyfél-e-mail írása” extra jogosultság szükséges. A meglévő szerepkörét emiatt nem kell magasabb rangra módosítani.</p></div>}
+    {!canCompose&&!foundationError&&<div className="adminAuditNotice"><strong>Új e-mail írása nincs engedélyezve.</strong><p>Az ügyfélszolgálati szerepkör alapértelmezetten jogosult e-mail írására. Ha itt nem tudsz üzenetet készíteni, ellenőrizd a tulajdonos által beállított egyedi tiltást és az aktív szerepkört.</p></div>}
 
     {canCompose&&!foundationError&&<OfficeNewEmailComposer mailboxes={mailboxOptions} advancedEmail={advancedEmail}/>}
 
