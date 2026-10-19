@@ -196,7 +196,6 @@ describe('Supabase server credential scoping', () => {
       ...process.env,
       VERCEL:'1',
       VERCEL_ENV:'preview',
-      NODE_ENV:'test',
       VERCEL_GIT_COMMIT_REF:freshPreviewBranch,
       SHOPERATION_FRESH_ACCEPTANCE:acceptedFreshMarker,
       NEXT_PUBLIC_SUPABASE_URL:freshSupabaseUrl,
