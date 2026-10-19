@@ -1,74 +1,48 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-6A79FE7B-OFFICE-RELEASE-ARCH",
-  "task": "Register existing Vercel runtime target preflight with Release Domain authority so protected Fresh Office preview scope resolves canonically",
-  "status": "closed",
-  "guardDigest": "f01b0397",
-  "changeBaseSha": "02fed53ee63aec947150f85ed9f6320153250307",
+  "taskId": "DEV-1136208E-OFFICE-FRESH-PREVIEW",
+  "task": "Permit only validated Fresh Install Office acceptance preview on the exact review branch, preserving production and staging target isolation",
+  "status": "ready-for-implementation",
+  "guardDigest": "1136208e",
+  "changeBaseSha": "507c668215836e1d7872344971ce3f11e72af05c",
   "plannedFilePatterns": [
-    "quality/knowledge/domain-foundations.v1.json",
-    "tests/architecture-health.test.ts"
+    "scripts/validate-vercel-deploy-env.mjs",
+    "tests/supabase-server-credential-scope.test.ts"
   ],
   "expectedSubsystems": [
+    "database-schema",
+    "environment-secret-contract",
     "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-RELEASE"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "release-infrastructure"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
-    "SQ-KF-005",
     "SQ-KF-006",
-    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
     "SQ-KF-010",
-    "SQ-KF-011",
-    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-015",
-    "SQ-KF-016",
-    "SQ-KF-017",
     "SQ-KF-018",
-    "SQ-KF-019",
     "SQ-KF-020",
-    "SQ-KF-021",
     "SQ-KF-022",
     "SQ-KF-023",
-    "SQ-KF-024",
     "SQ-KF-025",
     "TF-KF-001",
-    "TF-KF-002",
-    "TF-KF-003",
-    "TF-KF-004",
     "TF-KF-005",
-    "TF-KF-006",
     "TF-KF-007",
-    "TF-KF-008",
     "TF-KF-009",
     "TF-KF-010",
     "TF-KF-011",
-    "TF-KF-012",
     "TF-KF-013",
     "TF-KF-014",
-    "TF-KF-015",
-    "TF-KF-016",
-    "TF-KF-017",
-    "TF-KF-018",
-    "TF-KF-019",
-    "TF-KF-020",
-    "TF-KF-021",
-    "TF-KF-022",
-    "TF-KF-023",
-    "TF-KF-024",
-    "TF-KF-025"
+    "TF-KF-015"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -77,6 +51,7 @@
     "SQ-NK-005",
     "SQ-NK-010",
     "SQ-NK-012",
+    "SQ-NK-014",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -90,11 +65,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1443",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1450",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This is an authority-map repair for a security-critical environment preflight. It makes the existing runtime guard explicitly owned by DOMAIN-RELEASE. Source tests and exact-head CI prove deterministic mapping but cannot prove hosted authenticated acceptance.",
+      "rationale": "Critical cross-environment secret-routing safeguard: the only accepted exception is a named, explicitly opted-in temporary Office Fresh preview branch with exact database ref. Fail closed for every other target and retain credential/schema verification. Source CI cannot attest signed customer draft behavior.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -111,22 +86,22 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The canonical DOMAIN-RELEASE registry explicitly includes scripts/validate-vercel-deploy-env.mjs without any wildcard covering unintended files.",
-        "The release-domain single owner release-infrastructure is unchanged and no domain overlaps are introduced.",
-        "The architecture-health test verifies this exact path and owner.",
-        "No changes to validator execution or Vercel/Supabase environment are made."
+        "Validator allows Fresh Install only if VERCEL_ENV=preview, exact VERCEL_GIT_COMMIT_REF is fix/office-fresh-preview-security-gate-20261019, SHOPERATION_FRESH_ACCEPTANCE is the agreed marker and NEXT_PUBLIC_SUPABASE_URL host is exactly istjjkdcvsvilrycqecd.supabase.co.",
+        "Staging remains default for all other preview branches and production exclusively targets ewdederyvnwmghlydbno.supabase.co.",
+        "Both Fresh and staging previews require the same schema-compatibility runtime probes with properly configured server and public credentials.",
+        "Unit tests reject missing flag, other branches, wrong project, production target and absent server credentials without touching any real DB."
       ],
       "invariants": [
-        "Domain authority remains unique for the environment preflight.",
-        "Quality controls and release domain truth remain distinct.",
-        "Staging and production runtime targets remain hard-coded and fail-closed in the unmodified validator.",
-        "A later implementation has to go through the Plan Before Code gate based on this exact domain registration."
+        "The checker is a pre-build fail-closed check, not an authorization bypass.",
+        "The exception applies to exactly one named Git ref plus a designated boolean-like opt-in marker.",
+        "No env marker may allow a Fresh project in production or authorize Water-K staging/production cross-routing.",
+        "All eight existing runtime schema probes remain executed on the chosen project."
       ],
       "forbiddenStates": [
-        "Register the validator with an unrelated business domain.",
-        "Map all scripts/** to DOMAIN-RELEASE.",
-        "Change the validator behavior as part of this authority-only unit.",
-        "Treat the registry change as deployed Fresh Install UI acceptance."
+        "A Fresh preview is enabled on all branches merely because an env flag is present.",
+        "Any production deployment targets Fresh or staging.",
+        "Any staging preview loses its existing accepted behavior.",
+        "A missing sensitive key or missing schema can produce a successful real deployment."
       ]
     },
     "model": {
@@ -158,57 +133,51 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The preflight script remains architecture-unresolved and future controlled changes are blocked.",
-        "An overbroad registry wildcard changes ownership of unrelated quality guards.",
-        "Two domains claim equal-specificity ownership of the validator.",
-        "The architecture-health regression accidentally relies on a duplicate script constant.",
-        "An authority-only change is mistaken for release authorization."
+        "An accidental branch match allows sibling PR previews to connect to Fresh.",
+        "An opt-in marker alone bypasses database host validation.",
+        "Production can be tricked into using preview exception because deployment tag is spoofed.",
+        "Schema probes are skipped to work around an invalid Fresh secret.",
+        "Preview mistakenly inherits a general staging server key when branch key is not set.",
+        "A typo in existing staging reference changes the canonical default target."
       ],
       "edgeCases": [
-        "Validator source path matches release domain exactly.",
-        "Quality generator scripts continue to belong to DOMAIN-QUALITY.",
-        "A test for release domain adds no runtime Vercel mutation.",
-        "Plan Before Code can resolve the preflight path in a later child transaction.",
-        "The registry change affects only domain metadata and testing, not secret runtime."
+        "The exact proof branch has correct Fresh URL and flag (valid).",
+        "The exact proof branch is missing the flag (reject).",
+        "A sibling UI branch has the same Fresh URL and flag (reject).",
+        "The proof branch has staging URL and flag (still validate staging, no crossrouting).",
+        "A production deployment has Fresh URL and flag (reject).",
+        "Malformed project URL or unrecognized project ref (reject).",
+        "Public key or service key missing (reject).",
+        "Real Vercel schema probes fail on missing native Postgres17 table/column (reject)."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-EXACT-RELEASE",
-        "summary": "Add exact Vercel preflight path to canonical Release Domain source ownership.",
+        "id": "ALT-SCOPED-GUARD",
+        "summary": "Add exact branch-plus-flag Fresh exception to the preexisting validator, retain all schema probes.",
         "disposition": "selected",
-        "reason": "The validator protects deployment target, schema compatibility and release authorization, properly owned by Release."
+        "reason": "Preserves owner-established staging/production security boundaries and permits one auditable controlled proof deployment."
       },
       {
-        "id": "ALT-QUALITY-WILDCARD",
-        "summary": "Assign all scripts to Quality Domain.",
+        "id": "ALT-DISABLE-PREFLIGHT",
+        "summary": "Run Next.js build without the validator or bypass the database schema probes.",
         "disposition": "rejected",
-        "reason": "Would overclaim architecture scope and obscure release truth ownership for unrelated scripts."
+        "reason": "Would permit wrong-target deployments, mismatched service credentials and missing runtime tables without detection."
       },
       {
-        "id": "ALT-BYPASS-PLAN",
-        "summary": "Proceed with the Vercel exception while architecture remains unresolved.",
+        "id": "ALT-BROAD-FRESH",
+        "summary": "Allow all Vercel Preview branches to target Fresh Install when the public URL is valid.",
         "disposition": "rejected",
-        "reason": "Violates Plan Before Code and makes a cross-environment security change unreviewable."
+        "reason": "Would expose the shared Fresh user data to unrelated development previews and bypass existing isolation policy."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Architecture",
+        "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Runtime Vercel preflight missing from domain registry means release authority is unresolved.",
-        "resolution": "Bind it by exact path to DOMAIN-RELEASE and assert classification in architecture-health test.",
-        "evidence": [
-          "quality/knowledge/domain-foundations.v1.json"
-        ]
-      },
-      {
-        "role": "Security",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "A wildcard release mapping could hide unrelated quality and auth-critical source ownership.",
-        "resolution": "Change only exact path; explicitly reject scripts/** wildcard.",
+        "finding": "A generic environment exception could leak customer data or let production connect to nonproduction Supabase.",
+        "resolution": "Require exact deployment type, pinned project hostname, exact proof ref and explicit Fresh acceptance flag; retain all fail-closed probes.",
         "evidence": [
           "scripts/validate-vercel-deploy-env.mjs"
         ]
@@ -217,8 +186,8 @@
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Changing domain metadata is not permission to deploy against Fresh or reactivate staging.",
-        "resolution": "Treat this as preflight prerequisite and preserve existing main-only Vercel build skip.",
+        "finding": "The global Vercel build skip currently allows only main and a broad edit could re-enable costly auto builds.",
+        "resolution": "Do not change the global skip step in source; for one-time proof allow exact target temporarily then restore before acceptance.",
         "evidence": [
           "https://github.com/infowaterk-max/water-K-/pull/1443"
         ]
@@ -227,122 +196,133 @@
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A new domain owner could expand Known Failure applicability and break downstream code-review coverage.",
-        "resolution": "Run full Codebase Atlas, quality and CI after the small registry change.",
+        "finding": "Skipping runtime schema probing would hide deployment database mismatch.",
+        "resolution": "Keep all 8 zero-row PostgREST schema probes and reject missing server key.",
         "evidence": [
-          "quality/knowledge/domain-foundations.v1.json"
+          "docs/support/PRODUCTION_RUNTIME_SCHEMA_PARITY_INCIDENT_2026-09-23.md"
+        ]
+      },
+      {
+        "role": "Data Integrity",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Fresh database already contains installed support default migration; preview must never reapply it or seed mailbox records.",
+        "resolution": "Only deploy the application code to Preview; read-only and authenticated draft evidence happen later under test author account.",
+        "evidence": [
+          "https://github.com/infowaterk-max/water-K-/pull/1446"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-ARCH-01",
-        "scenario": "A PR changes runtime schema preflight.",
-        "finding": "Atlas previously reports no domain authority.",
-        "resolution": "Register exact path in Release Domain.",
+        "id": "CH-FRESH-01",
+        "scenario": "Office proof branch Fresh target with correct marker and server credentials.",
+        "finding": "Old validator blocks every nonstaging Preview.",
+        "resolution": "Allow exact branch and pinned project ID after full probes.",
         "status": "resolved"
       },
       {
-        "id": "CH-ARCH-02",
-        "scenario": "A quality guard script is evaluated.",
-        "finding": "A broad wildcard could transfer it to Release.",
-        "resolution": "Preserve original quality canonical path rules.",
+        "id": "CH-FRESH-02",
+        "scenario": "An unrelated feature PR uses the same Fresh URL and marker.",
+        "finding": "Generic flag would leak shared Fresh data across unreviewed branches.",
+        "resolution": "Reject any Git ref other than the exact proof branch.",
         "status": "resolved"
       },
       {
-        "id": "CH-ARCH-03",
-        "scenario": "Atlas computes duplicate matching domains.",
-        "finding": "Multiple owners conflict with single-truth domain mapping.",
-        "resolution": "Use exact path only and assert release owner.",
+        "id": "CH-FRESH-03",
+        "scenario": "Correct branch has no Fresh acceptance marker.",
+        "finding": "Mistaken env config might accidentally trigger Fresh acceptance.",
+        "resolution": "Require explicit exact opt-in flag.",
         "status": "resolved"
       },
       {
-        "id": "CH-ARCH-04",
-        "scenario": "The Vercel environment still points at inactive staging for generic preview.",
-        "finding": "Mapping alone might be misunderstood as a Fresh deployment fix.",
-        "resolution": "Do not modify Vercel environment or publish a preview.",
+        "id": "CH-FRESH-04",
+        "scenario": "Production uses Fresh URL plus proof marker.",
+        "finding": "A loosely scoped exception would redirect prod secrets.",
+        "resolution": "Production condition remains first with exact production ref only.",
         "status": "resolved"
       },
       {
-        "id": "CH-ARCH-05",
-        "scenario": "A future exception is built without runtime schema probes.",
-        "finding": "Architecture registration might be treated as approval to bypass runtime checks.",
-        "resolution": "Keep unmodified script and separate later explicit guard transaction.",
+        "id": "CH-FRESH-05",
+        "scenario": "The proof branch requests staging instead of Fresh.",
+        "finding": "Proof identity alone might create an invisible second allowed target.",
+        "resolution": "Evaluate regular staging preview branch case and preserve scope checks.",
         "status": "resolved"
       },
       {
-        "id": "CH-ARCH-06",
-        "scenario": "CI evaluates other release-infrastructure source files.",
-        "finding": "Authority registration could unintentionally change their domain.",
-        "resolution": "Assert exact file mapping and no new wildcard.",
+        "id": "CH-FRESH-06",
+        "scenario": "Fresh public URL is correct but server secret belongs to staging.",
+        "finding": "PostgREST zero-row schema probe returns unauthorized or missing relations.",
+        "resolution": "Do not skip schema probes; fail build and require correct Fresh secret.",
         "status": "resolved"
       },
       {
-        "id": "CH-ARCH-07",
-        "scenario": "An Alap user enters the Pro Office route.",
-        "finding": "Domain mapping cannot grant subscriptions or user rights.",
-        "resolution": "Do not modify application permission/plan code.",
+        "id": "CH-FRESH-07",
+        "scenario": "Fresh secret is present but new runtime DB is missing required columns.",
+        "finding": "A build-only allow rule would deploy a runtime-crashing application.",
+        "resolution": "Preserve full eight-probe schema compatibility preflight.",
         "status": "resolved"
       },
       {
-        "id": "CH-ARCH-08",
-        "scenario": "A future Vercel build has an invalid server secret.",
-        "finding": "This authority repair cannot substitute for credential validation.",
-        "resolution": "Retain original fail-closed preflight runtime code.",
+        "id": "CH-FRESH-08",
+        "scenario": "A scheduled later branch build tries to run automatically.",
+        "finding": "Costs could rise or privacy degrade if the global build gate remains open.",
+        "resolution": "Restore global main-only ignored-build rule immediately after explicitly triggering proof deployment.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code for exact quality registry and architecture test paths.",
-      "Test single release-domain registration and registry integrity without editing deployment validator.",
-      "Full CI quality, typecheck, build, architecture-health, Truth and Lifecycle exact-head proof.",
-      "Only after this unit, create a separate child for the scoped Fresh acceptance branch exception."
+      "Plan Before Code exact base and bounded high-risk environment-secret-contract file edit.",
+      "Vitest subprocess positive and negative tests with NODE_ENV=test, no external database networking or secret exposure.",
+      "Run CI quality tests, TypeScript, source build and Completion Truth/Lifecycle proof on exact branch commit.",
+      "Trigger a single Vercel preview build under branch-only temporary ignored-build permission; restore global skip immediately and read Vercel schema-probe logs before any authenticated user action."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/pull/1443",
+      "request": "https://github.com/infowaterk-max/water-K-/pull/1450",
       "authority": [
-        "quality-knowledge-system"
+        "release-infrastructure"
       ],
       "mustEdit": [
-        "quality/knowledge/domain-foundations.v1.json",
-        "tests/architecture-health.test.ts"
+        "scripts/validate-vercel-deploy-env.mjs",
+        "tests/supabase-server-credential-scope.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [],
       "forbidden": [],
       "proof": [
-        "tests/architecture-health.test.ts"
+        "tests/supabase-server-credential-scope.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
     },
     "executionAuthorized": true,
-    "problemStatement": "Shoperation Plan Before Code correctly found the existing Vercel schema-compatibility preflight script has no explicit architecture domain, although it controls staging/production target and server credentials. Before any Fresh-only preview policy change, its release-domain ownership must be canonical and testable.",
+    "problemStatement": "The Office proof branch uses a real Fresh Install public URL and owner-configured branch-only server key, but the old Vercel runtime schema preflight hard-codes staging for all preview builds. An auditable narrowly scoped one-branch Fresh acceptance route is required without weakening production/staging target isolation or the schema probes.",
     "observableOutcomes": [
-      "scripts/validate-vercel-deploy-env.mjs has the canonical DOMAIN-RELEASE authority in domain-foundations without changing preflight functionality.",
-      "No unrelated domain owner or quality authority is reclassified and the architecture-health test proves exact file mapping.",
-      "A later, separately planned preview guard change can resolve its release authority without overriding Plan Before Code architecture errors."
+      "Preview build for fix/office-fresh-preview-security-gate-20261019 with deliberate SHOPERATION_FRESH_ACCEPTANCE marker can use Fresh Install ref istjjkdcvsvilrycqecd after runtime schema probes validate its signed server credentials.",
+      "Every other preview branch remains restricted to canonical staging rfuvzgumbardvbvqjxdq and production remains restricted to ewdederyvnwmghlydbno.",
+      "Preview is blocked on missing or incorrect acceptance marker, wrong branch, missing server key, incompatible schema or misrouted production URL."
     ],
     "unresolvedRisks": [
-      "The Fresh-only preview capability is not added by this unit; the original hard-coded staging preview gate remains.",
-      "The Vercel preview environment has owner-set sensitive Fresh secret but its correctness remains runtime-unverified.",
-      "This metadata change does not prove end-user draft save or owner denied access."
+      "Vercel sensitive secret cannot be read back; postbuild schema preflight and authenticated route acceptance must independently prove owner-configured credential belongs to Fresh.",
+      "The Fresh preview does not prove a user's session, Pro entitlement, owner-deny mutation or real draft save without a dedicated signed test.",
+      "Future CI on unrelated branches does not authorize auto-builds; global ignored-build step was returned to main-only and preview must be enabled one time."
     ],
     "scope": {
       "in": [
-        "Add one exact existing Vercel preflight source file path under the Release Domain canonicalPaths registry.",
-        "Add an architecture-health regression that verifies one explicit owner and prevents domain drift."
+        "Change the existing deploy environment validator only to allow exactly one explicit Fresh Install Office proof-branch preview while preserving all runtime schema probes.",
+        "Add positive and negative subprocess regression cases for branch identity, opt-in flag, project pinning, production and staging isolation."
       ],
       "out": [
-        "Do not modify the validator source file or its strict production/staging target rules.",
-        "Do not create or run deployments, change migrations, OAuth providers, preview secrets, tenant data or global Vercel build settings."
+        "No new hidden deployed environment variable values or use of staging secret against another target.",
+        "No change to permanent global Vercel ignored-build rule, Supabase project lifecycle or other production tenant.",
+        "No changed customer email RPC, Office mailbox delivery or SQL source identity."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1443",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1450",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
@@ -357,11 +337,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-VERCEL-RELEASE-AUTHORITY",
-        "requirement": "Register the Vercel environment schema preflight exact source path under the Release Domain so future security changes receive a determinate single authority.",
+        "id": "REQ-OFFICE-FRESH-PREVIEW-GUARD",
+        "requirement": "Allow only a proven Office Fresh Install branch with explicit acceptance marker, fail-closed credentials and all original production/staging/schema checks.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "vercel-schema-preflight-release-owner",
+          "breadth": "vercel-office-fresh-preview-guard",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -382,8 +362,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-RELEASE-SCOPE-WILDCARD",
-            "statement": "No broad architecture remapping, Vercel deployment exception, or hosted secret mutation may be introduced.",
+            "id": "NEG-OFFICE-PREVIEW-LEAK",
+            "statement": "No ordinary preview or production branch can cross-route to Fresh, and no build without valid runtime credentials/schema is accepted.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -392,18 +372,5 @@
       }
     ]
   },
-  "notes": "Precondition architecture correction before any change to validator itself. The protected Vercel deployment preflight currently has no release domain ownership in the canonical Atlas. This unit only maps its existing source path under DOMAIN-RELEASE and proves single-source ownership; no deploy or validator runtime code change. It is deliberately separate from the subsequent Fresh Install preview conditional policy. Plan-only canonical gate confirmed release-infrastructure-only projected subsystem, complete 50 known-failure registry sweep, and SQ-NK-014 in applicable negative knowledge; no implementation edits yet. Final projection evaluates release-infrastructure only, so SQ-NK-014 (database-schema specific) is not applicable despite the registry's broader cross-domain known-failure sweep. The exact authority implementation SHA 0f3a120b48c615ba0b6a07f62e1903905eb81203 verified 3569 tests, TypeScript/build and Completion Truth VERIFIED_DONE on run 39227121665; this source-only lifecycle closure does not yet authorize Fresh-preview runtime exception.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "0f3a120b48c615ba0b6a07f62e1903905eb81203",
-    "closedAt": "2026-10-19T09:08:48.441Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1450",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Stacked after canonical Release Domain owner PR #1450 exact closed SHA 507c668215836e1d7872344971ce3f11e72af05c with final CI SUCCESS. This transaction was planned before any Vercel runtime validator edits. Earlier proof branch planning was superseded and reset, not merged. Frozen behavior: staging-only ordinary previews, production-only prod, exact Fresh acceptance branch+opt-in plus eight independent PostgREST schema probes."
 }
