@@ -1,55 +1,100 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-FC1EF89C-OFFICE-COMPOSE-UI",
-  "task": "Correct support customer composer page capability rendering and truthful owner-denial copy",
+  "taskId": "DEV-6A79FE7B-OFFICE-RELEASE-ARCH",
+  "task": "Register existing Vercel runtime target preflight with Release Domain authority so protected Fresh Office preview scope resolves canonically",
   "status": "closed",
-  "guardDigest": "fc1ef89c",
-  "changeBaseSha": "59628c71b5084d65a0396c1d1cfa7de8fbe91b7d",
+  "guardDigest": "f01b0397",
+  "changeBaseSha": "02fed53ee63aec947150f85ed9f6320153250307",
   "plannedFilePatterns": [
-    "src/app/admin/kommunikacio/iroda/uj/page.tsx",
-    "tests/digital-office-support-compose-page.test.ts",
-    "quality/development/active-plan.json"
+    "quality/knowledge/domain-foundations.v1.json",
+    "tests/architecture-health.test.ts"
   ],
   "expectedSubsystems": [
-    "admin-operations",
-    "storefront-ui"
+    "release-infrastructure"
   ],
   "expectedDomains": [
-    "DOMAIN-ADMIN"
+    "DOMAIN-QUALITY"
   ],
   "expectedAuthorities": [
-    "admin-operations"
+    "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
     "SQ-KF-001",
     "SQ-KF-002",
+    "SQ-KF-003",
+    "SQ-KF-004",
     "SQ-KF-005",
+    "SQ-KF-006",
+    "SQ-KF-007",
+    "SQ-KF-008",
+    "SQ-KF-009",
+    "SQ-KF-010",
     "SQ-KF-011",
     "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
     "SQ-KF-016",
     "SQ-KF-017",
+    "SQ-KF-018",
+    "SQ-KF-019",
+    "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
+    "SQ-KF-023",
+    "SQ-KF-024",
     "SQ-KF-025",
-    "TF-KF-006"
+    "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
+    "TF-KF-006",
+    "TF-KF-007",
+    "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
+    "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-006",
-    "SQ-NK-008",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
+    "SQ-NK-010",
     "SQ-NK-012",
+    "SQ-NK-016",
+    "SQ-NK-017",
+    "SQ-NK-018",
+    "SQ-NK-019",
+    "SQ-NK-020",
+    "SQ-NK-021",
+    "SQ-NK-022",
+    "SQ-NK-023",
     "SQ-NK-024"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1431",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1443",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This is a security-sensitive UI authorization display change, so it retains critical denial/role/tenant/Pro restrictions and negative scenarios, but can claim only source and CI evidence; it does not prove managed Supabase authorization or message delivery.",
+      "rationale": "This is an authority-map repair for a security-critical environment preflight. It makes the existing runtime guard explicitly owned by DOMAIN-RELEASE. Source tests and exact-head CI prove deterministic mapping but cannot prove hosted authenticated acceptance.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -66,22 +111,22 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Support role authorization is read exclusively from hasStoreCapability instead of a misleading extra-permission gate.",
-        "Denied or inactive staff do not receive OfficeNewEmailComposer even when a valid Pro workspace exists.",
-        "The warning text identifies role status and individual owner restriction without instructing extra grant requests.",
-        "Draft revision, tenant and configured sender protections remain server-side and unchanged."
+        "The canonical DOMAIN-RELEASE registry explicitly includes scripts/validate-vercel-deploy-env.mjs without any wildcard covering unintended files.",
+        "The release-domain single owner release-infrastructure is unchanged and no domain overlaps are introduced.",
+        "The architecture-health test verifies this exact path and owner.",
+        "No changes to validator execution or Vercel/Supabase environment are made."
       ],
       "invariants": [
-        "The server still performs canonical capability evaluation before rendering any composer.",
-        "Personal drafts remain restricted to the author and scoped to one instance.",
-        "Pro subscription entitlement is a separate prerequisite to the workspace.",
-        "A mailbox-less draft may be saved without pretending an email was sent."
+        "Domain authority remains unique for the environment preflight.",
+        "Quality controls and release domain truth remain distinct.",
+        "Staging and production runtime targets remain hard-coded and fail-closed in the unmodified validator.",
+        "A later implementation has to go through the Plan Before Code gate based on this exact domain registration."
       ],
       "forbiddenStates": [
-        "Client-side role guesses replace database capability evaluation.",
-        "Owner-denied staff receive interactive compose controls.",
-        "The frontend reports draft or delivery success without server confirmation.",
-        "Pro-only Digital Office becomes available to an Alap member."
+        "Register the validator with an unrelated business domain.",
+        "Map all scripts/** to DOMAIN-RELEASE.",
+        "Change the validator behavior as part of this authority-only unit.",
+        "Treat the registry change as deployed Fresh Install UI acceptance."
       ]
     },
     "model": {
@@ -113,195 +158,196 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A legacy 'extra' explanatory notice encourages pointless owner elevation.",
-        "A frontend boolean bypass shows unauthorized composer despite SQL deny.",
-        "An inactive role binding continues to render a previously authorized composer.",
-        "Regression snapshots fail to detect a new mismatch between page and canonical evaluator."
+        "The preflight script remains architecture-unresolved and future controlled changes are blocked.",
+        "An overbroad registry wildcard changes ownership of unrelated quality guards.",
+        "Two domains claim equal-specificity ownership of the validator.",
+        "The architecture-health regression accidentally relies on a duplicate script constant.",
+        "An authority-only change is mistaken for release authorization."
       ],
       "edgeCases": [
-        "An active support agent inherited compose through the earlier SQL-only release unit.",
-        "An active support agent has an explicit matching deny and sees no composer.",
-        "A shop owner sees their own composer without a separate extra grant.",
-        "Missing role/Office database foundation renders a fail-closed notice.",
-        "An active Pro user has no Office sending mailbox but can still save their draft."
+        "Validator source path matches release domain exactly.",
+        "Quality generator scripts continue to belong to DOMAIN-QUALITY.",
+        "A test for release domain adds no runtime Vercel mutation.",
+        "Plan Before Code can resolve the preflight path in a later child transaction.",
+        "The registry change affects only domain metadata and testing, not secret runtime."
       ]
     },
     "alternatives": [
       {
-        "id": "UI-CANONICAL",
-        "summary": "Use the canonical hasStoreCapability result and explain inherited role versus individual owner denial.",
+        "id": "ALT-EXACT-RELEASE",
+        "summary": "Add exact Vercel preflight path to canonical Release Domain source ownership.",
         "disposition": "selected",
-        "reason": "The page reflects the server permission authority and does not duplicate authorization logic."
+        "reason": "The validator protects deployment target, schema compatibility and release authorization, properly owned by Release."
       },
       {
-        "id": "UI-LOCAL-BYPASS",
-        "summary": "Force the compose UI visible whenever the browser thinks the staff role is support.",
+        "id": "ALT-QUALITY-WILDCARD",
+        "summary": "Assign all scripts to Quality Domain.",
         "disposition": "rejected",
-        "reason": "A browser-side role shortcut would ignore the owner's explicit deny and could mislead end users."
+        "reason": "Would overclaim architecture scope and obscure release truth ownership for unrelated scripts."
       },
       {
-        "id": "UI-EXTRA",
-        "summary": "Keep the separate extra grant requirement and ask owners to manually enable every employee.",
+        "id": "ALT-BYPASS-PLAN",
+        "summary": "Proceed with the Vercel exception while architecture remains unresolved.",
         "disposition": "rejected",
-        "reason": "This contradicts the accepted support role default and increases administrative friction for no security benefit."
+        "reason": "Violates Plan Before Code and makes a cross-environment security change unreviewable."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Security",
+        "role": "Architecture",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "The page may accidentally render compose controls without honoring the owner explicit deny override.",
-        "resolution": "Retain server hasStoreCapability as the only conditional composer gate, and check denied state in test.",
+        "finding": "Runtime Vercel preflight missing from domain registry means release authority is unresolved.",
+        "resolution": "Bind it by exact path to DOMAIN-RELEASE and assert classification in architecture-health test.",
         "evidence": [
-          "src/app/admin/kommunikacio/iroda/uj/page.tsx"
+          "quality/knowledge/domain-foundations.v1.json"
         ]
       },
       {
-        "role": "Data Integrity",
+        "role": "Security",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A saved draft is not the same as a successful send and should never be falsely reported to staff.",
-        "resolution": "Keep server revision acknowledgment and mailbox send gate, with no claim of delivered email.",
+        "finding": "A wildcard release mapping could hide unrelated quality and auth-critical source ownership.",
+        "resolution": "Change only exact path; explicitly reject scripts/** wildcard.",
         "evidence": [
-          "src/app/admin/kommunikacio/iroda/composer-actions.ts"
-        ]
-      },
-      {
-        "role": "Known Failure",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Updating the page text alone could hide a pre-existing missing inherited SQL role grant.",
-        "resolution": "Make the page PR depend on the separate SQL-only role-preset source unit #1442.",
-        "evidence": [
-          "https://github.com/infowaterk-max/water-K-/pull/1442"
+          "scripts/validate-vercel-deploy-env.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A stack against an unmerged database change can appear correct in CI while the hosting environment remains old.",
-        "resolution": "Keep both PRs DRAFT and require release dependency order and real Pro tenant user testing.",
+        "finding": "Changing domain metadata is not permission to deploy against Fresh or reactivate staging.",
+        "resolution": "Treat this as preflight prerequisite and preserve existing main-only Vercel build skip.",
         "evidence": [
-          "https://github.com/infowaterk-max/water-K-/pull/1417"
+          "https://github.com/infowaterk-max/water-K-/pull/1443"
+        ]
+      },
+      {
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "A new domain owner could expand Known Failure applicability and break downstream code-review coverage.",
+        "resolution": "Run full Codebase Atlas, quality and CI after the small registry change.",
+        "evidence": [
+          "quality/knowledge/domain-foundations.v1.json"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-UI-01",
-        "scenario": "Authorized support agent opens a new customer email page.",
-        "finding": "Historical page tells user to request extra permission.",
-        "resolution": "Use inherited capability evaluation and corrected warning text.",
+        "id": "CH-ARCH-01",
+        "scenario": "A PR changes runtime schema preflight.",
+        "finding": "Atlas previously reports no domain authority.",
+        "resolution": "Register exact path in Release Domain.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-02",
-        "scenario": "Owner explicitly denies email compose for an active support user.",
-        "finding": "A frontend role shortcut would display unauthorized controls.",
-        "resolution": "Gate the entire component on server capability result.",
+        "id": "CH-ARCH-02",
+        "scenario": "A quality guard script is evaluated.",
+        "finding": "A broad wildcard could transfer it to Release.",
+        "resolution": "Preserve original quality canonical path rules.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-03",
-        "scenario": "A different user opens another employee's draft path.",
-        "finding": "Unscoped UI could reveal personal draft content.",
-        "resolution": "Preserve author id and instance filter in the existing page.",
+        "id": "CH-ARCH-03",
+        "scenario": "Atlas computes duplicate matching domains.",
+        "finding": "Multiple owners conflict with single-truth domain mapping.",
+        "resolution": "Use exact path only and assert release owner.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-04",
-        "scenario": "An employee's role binding has expired or been revoked.",
-        "finding": "Cached permission assumptions could still display the editor.",
-        "resolution": "Keep force-dynamic page and fresh server capability evaluation.",
+        "id": "CH-ARCH-04",
+        "scenario": "The Vercel environment still points at inactive staging for generic preview.",
+        "finding": "Mapping alone might be misunderstood as a Fresh deployment fix.",
+        "resolution": "Do not modify Vercel environment or publish a preview.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-05",
-        "scenario": "A Pro tenant has no approved outgoing Office mailbox.",
-        "finding": "A visible send button could imply configured email delivery.",
-        "resolution": "Keep active mailbox preflight and disabled send separately.",
+        "id": "CH-ARCH-05",
+        "scenario": "A future exception is built without runtime schema probes.",
+        "finding": "Architecture registration might be treated as approval to bypass runtime checks.",
+        "resolution": "Keep unmodified script and separate later explicit guard transaction.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-06",
-        "scenario": "An Alap tenant attempts to open the nested Pro Office route.",
-        "finding": "Role eligibility alone might be mistaken for plan entitlement.",
-        "resolution": "Preserve the parent layout's strict Pro feature gate.",
+        "id": "CH-ARCH-06",
+        "scenario": "CI evaluates other release-infrastructure source files.",
+        "finding": "Authority registration could unintentionally change their domain.",
+        "resolution": "Assert exact file mapping and no new wildcard.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-07",
-        "scenario": "The permission catalog RPC fails while page data still loads.",
-        "finding": "A silent allow could expose the editing interface.",
-        "resolution": "Keep capability fail-closed and foundation error handling.",
+        "id": "CH-ARCH-07",
+        "scenario": "An Alap user enters the Pro Office route.",
+        "finding": "Domain mapping cannot grant subscriptions or user rights.",
+        "resolution": "Do not modify application permission/plan code.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-08",
-        "scenario": "An audit screenshot shows old opt-in text after UI deployment.",
-        "finding": "Wrong instructions may trigger unnecessary privilege escalation.",
-        "resolution": "Assert the old wording is removed by regression tests.",
+        "id": "CH-ARCH-08",
+        "scenario": "A future Vercel build has an invalid server secret.",
+        "finding": "This authority repair cannot substitute for credential validation.",
+        "resolution": "Retain original fail-closed preflight runtime code.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Verify independent parent SQL-only unit SHA and exact child change-base relationship.",
-      "Run Plan Before Code against the admin page and unit regression file before editing either.",
-      "Prove inherited capability and explicit owner deny are unchanged server decisions.",
-      "Run exact-head CI plus later authenticated Pro owner/support/denied member journeys before release."
+      "Run Plan Before Code for exact quality registry and architecture test paths.",
+      "Test single release-domain registration and registry integrity without editing deployment validator.",
+      "Full CI quality, typecheck, build, architecture-health, Truth and Lifecycle exact-head proof.",
+      "Only after this unit, create a separate child for the scoped Fresh acceptance branch exception."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/pull/1431",
+      "request": "https://github.com/infowaterk-max/water-K-/pull/1443",
       "authority": [
-        "admin-operations"
+        "quality-knowledge-system"
       ],
       "mustEdit": [
-        "src/app/admin/kommunikacio/iroda/uj/page.tsx"
+        "quality/knowledge/domain-foundations.v1.json",
+        "tests/architecture-health.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
-      "mustCreate": [
-        "tests/digital-office-support-compose-page.test.ts"
-      ],
+      "mustCreate": [],
       "forbidden": [],
       "proof": [
-        "tests/digital-office-support-compose-page.test.ts"
+        "tests/architecture-health.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
     },
     "executionAuthorized": true,
-    "problemStatement": "The customer composer page incorrectly says support must receive a separate extra email permission despite the accepted inherited role authority; this prevents proper usability and makes owner denial ambiguous.",
+    "problemStatement": "Shoperation Plan Before Code correctly found the existing Vercel schema-compatibility preflight script has no explicit architecture domain, although it controls staging/production target and server credentials. Before any Fresh-only preview policy change, its release-domain ownership must be canonical and testable.",
     "observableOutcomes": [
-      "Support staff see the composer when canonical server-side evaluateStoreCapability grants the inherited role permission.",
-      "An owner-denied support member sees an accurate restricted-state explanation rather than a request for extra permission.",
-      "No additional grant logic is created in the web page; Pro-only workspace and mail sending guards remain unchanged."
+      "scripts/validate-vercel-deploy-env.mjs has the canonical DOMAIN-RELEASE authority in domain-foundations without changing preflight functionality.",
+      "No unrelated domain owner or quality authority is reclassified and the architecture-health test proves exact file mapping.",
+      "A later, separately planned preview guard change can resolve its release authority without overriding Plan Before Code architecture errors."
     ],
     "unresolvedRisks": [
-      "The UI read gate cannot demonstrate real hosted Supabase draft writes without managed Auth and migration adoption.",
-      "SQL role-preset unit #1442 is an unmerged DRAFT dependency and cannot be assumed deployed.",
-      "Static render tests cannot demonstrate all browser sessions, active-role revocation or mailbox delivery."
+      "The Fresh-only preview capability is not added by this unit; the original hard-coded staging preview gate remains.",
+      "The Vercel preview environment has owner-set sensitive Fresh secret but its correctness remains runtime-unverified.",
+      "This metadata change does not prove end-user draft save or owner denied access."
     ],
     "scope": {
       "in": [
-        "Edit the existing customer new-email composer page and add targeted static regression tests.",
-        "Keep canonical hasStoreCapability decision and accurately explain explicit owner deny."
+        "Add one exact existing Vercel preflight source file path under the Release Domain canonicalPaths registry.",
+        "Add an architecture-health regression that verifies one explicit owner and prevents domain drift."
       ],
       "out": [
-        "No SQL migration edits, no mailbox activation, no email worker or entitlement changes.",
-        "No unrelated admin redesign, Builder changes or production deploy."
+        "Do not modify the validator source file or its strict production/staging target rules.",
+        "Do not create or run deployments, change migrations, OAuth providers, preview secrets, tenant data or global Vercel build settings."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1431",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1443",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
         "GUARD-PLAN-BEFORE-CODE",
+        "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-QUALITY-TESTS",
         "GUARD-TYPECHECK",
         "GUARD-COMPLETION-TRUTH"
@@ -311,11 +357,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-SUPPORT-COMPOSE-PAGE",
-        "requirement": "The customer composer renders for server-authorized support and remains hidden for owner-denied staff.",
+        "id": "REQ-VERCEL-RELEASE-AUTHORITY",
+        "requirement": "Register the Vercel environment schema preflight exact source path under the Release Domain so future security changes receive a determinate single authority.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "support-office-ui-gate",
+          "breadth": "vercel-schema-preflight-release-owner",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -336,8 +382,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-COMPOSE-UI-DENY",
-            "statement": "No local permission bypass, Alap Pro-workspace access or false draft-saved state is introduced.",
+            "id": "NEG-RELEASE-SCOPE-WILDCARD",
+            "statement": "No broad architecture remapping, Vercel deployment exception, or hosted secret mutation may be introduced.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -346,14 +392,14 @@
       }
     ]
   },
-  "notes": "Stacked UI-only source correction. Base is the first SQL-preset unit exact SHA, not main. The earlier mixed PR #1431 remains unverified and is not treated as a prior plan approval. The actual page edit, not the excluded active-plan metadata, is the required semantic MUST_EDIT implementation. Rebased after the first source-only unit had its known tested implementation SHA; the earlier combined #1431 remains DRAFT and unverified. Pinned to SQL parent exact metadata closure HEAD 59628c71b5084d65a0396c1d1cfa7de8fbe91b7d; no change to UI semantics. Source-only implementation SHA 9ae286a0f2367ab6c524e4436d47fcc2cddfb3eb verified: 3568 passed, TypeScript/build PASS, Completion Truth VERIFIED_DONE run 39215220918; real hosted user draft/email remains unproven.",
+  "notes": "Precondition architecture correction before any change to validator itself. The protected Vercel deployment preflight currently has no release domain ownership in the canonical Atlas. This unit only maps its existing source path under DOMAIN-RELEASE and proves single-source ownership; no deploy or validator runtime code change. It is deliberately separate from the subsequent Fresh Install preview conditional policy. Plan-only canonical gate confirmed release-infrastructure-only projected subsystem, complete 50 known-failure registry sweep, and SQ-NK-014 in applicable negative knowledge; no implementation edits yet. Final projection evaluates release-infrastructure only, so SQ-NK-014 (database-schema specific) is not applicable despite the registry's broader cross-domain known-failure sweep. The exact authority implementation SHA 0f3a120b48c615ba0b6a07f62e1903905eb81203 verified 3569 tests, TypeScript/build and Completion Truth VERIFIED_DONE on run 39227121665; this source-only lifecycle closure does not yet authorize Fresh-preview runtime exception.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "9ae286a0f2367ab6c524e4436d47fcc2cddfb3eb",
-    "closedAt": "2026-10-19T07:24:34.202Z",
+    "verifiedImplementationHead": "0f3a120b48c615ba0b6a07f62e1903905eb81203",
+    "closedAt": "2026-10-19T09:08:48.441Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1443",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1450",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

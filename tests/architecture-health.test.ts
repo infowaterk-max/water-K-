@@ -4,6 +4,16 @@ import {beforeAll,describe,expect,it} from 'vitest';
 
 describe('Architecture Drift + Confidence + Guard Rationalization',()=>{
   beforeAll(()=>{execFileSync('node',['scripts/lib/shoperation-architecture-health.mjs','--check'],{encoding:'utf8'});},60000);
+  it('gives Vercel environment schema preflight one exact Release Domain owner',()=>{
+    const registry=JSON.parse(readFileSync('quality/knowledge/domain-foundations.v1.json','utf8')) as {domains:Array<{id:string;owner:string;canonicalPaths:string[]}>};
+    const file='scripts/validate-vercel-deploy-env.mjs';
+    const release=registry.domains.find(domain=>domain.id==='DOMAIN-RELEASE');
+    expect(release?.owner).toBe('release-infrastructure');
+    expect(release?.canonicalPaths).toContain(file);
+    expect(release?.canonicalPaths).not.toContain('scripts/**');
+    expect(registry.domains.filter(domain=>domain.canonicalPaths.includes(file))).toHaveLength(1);
+  });
+
   it('keeps blocking guard responsibilities unique',()=>{
     const registry=JSON.parse(readFileSync('quality/knowledge/guard-registry.v1.json','utf8')) as {guards:Array<{id:string;blocking:boolean;responsibilityKey:string}>};
     const blocking=registry.guards.filter(item=>item.blocking);
