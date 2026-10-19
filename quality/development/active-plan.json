@@ -1,55 +1,58 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-FC1EF89C-OFFICE-COMPOSE-UI",
-  "task": "Correct support customer composer page capability rendering and truthful owner-denial copy",
-  "status": "closed",
-  "guardDigest": "fc1ef89c",
-  "changeBaseSha": "59628c71b5084d65a0396c1d1cfa7de8fbe91b7d",
+  "taskId": "DEV-D656291A-OFFICE-FRESH-PREVIEW",
+  "task": "Allow exactly one reviewed Fresh Install Office acceptance preview with fail-closed staging and production Vercel schema guards",
+  "status": "ready-for-implementation",
+  "guardDigest": "d656291a",
+  "changeBaseSha": "02fed53ee63aec947150f85ed9f6320153250307",
   "plannedFilePatterns": [
-    "src/app/admin/kommunikacio/iroda/uj/page.tsx",
-    "tests/digital-office-support-compose-page.test.ts",
-    "quality/development/active-plan.json"
+    "scripts/validate-vercel-deploy-env.mjs",
+    "tests/supabase-server-credential-scope.test.ts"
   ],
   "expectedSubsystems": [
-    "admin-operations",
-    "storefront-ui"
+    "environment-secret-contract",
+    "release-infrastructure"
   ],
-  "expectedDomains": [
-    "DOMAIN-ADMIN"
-  ],
-  "expectedAuthorities": [
-    "admin-operations"
-  ],
+  "expectedDomains": [],
+  "expectedAuthorities": [],
   "expectedKnownFailureIds": [
-    "SQ-KF-001",
-    "SQ-KF-002",
-    "SQ-KF-005",
-    "SQ-KF-011",
-    "SQ-KF-012",
+    "SQ-KF-003",
+    "SQ-KF-004",
+    "SQ-KF-006",
+    "SQ-KF-008",
+    "SQ-KF-009",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-016",
-    "SQ-KF-017",
+    "SQ-KF-018",
+    "SQ-KF-020",
     "SQ-KF-022",
-    "SQ-KF-025",
-    "TF-KF-006"
+    "SQ-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-001",
-    "SQ-NK-006",
-    "SQ-NK-008",
+    "SQ-NK-002",
+    "SQ-NK-003",
+    "SQ-NK-005",
+    "SQ-NK-010",
     "SQ-NK-012",
+    "SQ-NK-016",
+    "SQ-NK-017",
+    "SQ-NK-018",
+    "SQ-NK-019",
+    "SQ-NK-020",
+    "SQ-NK-021",
+    "SQ-NK-022",
+    "SQ-NK-023",
     "SQ-NK-024"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1431",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1443",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This is a security-sensitive UI authorization display change, so it retains critical denial/role/tenant/Pro restrictions and negative scenarios, but can claim only source and CI evidence; it does not prove managed Supabase authorization or message delivery.",
+      "rationale": "Critical cross-environment secret-routing safeguard: the only accepted exception is a named, explicitly opted-in temporary Office Fresh preview branch with exact database ref. Fail closed for every other target and retain credential/schema verification. Source CI cannot attest signed customer draft behavior.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -66,22 +69,22 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Support role authorization is read exclusively from hasStoreCapability instead of a misleading extra-permission gate.",
-        "Denied or inactive staff do not receive OfficeNewEmailComposer even when a valid Pro workspace exists.",
-        "The warning text identifies role status and individual owner restriction without instructing extra grant requests.",
-        "Draft revision, tenant and configured sender protections remain server-side and unchanged."
+        "Validator allows Fresh Install only if VERCEL_ENV=preview, exact VERCEL_GIT_COMMIT_REF is proof/office-compose-fresh-preview-20261019, SHOPERATION_FRESH_ACCEPTANCE is the agreed marker and NEXT_PUBLIC_SUPABASE_URL host is exactly istjjkdcvsvilrycqecd.supabase.co.",
+        "Staging remains default for all other preview branches and production exclusively targets ewdederyvnwmghlydbno.supabase.co.",
+        "Both Fresh and staging previews require the same schema-compatibility runtime probes with properly configured server and public credentials.",
+        "Unit tests reject missing flag, other branches, wrong project, production target and absent server credentials without touching any real DB."
       ],
       "invariants": [
-        "The server still performs canonical capability evaluation before rendering any composer.",
-        "Personal drafts remain restricted to the author and scoped to one instance.",
-        "Pro subscription entitlement is a separate prerequisite to the workspace.",
-        "A mailbox-less draft may be saved without pretending an email was sent."
+        "The checker is a pre-build fail-closed check, not an authorization bypass.",
+        "The exception applies to exactly one named Git ref plus a designated boolean-like opt-in marker.",
+        "No env marker may allow a Fresh project in production or authorize Water-K staging/production cross-routing.",
+        "All eight existing runtime schema probes remain executed on the chosen project."
       ],
       "forbiddenStates": [
-        "Client-side role guesses replace database capability evaluation.",
-        "Owner-denied staff receive interactive compose controls.",
-        "The frontend reports draft or delivery success without server confirmation.",
-        "Pro-only Digital Office becomes available to an Alap member."
+        "A Fresh preview is enabled on all branches merely because an env flag is present.",
+        "Any production deployment targets Fresh or staging.",
+        "Any staging preview loses its existing accepted behavior.",
+        "A missing sensitive key or missing schema can produce a successful real deployment."
       ]
     },
     "model": {
@@ -113,37 +116,42 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "A legacy 'extra' explanatory notice encourages pointless owner elevation.",
-        "A frontend boolean bypass shows unauthorized composer despite SQL deny.",
-        "An inactive role binding continues to render a previously authorized composer.",
-        "Regression snapshots fail to detect a new mismatch between page and canonical evaluator."
+        "An accidental branch match allows sibling PR previews to connect to Fresh.",
+        "An opt-in marker alone bypasses database host validation.",
+        "Production can be tricked into using preview exception because deployment tag is spoofed.",
+        "Schema probes are skipped to work around an invalid Fresh secret.",
+        "Preview mistakenly inherits a general staging server key when branch key is not set.",
+        "A typo in existing staging reference changes the canonical default target."
       ],
       "edgeCases": [
-        "An active support agent inherited compose through the earlier SQL-only release unit.",
-        "An active support agent has an explicit matching deny and sees no composer.",
-        "A shop owner sees their own composer without a separate extra grant.",
-        "Missing role/Office database foundation renders a fail-closed notice.",
-        "An active Pro user has no Office sending mailbox but can still save their draft."
+        "The exact proof branch has correct Fresh URL and flag (valid).",
+        "The exact proof branch is missing the flag (reject).",
+        "A sibling UI branch has the same Fresh URL and flag (reject).",
+        "The proof branch has staging URL and flag (still validate staging, no crossrouting).",
+        "A production deployment has Fresh URL and flag (reject).",
+        "Malformed project URL or unrecognized project ref (reject).",
+        "Public key or service key missing (reject).",
+        "Real Vercel schema probes fail on missing native Postgres17 table/column (reject)."
       ]
     },
     "alternatives": [
       {
-        "id": "UI-CANONICAL",
-        "summary": "Use the canonical hasStoreCapability result and explain inherited role versus individual owner denial.",
+        "id": "ALT-SCOPED-GUARD",
+        "summary": "Add exact branch-plus-flag Fresh exception to the preexisting validator, retain all schema probes.",
         "disposition": "selected",
-        "reason": "The page reflects the server permission authority and does not duplicate authorization logic."
+        "reason": "Preserves owner-established staging/production security boundaries and permits one auditable controlled proof deployment."
       },
       {
-        "id": "UI-LOCAL-BYPASS",
-        "summary": "Force the compose UI visible whenever the browser thinks the staff role is support.",
+        "id": "ALT-DISABLE-PREFLIGHT",
+        "summary": "Run Next.js build without the validator or bypass the database schema probes.",
         "disposition": "rejected",
-        "reason": "A browser-side role shortcut would ignore the owner's explicit deny and could mislead end users."
+        "reason": "Would permit wrong-target deployments, mismatched service credentials and missing runtime tables without detection."
       },
       {
-        "id": "UI-EXTRA",
-        "summary": "Keep the separate extra grant requirement and ask owners to manually enable every employee.",
+        "id": "ALT-BROAD-FRESH",
+        "summary": "Allow all Vercel Preview branches to target Fresh Install when the public URL is valid.",
         "disposition": "rejected",
-        "reason": "This contradicts the accepted support role default and increases administrative friction for no security benefit."
+        "reason": "Would expose the shared Fresh user data to unrelated development previews and bypass existing isolation policy."
       }
     ],
     "specialistReviews": [
@@ -151,157 +159,156 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "The page may accidentally render compose controls without honoring the owner explicit deny override.",
-        "resolution": "Retain server hasStoreCapability as the only conditional composer gate, and check denied state in test.",
+        "finding": "A generic environment exception could leak customer data or let production connect to nonproduction Supabase.",
+        "resolution": "Require exact deployment type, pinned project hostname, exact proof ref and explicit Fresh acceptance flag; retain all fail-closed probes.",
         "evidence": [
-          "src/app/admin/kommunikacio/iroda/uj/page.tsx"
-        ]
-      },
-      {
-        "role": "Data Integrity",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "A saved draft is not the same as a successful send and should never be falsely reported to staff.",
-        "resolution": "Keep server revision acknowledgment and mailbox send gate, with no claim of delivered email.",
-        "evidence": [
-          "src/app/admin/kommunikacio/iroda/composer-actions.ts"
-        ]
-      },
-      {
-        "role": "Known Failure",
-        "mode": "review",
-        "verdict": "challenge-resolved",
-        "finding": "Updating the page text alone could hide a pre-existing missing inherited SQL role grant.",
-        "resolution": "Make the page PR depend on the separate SQL-only role-preset source unit #1442.",
-        "evidence": [
-          "https://github.com/infowaterk-max/water-K-/pull/1442"
+          "scripts/validate-vercel-deploy-env.mjs"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A stack against an unmerged database change can appear correct in CI while the hosting environment remains old.",
-        "resolution": "Keep both PRs DRAFT and require release dependency order and real Pro tenant user testing.",
+        "finding": "The global Vercel build skip currently allows only main and a broad edit could re-enable costly auto builds.",
+        "resolution": "Do not change the global skip step in source; for one-time proof allow exact target temporarily then restore before acceptance.",
         "evidence": [
-          "https://github.com/infowaterk-max/water-K-/pull/1417"
+          "https://github.com/infowaterk-max/water-K-/pull/1443"
+        ]
+      },
+      {
+        "role": "Known Failure",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Skipping runtime schema probing would hide deployment database mismatch.",
+        "resolution": "Keep all 8 zero-row PostgREST schema probes and reject missing server key.",
+        "evidence": [
+          "docs/support/PRODUCTION_RUNTIME_SCHEMA_PARITY_INCIDENT_2026-09-23.md"
+        ]
+      },
+      {
+        "role": "Data Integrity",
+        "mode": "review",
+        "verdict": "challenge-resolved",
+        "finding": "Fresh database already contains installed support default migration; preview must never reapply it or seed mailbox records.",
+        "resolution": "Only deploy the application code to Preview; read-only and authenticated draft evidence happen later under test author account.",
+        "evidence": [
+          "https://github.com/infowaterk-max/water-K-/pull/1446"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-UI-01",
-        "scenario": "Authorized support agent opens a new customer email page.",
-        "finding": "Historical page tells user to request extra permission.",
-        "resolution": "Use inherited capability evaluation and corrected warning text.",
+        "id": "CH-FRESH-01",
+        "scenario": "Office proof branch Fresh target with correct marker and server credentials.",
+        "finding": "Old validator blocks every nonstaging Preview.",
+        "resolution": "Allow exact branch and pinned project ID after full probes.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-02",
-        "scenario": "Owner explicitly denies email compose for an active support user.",
-        "finding": "A frontend role shortcut would display unauthorized controls.",
-        "resolution": "Gate the entire component on server capability result.",
+        "id": "CH-FRESH-02",
+        "scenario": "An unrelated feature PR uses the same Fresh URL and marker.",
+        "finding": "Generic flag would leak shared Fresh data across unreviewed branches.",
+        "resolution": "Reject any Git ref other than the exact proof branch.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-03",
-        "scenario": "A different user opens another employee's draft path.",
-        "finding": "Unscoped UI could reveal personal draft content.",
-        "resolution": "Preserve author id and instance filter in the existing page.",
+        "id": "CH-FRESH-03",
+        "scenario": "Correct branch has no Fresh acceptance marker.",
+        "finding": "Mistaken env config might accidentally trigger Fresh acceptance.",
+        "resolution": "Require explicit exact opt-in flag.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-04",
-        "scenario": "An employee's role binding has expired or been revoked.",
-        "finding": "Cached permission assumptions could still display the editor.",
-        "resolution": "Keep force-dynamic page and fresh server capability evaluation.",
+        "id": "CH-FRESH-04",
+        "scenario": "Production uses Fresh URL plus proof marker.",
+        "finding": "A loosely scoped exception would redirect prod secrets.",
+        "resolution": "Production condition remains first with exact production ref only.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-05",
-        "scenario": "A Pro tenant has no approved outgoing Office mailbox.",
-        "finding": "A visible send button could imply configured email delivery.",
-        "resolution": "Keep active mailbox preflight and disabled send separately.",
+        "id": "CH-FRESH-05",
+        "scenario": "The proof branch requests staging instead of Fresh.",
+        "finding": "Proof identity alone might create an invisible second allowed target.",
+        "resolution": "Evaluate regular staging preview branch case and preserve scope checks.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-06",
-        "scenario": "An Alap tenant attempts to open the nested Pro Office route.",
-        "finding": "Role eligibility alone might be mistaken for plan entitlement.",
-        "resolution": "Preserve the parent layout's strict Pro feature gate.",
+        "id": "CH-FRESH-06",
+        "scenario": "Fresh public URL is correct but server secret belongs to staging.",
+        "finding": "PostgREST zero-row schema probe returns unauthorized or missing relations.",
+        "resolution": "Do not skip schema probes; fail build and require correct Fresh secret.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-07",
-        "scenario": "The permission catalog RPC fails while page data still loads.",
-        "finding": "A silent allow could expose the editing interface.",
-        "resolution": "Keep capability fail-closed and foundation error handling.",
+        "id": "CH-FRESH-07",
+        "scenario": "Fresh secret is present but new runtime DB is missing required columns.",
+        "finding": "A build-only allow rule would deploy a runtime-crashing application.",
+        "resolution": "Preserve full eight-probe schema compatibility preflight.",
         "status": "resolved"
       },
       {
-        "id": "CH-UI-08",
-        "scenario": "An audit screenshot shows old opt-in text after UI deployment.",
-        "finding": "Wrong instructions may trigger unnecessary privilege escalation.",
-        "resolution": "Assert the old wording is removed by regression tests.",
+        "id": "CH-FRESH-08",
+        "scenario": "A scheduled later branch build tries to run automatically.",
+        "finding": "Costs could rise or privacy degrade if the global build gate remains open.",
+        "resolution": "Restore global main-only ignored-build rule immediately after explicitly triggering proof deployment.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Verify independent parent SQL-only unit SHA and exact child change-base relationship.",
-      "Run Plan Before Code against the admin page and unit regression file before editing either.",
-      "Prove inherited capability and explicit owner deny are unchanged server decisions.",
-      "Run exact-head CI plus later authenticated Pro owner/support/denied member journeys before release."
+      "Plan Before Code exact base and bounded high-risk environment-secret-contract file edit.",
+      "Vitest subprocess positive and negative tests with NODE_ENV=test, no external database networking or secret exposure.",
+      "Run CI quality tests, TypeScript, source build and Completion Truth/Lifecycle proof on exact branch commit.",
+      "Trigger a single Vercel preview build under branch-only temporary ignored-build permission; restore global skip immediately and read Vercel schema-probe logs before any authenticated user action."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/pull/1431",
-      "authority": [
-        "admin-operations"
-      ],
+      "request": "https://github.com/infowaterk-max/water-K-/pull/1443",
+      "authority": [],
       "mustEdit": [
-        "src/app/admin/kommunikacio/iroda/uj/page.tsx"
+        "scripts/validate-vercel-deploy-env.mjs",
+        "tests/supabase-server-credential-scope.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
-      "mustCreate": [
-        "tests/digital-office-support-compose-page.test.ts"
-      ],
+      "mustCreate": [],
       "forbidden": [],
       "proof": [
-        "tests/digital-office-support-compose-page.test.ts"
+        "tests/supabase-server-credential-scope.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
     },
     "executionAuthorized": true,
-    "problemStatement": "The customer composer page incorrectly says support must receive a separate extra email permission despite the accepted inherited role authority; this prevents proper usability and makes owner denial ambiguous.",
+    "problemStatement": "The Office proof branch uses a real Fresh Install public URL and owner-configured branch-only server key, but the old Vercel runtime schema preflight hard-codes staging for all preview builds. An auditable narrowly scoped one-branch Fresh acceptance route is required without weakening production/staging target isolation or the schema probes.",
     "observableOutcomes": [
-      "Support staff see the composer when canonical server-side evaluateStoreCapability grants the inherited role permission.",
-      "An owner-denied support member sees an accurate restricted-state explanation rather than a request for extra permission.",
-      "No additional grant logic is created in the web page; Pro-only workspace and mail sending guards remain unchanged."
+      "Preview build for proof/office-compose-fresh-preview-20261019 with deliberate SHOPERATION_FRESH_ACCEPTANCE marker can use Fresh Install ref istjjkdcvsvilrycqecd after runtime schema probes validate its signed server credentials.",
+      "Every other preview branch remains restricted to canonical staging rfuvzgumbardvbvqjxdq and production remains restricted to ewdederyvnwmghlydbno.",
+      "Preview is blocked on missing or incorrect acceptance marker, wrong branch, missing server key, incompatible schema or misrouted production URL."
     ],
     "unresolvedRisks": [
-      "The UI read gate cannot demonstrate real hosted Supabase draft writes without managed Auth and migration adoption.",
-      "SQL role-preset unit #1442 is an unmerged DRAFT dependency and cannot be assumed deployed.",
-      "Static render tests cannot demonstrate all browser sessions, active-role revocation or mailbox delivery."
+      "Vercel sensitive secret cannot be read back; postbuild schema preflight and authenticated route acceptance must independently prove owner-configured credential belongs to Fresh.",
+      "The Fresh preview does not prove a user's session, Pro entitlement, owner-deny mutation or real draft save without a dedicated signed test.",
+      "Future CI on unrelated branches does not authorize auto-builds; global ignored-build step was returned to main-only and preview must be enabled one time."
     ],
     "scope": {
       "in": [
-        "Edit the existing customer new-email composer page and add targeted static regression tests.",
-        "Keep canonical hasStoreCapability decision and accurately explain explicit owner deny."
+        "Change the existing deploy environment validator only to allow exactly one explicit Fresh Install Office proof-branch preview while preserving all runtime schema probes.",
+        "Add positive and negative subprocess regression cases for branch identity, opt-in flag, project pinning, production and staging isolation."
       ],
       "out": [
-        "No SQL migration edits, no mailbox activation, no email worker or entitlement changes.",
-        "No unrelated admin redesign, Builder changes or production deploy."
+        "No new hidden deployed environment variable values or use of staging secret against another target.",
+        "No change to permanent global Vercel ignored-build rule, Supabase project lifecycle or other production tenant.",
+        "No changed customer email RPC, Office mailbox delivery or SQL source identity."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1431",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1443",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
         "GUARD-PLAN-BEFORE-CODE",
+        "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-QUALITY-TESTS",
         "GUARD-TYPECHECK",
         "GUARD-COMPLETION-TRUTH"
@@ -311,11 +318,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-SUPPORT-COMPOSE-PAGE",
-        "requirement": "The customer composer renders for server-authorized support and remains hidden for owner-denied staff.",
+        "id": "REQ-OFFICE-FRESH-PREVIEW-GUARD",
+        "requirement": "Allow only a proven Office Fresh Install branch with explicit acceptance marker, fail-closed credentials and all original production/staging/schema checks.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "support-office-ui-gate",
+          "breadth": "vercel-office-fresh-preview-guard",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -336,8 +343,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-COMPOSE-UI-DENY",
-            "statement": "No local permission bypass, Alap Pro-workspace access or false draft-saved state is introduced.",
+            "id": "NEG-OFFICE-PREVIEW-LEAK",
+            "statement": "No ordinary preview or production branch can cross-route to Fresh, and no build without valid runtime credentials/schema is accepted.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -346,18 +353,5 @@
       }
     ]
   },
-  "notes": "Stacked UI-only source correction. Base is the first SQL-preset unit exact SHA, not main. The earlier mixed PR #1431 remains unverified and is not treated as a prior plan approval. The actual page edit, not the excluded active-plan metadata, is the required semantic MUST_EDIT implementation. Rebased after the first source-only unit had its known tested implementation SHA; the earlier combined #1431 remains DRAFT and unverified. Pinned to SQL parent exact metadata closure HEAD 59628c71b5084d65a0396c1d1cfa7de8fbe91b7d; no change to UI semantics. Source-only implementation SHA 9ae286a0f2367ab6c524e4436d47fcc2cddfb3eb verified: 3568 passed, TypeScript/build PASS, Completion Truth VERIFIED_DONE run 39215220918; real hosted user draft/email remains unproven.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "9ae286a0f2367ab6c524e4436d47fcc2cddfb3eb",
-    "closedAt": "2026-10-19T07:24:34.202Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1443",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "New bounded Vercel Fresh acceptance preflight transaction created after canceled proof build 2026-10-19. Prior #1443 source patch remained VERIFIED_DONE. No migration, no live DB write or global Vercel build-rule relaxation. Actual preview build must explicitly satisfy branch, project ref and opt-in flag; all existing schema probes remain enforced."
 }
