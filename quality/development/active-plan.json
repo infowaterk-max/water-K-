@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-B55A7A31-OFFICE-LEDGER-PARITY",
   "task": "Office support compose SQL migration filename provenance alignment with actual installed Fresh Install ledger",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "b55a7a31",
   "changeBaseSha": "59628c71b5084d65a0396c1d1cfa7de8fbe91b7d",
   "plannedFilePatterns": [
@@ -353,5 +353,18 @@
       }
     ]
   },
-  "notes": "New bounded provenance transaction after prior #1442 source-only VERIFIED_DONE / CLOSED. Fresh Install applied office_support_compose_default_v1 with actual ledger version 20261019073857, not source file initial future filename 20261019090000. Rename the source file with BYTE-IDENTICAL content and retarget two tests. No hosted DB write, no fake migration history, no mailbox activation. Original preflight intentionally blocked generic plannedDeletion of a non-forbidden source. Govern this byte-identical move with the canonical plannedRenames release operation instead; no Plan Before Code bypass. Post-rename canonical plan reconciliation: deleted old Git filename is represented solely as plannedRenames.from, not as a projected live source target. Current new filename is tracked and existing; critical MUST_CREATE must be empty. CI must still prove changed rename transaction."
+  "notes": "New bounded provenance transaction after prior #1442 source-only VERIFIED_DONE / CLOSED. Fresh Install applied office_support_compose_default_v1 with actual ledger version 20261019073857, not source file initial future filename 20261019090000. Rename the source file with BYTE-IDENTICAL content and retarget two tests. No hosted DB write, no fake migration history, no mailbox activation. Original preflight intentionally blocked generic plannedDeletion of a non-forbidden source. Govern this byte-identical move with the canonical plannedRenames release operation instead; no Plan Before Code bypass. Post-rename canonical plan reconciliation: deleted old Git filename is represented solely as plannedRenames.from, not as a projected live source target. Current new filename is tracked and existing; critical MUST_CREATE must be empty. CI must still prove changed rename transaction. Exact source parity head d6cdcf8589abcf37cffd56ac85fd9d484e1b8077 passed 3565 tests, TypeScript, production build, and Completion Truth VERIFIED_DONE on run 39220024320. Source renaming is now closed; no hosted SQL was re-run.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "d6cdcf8589abcf37cffd56ac85fd9d484e1b8077",
+    "closedAt": "2026-10-19T08:07:07.212Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1446",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
