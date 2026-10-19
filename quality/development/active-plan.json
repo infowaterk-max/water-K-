@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-B55A7A31-OFFICE-ROLE",
   "task": "Support role default e-mail composition preset with owner denial and Pro boundary preserved",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "b55a7a31",
   "changeBaseSha": "dc726ea075d6918883595442d446e37c023731e4",
   "plannedFilePatterns": [
@@ -347,5 +347,18 @@
       }
     ]
   },
-  "notes": "Plan created on separate SQL-only branch before new implementation. Original unverified #1431 source chronology is explicitly not retroactively claimed. After first Plan Before Code feedback, the exact active-plan metadata path is declared MUST_EDIT, because non-child critical execution requires a concrete existing edit path; no source scope expanded. Corrected edit-time implementation sync: the existing composer foundation regression is an actual changed code test. Active-plan metadata is not counted as a material implementation edit."
+  "notes": "Plan created on separate SQL-only branch before new implementation. Original unverified #1431 source chronology is explicitly not retroactively claimed. After first Plan Before Code feedback, the exact active-plan metadata path is declared MUST_EDIT, because non-child critical execution requires a concrete existing edit path; no source scope expanded. Corrected edit-time implementation sync: the existing composer foundation regression is an actual changed code test. Active-plan metadata is not counted as a material implementation edit. Exact implementation SHA 35bb810dc8a18922da71ff0f80e69317de69275a had 3565 passing quality tests, TS/build PASS, Completion Truth VERIFIED_DONE on run 39214522366; this metadata-only close does not claim native hosted Auth/RLS or migration execution.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "35bb810dc8a18922da71ff0f80e69317de69275a",
+    "closedAt": "2026-10-19T07:18:30.033Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1442",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
