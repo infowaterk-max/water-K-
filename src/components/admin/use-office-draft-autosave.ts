@@ -1,7 +1,7 @@
 'use client';
 
 import{useCallback,useEffect,useRef,useState}from'react';
-import type{OfficeComposerActionState}from'@/app/admin/kommunikacio/iroda/composer-actions';
+import type{OfficeComposerActionState}from'@/lib/office/composer-state';
 
 export type OfficeDraftAutosaveStatus='idle'|'dirty'|'saving'|'saved'|'conflict'|'error';
 

@@ -1,7 +1,8 @@
 'use client';
 
 import{useEffect,useRef,useState,useTransition}from'react';
-import{autosaveReplyDraftAction,officeComposerInitialState,saveReplyDraftAction,sendCustomerEmailV4Action,type OfficeComposerActionState}from'@/app/admin/kommunikacio/iroda/composer-actions';
+import{autosaveReplyDraftAction,saveReplyDraftAction,sendCustomerEmailV4Action}from'@/app/admin/kommunikacio/iroda/composer-actions';
+import{officeComposerInitialState,type OfficeComposerActionState}from'@/lib/office/composer-state';
 import{useOfficeDraftAutosave}from'@/components/admin/use-office-draft-autosave';
 import{useOfficeDelegations}from'@/components/admin/use-office-delegations';
 import{useOfficeBusinessObjects}from'@/components/admin/use-office-business-objects';

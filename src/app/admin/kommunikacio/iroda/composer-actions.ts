@@ -7,8 +7,7 @@ import {requirePlanFeature} from '@/lib/plans/access';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {requireCurrentStoreContext} from '@/lib/instances/scope';
 
-export type OfficeComposerActionState={status:'idle'|'success'|'blocked'|'conflict'|'error';message:string;draftId?:string;revision?:number};
-export const officeComposerInitialState:OfficeComposerActionState={status:'idle',message:''};
+import type {OfficeComposerActionState} from '@/lib/office/composer-state';
 type DraftSaveMode='manual'|'autosave';
 type OfficeObjectType='order'|'commercial_offer'|'return_case'|'support_ticket'|'task';
 const officeObjectTypes=new Set<OfficeObjectType>(['order','commercial_offer','return_case','support_ticket','task']);
