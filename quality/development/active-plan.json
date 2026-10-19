@@ -9,6 +9,7 @@
     "docs/po/OFFICE_SUPPORT_DEFAULT_COMPOSE_FIX_2026-10-19.md",
     "quality/development/active-plan.json",
     "supabase/migrations/20261019090000_office_support_compose_default_v1.sql",
+    "tests/digital-office-composer-drafts-foundation.test.ts",
     "tests/digital-office-support-compose-role-default.test.ts"
   ],
   "expectedSubsystems": [
@@ -254,7 +255,7 @@
         "database-schema"
       ],
       "mustEdit": [
-        "quality/development/active-plan.json"
+        "tests/digital-office-composer-drafts-foundation.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
@@ -265,6 +266,7 @@
       ],
       "forbidden": [],
       "proof": [
+        "tests/digital-office-composer-drafts-foundation.test.ts",
         "tests/digital-office-support-compose-role-default.test.ts"
       ],
       "unknown": [],
@@ -345,5 +347,5 @@
       }
     ]
   },
-  "notes": "Plan created on separate SQL-only branch before new implementation. Original unverified #1431 source chronology is explicitly not retroactively claimed. After first Plan Before Code feedback, the exact active-plan metadata path is declared MUST_EDIT, because non-child critical execution requires a concrete existing edit path; no source scope expanded."
+  "notes": "Plan created on separate SQL-only branch before new implementation. Original unverified #1431 source chronology is explicitly not retroactively claimed. After first Plan Before Code feedback, the exact active-plan metadata path is declared MUST_EDIT, because non-child critical execution requires a concrete existing edit path; no source scope expanded. Corrected edit-time implementation sync: the existing composer foundation regression is an actual changed code test. Active-plan metadata is not counted as a material implementation edit."
 }
