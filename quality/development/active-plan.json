@@ -3,14 +3,13 @@
   "taskId": "DEV-1136208E-OFFICE-FRESH-PREVIEW",
   "task": "Permit only validated Fresh Install Office acceptance preview on the exact review branch, preserving production and staging target isolation",
   "status": "ready-for-implementation",
-  "guardDigest": "1136208e",
+  "guardDigest": "d4ff4521",
   "changeBaseSha": "507c668215836e1d7872344971ce3f11e72af05c",
   "plannedFilePatterns": [
     "scripts/validate-vercel-deploy-env.mjs",
     "tests/supabase-server-credential-scope.test.ts"
   ],
   "expectedSubsystems": [
-    "database-schema",
     "environment-secret-contract",
     "release-infrastructure"
   ],
@@ -26,13 +25,11 @@
     "SQ-KF-006",
     "SQ-KF-008",
     "SQ-KF-009",
-    "SQ-KF-010",
     "SQ-KF-013",
     "SQ-KF-014",
     "SQ-KF-018",
     "SQ-KF-020",
     "SQ-KF-022",
-    "SQ-KF-023",
     "SQ-KF-025",
     "TF-KF-001",
     "TF-KF-005",
@@ -51,7 +48,6 @@
     "SQ-NK-005",
     "SQ-NK-010",
     "SQ-NK-012",
-    "SQ-NK-014",
     "SQ-NK-016",
     "SQ-NK-017",
     "SQ-NK-018",
@@ -372,5 +368,5 @@
       }
     ]
   },
-  "notes": "Stacked after canonical Release Domain owner PR #1450 exact closed SHA 507c668215836e1d7872344971ce3f11e72af05c with final CI SUCCESS. This transaction was planned before any Vercel runtime validator edits. Earlier proof branch planning was superseded and reset, not merged. Frozen behavior: staging-only ordinary previews, production-only prod, exact Fresh acceptance branch+opt-in plus eight independent PostgREST schema probes."
+  "notes": "Stacked after canonical Release Domain owner PR #1450 exact closed SHA 507c668215836e1d7872344971ce3f11e72af05c with final CI SUCCESS. This transaction was planned before any Vercel runtime validator edits. Earlier proof branch planning was superseded and reset, not merged. Frozen behavior: staging-only ordinary previews, production-only prod, exact Fresh acceptance branch+opt-in plus eight independent PostgREST schema probes. Matched live canonical planned-projection guard at architecture-registered Release authority: 20 known failures, environment-secret-contract + release-infrastructure, no database-schema expansion, exclude SQ-NK-014. Plan remains pre-implementation."
 }
