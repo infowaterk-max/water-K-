@@ -7,6 +7,7 @@
   "changeBaseSha": "dc726ea075d6918883595442d446e37c023731e4",
   "plannedFilePatterns": [
     "docs/po/OFFICE_SUPPORT_DEFAULT_COMPOSE_FIX_2026-10-19.md",
+    "quality/development/active-plan.json",
     "supabase/migrations/20261019090000_office_support_compose_default_v1.sql",
     "tests/digital-office-support-compose-role-default.test.ts"
   ],
@@ -252,7 +253,9 @@
       "authority": [
         "database-schema"
       ],
-      "mustEdit": [],
+      "mustEdit": [
+        "quality/development/active-plan.json"
+      ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
@@ -307,7 +310,7 @@
     },
     "requirements": [
       {
-        "id": "SUPPORT-COMPOSE-DEFAULT",
+        "id": "REQ-SUPPORT-COMPOSE-DEFAULT",
         "requirement": "Active support employees receive default email compose through a single inherited role preset.",
         "claimScope": {
           "capability": "CAP-QUALITY",
@@ -332,7 +335,7 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "DENY-BYPASS",
+            "id": "NEG-SUPPORT-OWNER-DENY",
             "statement": "No owner-denied support employee or unrelated store role gains default compose through this migration.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
@@ -342,5 +345,5 @@
       }
     ]
   },
-  "notes": "Plan created on separate SQL-only branch before new implementation. Original unverified #1431 source chronology is explicitly not retroactively claimed."
+  "notes": "Plan created on separate SQL-only branch before new implementation. Original unverified #1431 source chronology is explicitly not retroactively claimed. After first Plan Before Code feedback, the exact active-plan metadata path is declared MUST_EDIT, because non-child critical execution requires a concrete existing edit path; no source scope expanded."
 }
