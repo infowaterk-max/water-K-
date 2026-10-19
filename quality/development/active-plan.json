@@ -1,42 +1,50 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-386A5ACE-U10A2-F2",
-  "task": "Core #1186 U10A2 F2 prevent replay of superseded Team Chat/customer email plan-sync SQL in Office Fresh Install lineage",
-  "status": "closed",
-  "guardDigest": "386a5ace",
-  "changeBaseSha": "ea72ec341bd5125d34e0d6d0c0aeb539f181912e",
+  "taskId": "DEV-B55A7A31-OFFICE-ROLE",
+  "task": "Support role default e-mail composition preset with owner denial and Pro boundary preserved",
+  "status": "ready-for-implementation",
+  "guardDigest": "b55a7a31",
+  "changeBaseSha": "dc726ea075d6918883595442d446e37c023731e4",
   "plannedFilePatterns": [
-    "scripts/shoperation-office-baseline-lineage.mjs",
-    "tests/shoperation-office-db-readiness.test.ts"
+    "docs/po/OFFICE_SUPPORT_DEFAULT_COMPOSE_FIX_2026-10-19.md",
+    "supabase/migrations/20261019090000_office_support_compose_default_v1.sql",
+    "tests/digital-office-support-compose-role-default.test.ts"
   ],
   "expectedSubsystems": [
-    "quality-infrastructure"
+    "database-schema"
   ],
   "expectedDomains": [
-    "DOMAIN-QUALITY"
+    "DOMAIN-DATA"
   ],
   "expectedAuthorities": [
-    "quality-knowledge-system"
+    "database-schema"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-006",
+    "SQ-KF-009",
+    "SQ-KF-010",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-018",
     "SQ-KF-022",
+    "SQ-KF-023",
     "SQ-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
+    "SQ-NK-005",
     "SQ-NK-012",
+    "SQ-NK-014",
     "SQ-NK-024"
   ],
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1431",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "Prevent 20260909204825 and 20260910061815 fixed-list SQL from overwriting Block 11 normalized plan-capability sync established by customer baseline 0014 and Alap Team Chat revocation in 0046. This is a source-lineage checker/test-only release, no migration or live DB write.",
+      "rationale": "This permission migration has critical database authority impact. It requires negative proofs for unrelated roles, explicit individual deny, revoked membership, source identity and missing prerequisites, while only reaching a source-only assurance ceiling until real PG17 and hosted JWT acceptance.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -53,28 +61,22 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "Two superseded source SQL files are explicitly classified as not for fresh-install replay, with precise immutable identities and machine-readable reasons.",
-        "Every canonical minimum source not superseded remains required in original dependency order, with byte/body SHA and ordinal checks; no implicit additional exemptions.",
-        "If any post-0046 customer migration contains provenance or replay of a superseded plan-sync function, the checker BLOCKS with a distinct finding even if the other Office source files match.",
-        "Baseline 0014 normalizes sync using plan_capability_grants and baseline 0046 forbids Alap teamChat and preserves Alap officeCommunication/support; tests assert both existing authorities and both superseded source bodies.",
-        "Current 0046+0047 baseline remains BLOCKED for missing real modern Office SQL; synthetic safe lineage may at most be SOURCE_PRESENT_UNPROVEN, never releaseReady or database-proven.",
-        "Negative regressions include exempt-source replay, forged comment, source drift, reversed active sources, duplicate, and missing mandatory source.",
-        "Only scripts/shoperation-office-baseline-lineage.mjs and tests/shoperation-office-db-readiness.test.ts may change after Plan Before Code PASS; no security or SQL changes and no extra Vercel deployment."
-      ],
-      "nonGoals": [
-        "No import of SQL 0048+ or rewriting historical 0001-0047 files.",
-        "No live Supabase/staging/production DB mutation.",
-        "No changing Pro/Alap runtime entitlements or claiming hosted Fresh Install proof."
+        "The single support office.email.compose all-scope role preset is added through an idempotent new migration.",
+        "Missing catalog and role preset foundations fail before authority is changed.",
+        "Existing owner denial remains earlier than role-grant evaluation in the canonical SQL function.",
+        "No changes to existing historical migrations, other roles or hosted database."
       ],
       "invariants": [
-        "Normalized Block 11 plan_capability_grants remains sole plan grant sync authority.",
-        "Alap cannot recover Team Chat; Alap customer transactional communication remains available.",
-        "Source parity never implies running database, browser or RLS readiness."
+        "The role-based source is the sole new authority; no new override engine is created.",
+        "The recipient author's draft remains private and server-revision protected.",
+        "Owner explicit deny takes priority over inherited support permission.",
+        "Pro Digital Office gates remain independent of permission grants."
       ],
       "forbiddenStates": [
-        "Legacy fixed-list plan sync executed after Block 11/0046 authority.",
-        "Legacy SQL omitted without traceable supersession reason or without negative-provenance proof.",
-        "Missing modern privacy/RPC source mislabeled ready."
+        "Arbitrary compose granted to viewer or order_manager roles.",
+        "A personal allow override silently overriding explicit owner denial.",
+        "Managed migration executed before current-state baseline approval.",
+        "An unauthorized email delivery reported as verified from source tests."
       ]
     },
     "model": {
@@ -106,47 +108,37 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Superseded migration provenance mistakenly promoted to required active source.",
-        "Legacy source matched exact SHA but overwrote normalized function on replay.",
-        "A syntactically different source with same header accepted.",
-        "Active modern migration ordering drift hidden by supersession exemption."
-      ],
-      "invariants": [
-        "Normalized Block 11 plan_capability_grants remains sole plan grant sync authority.",
-        "Alap cannot recover Team Chat; Alap customer transactional communication remains available.",
-        "Source parity never implies running database, browser or RLS readiness."
+        "Absent permission catalog prevents valid role preset insertion.",
+        "A support preset accidentally broadens other roles through an overbroad SQL query.",
+        "Explicit owner denial loses precedence to a newly added role grant.",
+        "Adding a new SQL migration changes the 31-file package without new provenance."
       ],
       "edgeCases": [
-        "Only one of two superseded imports present.",
-        "Extra 0048+ source with forged superseded provenance.",
-        "Both superseded source imports installed in reverse order.",
-        "Missing 0014 normalized grants in local baseline.",
-        "0046 removed or Alap grant reintroduced.",
-        "Modern privacy migrations absent.",
-        "Superseded file content edited upstream after decision.",
-        "Exact-body active sources in wrong order.",
-        "Alap transactional email independently intact.",
-        "Future new active migration encountered without authority."
+        "A support employee with no personal grant gets inherited permission.",
+        "A denied support employee cannot save or send an arbitrary email.",
+        "A revoked support role no longer grants email composing.",
+        "A missing permission catalog rejects migration atomically.",
+        "Re-running SQL cannot duplicate the single support preset."
       ]
     },
     "alternatives": [
       {
-        "id": "ALT-F2-REPLAY",
-        "summary": "Import all 13 historical SQL files byte-identically including fixed-list plan-sync migrations.",
-        "disposition": "rejected",
-        "reason": "Overwrites canonical 0014 plan-grant sync; can regrant Alap Team Chat contrary to 0046."
-      },
-      {
-        "id": "ALT-F2-SUPERSEDE",
-        "summary": "Explicitly mark the two obsolete plan-sync migrations as superseded/non-replayable in canonical existing source-lineage checker, retain all active Office prerequisite imports and negative evidence.",
+        "id": "ROLE-PRESET",
+        "summary": "Extend the canonical role preset using a new idempotent migration scoped solely to support.",
         "disposition": "selected",
-        "reason": "Honors later accepted package decision and normalized authority without a second entitlement engine."
+        "reason": "The existing explicit deny remains higher precedence and new support employees inherit email writing without management toil."
       },
       {
-        "id": "ALT-F2-OVERRIDE",
-        "summary": "Replay historic fixed-list migrations and repair them afterward with additional later SQL.",
+        "id": "USER-OVERRIDE",
+        "summary": "Add individual allow overrides for support staff upon account creation.",
         "disposition": "rejected",
-        "reason": "Leaves a dangerous intermediate executable state and extra shared-controller rewrites; unnecessary because those older bodies contain no needed Office schema."
+        "reason": "This creates unnecessary grants and risks stale permission state competing with owner denials."
+      },
+      {
+        "id": "BYPASS",
+        "summary": "Allow email writing whenever support RBAC passes without the canonical capability evaluator.",
+        "disposition": "rejected",
+        "reason": "This would circumvent scoped owner denial and drift from security-definer SQL authorization."
       }
     ],
     "specialistReviews": [
@@ -154,488 +146,176 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "Labeling a source as superseded could falsely soften the proof gate if omission is unconditional.",
-        "resolution": "Require exact immutable source identities and block any executable or marked replay; preserve active 11-source hard requirements, still require independent DB proof.",
+        "finding": "A new default might accidentally defeat individual owner denial within SQL draft or queue RPCs.",
+        "resolution": "Keep evaluate_store_capability_v1 as the only authority and verify explicit deny before role evaluation.",
         "evidence": [
-          "supabase/migrations/20260910061815_customer_email_plan_split_v1.sql",
-          "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql"
+          "supabase/migrations/20260907203000_team_permissions_foundation_v1.sql"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Historical fixed-list source functions overwrite the actual Block 11 normalized plan sync.",
-        "resolution": "Require the baseline 0014 and 0046 authority in source-level tests; never replay obsolete functions.",
+        "finding": "A forward SQL file might enter the immutable 31-source package without versioned source provenance.",
+        "resolution": "Preserve original SQL files and add this migration only after separately authorized baseline and Office dependency order.",
         "evidence": [
-          "supabase/customer-baseline/migrations/0014_block11_entitlement_contract_v1.sql",
-          "supabase/migrations/20260909204825_team_chat_plan_split_v1.sql"
+          "https://github.com/infowaterk-max/water-K-/pull/1417"
         ]
       },
       {
-        "role": "Runtime",
+        "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Customer email remains Alap while Team Chat and Digital Office advanced are Pro-only.",
-        "resolution": "Do not change run-time entitlements or email worker; source checker asserts boundary on actual baseline contract.",
+        "finding": "A missing capability or schema table could lead to an unsafe perceived success.",
+        "resolution": "Make the migration reject absent foundations before the support preset insert.",
         "evidence": [
-          "src/lib/plans/catalog.ts",
-          "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql"
+          "supabase/migrations/20260908034000_digital_office_composer_drafts_foundation_v1.sql"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Removing two mandatory source files is not database readiness or deployment proof.",
-        "resolution": "Machine state remains BLOCKED on current baseline; synthetic source-only COMPLETE remains REVIEW, not DONE.",
+        "finding": "Passing static tests cannot establish real hosted JWT and outbound sending semantics.",
+        "resolution": "Keep source unit draft until native PostgreSQL17 and user-session acceptance evidence exist.",
         "evidence": [
-          "scripts/shoperation-office-baseline-lineage.mjs",
-          "supabase/customer-baseline/manifest.json"
+          "https://github.com/infowaterk-max/water-K-/pull/1431"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-F2-01",
-        "scenario": "Both legacy fixed-list plan functions imported after 0046",
-        "finding": "Alap Team Chat could reappear.",
-        "resolution": "Source checker blocks any post-0046 superseded replay with dedicated finding.",
+        "id": "CH-SC-01",
+        "scenario": "New support employee lacks personal allow override.",
+        "finding": "The old optional capability blocked composer despite the support role.",
+        "resolution": "Inherit only from canonical support permission preset.",
         "status": "resolved"
       },
       {
-        "id": "CH-F2-02",
-        "scenario": "Only one legacy file copied",
-        "finding": "Partial unsafe authority replacement.",
-        "resolution": "Independently block each forbidden source.",
+        "id": "CH-SC-02",
+        "scenario": "Owner explicitly denies this capability to an active support member.",
+        "finding": "A permission shortcut might incorrectly restore ability to write.",
+        "resolution": "Retain denial precedence in the existing SQL evaluator.",
         "status": "resolved"
       },
       {
-        "id": "CH-F2-03",
-        "scenario": "Provenance removed from legacy replay",
-        "finding": "Simple marker matching could miss unsafe unmarked import.",
-        "resolution": "Reject unmarked new migrations via source provenance contract and scan for forbidden fixed-list function body in post-0046 files.",
+        "id": "CH-SC-03",
+        "scenario": "Viewer and order manager operate in the same tenant.",
+        "finding": "Broad role grants would permit unauthorized customer communications.",
+        "resolution": "Insert only support with exact office.email.compose capability.",
         "status": "resolved"
       },
       {
-        "id": "CH-F2-04",
-        "scenario": "Required modern privacy file absent",
-        "finding": "A perceived positive lineage might omit vital RLS dependency.",
-        "resolution": "Retain all eleven active upstream requirements unchanged.",
+        "id": "CH-SC-04",
+        "scenario": "The target database lacks the original permission catalog.",
+        "finding": "A partial migration would falsely claim the role is configured.",
+        "resolution": "Require catalog prerequisites and fail the transaction.",
         "status": "resolved"
       },
       {
-        "id": "CH-F2-05",
-        "scenario": "Legacy source filename changed",
-        "finding": "Known obsolete SQL reappears under renamed file.",
-        "resolution": "Block executable fixed-list sync definition/body rather than only known filename.",
+        "id": "CH-SC-05",
+        "scenario": "The same new SQL migration runs a second time.",
+        "finding": "A duplicate role grant or changed default scope could arise.",
+        "resolution": "Use exact composite key conflict handling and one all scope.",
         "status": "resolved"
       },
       {
-        "id": "CH-F2-06",
-        "scenario": "0014 normal authority deleted",
-        "finding": "No canonical plan source after exclusions.",
-        "resolution": "Negative tests require 0014 grant-backed function and 0046 Alap reconciliation.",
+        "id": "CH-SC-06",
+        "scenario": "An Alap account has an otherwise valid support role.",
+        "finding": "A role preset might be confused with the Pro workspace entitlement.",
+        "resolution": "Keep subscription plan gating untouched and separately enforced.",
         "status": "resolved"
       },
       {
-        "id": "CH-F2-07",
-        "scenario": "All remaining eleven active Office SQL source bodies match their declared SHA256 provenance and migration sequence.",
-        "finding": "An entirely source-matching customer baseline can still lack a successful empty-target schema replay, participant privacy behavior, authenticated grants and service-RPC checks.",
-        "resolution": "The checker only reports SOURCE_PRESENT_UNPROVEN and realDatabaseProof NOT_EVALUATED; separate disposable Fresh Install and actor/role proof remains mandatory.",
+        "id": "CH-SC-07",
+        "scenario": "An email is drafted without an active approved sender mailbox.",
+        "finding": "A system might falsely report delivery and lose user content.",
+        "resolution": "Do not change sending mailbox gates or worker semantics.",
         "status": "resolved"
       },
       {
-        "id": "CH-F2-08",
-        "scenario": "A developer adds a new post-0047 SQL import carrying previously unseen source identity outside the approved Office dependency sequence.",
-        "finding": "Unknown provenance might add an unreviewed helper or another privilege-changing function that bypasses the explicitly superseded legacy source list.",
-        "resolution": "Keep OFFICE_UNREVIEWED_SOURCE_PROVENANCE as a hard BLOCK for unmatched marker identities and require a new reviewed source-authority update before importing such migration.",
+        "id": "CH-SC-08",
+        "scenario": "Existing hosted Fresh Install has an empty migration ledger.",
+        "finding": "Deploying out of sequence could corrupt Office migration provenance.",
+        "resolution": "Do not run hosted SQL before independently approved Office baseline.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Check exact current main and prior #1291; preserve its draft hosted Fresh Install blocker.",
-      "Source-only Development Guard / Plan Before Code PASS before first code edit.",
-      "Negative Vitest proof for both legacy migrations, headerless renamed copy, incomplete source, ordering, baseline authority and safety non-claim.",
-      "CI quality, TypeScript, build, release risk, security, Completion Truth and Lifecycle closure must pass at exact PR head.",
-      "No changing original SQL, shared plan catalog, staging or paid services; #1186/#1228 and hosted Fresh Install remain OPEN."
+      "Run Plan Before Code with exact change base and scoped support-only migration paths.",
+      "Verify support role SQL and canonical explicit-deny precedence using targeted adversarial regressions.",
+      "Run native PostgreSQL17 integration and exact-head CI before making any successful behavior claim.",
+      "Prohibit hosted SQL until official current-state baseline and Office prerequisites are owner-approved."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/issues/1228",
+      "request": "https://github.com/infowaterk-max/water-K-/pull/1431",
       "authority": [
-        "quality-knowledge-system"
+        "database-schema"
       ],
-      "mustEdit": [
-        "scripts/shoperation-office-baseline-lineage.mjs",
-        "tests/shoperation-office-db-readiness.test.ts"
-      ],
+      "mustEdit": [],
       "mayEdit": [],
-      "impactedReadOnly": [
-        "supabase/customer-baseline/manifest.json",
-        "supabase/customer-baseline/migrations/0001_shoperation_v1_schema.sql",
-        "supabase/customer-baseline/migrations/0046_alap_team_chat_plan_grant_reconcile.sql",
-        "supabase/migrations/20261010093000_digital_office_strict_pro_sql_guard_v1.sql"
+      "impactedReadOnly": [],
+      "mustCreate": [
+        "docs/po/OFFICE_SUPPORT_DEFAULT_COMPOSE_FIX_2026-10-19.md",
+        "supabase/migrations/20261019090000_office_support_compose_default_v1.sql",
+        "tests/digital-office-support-compose-role-default.test.ts"
       ],
-      "mustCreate": [],
-      "forbidden": [
-        "staging database write",
-        "historic migration rewrite",
-        "changing generic READY status"
-      ],
+      "forbidden": [],
       "proof": [
-        "tests/shoperation-office-db-readiness.test.ts",
-        "CI Completion Truth",
-        "Lifecycle"
+        "tests/digital-office-support-compose-role-default.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
     },
-    "ecosystem": {
-      "contract": "shoporation.development-ecosystem.v1",
-      "phase": "PLAN",
-      "implementationSkeleton": {
-        "contract": "shoporation.implementation-skeleton.v1",
-        "mustEdit": [],
-        "mayEdit": [],
-        "impactedReadOnly": [],
-        "mustCreate": [
-          "scripts/shoperation-office-baseline-lineage.mjs",
-          "tests/shoperation-office-baseline-lineage.test.ts"
-        ],
-        "forbidden": [],
-        "proof": [],
-        "authority": [],
-        "unknown": []
-      },
-      "projectedReleaseRisk": {
-        "contract": "shoporation.projected-release-risk.v1",
-        "score": 2,
-        "maxPoints": 5,
-        "subsystemCount": 1,
-        "maxSubsystems": 3,
-        "subsystems": [
-          {
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
-          }
-        ],
-        "files": [
-          {
-            "file": "scripts/shoperation-office-baseline-lineage.mjs",
-            "subsystem": "quality-infrastructure",
-            "risk": "medium",
-            "points": 2
-          },
-          {
-            "file": "tests/shoperation-office-baseline-lineage.test.ts",
-            "subsystem": "evidence-neutral",
-            "risk": "neutral",
-            "points": 0
-          }
-        ],
-        "violations": [],
-        "decision": "PASS"
-      },
-      "releaseDecomposition": {
-        "contract": "shoporation.release-decomposition.v1",
-        "decision": "PASS",
-        "decompositionRequired": false,
-        "originalRisk": {
-          "contract": "shoporation.projected-release-risk.v1",
-          "score": 2,
-          "maxPoints": 5,
-          "subsystemCount": 1,
-          "maxSubsystems": 3,
-          "subsystems": [
-            {
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
-            }
-          ],
-          "files": [
-            {
-              "file": "scripts/shoperation-office-baseline-lineage.mjs",
-              "subsystem": "quality-infrastructure",
-              "risk": "medium",
-              "points": 2
-            },
-            {
-              "file": "tests/shoperation-office-baseline-lineage.test.ts",
-              "subsystem": "evidence-neutral",
-              "risk": "neutral",
-              "points": 0
-            }
-          ],
-          "violations": [],
-          "decision": "PASS"
-        },
-        "maxFilesPerUnit": 12,
-        "repositoryEdges": [],
-        "atomicComponents": [
-          {
-            "id": 0,
-            "files": [
-              "scripts/shoperation-office-baseline-lineage.mjs"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "files": [
-                {
-                  "file": "scripts/shoperation-office-baseline-lineage.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          },
-          {
-            "id": 1,
-            "files": [
-              "tests/shoperation-office-baseline-lineage.test.ts"
-            ],
-            "risk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 0,
-              "maxPoints": 5,
-              "subsystemCount": 0,
-              "maxSubsystems": 3,
-              "subsystems": [],
-              "files": [
-                {
-                  "file": "tests/shoperation-office-baseline-lineage.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            }
-          }
-        ],
-        "releaseUnits": [
-          {
-            "contract": "shoporation.release-unit-manifest.v1",
-            "transaction": {
-              "id": "DEVELOPMENT-GUARD",
-              "parentTransactionId": "DEVELOPMENT-GUARD",
-              "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-              "developmentBaseSha": "907ce393f86eab3a2787828fda980e5f526208c9"
-            },
-            "releaseUnitId": "DEVELOPMENT-GUARD-U01",
-            "order": 1,
-            "targetBaseSha": "907ce393f86eab3a2787828fda980e5f526208c9",
-            "lease": {
-              "expectedBaseSha": "907ce393f86eab3a2787828fda980e5f526208c9",
-              "failOnDrift": true,
-              "reconciled": true,
-              "reconciledFromSha": null
-            },
-            "intendedFiles": [
-              "scripts/shoperation-office-baseline-lineage.mjs",
-              "tests/shoperation-office-baseline-lineage.test.ts"
-            ],
-            "operations": [
-              {
-                "operation": "create",
-                "file": "scripts/shoperation-office-baseline-lineage.mjs",
-                "generated": null
-              },
-              {
-                "operation": "create",
-                "file": "tests/shoperation-office-baseline-lineage.test.ts",
-                "generated": null
-              }
-            ],
-            "requiredDependencyFiles": [],
-            "authorities": [],
-            "subsystems": [
-              "quality-infrastructure"
-            ],
-            "projectedRisk": {
-              "contract": "shoporation.projected-release-risk.v1",
-              "score": 2,
-              "maxPoints": 5,
-              "subsystemCount": 1,
-              "maxSubsystems": 3,
-              "subsystems": [
-                {
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                }
-              ],
-              "files": [
-                {
-                  "file": "scripts/shoperation-office-baseline-lineage.mjs",
-                  "subsystem": "quality-infrastructure",
-                  "risk": "medium",
-                  "points": 2
-                },
-                {
-                  "file": "tests/shoperation-office-baseline-lineage.test.ts",
-                  "subsystem": "evidence-neutral",
-                  "risk": "neutral",
-                  "points": 0
-                }
-              ],
-              "violations": [],
-              "decision": "PASS"
-            },
-            "requiredGates": [
-              "GUARD-EDIT-TIME",
-              "GUARD-INCREMENTAL-REPLAY",
-              "GUARD-KNOWLEDGE-PREFLIGHT",
-              "GUARD-PLAN-BEFORE-CODE",
-              "GUARD-QUALITY-TESTS",
-              "GUARD-RELEASE-RISK",
-              "GUARD-TYPECHECK"
-            ],
-            "requiredEvidence": {
-              "gateIds": [
-                "GUARD-EDIT-TIME",
-                "GUARD-INCREMENTAL-REPLAY",
-                "GUARD-KNOWLEDGE-PREFLIGHT",
-                "GUARD-PLAN-BEFORE-CODE",
-                "GUARD-QUALITY-TESTS",
-                "GUARD-RELEASE-RISK",
-                "GUARD-TYPECHECK"
-              ],
-              "proofFiles": [
-                "tests/shoperation-office-baseline-lineage.test.ts"
-              ],
-              "externalGateIds": []
-            },
-            "forbiddenPaths": [],
-            "readOnlyPaths": [],
-            "generatedArtifactSemantics": [],
-            "prerequisites": [],
-            "predecessorUnits": [],
-            "expectedPostUnitState": {
-              "filesPresent": [
-                "scripts/shoperation-office-baseline-lineage.mjs",
-                "tests/shoperation-office-baseline-lineage.test.ts"
-              ],
-              "filesAbsent": []
-            },
-            "reconciliationPolicy": {
-              "mode": "merged-main-sequential",
-              "requireExactMainLease": true,
-              "requirePredecessorReceipts": false,
-              "requiresReconciliationAfterPredecessor": false,
-              "failOnUnrelatedMainDrift": true
-            },
-            "sourceIdentity": {
-              "sourceCommit": null,
-              "sealed": false
-            },
-            "manifestDigest": "839ccaa9",
-            "decision": "PASS"
-          }
-        ],
-        "ordering": {
-          "decision": "PASS",
-          "cycles": []
-        }
-      },
-      "gateChain": {
-        "contract": "shoporation.gate-chain.v1",
-        "phase": "PLAN",
-        "orderedGateIds": [
-          "GUARD-KNOWLEDGE-PREFLIGHT",
-          "GUARD-PLAN-BEFORE-CODE",
-          "GUARD-EDIT-TIME",
-          "GUARD-INCREMENTAL-REPLAY",
-          "GUARD-QUALITY-TESTS",
-          "GUARD-RELEASE-RISK",
-          "GUARD-TYPECHECK"
-        ],
-        "currentPhaseGateIds": [
-          "GUARD-KNOWLEDGE-PREFLIGHT",
-          "GUARD-PLAN-BEFORE-CODE",
-          "GUARD-RELEASE-RISK"
-        ],
-        "futureGateIds": [
-          "GUARD-EDIT-TIME",
-          "GUARD-INCREMENTAL-REPLAY",
-          "GUARD-QUALITY-TESTS",
-          "GUARD-TYPECHECK"
-        ],
-        "externalGateIds": [],
-        "issues": [],
-        "decision": "PASS"
-      }
-    },
     "executionAuthorized": true,
-    "problemStatement": "U10A2 minimum SQL list currently treats two obsolete fixed-list plan-sync migrations as mandatory dependencies even though baseline 0014 and 0046 already supersede them. Replaying them after 0046 would overwrite the normalized plan-capability grant function and resurrect forbidden Alap Team Chat.",
+    "problemStatement": "The existing Digital Office composer foundation introduced an optional email-compose capability without the inherited support role grant, contradicting the approved default capability and preventing support employees from writing their own customer drafts.",
     "observableOutcomes": [
-      "Explicit two-item superseded source set with machine-readable reason, not counted among required active source imports.",
-      "Existing source-lineage scanner BLOCKS obsolete plan-sync replays including disguised/unmarked executable copies.",
-      "Actual baseline stays BLOCKED for remaining modern source SQL and no data-plane claim is promoted.",
-      "Static regression confirms 0014 grant-backed sync, 0046 Alap Team Chat revoked, customer communication preserved."
+      "Authorized support members inherit office.email.compose automatically without owner extra grants.",
+      "Explicit individual denial still overrides the inherited role preset in server capability evaluation.",
+      "The Pro-only Digital Office and disabled-mailbox send boundary stay unaffected by the SQL preset correction."
     ],
     "unresolvedRisks": [
-      "Office 0048+ schema dependencies and GRANT/RLS remain unimplemented.",
-      "Host Fresh Install target is inactive, so no hosted database proof.",
-      "Occupied staging Office privacy catalog remains legacy; no rollout authority."
+      "Hosted PostgreSQL and managed Supabase Auth acceptance have not been tested for this new migration.",
+      "The original Fresh Install migration adoption and 31-source forward-release blocks remain independently unresolved.",
+      "Static source assertions alone cannot certify an actual email draft save or customer delivery journey."
     ],
     "scope": {
       "in": [
-        "Only canonical source-lineage script and regression file.",
-        "Treat two obsolete plan-sync sources as superseded by 0014/0046 and block their replay.",
-        "No new migration or entitlement controller."
+        "One forward-only support permission preset migration and its isolated static regression file.",
+        "Preserve historical immutable migration source and document the dependency on Office readiness."
       ],
       "out": [
-        "No SQL database writes or target restore.",
-        "No edits to historical files or customer baseline manifest.",
-        "No assertion of full Digital Office readiness."
+        "No hosted database migration, baseline adoption, Auth fixtures or mailbox activation.",
+        "No admin page, customer send worker, Builder or Pro subscription policy modification."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1431",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
-        "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-PLAN-BEFORE-CODE",
-        "GUARD-EDIT-TIME",
-        "GUARD-INCREMENTAL-REPLAY",
+        "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-QUALITY-TESTS",
-        "GUARD-RELEASE-RISK",
-        "GUARD-TYPECHECK"
+        "GUARD-TYPECHECK",
+        "GUARD-COMPLETION-TRUTH"
       ],
       "externalGuards": [],
       "phase": "PLAN"
     },
     "requirements": [
       {
-        "id": "REQ-U10A2-F2-NO-LEGACY-SYNC",
-        "requirement": "The Office Fresh Install source checker must reject any replay of the two superseded fixed-list plan-sync SQL migrations while retaining every actual modern Office dependency and never overstating runtime proof.",
+        "id": "SUPPORT-COMPOSE-DEFAULT",
+        "requirement": "Active support employees receive default email compose through a single inherited role preset.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "Office SQL source dependency guard only",
-          "strength": 1,
+          "breadth": "support-office-role-authority",
+          "strength": 2,
           "dimensions": [
-            "status",
-            "limitations",
+            "scope",
+            "tests",
             "forbidden-state"
           ]
         },
@@ -644,7 +324,7 @@
         ],
         "evidence": {
           "implementation": [
-            "GUARD-QUALITY-TESTS"
+            "GUARD-PLAN-BEFORE-CODE"
           ],
           "outcome": [
             "GUARD-QUALITY-TESTS"
@@ -652,8 +332,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-F2-ALAP-CHAT-REGRANT",
-            "statement": "No historical or disguised hardcoded Team Chat/customer email plan-sync implementation may be accepted after normalized 0014/0046 authority.",
+            "id": "DENY-BYPASS",
+            "statement": "No owner-denied support employee or unrelated store role gains default compose through this migration.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -662,18 +342,5 @@
       }
     ]
   },
-  "notes": "New F2 bounded plan on verified main ea72ec3. Supersede two obsolete historical fixed-list sync sources, guard against replay and preserve 11 active Office source dependencies. No SQL, env or runtime edits. Draft #1291 independent hosted Fresh Install proof pending; no merge of F2 until exact-head gates.",
-  "lifecycle": {
-    "state": "LEARN",
-    "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "082b3049a58c58f1010e506a5ec1f00c8ac29211",
-    "closedAt": "2026-10-15T03:03:26.250Z",
-    "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/issues/1228",
-    "learning": {
-      "state": "review-ready",
-      "knownFailurePromotion": "human-governed",
-      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
-    }
-  }
+  "notes": "Plan created on separate SQL-only branch before new implementation. Original unverified #1431 source chronology is explicitly not retroactively claimed."
 }
