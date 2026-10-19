@@ -6,7 +6,6 @@
   "guardDigest": "b55a7a31",
   "changeBaseSha": "59628c71b5084d65a0396c1d1cfa7de8fbe91b7d",
   "plannedFilePatterns": [
-    "supabase/migrations/20261019090000_office_support_compose_default_v1.sql",
     "supabase/migrations/20261019073857_office_support_compose_default_v1.sql",
     "tests/digital-office-support-compose-role-default.test.ts",
     "tests/digital-office-composer-drafts-foundation.test.ts",
@@ -264,9 +263,7 @@
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
-      "mustCreate": [
-        "supabase/migrations/20261019073857_office_support_compose_default_v1.sql"
-      ],
+      "mustCreate": [],
       "forbidden": [],
       "proof": [
         "tests/digital-office-support-compose-role-default.test.ts",
@@ -356,5 +353,5 @@
       }
     ]
   },
-  "notes": "New bounded provenance transaction after prior #1442 source-only VERIFIED_DONE / CLOSED. Fresh Install applied office_support_compose_default_v1 with actual ledger version 20261019073857, not source file initial future filename 20261019090000. Rename the source file with BYTE-IDENTICAL content and retarget two tests. No hosted DB write, no fake migration history, no mailbox activation. Original preflight intentionally blocked generic plannedDeletion of a non-forbidden source. Govern this byte-identical move with the canonical plannedRenames release operation instead; no Plan Before Code bypass."
+  "notes": "New bounded provenance transaction after prior #1442 source-only VERIFIED_DONE / CLOSED. Fresh Install applied office_support_compose_default_v1 with actual ledger version 20261019073857, not source file initial future filename 20261019090000. Rename the source file with BYTE-IDENTICAL content and retarget two tests. No hosted DB write, no fake migration history, no mailbox activation. Original preflight intentionally blocked generic plannedDeletion of a non-forbidden source. Govern this byte-identical move with the canonical plannedRenames release operation instead; no Plan Before Code bypass. Post-rename canonical plan reconciliation: deleted old Git filename is represented solely as plannedRenames.from, not as a projected live source target. Current new filename is tracked and existing; critical MUST_CREATE must be empty. CI must still prove changed rename transaction."
 }
