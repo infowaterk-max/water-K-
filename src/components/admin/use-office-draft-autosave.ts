@@ -78,7 +78,11 @@ export function useOfficeDraftAutosave<T>({
 
     if(inFlightRef.current){
       queuedRef.current=true;
-      await inFlightRef.current;
+      try{await inFlightRef.current;}
+      catch{
+        queuedRef.current=false;
+        return{status:'error',message:'A piszkozat mentése megszakadt. Próbáld újra.'};
+      }
       if(haltedRef.current)return null;
       if(mode==='autosave'&&latestKeyRef.current===savedKeyRef.current)return null;
       return runSave(mode);
@@ -93,13 +97,16 @@ export function useOfficeDraftAutosave<T>({
     setMessage(mode==='autosave'?'Automatikus mentés…':'Mentés…');
 
     const action=mode==='autosave'?autosaveRef.current:manualSaveRef.current;
-    const promise=action(input);
+    const promise=Promise.resolve().then(()=>action(input));
     inFlightRef.current=promise;
     let result:OfficeComposerActionState;
     let accepted=false;
     try{
       result=await promise;
       accepted=adoptResult(result,key);
+    }catch{
+      result={status:'error',message:'A piszkozat mentése megszakadt. Próbáld újra.'};
+      adoptResult(result,key);
     }finally{
       inFlightRef.current=null;
     }

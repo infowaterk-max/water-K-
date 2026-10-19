@@ -27,6 +27,13 @@ describe('Digital Office composer Server Action module boundary',()=>{
      expect(s).not.toMatch(/officeComposerInitialState[^\n]*from'@\/app\/admin\/kommunikacio\/iroda\/composer-actions'/);
    }
  });
+ it('catches failed Server Actions and exposes recoverable autosave errors',()=>{
+   const s=file('src/components/admin/use-office-draft-autosave.ts');
+   expect(s).toContain('const promise=Promise.resolve().then(()=>action(input))');
+   expect(s).toContain("result={status:'error',message:'A piszkozat mentése megszakadt. Próbáld újra.'}");
+   expect(s).toContain('queuedRef.current=false;');
+   expect(s).toContain('inFlightRef.current=null;');
+ });
  it('draft autosave uses shared state type, not a runtime server-module dependency',()=>{
    const s=file('src/components/admin/use-office-draft-autosave.ts');
    expect(s).toContain("import type{OfficeComposerActionState}from'@/lib/office/composer-state'");
