@@ -720,6 +720,7 @@
         "scripts/release-**",
         "**/next.config.ts",
         "scripts/smoke.mjs",
+        "scripts/validate-vercel-deploy-env.mjs",
         "package.json",
         "package-lock.json"
       ],
