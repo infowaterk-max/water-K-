@@ -7,6 +7,12 @@ if (!isVercelDeploy || !['preview', 'production'].includes(environment ?? '')) {
 
 const PRODUCTION_SUPABASE_REF = 'ewdederyvnwmghlydbno';
 const STAGING_SUPABASE_REF = 'rfuvzgumbardvbvqjxdq';
+const FRESH_INSTALL_SUPABASE_REF = 'istjjkdcvsvilrycqecd';
+const OFFICE_FRESH_PREVIEW_BRANCH = 'fix/office-fresh-preview-security-gate-20261019';
+const OFFICE_FRESH_PREVIEW_MARKER = 'office-fresh-20261019';
+const isOfficeFreshPreview = environment === 'preview'
+  && process.env.VERCEL_GIT_COMMIT_REF === OFFICE_FRESH_PREVIEW_BRANCH
+  && process.env.SHOPERATION_FRESH_ACCEPTANCE === OFFICE_FRESH_PREVIEW_MARKER;
 const problems = [];
 
 const RUNTIME_SCHEMA_PROBES = Object.freeze([
@@ -172,8 +178,9 @@ if (environment === 'production') {
     problems.push('SUPABASE_STAGING_SECRET_KEY|SUPABASE_SECRET_KEY|SUPABASE_SERVICE_ROLE_KEY');
   }
 
-  if (databaseProjectRef && databaseProjectRef !== STAGING_SUPABASE_REF) {
-    problems.push(`preview Supabase target must be ${STAGING_SUPABASE_REF}; got ${databaseProjectRef}`);
+  const expectedPreviewRef = isOfficeFreshPreview ? FRESH_INSTALL_SUPABASE_REF : STAGING_SUPABASE_REF;
+  if (databaseProjectRef && databaseProjectRef !== expectedPreviewRef) {
+    problems.push(`preview Supabase target must be ${expectedPreviewRef}; got ${databaseProjectRef}`);
   }
 }
 
@@ -182,7 +189,9 @@ if (databaseProjectRef) {
     ? 'production'
     : databaseProjectRef === STAGING_SUPABASE_REF
       ? 'staging'
-      : 'unknown';
+      : databaseProjectRef === FRESH_INSTALL_SUPABASE_REF
+        ? 'fresh-install'
+        : 'unknown';
   console.log(`Vercel ${environment} Supabase target: ${label} (${databaseProjectRef}).`);
 }
 
