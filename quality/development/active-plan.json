@@ -3,15 +3,13 @@
   "taskId": "DEV-6A79FE7B-OFFICE-RELEASE-ARCH",
   "task": "Register existing Vercel runtime target preflight with Release Domain authority so protected Fresh Office preview scope resolves canonically",
   "status": "ready-for-implementation",
-  "guardDigest": "6a79fe7b",
+  "guardDigest": "f01b0397",
   "changeBaseSha": "02fed53ee63aec947150f85ed9f6320153250307",
   "plannedFilePatterns": [
     "quality/knowledge/domain-foundations.v1.json",
     "tests/architecture-health.test.ts"
   ],
   "expectedSubsystems": [
-    "database-schema",
-    "quality-infrastructure",
     "release-infrastructure"
   ],
   "expectedDomains": [
@@ -21,19 +19,56 @@
     "quality-knowledge-system"
   ],
   "expectedKnownFailureIds": [
+    "SQ-KF-001",
+    "SQ-KF-002",
     "SQ-KF-003",
     "SQ-KF-004",
+    "SQ-KF-005",
     "SQ-KF-006",
+    "SQ-KF-007",
     "SQ-KF-008",
     "SQ-KF-009",
     "SQ-KF-010",
+    "SQ-KF-011",
+    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
+    "SQ-KF-015",
+    "SQ-KF-016",
+    "SQ-KF-017",
     "SQ-KF-018",
+    "SQ-KF-019",
     "SQ-KF-020",
+    "SQ-KF-021",
     "SQ-KF-022",
     "SQ-KF-023",
-    "SQ-KF-025"
+    "SQ-KF-024",
+    "SQ-KF-025",
+    "TF-KF-001",
+    "TF-KF-002",
+    "TF-KF-003",
+    "TF-KF-004",
+    "TF-KF-005",
+    "TF-KF-006",
+    "TF-KF-007",
+    "TF-KF-008",
+    "TF-KF-009",
+    "TF-KF-010",
+    "TF-KF-011",
+    "TF-KF-012",
+    "TF-KF-013",
+    "TF-KF-014",
+    "TF-KF-015",
+    "TF-KF-016",
+    "TF-KF-017",
+    "TF-KF-018",
+    "TF-KF-019",
+    "TF-KF-020",
+    "TF-KF-021",
+    "TF-KF-022",
+    "TF-KF-023",
+    "TF-KF-024",
+    "TF-KF-025"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
@@ -358,5 +393,5 @@
       }
     ]
   },
-  "notes": "Precondition architecture correction before any change to validator itself. The protected Vercel deployment preflight currently has no release domain ownership in the canonical Atlas. This unit only maps its existing source path under DOMAIN-RELEASE and proves single-source ownership; no deploy or validator runtime code change. It is deliberately separate from the subsequent Fresh Install preview conditional policy."
+  "notes": "Precondition architecture correction before any change to validator itself. The protected Vercel deployment preflight currently has no release domain ownership in the canonical Atlas. This unit only maps its existing source path under DOMAIN-RELEASE and proves single-source ownership; no deploy or validator runtime code change. It is deliberately separate from the subsequent Fresh Install preview conditional policy. Plan-only canonical gate confirmed release-infrastructure-only projected subsystem, complete 50 known-failure registry sweep, and SQ-NK-014 in applicable negative knowledge; no implementation edits yet."
 }
