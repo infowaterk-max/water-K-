@@ -7,7 +7,7 @@ const read=(path:string)=>readFileSync(join(root,path),'utf8');
 
 describe('Digital Office composer and drafts foundation',()=>{
   const migration=read('supabase/migrations/20260908034000_digital_office_composer_drafts_foundation_v1.sql');
-  const supportDefault=read('supabase/migrations/20261019090000_office_support_compose_default_v1.sql');
+  const supportDefault=read('supabase/migrations/20261019073857_office_support_compose_default_v1.sql');
   const queueGuard=read('supabase/migrations/20260908034500_digital_office_reply_queue_guard_v1.sql');
   const tenantIntegrity=read('supabase/migrations/20260908034600_digital_office_drafts_tenant_integrity_v1.sql');
   const envelope=read('supabase/migrations/20260909203604_digital_office_recipient_envelope_v1.sql');

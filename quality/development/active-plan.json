@@ -1,16 +1,16 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-B55A7A31-OFFICE-ROLE",
-  "task": "Support role default e-mail composition preset with owner denial and Pro boundary preserved",
+  "taskId": "DEV-B55A7A31-OFFICE-LEDGER-PARITY",
+  "task": "Office support compose SQL migration filename provenance alignment with actual installed Fresh Install ledger",
   "status": "closed",
   "guardDigest": "b55a7a31",
-  "changeBaseSha": "dc726ea075d6918883595442d446e37c023731e4",
+  "changeBaseSha": "59628c71b5084d65a0396c1d1cfa7de8fbe91b7d",
   "plannedFilePatterns": [
-    "docs/po/OFFICE_SUPPORT_DEFAULT_COMPOSE_FIX_2026-10-19.md",
-    "quality/development/active-plan.json",
-    "supabase/migrations/20261019090000_office_support_compose_default_v1.sql",
+    "supabase/migrations/20261019073857_office_support_compose_default_v1.sql",
+    "tests/digital-office-support-compose-role-default.test.ts",
     "tests/digital-office-composer-drafts-foundation.test.ts",
-    "tests/digital-office-support-compose-role-default.test.ts"
+    "docs/po/OFFICE_SUPPORT_DEFAULT_COMPOSE_FIX_2026-10-19.md",
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
     "database-schema"
@@ -42,11 +42,11 @@
   "exceptions": [],
   "operationalIntelligence": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1431",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1442",
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This permission migration has critical database authority impact. It requires negative proofs for unrelated roles, explicit individual deny, revoked membership, source identity and missing prerequisites, while only reaching a source-only assurance ceiling until real PG17 and hosted JWT acceptance.",
+      "rationale": "This work is critical migration provenance, not a feature change. A false second migration version could replay privileged role grants, so the exact hosted ledger version, immutable SQL source bytes, deletion of obsolete alias, and dependent tests require proof; source checks do not establish authenticated provider runtime.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -63,22 +63,22 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The single support office.email.compose all-scope role preset is added through an idempotent new migration.",
-        "Missing catalog and role preset foundations fail before authority is changed.",
-        "Existing owner denial remains earlier than role-grant evaluation in the canonical SQL function.",
-        "No changes to existing historical migrations, other roles or hosted database."
+        "Only the source filename changes from the uninstalled future timestamp 20261019090000 to the installed 20261019073857 timestamp, SQL bytes unchanged.",
+        "Both migration-dependent Vitest source paths are updated and run without accessing a hosted database.",
+        "Original forward composer foundation and canonical explicit owner denial continue to pass all tests.",
+        "No hosted SQL write, browser feature rollout or other tenant account is changed during parity adjustment."
       ],
       "invariants": [
-        "The role-based source is the sole new authority; no new override engine is created.",
-        "The recipient author's draft remains private and server-revision protected.",
-        "Owner explicit deny takes priority over inherited support permission.",
-        "Pro Digital Office gates remain independent of permission grants."
+        "The Fresh Install migration ledger retains its actual version 20261019073857 and name office_support_compose_default_v1.",
+        "The SQL body remains exactly the code already executed on Fresh Install under the same correction name.",
+        "Owner explicit deny precedes inherited support grant; only support inherits office.email.compose.",
+        "No duplicate future-named SQL migration remains in source code after correction."
       ],
       "forbiddenStates": [
-        "Arbitrary compose granted to viewer or order_manager roles.",
-        "A personal allow override silently overriding explicit owner denial.",
-        "Managed migration executed before current-state baseline approval.",
-        "An unauthorized email delivery reported as verified from source tests."
+        "Creating an invented 20261019090000 migration ledger record to silence source reconciliation.",
+        "Reapplying the already installed support capability migration while renaming source.",
+        "Replacing a verified SQL role grant with a broader grant or updated body.",
+        "Accidentally enabling mail send or restoring the paused staging project."
       ]
     },
     "model": {
@@ -110,199 +110,205 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Absent permission catalog prevents valid role preset insertion.",
-        "A support preset accidentally broadens other roles through an overbroad SQL query.",
-        "Explicit owner denial loses precedence to a newly added role grant.",
-        "Adding a new SQL migration changes the 31-file package without new provenance."
+        "Git migration runner considers differently named SQL to be an unapplied new migration and replays it.",
+        "Source alias is left in repository while the corrected filename is added, producing duplicate logical migration.",
+        "Test fixtures still load the removed filename and fail after source relocation.",
+        "The rename subtly alters SQL body whitespace or conditional authorization semantics.",
+        "Source proof reports database runtime acceptance without a signed session or enabled mailbox."
       ],
       "edgeCases": [
-        "A support employee with no personal grant gets inherited permission.",
-        "A denied support employee cannot save or send an arbitrary email.",
-        "A revoked support role no longer grants email composing.",
-        "A missing permission catalog rejects migration atomically.",
-        "Re-running SQL cannot duplicate the single support preset."
+        "The installed migration's timestamp precedes the original proposed file timestamp by roughly twenty-one minutes.",
+        "A merge of this branch while #1443 is stacked must preserve that exact child's source path references.",
+        "No existing file may occupy the corrected timestamp and migration name.",
+        "The same installed correction must appear as one mapping, not two independently runnable SQL entries.",
+        "The change must not generate a new Supabase apply_migration call even during CI."
       ]
     },
     "alternatives": [
       {
-        "id": "ROLE-PRESET",
-        "summary": "Extend the canonical role preset using a new idempotent migration scoped solely to support.",
+        "id": "ALT-RENAME",
+        "summary": "Rename the same forward-only SQL bytes to the exact already installed migration ledger version.",
         "disposition": "selected",
-        "reason": "The existing explicit deny remains higher precedence and new support employees inherit email writing without management toil."
+        "reason": "Preserves the canonical database truth and eliminates duplicate migration replay while retaining unchanged source content."
       },
       {
-        "id": "USER-OVERRIDE",
-        "summary": "Add individual allow overrides for support staff upon account creation.",
+        "id": "ALT-FAKE-LEDGER",
+        "summary": "Insert a second migration ledger row with the original future filename without running its SQL.",
         "disposition": "rejected",
-        "reason": "This creates unnecessary grants and risks stale permission state competing with owner denials."
+        "reason": "Fabricates a historical migration event that did not occur and violates the immutable provenance principle."
       },
       {
-        "id": "BYPASS",
-        "summary": "Allow email writing whenever support RBAC passes without the canonical capability evaluator.",
+        "id": "ALT-ALIAS",
+        "summary": "Keep both filename versions in repository and rely on idempotent role grant on future installs.",
         "disposition": "rejected",
-        "reason": "This would circumvent scoped owner denial and drift from security-definer SQL authorization."
+        "reason": "Creates duplicate executable source identities and obscures which version was actually applied."
       }
     ],
     "specialistReviews": [
       {
-        "role": "Security",
+        "role": "Data Integrity",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A new default might accidentally defeat individual owner denial within SQL draft or queue RPCs.",
-        "resolution": "Keep evaluate_store_capability_v1 as the only authority and verify explicit deny before role evaluation.",
+        "finding": "The managed ledger version and source filename disagree even though the SQL payload is applied.",
+        "resolution": "Rename to the actually installed version, check same SQL blob SHA, and reject duplicate future source.",
         "evidence": [
-          "supabase/migrations/20260907203000_team_permissions_foundation_v1.sql"
+          "supabase/migrations/20261019090000_office_support_compose_default_v1.sql",
+          "supabase/migrations/20261019073857_office_support_compose_default_v1.sql"
         ]
       },
       {
-        "role": "Data Integrity",
+        "role": "Security",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A forward SQL file might enter the immutable 31-source package without versioned source provenance.",
-        "resolution": "Preserve original SQL files and add this migration only after separately authorized baseline and Office dependency order.",
+        "finding": "Replaying even an idempotent role grant at a second version could normalize away an intended owner restriction in future edits.",
+        "resolution": "Retain identical single SQL body, no personal overrides and fail-closed context before source parity is claimed.",
         "evidence": [
-          "https://github.com/infowaterk-max/water-K-/pull/1417"
+          "supabase/migrations/20260907203000_team_permissions_foundation_v1.sql"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A missing capability or schema table could lead to an unsafe perceived success.",
-        "resolution": "Make the migration reject absent foundations before the support preset insert.",
+        "finding": "Static string references to the obsolete filename could make the corrected path look missing or suppress a test.",
+        "resolution": "Update both exact Vitest source paths and verify no remaining executable alias in this release branch.",
         "evidence": [
-          "supabase/migrations/20260908034000_digital_office_composer_drafts_foundation_v1.sql"
+          "tests/digital-office-support-compose-role-default.test.ts",
+          "tests/digital-office-composer-drafts-foundation.test.ts"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Passing static tests cannot establish real hosted JWT and outbound sending semantics.",
-        "resolution": "Keep source unit draft until native PostgreSQL17 and user-session acceptance evidence exist.",
+        "finding": "A source rename might be confused with authorization to deploy Office UI or rerun the managed migration.",
+        "resolution": "Keep hosted writes and Vercel preview blocked until independent proof and the correct staging-isolated environment.",
         "evidence": [
-          "https://github.com/infowaterk-max/water-K-/pull/1431"
+          "https://github.com/infowaterk-max/water-K-/pull/1442"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-SC-01",
-        "scenario": "New support employee lacks personal allow override.",
-        "finding": "The old optional capability blocked composer despite the support role.",
-        "resolution": "Inherit only from canonical support permission preset.",
+        "id": "CH-LEDGER-01",
+        "scenario": "Supabase migration runner scans source filenames after already recording 20261019073857.",
+        "finding": "The old future-timestamp SQL appears unapplied and could be executed twice.",
+        "resolution": "Keep only filename matching the actual logged version.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-02",
-        "scenario": "Owner explicitly denies this capability to an active support member.",
-        "finding": "A permission shortcut might incorrectly restore ability to write.",
-        "resolution": "Retain denial precedence in the existing SQL evaluator.",
+        "id": "CH-LEDGER-02",
+        "scenario": "A developer copies SQL rather than moving the same Git blob.",
+        "finding": "Both source names survive, creating duplicate migration candidates.",
+        "resolution": "Delete original path and add corrected path with byte-identical content.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-03",
-        "scenario": "Viewer and order manager operate in the same tenant.",
-        "finding": "Broad role grants would permit unauthorized customer communications.",
-        "resolution": "Insert only support with exact office.email.compose capability.",
+        "id": "CH-LEDGER-03",
+        "scenario": "A source-identity checker hashes bytes after the rename.",
+        "finding": "A changed SQL whitespace byte could silently affect canonical provenance.",
+        "resolution": "Compare exact source contents and preserve its Git blob identity.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-04",
-        "scenario": "The target database lacks the original permission catalog.",
-        "finding": "A partial migration would falsely claim the role is configured.",
-        "resolution": "Require catalog prerequisites and fail the transaction.",
+        "id": "CH-LEDGER-04",
+        "scenario": "An existing test reads the earlier 20261019090000 path.",
+        "finding": "Read fails despite the correct SQL existing in the new location.",
+        "resolution": "Update both impacted Vitest paths and rerun tests.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-05",
-        "scenario": "The same new SQL migration runs a second time.",
-        "finding": "A duplicate role grant or changed default scope could arise.",
-        "resolution": "Use exact composite key conflict handling and one all scope.",
+        "id": "CH-LEDGER-05",
+        "scenario": "Owner previously denied an individual support employee composing email.",
+        "finding": "A poorly implemented replay could replace the denial with a grant.",
+        "resolution": "Preserve only role preset upsert with no user overrides or new grant semantics.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-06",
-        "scenario": "An Alap account has an otherwise valid support role.",
-        "finding": "A role preset might be confused with the Pro workspace entitlement.",
-        "resolution": "Keep subscription plan gating untouched and separately enforced.",
+        "id": "CH-LEDGER-06",
+        "scenario": "An Alap tenant tries to use the advanced Digital Office after migration mapping.",
+        "finding": "Source movement cannot authorize a Pro workspace under Alap.",
+        "resolution": "No subscription or server entitlement function modification.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-07",
-        "scenario": "An email is drafted without an active approved sender mailbox.",
-        "finding": "A system might falsely report delivery and lose user content.",
-        "resolution": "Do not change sending mailbox gates or worker semantics.",
+        "id": "CH-LEDGER-07",
+        "scenario": "Preview Vercel build points at paused staging rather than Fresh Install.",
+        "finding": "UI testing on that preview risks false failure and wrong datastore writes.",
+        "resolution": "Keep all preview deployments disabled until correct isolated environment is proven.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-08",
-        "scenario": "Existing hosted Fresh Install has an empty migration ledger.",
-        "finding": "Deploying out of sequence could corrupt Office migration provenance.",
-        "resolution": "Do not run hosted SQL before independently approved Office baseline.",
+        "id": "CH-LEDGER-08",
+        "scenario": "The installed ledger already has the correction and no mailbox configured.",
+        "finding": "Marking source parity as full send acceptance creates a false readiness claim.",
+        "resolution": "Restrict success wording to the exact source-to-ledger identity and no hosted runtime write.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code with exact change base and scoped support-only migration paths.",
-      "Verify support role SQL and canonical explicit-deny precedence using targeted adversarial regressions.",
-      "Run native PostgreSQL17 integration and exact-head CI before making any successful behavior claim.",
-      "Prohibit hosted SQL until official current-state baseline and Office prerequisites are owner-approved."
+      "Check the exact installed Fresh Install schema_migrations version and name using read-only Supabase query.",
+      "Keep original SQL Git blob content unmodified and rename only its source path, with current branch as change base.",
+      "Verify both migration-dependent tests and full source security, TypeScript and build CI on the exact new source SHA.",
+      "Require Completion Truth and explicit lifecycle closure without claiming managed JWT or Vercel preview readiness."
     ],
     "semanticExecutionRoute": {
-      "request": "https://github.com/infowaterk-max/water-K-/pull/1431",
+      "request": "https://github.com/infowaterk-max/water-K-/pull/1442",
       "authority": [
         "database-schema"
       ],
       "mustEdit": [
+        "tests/digital-office-support-compose-role-default.test.ts",
         "tests/digital-office-composer-drafts-foundation.test.ts"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
-      "mustCreate": [
-        "docs/po/OFFICE_SUPPORT_DEFAULT_COMPOSE_FIX_2026-10-19.md",
-        "supabase/migrations/20261019090000_office_support_compose_default_v1.sql",
-        "tests/digital-office-support-compose-role-default.test.ts"
-      ],
+      "mustCreate": [],
       "forbidden": [],
       "proof": [
-        "tests/digital-office-composer-drafts-foundation.test.ts",
-        "tests/digital-office-support-compose-role-default.test.ts"
+        "tests/digital-office-support-compose-role-default.test.ts",
+        "tests/digital-office-composer-drafts-foundation.test.ts"
       ],
       "unknown": [],
-      "plannedDeletions": []
+      "plannedDeletions": [],
+      "plannedRenames": [
+        {
+          "from": "supabase/migrations/20261019090000_office_support_compose_default_v1.sql",
+          "to": "supabase/migrations/20261019073857_office_support_compose_default_v1.sql"
+        }
+      ]
     },
     "executionAuthorized": true,
-    "problemStatement": "The existing Digital Office composer foundation introduced an optional email-compose capability without the inherited support role grant, contradicting the approved default capability and preventing support employees from writing their own customer drafts.",
+    "problemStatement": "The managed Fresh Install ledger contains the already applied support compose SQL at version 20261019073857 but the unmerged repository calls the byte-identical migration 20261019090000, which would create false replay risk for future schema tooling.",
     "observableOutcomes": [
-      "Authorized support members inherit office.email.compose automatically without owner extra grants.",
-      "Explicit individual denial still overrides the inherited role preset in server capability evaluation.",
-      "The Pro-only Digital Office and disabled-mailbox send boundary stay unaffected by the SQL preset correction."
+      "Canonical repository SQL filename equals the existing hosted migration ledger version and migration name without rewriting any SQL bytes.",
+      "Original later filename is removed so automated source migration reconciliation cannot treat the already applied capability correction as a second migration.",
+      "Tests retain role-only compose, explicit deny priority and mailbox fail-closed authority while mapping to exact source file."
     ],
     "unresolvedRisks": [
-      "Hosted PostgreSQL and managed Supabase Auth acceptance have not been tested for this new migration.",
-      "The original Fresh Install migration adoption and 31-source forward-release blocks remain independently unresolved.",
-      "Static source assertions alone cannot certify an actual email draft save or customer delivery journey."
+      "Vercel preview branch still inherits inactive staging URL and must not be used until isolated Fresh credentials are resolved.",
+      "Changing a source filename cannot attest full hosted signed JWT end-user draft-save semantics.",
+      "Other historical Office source migration ordering remains separately governed by the installed six prior Fresh rows and existing integration PR."
     ],
     "scope": {
       "in": [
-        "One forward-only support permission preset migration and its isolated static regression file.",
-        "Preserve historical immutable migration source and document the dependency on Office readiness."
+        "Rename one not-yet-main forward SQL migration filename to actual installed ledger version, preserving file bytes.",
+        "Correct exact path references in two targeted static regressions and update existing PO receipt."
       ],
       "out": [
-        "No hosted database migration, baseline adoption, Auth fixtures or mailbox activation.",
-        "No admin page, customer send worker, Builder or Pro subscription policy modification."
+        "Never invoke apply_migration or mutate Supabase migration ledger again.",
+        "No production Vercel deployment, secret copying, platform/staging project state change or Office mailbox creation.",
+        "No source SQL body rewrite or change of accepted support inheritance semantics."
       ]
     }
   },
   "completionContract": {
     "sourceKind": "product-owner-request",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1431",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1442",
     "systemObligations": {
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
         "GUARD-PLAN-BEFORE-CODE",
-        "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-QUALITY-TESTS",
         "GUARD-TYPECHECK",
         "GUARD-COMPLETION-TRUTH"
@@ -312,11 +318,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-SUPPORT-COMPOSE-DEFAULT",
-        "requirement": "Active support employees receive default email compose through a single inherited role preset.",
+        "id": "REQ-OFFICE-LEDGER-PARITY",
+        "requirement": "Repository source migration filename exactly matches already installed Fresh Install ledger timestamp while preserving SQL body bytes and role grant.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "support-office-role-authority",
+          "breadth": "office-compose-migration-ledger-source-parity",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -337,8 +343,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SUPPORT-OWNER-DENY",
-            "statement": "No owner-denied support employee or unrelated store role gains default compose through this migration.",
+            "id": "NEG-OFFICE-DUPLICATE-SQL",
+            "statement": "No duplicate future-named SQL migration, fabricated ledger history, tenant mutation or mailbox activation is allowed.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -347,14 +353,14 @@
       }
     ]
   },
-  "notes": "Plan created on separate SQL-only branch before new implementation. Original unverified #1431 source chronology is explicitly not retroactively claimed. After first Plan Before Code feedback, the exact active-plan metadata path is declared MUST_EDIT, because non-child critical execution requires a concrete existing edit path; no source scope expanded. Corrected edit-time implementation sync: the existing composer foundation regression is an actual changed code test. Active-plan metadata is not counted as a material implementation edit. Exact implementation SHA 35bb810dc8a18922da71ff0f80e69317de69275a had 3565 passing quality tests, TS/build PASS, Completion Truth VERIFIED_DONE on run 39214522366; this metadata-only close does not claim native hosted Auth/RLS or migration execution.",
+  "notes": "New bounded provenance transaction after prior #1442 source-only VERIFIED_DONE / CLOSED. Fresh Install applied office_support_compose_default_v1 with actual ledger version 20261019073857, not source file initial future filename 20261019090000. Rename the source file with BYTE-IDENTICAL content and retarget two tests. No hosted DB write, no fake migration history, no mailbox activation. Original preflight intentionally blocked generic plannedDeletion of a non-forbidden source. Govern this byte-identical move with the canonical plannedRenames release operation instead; no Plan Before Code bypass. Post-rename canonical plan reconciliation: deleted old Git filename is represented solely as plannedRenames.from, not as a projected live source target. Current new filename is tracked and existing; critical MUST_CREATE must be empty. CI must still prove changed rename transaction. Exact source parity head d6cdcf8589abcf37cffd56ac85fd9d484e1b8077 passed 3565 tests, TypeScript, production build, and Completion Truth VERIFIED_DONE on run 39220024320. Source renaming is now closed; no hosted SQL was re-run.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "35bb810dc8a18922da71ff0f80e69317de69275a",
-    "closedAt": "2026-10-19T07:18:30.033Z",
+    "verifiedImplementationHead": "d6cdcf8589abcf37cffd56ac85fd9d484e1b8077",
+    "closedAt": "2026-10-19T08:07:07.212Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1442",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1446",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",

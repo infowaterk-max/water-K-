@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 
 const read=(path:string)=>readFileSync(join(process.cwd(),path),'utf8');
-const migration=read('supabase/migrations/20261019090000_office_support_compose_default_v1.sql');
+const migration=read('supabase/migrations/20261019073857_office_support_compose_default_v1.sql');
 const foundation=read('supabase/migrations/20260908034000_digital_office_composer_drafts_foundation_v1.sql');
 const roles=read('supabase/migrations/20260907203000_team_permissions_foundation_v1.sql');
 
