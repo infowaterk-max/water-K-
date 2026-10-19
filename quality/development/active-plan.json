@@ -273,8 +273,12 @@
         "tests/digital-office-composer-drafts-foundation.test.ts"
       ],
       "unknown": [],
-      "plannedDeletions": [
-        "supabase/migrations/20261019090000_office_support_compose_default_v1.sql"
+      "plannedDeletions": [],
+      "plannedRenames": [
+        {
+          "from": "supabase/migrations/20261019090000_office_support_compose_default_v1.sql",
+          "to": "supabase/migrations/20261019073857_office_support_compose_default_v1.sql"
+        }
       ]
     },
     "executionAuthorized": true,
@@ -352,5 +356,5 @@
       }
     ]
   },
-  "notes": "New bounded provenance transaction after prior #1442 source-only VERIFIED_DONE / CLOSED. Fresh Install applied office_support_compose_default_v1 with actual ledger version 20261019073857, not source file initial future filename 20261019090000. Rename the source file with BYTE-IDENTICAL content and retarget two tests. No hosted DB write, no fake migration history, no mailbox activation."
+  "notes": "New bounded provenance transaction after prior #1442 source-only VERIFIED_DONE / CLOSED. Fresh Install applied office_support_compose_default_v1 with actual ledger version 20261019073857, not source file initial future filename 20261019090000. Rename the source file with BYTE-IDENTICAL content and retarget two tests. No hosted DB write, no fake migration history, no mailbox activation. Original preflight intentionally blocked generic plannedDeletion of a non-forbidden source. Govern this byte-identical move with the canonical plannedRenames release operation instead; no Plan Before Code bypass."
 }
