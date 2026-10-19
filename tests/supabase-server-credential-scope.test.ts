@@ -192,7 +192,7 @@ describe('Supabase server credential scoping', () => {
   const acceptedFreshMarker='office-fresh-20261019';
 
   const previewResult=(overrides:Record<string,string|undefined>)=>{
-    const env:Record<string,string|undefined>={
+    const env:NodeJS.ProcessEnv={
       ...process.env,
       VERCEL:'1',
       VERCEL_ENV:'preview',
@@ -203,6 +203,7 @@ describe('Supabase server credential scoping', () => {
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:'test-public-key',
       SUPABASE_STAGING_SECRET_KEY:'test-fresh-server-key',
       ...overrides,
+      NODE_ENV:'test',
     };
     return spawnSync(process.execPath,[join(process.cwd(),'scripts/validate-vercel-deploy-env.mjs')],{encoding:'utf8',env});
   };
