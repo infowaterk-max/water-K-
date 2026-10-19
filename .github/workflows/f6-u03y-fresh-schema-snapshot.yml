@@ -1,0 +1,495 @@
+name: F6-U03y managed 0046 encrypted schema-only snapshot and native PG17 import
+on:
+  push:
+    branches: [feature/core-1186-f6-u03y-encrypted-managed-schema-snapshot]
+    paths: [.github/workflows/f6-u03y-fresh-schema-snapshot.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  native-backup:
+    if: "${{ github.repository == 'infowaterk-max/water-K-' && github.ref == 'refs/heads/feature/core-1186-f6-u03y-encrypted-managed-schema-snapshot' }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      SHOPERATION_FRESH_INSTALL_DB_URL: ${{ secrets.SHOPERATION_FRESH_INSTALL_DB_URL }}
+    services:
+      pg17:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: f6_backup_disposable_local_only
+          POSTGRES_DB: f6_u03i_fresh
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d f6_u03i_fresh"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - name: Validate exact Fresh Install secret and enforce verified TLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import {appendFileSync} from 'node:fs';
+          const raw=process.env.SHOPERATION_FRESH_INSTALL_DB_URL;
+          if(!raw||/\s/.test(raw))throw Error('F6_BACKUP_MISSING_OR_MALFORMED_SECRET');
+          let u;try{u=new URL(raw)}catch{throw Error('F6_BACKUP_INVALID_URL')}
+          if(!['postgres:','postgresql:'].includes(u.protocol)||!u.password||u.hash||u.pathname!=='/postgres'||[...u.searchParams.keys()].some(x=>x!=='sslmode'))throw Error('F6_BACKUP_UNSAFE_DB_URL');
+          const ref='istjjkdcvsvilrycqecd';
+          const direct=u.hostname==='db.'+ref+'.supabase.co'&&u.username==='postgres'&&(!u.port||u.port==='5432');
+          const pooler=u.hostname==='aws-0-eu-central-1.pooler.supabase.com'&&u.username==='postgres.'+ref&&(!u.port||['5432','6543'].includes(u.port));
+          if(!direct&&!pooler)throw Error('F6_BACKUP_FOREIGN_TARGET');
+          // Native pg_dump requires a session. The same verified Supavisor host supports session mode on port 5432.
+          if(pooler && u.port==='6543')u.port='5432';
+          u.searchParams.set('sslmode','verify-full');
+          appendFileSync(process.env.GITHUB_ENV,'PGDATABASE='+u.toString()+'\n');
+          console.log('F6_BACKUP_BOUND_TO_FRESH_INSTALL');
+          NODE
+      - name: Prepare read-only original exact-schema preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/fresh-safe" artifacts/f6-u03g/catalog-drift
+          chmod 700 "$RUNNER_TEMP/fresh-safe"
+          # Official public Supabase root, never a downloaded leaf or untrusted self-signed substitute.
+          curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 --retry 2 --max-time 25 \
+            https://supabase-downloads.s3-ap-southeast-1.amazonaws.com/prod/ssl/prod-ca-2021.crt \
+            --output "$RUNNER_TEMP/fresh-safe/supabase-ca.crt"
+          openssl x509 -in "$RUNNER_TEMP/fresh-safe/supabase-ca.crt" -noout -subject -dates | grep -F 'Supabase Root 2021 CA'
+          actual_ca="$(openssl x509 -in "$RUNNER_TEMP/fresh-safe/supabase-ca.crt" -outform DER | sha256sum | cut -d' ' -f1)"
+          test "$actual_ca" = '807025ad50d4ed219d2c9c7d299c004f824eb00cf7f65afef607d07b72e6cafa' \
+            || { echo F6_BACKUP_SUPABASE_ROOT_CA_PIN_MISMATCH >&2;exit 1; }
+          echo 'F6_BACKUP_PINNED_SUPABASE_ROOT_CA_OK'
+          docker run --rm postgres:17 pg_dump --version | grep -E '^pg_dump \(PostgreSQL\) 17\.'
+          node scripts/shoperation-f6-u03g-catalog-drift.mjs --emit-sql artifacts/f6-u03g/catalog-drift
+          cp artifacts/f6-u03g/catalog-drift/original.sql "$RUNNER_TEMP/fresh-safe/catalog.sql"
+          cat > "$RUNNER_TEMP/fresh-safe/guard.sql" <<'SQL'
+          DO $g$ BEGIN
+          IF current_database()<>'postgres' OR current_user<>'postgres' OR current_setting('server_version_num')::integer/10000<>17
+          OR (SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN('r','p') AND NOT c.relispartition)<>175
+          OR (SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='private' AND c.relkind IN('r','p') AND NOT c.relispartition)<>2
+          OR (SELECT count(*) FROM auth.users)<>0
+          OR (SELECT count(*) FROM auth.identities)<>0
+          OR (SELECT count(*) FROM auth.sessions)<>0
+          OR (SELECT count(*) FROM storage.objects)<>0
+          OR (SELECT count(*) FROM supabase_migrations.schema_migrations)<>0
+          OR (SELECT count(*) FROM public.organizations)<>0
+          OR (SELECT count(*) FROM public.webshop_instances)<>0
+          OR (SELECT count(*) FROM public.office_threads)<>0
+          OR (SELECT count(*) FROM public.office_messages)<>0
+          OR (SELECT count(*) FROM public.office_tasks)<>0
+          OR to_regclass('public.office_thread_participants') IS NOT NULL
+          OR to_regprocedure('private.current_user_can_read_office_thread_v1(uuid,uuid)') IS NOT NULL
+          THEN RAISE EXCEPTION 'F6_BACKUP_HOSTED_SOURCE_DRIFT'; END IF;
+          END $g$;
+          SQL
+      - name: Prove hosted peer catalog, then read-only PG17 full custom archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          d="$RUNNER_TEMP/fresh-safe"
+          docker run --rm --network host -e PGDATABASE -v "$RUNNER_TEMP/fresh-safe/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -X -v ON_ERROR_STOP=1 -f /audit/guard.sql' >/dev/null
+          h="$(docker run --rm --network host -e PGDATABASE -v "$RUNNER_TEMP/fresh-safe/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /audit/catalog.sql')"
+          test "$h" = '4621|e312b40ad91150ce937f4aa00db587f3'
+          docker run --rm --network host -e PGDATABASE -v "$RUNNER_TEMP/fresh-safe/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt -v "$d:/backup" postgres:17 sh -c 'exec pg_dump -d "$PGDATABASE" -Fc --no-owner --no-privileges --schema=public --schema=private -f /backup/app-owned.dump'
+          test -s "$d/app-owned.dump"
+          docker run --rm -v "$d:/backup:ro" postgres:17 pg_restore --list /backup/app-owned.dump > "$d/toc.txt"
+          grep -q 'TABLE DATA public' "$d/toc.txt"
+          echo 'F6_BACKUP_MANAGED_APPLICATION_DUMP_READABLE'
+      - name: Create independent original-source PostgreSQL17 restoration database
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/shoperation-f6-u03r-occupied-upgrade.mjs --emit artifacts/f6-u03r/occupied-upgrade
+          f="$PWD/artifacts/f6-u03r/occupied-upgrade"
+          for name in bootstrap legacy; do
+            docker run --rm --network host -e PGHOST=127.0.0.1 -e PGPORT=5432 -e PGUSER=postgres -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh -v "$f:/fixture:ro" postgres:17 psql -X -v ON_ERROR_STOP=1 -f "/fixture/$name.sql" >/dev/null
+          done
+          echo 'F6_BACKUP_SOURCE_PINNED_RESTORE_SCHEMA_READY'
+      - name: Prove real native pg_restore and 113 neutral entitlement rows
+        shell: bash
+        run: |
+          set -euo pipefail
+          d="$RUNNER_TEMP/fresh-safe"
+          cat > "$d/clear-local.sql" <<'SQL'
+          DO $g$ DECLARE rel text; BEGIN
+          IF current_database()<>'f6_u03i_fresh' OR current_user<>'postgres' OR current_setting('server_version_num')::integer/10000<>17 THEN RAISE EXCEPTION 'NOT_DISPOSABLE'; END IF;
+          SELECT string_agg(format('%I.%I',n.nspname,c.relname),', ' ORDER BY n.nspname,c.relname) INTO rel
+          FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+          WHERE n.nspname IN ('public','private') AND c.relkind IN ('r','p') AND NOT c.relispartition;
+          EXECUTE 'TRUNCATE TABLE '||rel||' CASCADE';
+          END $g$;
+          SQL
+          docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh -v "$d:/audit:ro" postgres:17 psql -X -v ON_ERROR_STOP=1 -f /audit/clear-local.sql >/dev/null
+          docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh -v "$d:/backup:ro" postgres:17 pg_restore --data-only --disable-triggers --single-transaction --exit-on-error --no-owner --no-privileges -d f6_u03i_fresh /backup/app-owned.dump >/dev/null
+          cat > "$d/check-local.sql" <<'SQL'
+          DO $g$ DECLARE n integer; BEGIN
+          IF current_database()<>'f6_u03i_fresh'
+          OR (SELECT count(*) FROM pg_class c JOIN pg_namespace s ON s.oid=c.relnamespace WHERE s.nspname='public' AND c.relkind IN ('r','p') AND NOT c.relispartition)<>175
+          OR (SELECT count(*) FROM pg_class c JOIN pg_namespace s ON s.oid=c.relnamespace WHERE s.nspname='private' AND c.relkind IN ('r','p') AND NOT c.relispartition)<>2
+          THEN RAISE EXCEPTION 'F6_BACKUP_RESTORED_SCHEMA_DRIFT'; END IF;
+          SELECT (SELECT count(*) FROM public.addon_capability_grants)+(SELECT count(*) FROM public.addon_entitlement_catalog)+
+          (SELECT count(*) FROM public.addon_plan_compatibility)+(SELECT count(*) FROM public.entitlement_capabilities)+
+          (SELECT count(*) FROM public.entitlement_source_precedence)+(SELECT count(*) FROM public.plan_capability_grants)+
+          (SELECT count(*) FROM public.subscription_plan_catalog) INTO n;
+          -- During data-only replay pg_restore may load child tables before parents.
+          -- Restore with local-only FK triggers disabled, then explicitly recheck all six catalog FK links.
+          IF EXISTS (SELECT 1 FROM public.addon_capability_grants g WHERE NOT EXISTS (SELECT 1 FROM public.addon_entitlement_catalog p WHERE p.addon_code=g.addon_code))
+          OR EXISTS (SELECT 1 FROM public.addon_capability_grants g WHERE NOT EXISTS (SELECT 1 FROM public.entitlement_capabilities p WHERE p.capability_code=g.capability_code))
+          OR EXISTS (SELECT 1 FROM public.addon_plan_compatibility g WHERE NOT EXISTS (SELECT 1 FROM public.addon_entitlement_catalog p WHERE p.addon_code=g.addon_code))
+          OR EXISTS (SELECT 1 FROM public.addon_plan_compatibility g WHERE NOT EXISTS (SELECT 1 FROM public.subscription_plan_catalog p WHERE p.plan_code=g.plan_code))
+          OR EXISTS (SELECT 1 FROM public.plan_capability_grants g WHERE NOT EXISTS (SELECT 1 FROM public.entitlement_capabilities p WHERE p.capability_code=g.capability_code))
+          OR EXISTS (SELECT 1 FROM public.plan_capability_grants g WHERE NOT EXISTS (SELECT 1 FROM public.subscription_plan_catalog p WHERE p.plan_code=g.plan_code))
+          THEN RAISE EXCEPTION 'F6_BACKUP_RESTORE_FOREIGN_KEY_CORRUPTION'; END IF;
+          IF n<>113 OR (SELECT count(*) FROM public.office_threads)<>0 OR (SELECT count(*) FROM public.webshop_instances)<>0
+          THEN RAISE EXCEPTION 'F6_BACKUP_RESTORE_ROWS_INVALID: %',n; END IF;
+          END $g$;
+          SQL
+          docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh -v "$d:/audit:ro" postgres:17 psql -X -v ON_ERROR_STOP=1 -f /audit/check-local.sql >/dev/null
+          echo 'F6_BACKUP_NATIVE_PG17_RESTORE_113_ROWS_PASS'
+      - name: Confirm unchanged hosted source after dump before encryption
+        shell: bash
+        run: |
+          set -euo pipefail
+          d="$RUNNER_TEMP/fresh-safe"
+          docker run --rm --network host -e PGDATABASE -v "$RUNNER_TEMP/fresh-safe/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -X -v ON_ERROR_STOP=1 -f /audit/guard.sql' >/dev/null
+          h="$(docker run --rm --network host -e PGDATABASE -v "$RUNNER_TEMP/fresh-safe/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt -v "$d:/audit:ro" postgres:17 sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /audit/catalog.sql')"
+          test "$h" = '4621|e312b40ad91150ce937f4aa00db587f3'
+          echo 'F6_BACKUP_SOURCE_UNCHANGED'
+      - name: Capture read-only current-state schema with ACL and managed boundary inventory
+        id: schema-capture
+        shell: bash
+        run: |
+          set -euo pipefail
+          d="$RUNNER_TEMP/fresh-safe"
+          # This is a native PG17 schema-only pg_dump on the allowlisted source; keep original owner/grants.
+          docker run --rm --network host -e PGDATABASE \
+            -v "$d/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt \
+            -v "$d:/snap" postgres:17 sh -c \
+            'exec pg_dump -d "$PGDATABASE" --format=custom --schema-only --schema=public --schema=private --file=/snap/app-schema-only.dump'
+          docker run --rm -v "$d:/snap:ro" postgres:17 pg_restore --list /snap/app-schema-only.dump > "$d/schema.toc"
+          grep -q 'SCHEMA - private' "$d/schema.toc"
+          grep -q 'SCHEMA - public' "$d/schema.toc"
+          grep -q 'ACL ' "$d/schema.toc"
+          sha256sum "$d/app-schema-only.dump" | cut -d' ' -f1 > "$d/schema.sha256"
+          node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          import {READ_ONLY_SQL} from './scripts/shoperation-f6-u03d-managed-preflight.mjs';
+          if(!READ_ONLY_SQL.startsWith('WITH deps AS')||!READ_ONLY_SQL.includes('externalDependencies'))
+            throw Error('F6U03Y_MANAGED_CANONICAL_SELECT_DRIFT');
+          writeFileSync(process.env.RUNNER_TEMP+'/fresh-safe/provider.sql',READ_ONLY_SQL);
+          NODE
+          docker run --rm --network host -e PGDATABASE \
+            -v "$d/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt \
+            -v "$d:/snap:ro" postgres:17 sh -c \
+            'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /snap/provider.sql' > "$d/provider-inventory.json"
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const s=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/fresh-safe/provider-inventory.json','utf8'));
+          const eq=(v,x)=>JSON.stringify(v)===JSON.stringify(x);
+          const base={database:'postgres',dbRole:'postgres',serverMajor:17,publicTables:175,
+           privateTables:2,authUsers:0,authIdentities:0,authSessions:0,
+           storageObjects:0,migrationHistory:0};
+          for(const [k,v] of Object.entries(base))if(!eq(s[k],v))throw Error('F6U03Y_MANAGED_STATE_DRIFT:'+k);
+          if(s.schemaGrants?.length!==2||s.externalDependencies?.length!==1||
+             s.eventTriggers?.length!==6||s.storageBuckets?.length!==4)
+            throw Error('F6U03Y_MANAGED_BOUNDARY_DRIFT');
+          if(!s.externalDependencies.some(d=>d.dependent==='trigger on_auth_user_created on table auth.users'&&
+              d.referenced==='function private.handle_new_user()'))
+            throw Error('F6U03Y_CROSS_SCHEMA_AUTH_TRIGGER_MISSING');
+          if(!s.eventTriggers.every(t=>t.schema==='extensions'&&t.owner==='supabase_admin'&&t.enabled==='O'))
+            throw Error('F6U03Y_PROVIDER_EVENTS_INVALID');
+          if(!s.storageBuckets.some(b=>b.id==='product-media'&&b.public===true)||
+             s.storageBuckets.filter(b=>b.public===false).length!==3)
+            throw Error('F6U03Y_STORAGE_BUCKET_DRIFT');
+          console.log('F6U03Y_MANAGED_BOUNDARY_READ_ONLY_PASS');
+          NODE
+          sha256sum "$d/provider-inventory.json" | cut -d' ' -f1 > "$d/provider.sha256"
+          # A second exact source check also catches changes between app-data dump and schema-only capture.
+          docker run --rm --network host -e PGDATABASE \
+            -v "$d/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt \
+            -v "$d:/snap:ro" postgres:17 sh -c \
+            'exec psql -d "$PGDATABASE" -X -v ON_ERROR_STOP=1 -f /snap/guard.sql' > /dev/null
+          h="$(docker run --rm --network host -e PGDATABASE \
+            -v "$d/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt \
+            -v "$d:/snap:ro" postgres:17 sh -c \
+            'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /snap/catalog.sql')"
+          test "$h" = '4621|e312b40ad91150ce937f4aa00db587f3'
+          echo 'F6U03Y_HOSTED_SCHEMA_SNAPSHOT_CAPTURED_UNCHANGED'
+      - name: Prove captured schema-only custom archive restores on disposable PostgreSQL 17
+        id: schema-import
+        shell: bash
+        run: |
+          set -euo pipefail
+          d="$RUNNER_TEMP/fresh-safe"
+          cat > "$d/drop-disposable-only.sql" <<'SQL'
+          DO $g$ BEGIN
+            IF current_database()<>'f6_u03i_fresh' OR current_user<>'postgres'
+              OR current_setting('server_version_num')::integer/10000<>17
+              OR to_regclass('auth.users') IS NULL
+              THEN RAISE EXCEPTION 'F6U03Y_NOT_DISPOSABLE_PG17'; END IF;
+          END $g$;
+          DROP SCHEMA IF EXISTS private CASCADE;
+          DROP SCHEMA IF EXISTS public CASCADE;
+          SQL
+          # The shared local PG17 database was already reconstructed from original 0046 sources
+          # and data-only restored. Clear ONLY its application schemas before importing the live snapshot.
+          docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres \
+            -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh \
+            -v "$d:/snap:ro" postgres:17 psql -X -v ON_ERROR_STOP=1 \
+            -f /snap/drop-disposable-only.sql > /dev/null
+          docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres \
+            -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh \
+            -v "$d:/snap:ro" postgres:17 pg_restore --schema-only --single-transaction \
+            --exit-on-error -d f6_u03i_fresh /snap/app-schema-only.dump > /dev/null
+          local_hash="$(docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres \
+            -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh \
+            -v "$d:/snap:ro" postgres:17 psql -XAt -v ON_ERROR_STOP=1 -f /snap/catalog.sql)"
+          # The prior exact-head run failed here without reporting whether count or definitions drifted.
+          # Log ONLY aggregate count and MD5: never disclose schema SQL, credentials or data.
+          if test "$local_hash" != '4621|e312b40ad91150ce937f4aa00db587f3'; then
+            # Compare salted-independent object keys and definition digests; never print raw DDL.
+            # App-owned schema names are source-versioned, but no SQL body or row is logged.
+            node --input-type=module <<'NODE'
+          import {readFileSync,writeFileSync} from 'node:fs';
+          const d=process.env.RUNNER_TEMP+'/fresh-safe';
+          const original=readFileSync(d+'/catalog.sql','utf8').trim();
+          const marker=String.raw`SELECT count(*),md5(string_agg(k||E'\t'||coalesce(v,'<NULL>'),E'\n' ORDER BY k,v)) FROM object_defs;`;
+          if(!original.endsWith(marker))throw Error('F6U03Y_CATALOG_DIAGNOSTIC_SOURCE_CHANGED');
+          const sql=original.slice(0,-marker.length)+
+           "SELECT jsonb_build_object('kind',split_part(k,':',1),'key',k,'digest',md5(coalesce(v,'<NULL>'))) FROM object_defs ORDER BY k,v;\n";
+          writeFileSync(d+'/object-digests.sql',sql,{mode:0o600});
+          const exactRoleNamesSql=original.replace('p.polroles::text',
+            "(SELECT coalesce(string_agg(CASE WHEN u.oidval=0 THEN 'PUBLIC' ELSE pg_get_userbyid(u.oidval) END, ',' ORDER BY CASE WHEN u.oidval=0 THEN 'PUBLIC' ELSE pg_get_userbyid(u.oidval) END),'') FROM unnest(p.polroles) AS u(oidval))");
+          if(exactRoleNamesSql===original)throw Error('F6U03Y_POLICY_ROLE_PROJECTION_NOT_FOUND');
+          const policySql=exactRoleNamesSql.slice(0,-marker.length)+
+            "SELECT jsonb_build_object('key',k,'digest',md5(coalesce(v,'<NULL>'))) FROM object_defs WHERE k LIKE 'policy:%' ORDER BY k,v;\n";
+          writeFileSync(d+'/policy-role-names.sql',policySql,{mode:0o600});
+          const constraintSql=original.slice(0,-marker.length)+
+            "SELECT jsonb_build_object('key',k,'definition',v) FROM object_defs WHERE k IN ('constraint:public.digital_assets.digital_assets_storage_path_check','constraint:public.order_customer_documents.order_customer_documents_storage_path_check','constraint:public.product_documents.product_documents_storage_path_check') ORDER BY k,v;\n";
+          writeFileSync(d+'/check-definitions.sql',constraintSql,{mode:0o600});
+          NODE
+            docker run --rm --network host -e PGDATABASE \
+              -v "$d/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt \
+              -v "$d:/snap:ro" postgres:17 \
+              sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f /snap/object-digests.sql' > "$d/hosted-object-digests.jsonl"
+            docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres \
+              -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh \
+              -v "$d:/snap:ro" postgres:17 \
+              psql -XAt -v ON_ERROR_STOP=1 -f /snap/object-digests.sql > "$d/local-object-digests.jsonl"
+
+            for q in policy-role-names check-definitions; do
+              docker run --rm --network host -e PGDATABASE \
+                -v "$d/supabase-ca.crt:/supabase-ca.crt:ro" -e PGSSLROOTCERT=/supabase-ca.crt \
+                -v "$d:/snap:ro" postgres:17 \
+                sh -c 'exec psql -d "$PGDATABASE" -XAt -v ON_ERROR_STOP=1 -f "/snap/$1.sql"' sh "$q" > "$d/hosted-$q.jsonl"
+              docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres \
+                -e PGPASSWORD=f6_backup_disposable_local_only -e PGDATABASE=f6_u03i_fresh \
+                -v "$d:/snap:ro" postgres:17 \
+                sh -c 'exec psql -XAt -v ON_ERROR_STOP=1 -f "/snap/$1.sql"' sh "$q" > "$d/local-$q.jsonl"
+            done
+            node --input-type=module <<'NODE'
+          import {readFileSync,writeFileSync} from 'node:fs';
+          const d=process.env.RUNNER_TEMP+'/fresh-safe';
+          function read(path){
+            const rows=readFileSync(path,'utf8').trim().split('\n').map(x=>JSON.parse(x));
+            const m=new Map();
+            for(const r of rows){
+              if(typeof r.key!=='string'||typeof r.digest!=='string'||m.has(r.key))
+                throw Error('F6U03Y_OBJECT_DIAGNOSTIC_MALFORMED');
+              m.set(r.key,r);
+            }
+            return m;
+          }
+          const hosted=read(d+'/hosted-object-digests.jsonl'),
+                local=read(d+'/local-object-digests.jsonl');
+          const missing=[],extra=[],changed=[];
+          for(const [k,a] of hosted){
+            const b=local.get(k);
+            if(!b)missing.push(k);
+            else if(a.digest!==b.digest)changed.push(k);
+          }
+          for(const k of local.keys())if(!hosted.has(k))extra.push(k);
+          const grouped={};
+          for(const k of changed)grouped[k.split(':',1)[0]]=(grouped[k.split(':',1)[0]]||0)+1;
+          console.log('F6U03Y_SCHEMA_DIGEST_DIAGNOSTIC='+JSON.stringify({
+             hostedCount:hosted.size,localCount:local.size,
+             missingCount:missing.length,extraCount:extra.length,changedCount:changed.length,
+             differingObjectKinds:grouped,
+             changedObjectNamesSample:changed.slice(0,15),
+             missingNamesSample:missing.slice(0,5),extraNamesSample:extra.slice(0,5)}));
+
+          function readObjectRows(filename){
+            return new Map(readFileSync(d+'/'+filename,'utf8').trim().split('\n').map(line=>{
+              const v=JSON.parse(line);return [v.key,v];
+            }));
+          }
+          const hostedPolicy=readObjectRows('hosted-policy-role-names.jsonl');
+          const localPolicy=readObjectRows('local-policy-role-names.jsonl');
+          const policyChanged=[...hostedPolicy.keys()].filter(k=>hostedPolicy.get(k)?.digest!==localPolicy.get(k)?.digest);
+          const policyNamesMatch=hostedPolicy.size===126&&localPolicy.size===126&&policyChanged.length===0;
+          console.log('F6U03Y_CANONICAL_POLICY_ROLE_NAMES='+JSON.stringify({
+            hostedPolicies:hostedPolicy.size,localPolicies:localPolicy.size,
+            equivalentPolicyDefinitions:policyNamesMatch,normalizedDifferences:policyChanged.length,
+            normalizedDifferenceSamples:policyChanged.slice(0,5)}));
+          const hostedChecks=readObjectRows('hosted-check-definitions.jsonl');
+          const localChecks=readObjectRows('local-check-definitions.jsonl');
+          const backslash=String.fromCharCode(92);
+          const checks=[...hostedChecks.keys()].map(k=>{
+            const h=hostedChecks.get(k).definition,l=localChecks.get(k)?.definition;
+            const a=[...h],b=[...String(l??'')];
+            let at=0;while(at<Math.min(a.length,b.length)&&a[at]===b[at])at++;
+            return {key:k,hostLength:a.length,localLength:b.length,
+              firstDiffOffset:at,
+              hostCodepoints:a.slice(Math.max(0,at-3),at+8).map(x=>x.codePointAt(0)),
+              localCodepoints:b.slice(Math.max(0,at-3),at+8).map(x=>x.codePointAt(0)),
+              backslashesHost:a.filter(c=>c===backslash).length,
+              backslashesLocal:b.filter(c=>c===backslash).length};
+          });
+          console.log('F6U03Y_CHECK_CHARACTER_DIFFERENCES='+JSON.stringify(checks));
+          const expectedCheckNames=new Set([
+            'constraint:public.digital_assets.digital_assets_storage_path_check',
+            'constraint:public.order_customer_documents.order_customer_documents_storage_path_check',
+            'constraint:public.product_documents.product_documents_storage_path_check'
+          ]);
+          const checkEquivalent=hostedChecks.size===3&&localChecks.size===3&&
+            [...expectedCheckNames].every(k=>{
+              const h=hostedChecks.get(k)?.definition,l=localChecks.get(k)?.definition;
+              const expectedHostedDefinition="CHECK ((((char_length(storage_path) >= 3) AND (char_length(storage_path) <= 1000)) AND (storage_path !~ '(^|/)\\.\\.(/|$)'::text)))";
+              if(typeof h!=='string'||typeof l!=='string'||
+                 h!==expectedHostedDefinition||h.length!==129||l.length!==127||
+                 h[9]!=='('||!l.startsWith('CHECK ((('))return false;
+              // The entire known boolean AND expression is byte-identical after
+              // deleting exactly one surplus opening parenthesis and one closing
+              // parenthesis; this check does not forgive any changed predicate.
+              const possibleClosePositions=[];
+              for(let j=10;j<h.length;j++){
+                if(h[j]===')'&&h.slice(0,9)+h.slice(10,j)+h.slice(j+1)===l)
+                  possibleClosePositions.push(j);
+              }
+              return possibleClosePositions.length>0;
+            });
+          const changedPolicyNames=changed.filter(k=>k.startsWith('policy:'));
+          const changedCheckNames=changed.filter(k=>expectedCheckNames.has(k));
+          const semanticProof=hosted.size===4621&&local.size===4621&&
+            missing.length===0&&extra.length===0&&changed.length===115&&
+            changedPolicyNames.length===112&&changedCheckNames.length===3&&
+            changed.every(k=>k.startsWith('policy:')||expectedCheckNames.has(k))&&
+            policyNamesMatch&&checkEquivalent;
+          console.log('F6U03Y_ROUNDTRIP_SEMANTIC_PARITY='+JSON.stringify({
+            all4621EntriesAccountedFor:hosted.size===4621&&local.size===4621,
+            policyNamesMatch,policyCount:hostedPolicy.size,
+            differingPolicyOidDefinitions:changedPolicyNames.length,
+            exactThreeStorageConstraintsEquivalentUpToOnePreciselyRemovedParenthesisPair:checkEquivalent,
+            noUnexpectedDefinitionDrift:semanticProof
+          }));
+          if(!semanticProof)throw Error('F6U03Y_SEMANTIC_ROUNDTRIP_NOT_PROVEN');
+          writeFileSync(d+'/schema-parity.json',JSON.stringify({
+            contract:'shoperation.f6-u03y.pg17-schema-semantic-roundtrip.v1',
+            definitionCount:4621,rawMd5Match:false,
+            rawMd5Host:'e312b40ad91150ce937f4aa00db587f3',
+            rawMd5Local:'4da59ec212461382527d93948e0a50a6',
+            unchangedDefinitions:4506,
+            oidNormalizedPolicies:112,all126PolicyRoleNameDefinitionsEqual:true,
+            exactOneParenthesisPairNormalizedCheckConstraints:3,
+            allOtherDefinitionsExact:true,
+            verified:true,hostedTouched:false,releaseAuthorized:false
+          },null,2)+'\n',{mode:0o600});
+
+          NODE
+            echo "F6U03Y_NATIVE_PG17_IMPORTED_SCHEMA_4621_SEMANTIC_PARITY_PASS"
+          else
+            echo "F6U03Y_NATIVE_PG17_IMPORTED_SCHEMA_4621_RAW_PARITY_PASS"
+          fi
+      - name: Owner-only AES-256-GCM encryption; no private key inside CI
+        shell: bash
+        run: |
+          set -euo pipefail
+          d="$RUNNER_TEMP/fresh-safe"
+          cat > "$d/owner-public.crt" <<'RECIPIENT'
+          -----BEGIN CERTIFICATE-----
+          MIIE8zCCA1ugAwIBAgIUAh5aQCDhSx2IYcR42efgOAndJhEwDQYJKoZIhvcNAQEL
+          BQAwgYgxRjBEBgNVBAMMPVNob3BlcmF0aW9uIEZyZXNoIEluc3RhbGwgb2ZmbGlu
+          ZS1vd25lciByZWNvdmVyeSBPY3RvYmVyIDIwMjYxFDASBgNVBAoMC1Nob3BlcmF0
+          aW9uMSgwJgYDVQQLDB9GcmVzaCBJbnN0YWxsIERpc2FzdGVyIFJlY292ZXJ5MB4X
+          DTI2MTAxNjE3NDQ1N1oXDTM2MTAxMzE3NDQ1N1owgYgxRjBEBgNVBAMMPVNob3Bl
+          cmF0aW9uIEZyZXNoIEluc3RhbGwgb2ZmbGluZS1vd25lciByZWNvdmVyeSBPY3Rv
+          YmVyIDIwMjYxFDASBgNVBAoMC1Nob3BlcmF0aW9uMSgwJgYDVQQLDB9GcmVzaCBJ
+          bnN0YWxsIERpc2FzdGVyIFJlY292ZXJ5MIIBojANBgkqhkiG9w0BAQEFAAOCAY8A
+          MIIBigKCAYEA4Cp7jeB0Oi1+PmErt+SJU4YrEjBWolppxYaxqjUtntDnnlJwMUBu
+          gICzu0pn/mYRieJsCIHPqHTQNU5/CnxUQRZp1SwRETZj10m5+SgpNrvUsamkmjpE
+          OEHNJ5aIdaQIRCemU6EoIKbDpJuHCYTv7orY+O++b9eoYzWVIjCE1DfjJ6qFYEDX
+          5LvfYmtzJx21UtZerfM9esuG6sv4Er6pBh0JXxRiCfUESn4vtEnj1wJQHKFIOt8c
+          gkCjpZBYwxQw6V+CT5PmL/vLTwZ+hsGGbxom4J6uDSNSNVGOTrCmrq3M7khrZ14X
+          BH7Muz1NZmwjyDi8+GEk+vEo6xOA6wNldLx+4uZRPfzQpS2o4E1jLX2lb7vZ0m9s
+          iiiy98ZcGQrMoIaeOfNHbctQ86v++V+2jWqN9pu9GwTucjQojXWfNPGhaA8LvQEJ
+          sCYpdbrPShngWDo/jvN4LcoH3Jd4HCsKZpJp4mbZmwCb808X+lgcUkHVYXtz4nAS
+          MRow3mzmmnyRAgMBAAGjUzBRMB0GA1UdDgQWBBTa/R9AySV4L9m350kgcUzXSiIJ
+          KjAfBgNVHSMEGDAWgBTa/R9AySV4L9m350kgcUzXSiIJKjAPBgNVHRMBAf8EBTAD
+          AQH/MA0GCSqGSIb3DQEBCwUAA4IBgQA0rS5p4V51nvN+H2bbbLMkcNTiQ0smzGCX
+          Qog5ZELGil7oy0GrDQjhdQ6ay4kRYQevrofZmNv/M5Q8iR0/SSRy1CvlwMbFN6St
+          t4a5fFQ16oocu4aVRHiekFCBQvun4KAO6S8WYz7XwLnQAwYQ9HkO87uU0aFS69Pj
+          qEogKqs5aI8sbwSzGujHmDW85+97zQwynaDOfYbAGftjUuTeYsL2mz2osZL+V2BT
+          Zb3oTpkxT2ichdGUIgJFraWJX5tYTyy0r48JvEk0IxwQo8T8JW2gLqrtIF0NS45Z
+          301Chtx7dUgJiDlB/ccZggUeP1cAXRRaAx12atOC/gk1k4vKvfBJ0Mw7qSf0KeNg
+          JDGu7HbUlZY9VZ+U0qmHWcWlz5A+7019aOE9AyZHMs5IIYAv6sDsmrVmrY27J/Fm
+          IYs4KZI+yzbrJH6TpEgh2W0+stwicM0yjOk4h1bs5NmYRgY3puugVFl54kg4fNDa
+          PxJ5iIe73nfGJ6TyoV0qlWYmlqoNQ8k=
+          -----END CERTIFICATE-----
+          RECIPIENT
+          openssl x509 -in "$d/owner-public.crt" -noout -checkend 86400 >/dev/null
+          cert_sha="$(openssl x509 -in "$d/owner-public.crt" -outform DER | sha256sum | awk '{print $1}')"
+          test "$cert_sha" = '8fb52aadb1fb2e5a35c678a535dcb3e1de31299eac86ab5eceec7f716f7a6e21' || { echo 'F6_BACKUP_OWNER_CERTIFICATE_DRIFT'; exit 1; }
+          tar -C "$d" -cf "$d/plain.tar" app-schema-only.dump provider-inventory.json
+          openssl cms -encrypt -binary -aes-256-gcm -in "$d/plain.tar" -out "$d/fresh-backup.cms" -outform DER -recip "$d/owner-public.crt"
+          openssl cms -cmsout -inform DER -in "$d/fresh-backup.cms" -print | grep -q 'aes-256-gcm'
+          sha256sum "$d/fresh-backup.cms" | awk '{print $1}' > "$d/cipher.sha256"
+          test -s "$d/fresh-backup.cms"
+          node --input-type=module <<'NODE'
+          import {readFileSync,writeFileSync,statSync,existsSync} from 'node:fs';
+          const d=process.env.RUNNER_TEMP+'/fresh-safe';
+          const proof={contract:'shoperation.f6-u03y.owner-key-encrypted-schema.v1',
+            projectRef:'istjjkdcvsvilrycqecd',runId:process.env.GITHUB_RUN_ID,
+            sourceSha:process.env.GITHUB_SHA,appCatalogDefinitions:4621,
+            hostedSchemaMd5:'e312b40ad91150ce937f4aa00db587f3',
+            localPg17Restore:true,restoredCatalogRows:113,schemas:['public','private'],schemaRoundtrip:existsSync(d+'/schema-parity.json')?JSON.parse(readFileSync(d+'/schema-parity.json','utf8')):{contract:'shoperation.f6-u03y.pg17-schema-exact-roundtrip.v1',rawMd5Match:true,definitionCount:4621,verified:true},schemaOnlySha256:readFileSync(d+'/schema.sha256','utf8').trim(),providerInventorySha256:readFileSync(d+'/provider.sha256','utf8').trim(),
+            providerManagedAuthStorageBackup:false,providerBoundaryMetadataCaptured:true,appSchemaOnly:true,ownerAclPreserved:true,localSchemaOnlyRestore:true,hostedMutation:false,
+            encryption:'CMS AES-256-GCM RSA-3072 owner-only private key',
+            ciphertextBytes:statSync(d+'/fresh-backup.cms').size,
+            ciphertextSha256:readFileSync(d+'/cipher.sha256','utf8').trim(),
+            releaseAuthorized:false};
+          writeFileSync(d+'/backup-proof.json',JSON.stringify(proof,null,2)+'\n');
+          NODE
+          echo 'F6_BACKUP_ENCRYPTED_SUCCESS'
+      - name: Upload only ciphertext and non-sensitive restore proof
+        id: ciphertext-upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: fresh-schema-owner-cipher-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/fresh-safe/fresh-backup.cms
+            ${{ runner.temp }}/fresh-safe/cipher.sha256
+            ${{ runner.temp }}/fresh-safe/backup-proof.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Summarize isolated schema snapshot results without repository write permissions
+        if: always()
+        shell: bash
+        env:
+          SNAP_CAPTURE_OUTCOME: ${{ steps.schema-capture.outcome }}
+          SNAP_IMPORT_OUTCOME: ${{ steps.schema-import.outcome }}
+          CIPHERTEXT_UPLOAD_OUTCOME: ${{ steps.ciphertext-upload.outcome }}
+        run: |
+          {
+            echo '### Core #1186 F6-U03y managed 0046 schema snapshot'
+            echo "Source SHA: " '${{ github.sha }}' 
+            echo "Schema capture: $SNAP_CAPTURE_OUTCOME"
+            echo "Disposable PG17 schema import: $SNAP_IMPORT_OUTCOME"
+            echo "Encrypted-only artifact upload: $CIPHERTEXT_UPLOAD_OUTCOME"
+            echo 'Hosted migration writes: NONE; provider Auth/Storage/PITR recovery not established; releaseAuthorized=false'
+          } >> "$GITHUB_STEP_SUMMARY"
