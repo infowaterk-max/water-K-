@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-6A79FE7B-OFFICE-RELEASE-ARCH",
   "task": "Register existing Vercel runtime target preflight with Release Domain authority so protected Fresh Office preview scope resolves canonically",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "f01b0397",
   "changeBaseSha": "02fed53ee63aec947150f85ed9f6320153250307",
   "plannedFilePatterns": [
@@ -392,5 +392,18 @@
       }
     ]
   },
-  "notes": "Precondition architecture correction before any change to validator itself. The protected Vercel deployment preflight currently has no release domain ownership in the canonical Atlas. This unit only maps its existing source path under DOMAIN-RELEASE and proves single-source ownership; no deploy or validator runtime code change. It is deliberately separate from the subsequent Fresh Install preview conditional policy. Plan-only canonical gate confirmed release-infrastructure-only projected subsystem, complete 50 known-failure registry sweep, and SQ-NK-014 in applicable negative knowledge; no implementation edits yet. Final projection evaluates release-infrastructure only, so SQ-NK-014 (database-schema specific) is not applicable despite the registry's broader cross-domain known-failure sweep."
+  "notes": "Precondition architecture correction before any change to validator itself. The protected Vercel deployment preflight currently has no release domain ownership in the canonical Atlas. This unit only maps its existing source path under DOMAIN-RELEASE and proves single-source ownership; no deploy or validator runtime code change. It is deliberately separate from the subsequent Fresh Install preview conditional policy. Plan-only canonical gate confirmed release-infrastructure-only projected subsystem, complete 50 known-failure registry sweep, and SQ-NK-014 in applicable negative knowledge; no implementation edits yet. Final projection evaluates release-infrastructure only, so SQ-NK-014 (database-schema specific) is not applicable despite the registry's broader cross-domain known-failure sweep. The exact authority implementation SHA 0f3a120b48c615ba0b6a07f62e1903905eb81203 verified 3569 tests, TypeScript/build and Completion Truth VERIFIED_DONE on run 39227121665; this source-only lifecycle closure does not yet authorize Fresh-preview runtime exception.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "0f3a120b48c615ba0b6a07f62e1903905eb81203",
+    "closedAt": "2026-10-19T09:08:48.441Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1450",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
