@@ -1,42 +1,45 @@
 {
   "contract": "shoporation.development-plan.v1",
-  "taskId": "DEV-B55A7A31-OFFICE-ROLE",
-  "task": "Support role default e-mail composition preset with owner denial and Pro boundary preserved",
+  "taskId": "DEV-FC1EF89C-OFFICE-COMPOSE-UI",
+  "task": "Correct support customer composer page capability rendering and truthful owner-denial copy",
   "status": "closed",
-  "guardDigest": "b55a7a31",
-  "changeBaseSha": "dc726ea075d6918883595442d446e37c023731e4",
+  "guardDigest": "fc1ef89c",
+  "changeBaseSha": "59628c71b5084d65a0396c1d1cfa7de8fbe91b7d",
   "plannedFilePatterns": [
-    "docs/po/OFFICE_SUPPORT_DEFAULT_COMPOSE_FIX_2026-10-19.md",
-    "quality/development/active-plan.json",
-    "supabase/migrations/20261019090000_office_support_compose_default_v1.sql",
-    "tests/digital-office-composer-drafts-foundation.test.ts",
-    "tests/digital-office-support-compose-role-default.test.ts"
+    "src/app/admin/kommunikacio/iroda/uj/page.tsx",
+    "tests/digital-office-support-compose-page.test.ts",
+    "quality/development/active-plan.json"
   ],
   "expectedSubsystems": [
-    "database-schema"
+    "admin-operations",
+    "storefront-ui"
   ],
   "expectedDomains": [
-    "DOMAIN-DATA"
+    "DOMAIN-ADMIN"
   ],
   "expectedAuthorities": [
-    "database-schema"
+    "admin-operations"
   ],
   "expectedKnownFailureIds": [
-    "SQ-KF-006",
-    "SQ-KF-009",
-    "SQ-KF-010",
+    "SQ-KF-001",
+    "SQ-KF-002",
+    "SQ-KF-005",
+    "SQ-KF-011",
+    "SQ-KF-012",
     "SQ-KF-013",
     "SQ-KF-014",
-    "SQ-KF-018",
+    "SQ-KF-016",
+    "SQ-KF-017",
     "SQ-KF-022",
-    "SQ-KF-023",
-    "SQ-KF-025"
+    "SQ-KF-025",
+    "TF-KF-006"
   ],
   "acknowledgedPoInstructionIds": [],
   "acknowledgedNegativeKnowledgeIds": [
-    "SQ-NK-005",
+    "SQ-NK-001",
+    "SQ-NK-006",
+    "SQ-NK-008",
     "SQ-NK-012",
-    "SQ-NK-014",
     "SQ-NK-024"
   ],
   "exceptions": [],
@@ -46,7 +49,7 @@
     "riskTier": "critical",
     "assuranceCeiling": {
       "level": "critical-practical",
-      "rationale": "This permission migration has critical database authority impact. It requires negative proofs for unrelated roles, explicit individual deny, revoked membership, source identity and missing prerequisites, while only reaching a source-only assurance ceiling until real PG17 and hosted JWT acceptance.",
+      "rationale": "This is a security-sensitive UI authorization display change, so it retains critical denial/role/tenant/Pro restrictions and negative scenarios, but can claim only source and CI evidence; it does not prove managed Supabase authorization or message delivery.",
       "selectedTechniques": [
         "explicit-specification",
         "invariants",
@@ -63,22 +66,22 @@
     },
     "definition": {
       "acceptanceCriteria": [
-        "The single support office.email.compose all-scope role preset is added through an idempotent new migration.",
-        "Missing catalog and role preset foundations fail before authority is changed.",
-        "Existing owner denial remains earlier than role-grant evaluation in the canonical SQL function.",
-        "No changes to existing historical migrations, other roles or hosted database."
+        "Support role authorization is read exclusively from hasStoreCapability instead of a misleading extra-permission gate.",
+        "Denied or inactive staff do not receive OfficeNewEmailComposer even when a valid Pro workspace exists.",
+        "The warning text identifies role status and individual owner restriction without instructing extra grant requests.",
+        "Draft revision, tenant and configured sender protections remain server-side and unchanged."
       ],
       "invariants": [
-        "The role-based source is the sole new authority; no new override engine is created.",
-        "The recipient author's draft remains private and server-revision protected.",
-        "Owner explicit deny takes priority over inherited support permission.",
-        "Pro Digital Office gates remain independent of permission grants."
+        "The server still performs canonical capability evaluation before rendering any composer.",
+        "Personal drafts remain restricted to the author and scoped to one instance.",
+        "Pro subscription entitlement is a separate prerequisite to the workspace.",
+        "A mailbox-less draft may be saved without pretending an email was sent."
       ],
       "forbiddenStates": [
-        "Arbitrary compose granted to viewer or order_manager roles.",
-        "A personal allow override silently overriding explicit owner denial.",
-        "Managed migration executed before current-state baseline approval.",
-        "An unauthorized email delivery reported as verified from source tests."
+        "Client-side role guesses replace database capability evaluation.",
+        "Owner-denied staff receive interactive compose controls.",
+        "The frontend reports draft or delivery success without server confirmation.",
+        "Pro-only Digital Office becomes available to an Alap member."
       ]
     },
     "model": {
@@ -110,37 +113,37 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "Absent permission catalog prevents valid role preset insertion.",
-        "A support preset accidentally broadens other roles through an overbroad SQL query.",
-        "Explicit owner denial loses precedence to a newly added role grant.",
-        "Adding a new SQL migration changes the 31-file package without new provenance."
+        "A legacy 'extra' explanatory notice encourages pointless owner elevation.",
+        "A frontend boolean bypass shows unauthorized composer despite SQL deny.",
+        "An inactive role binding continues to render a previously authorized composer.",
+        "Regression snapshots fail to detect a new mismatch between page and canonical evaluator."
       ],
       "edgeCases": [
-        "A support employee with no personal grant gets inherited permission.",
-        "A denied support employee cannot save or send an arbitrary email.",
-        "A revoked support role no longer grants email composing.",
-        "A missing permission catalog rejects migration atomically.",
-        "Re-running SQL cannot duplicate the single support preset."
+        "An active support agent inherited compose through the earlier SQL-only release unit.",
+        "An active support agent has an explicit matching deny and sees no composer.",
+        "A shop owner sees their own composer without a separate extra grant.",
+        "Missing role/Office database foundation renders a fail-closed notice.",
+        "An active Pro user has no Office sending mailbox but can still save their draft."
       ]
     },
     "alternatives": [
       {
-        "id": "ROLE-PRESET",
-        "summary": "Extend the canonical role preset using a new idempotent migration scoped solely to support.",
+        "id": "UI-CANONICAL",
+        "summary": "Use the canonical hasStoreCapability result and explain inherited role versus individual owner denial.",
         "disposition": "selected",
-        "reason": "The existing explicit deny remains higher precedence and new support employees inherit email writing without management toil."
+        "reason": "The page reflects the server permission authority and does not duplicate authorization logic."
       },
       {
-        "id": "USER-OVERRIDE",
-        "summary": "Add individual allow overrides for support staff upon account creation.",
+        "id": "UI-LOCAL-BYPASS",
+        "summary": "Force the compose UI visible whenever the browser thinks the staff role is support.",
         "disposition": "rejected",
-        "reason": "This creates unnecessary grants and risks stale permission state competing with owner denials."
+        "reason": "A browser-side role shortcut would ignore the owner's explicit deny and could mislead end users."
       },
       {
-        "id": "BYPASS",
-        "summary": "Allow email writing whenever support RBAC passes without the canonical capability evaluator.",
+        "id": "UI-EXTRA",
+        "summary": "Keep the separate extra grant requirement and ask owners to manually enable every employee.",
         "disposition": "rejected",
-        "reason": "This would circumvent scoped owner denial and drift from security-definer SQL authorization."
+        "reason": "This contradicts the accepted support role default and increases administrative friction for no security benefit."
       }
     ],
     "specialistReviews": [
@@ -148,150 +151,147 @@
         "role": "Security",
         "mode": "dissent",
         "verdict": "challenge-resolved",
-        "finding": "A new default might accidentally defeat individual owner denial within SQL draft or queue RPCs.",
-        "resolution": "Keep evaluate_store_capability_v1 as the only authority and verify explicit deny before role evaluation.",
+        "finding": "The page may accidentally render compose controls without honoring the owner explicit deny override.",
+        "resolution": "Retain server hasStoreCapability as the only conditional composer gate, and check denied state in test.",
         "evidence": [
-          "supabase/migrations/20260907203000_team_permissions_foundation_v1.sql"
+          "src/app/admin/kommunikacio/iroda/uj/page.tsx"
         ]
       },
       {
         "role": "Data Integrity",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A forward SQL file might enter the immutable 31-source package without versioned source provenance.",
-        "resolution": "Preserve original SQL files and add this migration only after separately authorized baseline and Office dependency order.",
+        "finding": "A saved draft is not the same as a successful send and should never be falsely reported to staff.",
+        "resolution": "Keep server revision acknowledgment and mailbox send gate, with no claim of delivered email.",
         "evidence": [
-          "https://github.com/infowaterk-max/water-K-/pull/1417"
+          "src/app/admin/kommunikacio/iroda/composer-actions.ts"
         ]
       },
       {
         "role": "Known Failure",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "A missing capability or schema table could lead to an unsafe perceived success.",
-        "resolution": "Make the migration reject absent foundations before the support preset insert.",
+        "finding": "Updating the page text alone could hide a pre-existing missing inherited SQL role grant.",
+        "resolution": "Make the page PR depend on the separate SQL-only role-preset source unit #1442.",
         "evidence": [
-          "supabase/migrations/20260908034000_digital_office_composer_drafts_foundation_v1.sql"
+          "https://github.com/infowaterk-max/water-K-/pull/1442"
         ]
       },
       {
         "role": "Release",
         "mode": "review",
         "verdict": "challenge-resolved",
-        "finding": "Passing static tests cannot establish real hosted JWT and outbound sending semantics.",
-        "resolution": "Keep source unit draft until native PostgreSQL17 and user-session acceptance evidence exist.",
+        "finding": "A stack against an unmerged database change can appear correct in CI while the hosting environment remains old.",
+        "resolution": "Keep both PRs DRAFT and require release dependency order and real Pro tenant user testing.",
         "evidence": [
-          "https://github.com/infowaterk-max/water-K-/pull/1431"
+          "https://github.com/infowaterk-max/water-K-/pull/1417"
         ]
       }
     ],
     "challenge": [
       {
-        "id": "CH-SC-01",
-        "scenario": "New support employee lacks personal allow override.",
-        "finding": "The old optional capability blocked composer despite the support role.",
-        "resolution": "Inherit only from canonical support permission preset.",
+        "id": "CH-UI-01",
+        "scenario": "Authorized support agent opens a new customer email page.",
+        "finding": "Historical page tells user to request extra permission.",
+        "resolution": "Use inherited capability evaluation and corrected warning text.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-02",
-        "scenario": "Owner explicitly denies this capability to an active support member.",
-        "finding": "A permission shortcut might incorrectly restore ability to write.",
-        "resolution": "Retain denial precedence in the existing SQL evaluator.",
+        "id": "CH-UI-02",
+        "scenario": "Owner explicitly denies email compose for an active support user.",
+        "finding": "A frontend role shortcut would display unauthorized controls.",
+        "resolution": "Gate the entire component on server capability result.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-03",
-        "scenario": "Viewer and order manager operate in the same tenant.",
-        "finding": "Broad role grants would permit unauthorized customer communications.",
-        "resolution": "Insert only support with exact office.email.compose capability.",
+        "id": "CH-UI-03",
+        "scenario": "A different user opens another employee's draft path.",
+        "finding": "Unscoped UI could reveal personal draft content.",
+        "resolution": "Preserve author id and instance filter in the existing page.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-04",
-        "scenario": "The target database lacks the original permission catalog.",
-        "finding": "A partial migration would falsely claim the role is configured.",
-        "resolution": "Require catalog prerequisites and fail the transaction.",
+        "id": "CH-UI-04",
+        "scenario": "An employee's role binding has expired or been revoked.",
+        "finding": "Cached permission assumptions could still display the editor.",
+        "resolution": "Keep force-dynamic page and fresh server capability evaluation.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-05",
-        "scenario": "The same new SQL migration runs a second time.",
-        "finding": "A duplicate role grant or changed default scope could arise.",
-        "resolution": "Use exact composite key conflict handling and one all scope.",
+        "id": "CH-UI-05",
+        "scenario": "A Pro tenant has no approved outgoing Office mailbox.",
+        "finding": "A visible send button could imply configured email delivery.",
+        "resolution": "Keep active mailbox preflight and disabled send separately.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-06",
-        "scenario": "An Alap account has an otherwise valid support role.",
-        "finding": "A role preset might be confused with the Pro workspace entitlement.",
-        "resolution": "Keep subscription plan gating untouched and separately enforced.",
+        "id": "CH-UI-06",
+        "scenario": "An Alap tenant attempts to open the nested Pro Office route.",
+        "finding": "Role eligibility alone might be mistaken for plan entitlement.",
+        "resolution": "Preserve the parent layout's strict Pro feature gate.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-07",
-        "scenario": "An email is drafted without an active approved sender mailbox.",
-        "finding": "A system might falsely report delivery and lose user content.",
-        "resolution": "Do not change sending mailbox gates or worker semantics.",
+        "id": "CH-UI-07",
+        "scenario": "The permission catalog RPC fails while page data still loads.",
+        "finding": "A silent allow could expose the editing interface.",
+        "resolution": "Keep capability fail-closed and foundation error handling.",
         "status": "resolved"
       },
       {
-        "id": "CH-SC-08",
-        "scenario": "Existing hosted Fresh Install has an empty migration ledger.",
-        "finding": "Deploying out of sequence could corrupt Office migration provenance.",
-        "resolution": "Do not run hosted SQL before independently approved Office baseline.",
+        "id": "CH-UI-08",
+        "scenario": "An audit screenshot shows old opt-in text after UI deployment.",
+        "finding": "Wrong instructions may trigger unnecessary privilege escalation.",
+        "resolution": "Assert the old wording is removed by regression tests.",
         "status": "resolved"
       }
     ],
     "proofPlan": [
-      "Run Plan Before Code with exact change base and scoped support-only migration paths.",
-      "Verify support role SQL and canonical explicit-deny precedence using targeted adversarial regressions.",
-      "Run native PostgreSQL17 integration and exact-head CI before making any successful behavior claim.",
-      "Prohibit hosted SQL until official current-state baseline and Office prerequisites are owner-approved."
+      "Verify independent parent SQL-only unit SHA and exact child change-base relationship.",
+      "Run Plan Before Code against the admin page and unit regression file before editing either.",
+      "Prove inherited capability and explicit owner deny are unchanged server decisions.",
+      "Run exact-head CI plus later authenticated Pro owner/support/denied member journeys before release."
     ],
     "semanticExecutionRoute": {
       "request": "https://github.com/infowaterk-max/water-K-/pull/1431",
       "authority": [
-        "database-schema"
+        "admin-operations"
       ],
       "mustEdit": [
-        "tests/digital-office-composer-drafts-foundation.test.ts"
+        "src/app/admin/kommunikacio/iroda/uj/page.tsx"
       ],
       "mayEdit": [],
       "impactedReadOnly": [],
       "mustCreate": [
-        "docs/po/OFFICE_SUPPORT_DEFAULT_COMPOSE_FIX_2026-10-19.md",
-        "supabase/migrations/20261019090000_office_support_compose_default_v1.sql",
-        "tests/digital-office-support-compose-role-default.test.ts"
+        "tests/digital-office-support-compose-page.test.ts"
       ],
       "forbidden": [],
       "proof": [
-        "tests/digital-office-composer-drafts-foundation.test.ts",
-        "tests/digital-office-support-compose-role-default.test.ts"
+        "tests/digital-office-support-compose-page.test.ts"
       ],
       "unknown": [],
       "plannedDeletions": []
     },
     "executionAuthorized": true,
-    "problemStatement": "The existing Digital Office composer foundation introduced an optional email-compose capability without the inherited support role grant, contradicting the approved default capability and preventing support employees from writing their own customer drafts.",
+    "problemStatement": "The customer composer page incorrectly says support must receive a separate extra email permission despite the accepted inherited role authority; this prevents proper usability and makes owner denial ambiguous.",
     "observableOutcomes": [
-      "Authorized support members inherit office.email.compose automatically without owner extra grants.",
-      "Explicit individual denial still overrides the inherited role preset in server capability evaluation.",
-      "The Pro-only Digital Office and disabled-mailbox send boundary stay unaffected by the SQL preset correction."
+      "Support staff see the composer when canonical server-side evaluateStoreCapability grants the inherited role permission.",
+      "An owner-denied support member sees an accurate restricted-state explanation rather than a request for extra permission.",
+      "No additional grant logic is created in the web page; Pro-only workspace and mail sending guards remain unchanged."
     ],
     "unresolvedRisks": [
-      "Hosted PostgreSQL and managed Supabase Auth acceptance have not been tested for this new migration.",
-      "The original Fresh Install migration adoption and 31-source forward-release blocks remain independently unresolved.",
-      "Static source assertions alone cannot certify an actual email draft save or customer delivery journey."
+      "The UI read gate cannot demonstrate real hosted Supabase draft writes without managed Auth and migration adoption.",
+      "SQL role-preset unit #1442 is an unmerged DRAFT dependency and cannot be assumed deployed.",
+      "Static render tests cannot demonstrate all browser sessions, active-role revocation or mailbox delivery."
     ],
     "scope": {
       "in": [
-        "One forward-only support permission preset migration and its isolated static regression file.",
-        "Preserve historical immutable migration source and document the dependency on Office readiness."
+        "Edit the existing customer new-email composer page and add targeted static regression tests.",
+        "Keep canonical hasStoreCapability decision and accurately explain explicit owner deny."
       ],
       "out": [
-        "No hosted database migration, baseline adoption, Auth fixtures or mailbox activation.",
-        "No admin page, customer send worker, Builder or Pro subscription policy modification."
+        "No SQL migration edits, no mailbox activation, no email worker or entitlement changes.",
+        "No unrelated admin redesign, Builder changes or production deploy."
       ]
     }
   },
@@ -302,7 +302,6 @@
       "derivation": "canonical-gate-chain",
       "requiredGuards": [
         "GUARD-PLAN-BEFORE-CODE",
-        "GUARD-KNOWLEDGE-PREFLIGHT",
         "GUARD-QUALITY-TESTS",
         "GUARD-TYPECHECK",
         "GUARD-COMPLETION-TRUTH"
@@ -312,11 +311,11 @@
     },
     "requirements": [
       {
-        "id": "REQ-SUPPORT-COMPOSE-DEFAULT",
-        "requirement": "Active support employees receive default email compose through a single inherited role preset.",
+        "id": "REQ-SUPPORT-COMPOSE-PAGE",
+        "requirement": "The customer composer renders for server-authorized support and remains hidden for owner-denied staff.",
         "claimScope": {
           "capability": "CAP-QUALITY",
-          "breadth": "support-office-role-authority",
+          "breadth": "support-office-ui-gate",
           "strength": 2,
           "dimensions": [
             "scope",
@@ -337,8 +336,8 @@
         },
         "forbiddenRegressions": [
           {
-            "id": "NEG-SUPPORT-OWNER-DENY",
-            "statement": "No owner-denied support employee or unrelated store role gains default compose through this migration.",
+            "id": "NEG-COMPOSE-UI-DENY",
+            "statement": "No local permission bypass, Alap Pro-workspace access or false draft-saved state is introduced.",
             "evidence": [
               "GUARD-QUALITY-TESTS"
             ]
@@ -347,14 +346,14 @@
       }
     ]
   },
-  "notes": "Plan created on separate SQL-only branch before new implementation. Original unverified #1431 source chronology is explicitly not retroactively claimed. After first Plan Before Code feedback, the exact active-plan metadata path is declared MUST_EDIT, because non-child critical execution requires a concrete existing edit path; no source scope expanded. Corrected edit-time implementation sync: the existing composer foundation regression is an actual changed code test. Active-plan metadata is not counted as a material implementation edit. Exact implementation SHA 35bb810dc8a18922da71ff0f80e69317de69275a had 3565 passing quality tests, TS/build PASS, Completion Truth VERIFIED_DONE on run 39214522366; this metadata-only close does not claim native hosted Auth/RLS or migration execution.",
+  "notes": "Stacked UI-only source correction. Base is the first SQL-preset unit exact SHA, not main. The earlier mixed PR #1431 remains unverified and is not treated as a prior plan approval. The actual page edit, not the excluded active-plan metadata, is the required semantic MUST_EDIT implementation. Rebased after the first source-only unit had its known tested implementation SHA; the earlier combined #1431 remains DRAFT and unverified. Pinned to SQL parent exact metadata closure HEAD 59628c71b5084d65a0396c1d1cfa7de8fbe91b7d; no change to UI semantics. Source-only implementation SHA 9ae286a0f2367ab6c524e4436d47fcc2cddfb3eb verified: 3568 passed, TypeScript/build PASS, Completion Truth VERIFIED_DONE run 39215220918; real hosted user draft/email remains unproven.",
   "lifecycle": {
     "state": "LEARN",
     "truthStatus": "VERIFIED",
-    "verifiedImplementationHead": "35bb810dc8a18922da71ff0f80e69317de69275a",
-    "closedAt": "2026-10-19T07:18:30.033Z",
+    "verifiedImplementationHead": "9ae286a0f2367ab6c524e4436d47fcc2cddfb3eb",
+    "closedAt": "2026-10-19T07:24:34.202Z",
     "truthContract": "shoporation.completion-truth.v2",
-    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1442",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1443",
     "learning": {
       "state": "review-ready",
       "knownFailurePromotion": "human-governed",
