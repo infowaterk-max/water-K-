@@ -23,8 +23,8 @@ describe('Digital Office composer and drafts foundation',()=>{
 
   it('keeps Next.js Server Actions runtime exports strictly async and client initial state outside the server action module',()=>{
     expect(actions.startsWith("'use server';")).toBe(true);
-    expect(actions).not.toMatch(/\\bexport\\s+(?:const|let|var|class|default)\\b/);
-    const runtimeFunctions=[...actions.matchAll(/\\bexport\\s+(async\\s+)?function\\s+[A-Za-z_$][\\w$]*/g)];
+    expect(actions).not.toMatch(/\bexport\s+(?:const|let|var|class|default)\b/);
+    const runtimeFunctions=[...actions.matchAll(/\bexport\s+(async\s+)?function\s+[A-Za-z_$][\w$]*/g)];
     expect(runtimeFunctions.length).toBeGreaterThan(0);
     expect(runtimeFunctions.every(match=>Boolean(match[1]))).toBe(true);
     expect(actions).not.toContain('export const officeComposerInitialState');
