@@ -2,7 +2,7 @@
   "contract": "shoporation.development-plan.v1",
   "taskId": "DEV-7C309C0F-OFFICE-SERVER-ACTION-RUNTIME",
   "task": "Restore actual signed Digital Office draft autosave by removing illegal runtime object export from Next.js use-server action module",
-  "status": "ready-for-implementation",
+  "status": "closed",
   "guardDigest": "fc1ef89c",
   "changeBaseSha": "be080393c083884be04f366d1dc6fe56a6707a9b",
   "plannedFilePatterns": [
@@ -363,5 +363,18 @@
       }
     ]
   },
-  "notes": "New isolated implementation transaction stacked on #1451 READY protected Fresh Install preview. Real 2026-10-20 Preview Vercel runtime errors repeatedly show Next.js 'A use server file can only export async functions, found object' during POST /admin/kommunikacio/iroda/uj, while the source composer-actions.ts illegally exported a runtime initial state object (plain object). User typed a new email but autosave hangs/saving spinner and manual save disabled; no draft result verified. Also runtime reports missing storefront_reusable_symbols table and server functions initial render problem, separately tracked; do not combine Builder migrations with Office scope. This release unit addresses solely illegal action exports and regression proof. No Supabase hosted writes or Vercel deploy in this source change. The plan-only CI selected additional Template Factory Known Failure TF-KF-006 via admin/storefront UI applicability; corrected the guard digest fc1ef89c and canonical specialist role. No runtime implementation edits yet."
+  "notes": "New isolated implementation transaction stacked on #1451 READY protected Fresh Install preview. Real 2026-10-20 Preview Vercel runtime errors repeatedly show Next.js 'A use server file can only export async functions, found object' during POST /admin/kommunikacio/iroda/uj, while the source composer-actions.ts illegally exported a runtime initial state object (plain object). User typed a new email but autosave hangs/saving spinner and manual save disabled; no draft result verified. Also runtime reports missing storefront_reusable_symbols table and server functions initial render problem, separately tracked; do not combine Builder migrations with Office scope. This release unit addresses solely illegal action exports and regression proof. No Supabase hosted writes or Vercel deploy in this source change. The plan-only CI selected additional Template Factory Known Failure TF-KF-006 via admin/storefront UI applicability; corrected the guard digest fc1ef89c and canonical specialist role. No runtime implementation edits yet. Exact source implementation SHA ec0934aea6dac8724314f0fb288f6d9a2b0f25cf passed 3576 tests, TypeScript, production build, Plan/Edit/Replay and Completion Truth VERIFIED_DONE in run 39437147368. Lifecycle closure commit does not constitute a deployed Fresh preview nor authenticated draft-save acceptance.",
+  "lifecycle": {
+    "state": "LEARN",
+    "truthStatus": "VERIFIED",
+    "verifiedImplementationHead": "ec0934aea6dac8724314f0fb288f6d9a2b0f25cf",
+    "closedAt": "2026-10-20T14:17:59.584Z",
+    "truthContract": "shoporation.completion-truth.v2",
+    "sourceRef": "https://github.com/infowaterk-max/water-K-/pull/1454",
+    "learning": {
+      "state": "review-ready",
+      "knownFailurePromotion": "human-governed",
+      "missedThinkingReview": "required-only-when-failure-intake-or-new-missing-edge-exists"
+    }
+  }
 }
