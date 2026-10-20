@@ -115,7 +115,7 @@
         "CLOSE->LEARN"
       ],
       "failureModes": [
-        "The non-async officeComposerInitialState object remains exported from the server action file.",
+        "The non-async officeDraftInitialState object remains exported from the server action file.",
         "The new compose client imports state from the server file through a runtime re-export.",
         "The reply composer still imports the removed initial state from server actions.",
         "The shared initial state type diverges from the server action result shape.",
@@ -363,5 +363,5 @@
       }
     ]
   },
-  "notes": "New isolated implementation transaction stacked on #1451 READY protected Fresh Install preview. Real 2026-10-20 Preview Vercel runtime errors repeatedly show Next.js 'A use server file can only export async functions, found object' during POST /admin/kommunikacio/iroda/uj, while composer-actions.ts illegally exports officeComposerInitialState (plain object). User typed a new email but autosave hangs/saving spinner and manual save disabled; no draft result verified. Also runtime reports missing storefront_reusable_symbols table and server functions initial render problem, separately tracked; do not combine Builder migrations with Office scope. This release unit addresses solely illegal action exports and regression proof. No Supabase hosted writes or Vercel deploy in this source change. The plan-only CI selected additional Template Factory Known Failure TF-KF-006 via admin/storefront UI applicability; corrected the guard digest fc1ef89c and canonical specialist role. No runtime implementation edits yet."
+  "notes": "New isolated implementation transaction stacked on #1451 READY protected Fresh Install preview. Real 2026-10-20 Preview Vercel runtime errors repeatedly show Next.js 'A use server file can only export async functions, found object' during POST /admin/kommunikacio/iroda/uj, while the source composer-actions.ts illegally exported a runtime initial state object (plain object). User typed a new email but autosave hangs/saving spinner and manual save disabled; no draft result verified. Also runtime reports missing storefront_reusable_symbols table and server functions initial render problem, separately tracked; do not combine Builder migrations with Office scope. This release unit addresses solely illegal action exports and regression proof. No Supabase hosted writes or Vercel deploy in this source change. The plan-only CI selected additional Template Factory Known Failure TF-KF-006 via admin/storefront UI applicability; corrected the guard digest fc1ef89c and canonical specialist role. No runtime implementation edits yet."
 }

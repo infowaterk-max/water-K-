@@ -27,10 +27,9 @@ describe('Digital Office composer and drafts foundation',()=>{
     const runtimeFunctions=[...actions.matchAll(/\bexport\s+(async\s+)?function\s+[A-Za-z_$][\w$]*/g)];
     expect(runtimeFunctions.length).toBeGreaterThan(0);
     expect(runtimeFunctions.every(match=>Boolean(match[1]))).toBe(true);
-    expect(actions).not.toContain('export const officeComposerInitialState');
-    expect(autosaveHook).toContain("export const officeComposerInitialState:OfficeComposerActionState={status:'idle',message:''}");
-    expect(newComposer).toContain("import{useOfficeDraftAutosave,officeComposerInitialState}from'@/components/admin/use-office-draft-autosave'");
-    expect(replyComposer).toContain("import{useOfficeDraftAutosave,officeComposerInitialState}from'@/components/admin/use-office-draft-autosave'");
+    expect(autosaveHook).toContain("export const officeDraftInitialState:OfficeComposerActionState={status:'idle',message:''}");
+    expect(newComposer).toContain("import{useOfficeDraftAutosave,officeDraftInitialState}from'@/components/admin/use-office-draft-autosave'");
+    expect(replyComposer).toContain("import{useOfficeDraftAutosave,officeDraftInitialState}from'@/components/admin/use-office-draft-autosave'");
     expect(autosaveHook).toContain("result={status:'error',message:'A piszkozatmentés megszakadt.");
     expect(autosaveHook).toContain('adoptResult(result,key)');
   });

@@ -4,7 +4,7 @@ import{useCallback,useEffect,useRef,useState}from'react';
 import type{OfficeComposerActionState}from'@/app/admin/kommunikacio/iroda/composer-actions';
 
 // Client-only state must never be exported from a Next.js 'use server' action module.
-export const officeComposerInitialState:OfficeComposerActionState={status:'idle',message:''};
+export const officeDraftInitialState:OfficeComposerActionState={status:'idle',message:''};
 
 export type OfficeDraftAutosaveStatus='idle'|'dirty'|'saving'|'saved'|'conflict'|'error';
 
