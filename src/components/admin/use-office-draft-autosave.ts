@@ -3,6 +3,9 @@
 import{useCallback,useEffect,useRef,useState}from'react';
 import type{OfficeComposerActionState}from'@/app/admin/kommunikacio/iroda/composer-actions';
 
+// Client-only state must never be exported from a Next.js 'use server' action module.
+export const officeComposerInitialState:OfficeComposerActionState={status:'idle',message:''};
+
 export type OfficeDraftAutosaveStatus='idle'|'dirty'|'saving'|'saved'|'conflict'|'error';
 
 type SaveAction<T>=(input:{snapshot:T;draftId:string;revision:number|null})=>Promise<OfficeComposerActionState>;
@@ -93,13 +96,17 @@ export function useOfficeDraftAutosave<T>({
     setMessage(mode==='autosave'?'Automatikus mentés…':'Mentés…');
 
     const action=mode==='autosave'?autosaveRef.current:manualSaveRef.current;
-    const promise=action(input);
+    const promise=Promise.resolve().then(()=>action(input));
     inFlightRef.current=promise;
     let result:OfficeComposerActionState;
     let accepted=false;
     try{
       result=await promise;
       accepted=adoptResult(result,key);
+    }catch{
+      // A rejected Server Action is not evidence of a persisted draft.
+      result={status:'error',message:'A piszkozatmentés megszakadt. A tartalom nincs igazoltan mentve; próbáld újra.'};
+      adoptResult(result,key);
     }finally{
       inFlightRef.current=null;
     }

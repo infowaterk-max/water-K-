@@ -18,7 +18,22 @@ describe('Digital Office composer and drafts foundation',()=>{
   const newComposer=read('src/components/admin/office-new-email-composer.tsx');
   const replyComposer=read('src/components/admin/office-customer-email-form.tsx');
   const newPage=read('src/app/admin/kommunikacio/iroda/uj/page.tsx');
+  const autosaveHook=read('src/components/admin/use-office-draft-autosave.ts');
   const worker=read('src/lib/communication/worker.ts');
+
+  it('keeps Next.js Server Actions runtime exports strictly async and client initial state outside the server action module',()=>{
+    expect(actions.startsWith("'use server';")).toBe(true);
+    expect(actions).not.toMatch(/\\bexport\\s+(?:const|let|var|class|default)\\b/);
+    const runtimeFunctions=[...actions.matchAll(/\\bexport\\s+(async\\s+)?function\\s+[A-Za-z_$][\\w$]*/g)];
+    expect(runtimeFunctions.length).toBeGreaterThan(0);
+    expect(runtimeFunctions.every(match=>Boolean(match[1]))).toBe(true);
+    expect(actions).not.toContain('export const officeComposerInitialState');
+    expect(autosaveHook).toContain("export const officeComposerInitialState:OfficeComposerActionState={status:'idle',message:''}");
+    expect(newComposer).toContain("import{useOfficeDraftAutosave,officeComposerInitialState}from'@/components/admin/use-office-draft-autosave'");
+    expect(replyComposer).toContain("import{useOfficeDraftAutosave,officeComposerInitialState}from'@/components/admin/use-office-draft-autosave'");
+    expect(autosaveHook).toContain("result={status:'error',message:'A piszkozatmentés megszakadt.");
+    expect(autosaveHook).toContain('adoptResult(result,key)');
+  });
 
   it('adds arbitrary email compose as an opt-in capability without changing stable role presets',()=>{
     expect(capabilities).toContain("'office.email.compose'");
