@@ -187,4 +187,65 @@ describe('Supabase server credential scoping', () => {
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('NEXT_PUBLIC_SITE_URL must not use a loopback host in production');
   });
+  const freshPreviewBranch='fix/office-fresh-preview-security-gate-20261019';
+  const freshSupabaseUrl='https://istjjkdcvsvilrycqecd.supabase.co';
+  const acceptedFreshMarker='office-fresh-20261019';
+
+  const previewResult=(overrides:Record<string,string|undefined>)=>{
+    const env:NodeJS.ProcessEnv={
+      ...process.env,
+      VERCEL:'1',
+      VERCEL_ENV:'preview',
+      VERCEL_GIT_COMMIT_REF:freshPreviewBranch,
+      SHOPERATION_FRESH_ACCEPTANCE:acceptedFreshMarker,
+      NEXT_PUBLIC_SUPABASE_URL:freshSupabaseUrl,
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:'test-public-key',
+      SUPABASE_STAGING_SECRET_KEY:'test-fresh-server-key',
+      ...overrides,
+      NODE_ENV:'test',
+    };
+    return spawnSync(process.execPath,[join(process.cwd(),'scripts/validate-vercel-deploy-env.mjs')],{encoding:'utf8',env});
+  };
+
+  it('accepts only a precisely identified Fresh Office proof preview with an explicit marker',()=>{
+    const result=previewResult({});
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('Vercel preview Supabase target: fresh-install (istjjkdcvsvilrycqecd).');
+    expect(result.stdout).toContain('Vercel preview environment preflight OK.');
+  });
+
+  it('rejects a Fresh target when its explicit acceptance flag is missing or wrong',()=>{
+    for(const marker of [undefined,'true','other-proof']){
+      const result=previewResult({SHOPERATION_FRESH_ACCEPTANCE:marker});
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('preview Supabase target must be rfuvzgumbardvbvqjxdq; got istjjkdcvsvilrycqecd');
+    }
+  });
+
+  it('rejects a Fresh target from any other Git ref even with the marker',()=>{
+    for(const ref of ['fix/office-support-compose-page-20261019','main','proof/office-compose-fresh-preview-20261019']){
+      const result=previewResult({VERCEL_GIT_COMMIT_REF:ref});
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('preview Supabase target must be rfuvzgumbardvbvqjxdq; got istjjkdcvsvilrycqecd');
+    }
+  });
+
+  it('rejects an incorrect staging URL on the opted-in Fresh proof branch',()=>{
+    const result=previewResult({NEXT_PUBLIC_SUPABASE_URL:stagingSupabaseUrl});
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('preview Supabase target must be istjjkdcvsvilrycqecd; got rfuvzgumbardvbvqjxdq');
+  });
+
+  it('keeps production pinned to Water-K even if a Fresh acceptance marker and branch are supplied',()=>{
+    const result=previewResult({VERCEL_ENV:'production',SUPABASE_STAGING_SECRET_KEY:undefined,SUPABASE_SECRET_KEY:'test-prod-key',CRON_SECRET:validCronSecret,NEXT_PUBLIC_SITE_URL:'https://shop.example.hu'});
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('production Supabase target must be ewdederyvnwmghlydbno; got istjjkdcvsvilrycqecd');
+  });
+
+  it('fails closed when the preview server credential is absent',()=>{
+    const result=previewResult({SUPABASE_STAGING_SECRET_KEY:undefined,SUPABASE_SECRET_KEY:undefined,SUPABASE_SERVICE_ROLE_KEY:undefined});
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('SUPABASE_STAGING_SECRET_KEY|SUPABASE_SECRET_KEY|SUPABASE_SERVICE_ROLE_KEY');
+  });
+
 });
